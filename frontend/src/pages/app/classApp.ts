@@ -30,6 +30,8 @@ class App {
 		} else {
 			page = new ErrorPage(idPage, ErrorTypes.Error_404);
 		}
+		console.log(idPage);
+		localStorage.setItem('PageName', idPage);
 		if(page){
 			const pageHTML = page.render();
 			pageHTML.id = App.defaultPageID;
@@ -50,8 +52,11 @@ class App {
 	}
 
 	run(){
+		let currentPage = localStorage.getItem('PageName');
 		App.container.append(this.header.render());
-		App.renderNewPage('home');
+		if (currentPage === null)
+			currentPage = PageIds.DefaultPage;
+		App.renderNewPage(currentPage);
 		this.enableRouteChange();
 	}
 }
