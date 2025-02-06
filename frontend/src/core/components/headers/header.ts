@@ -4,11 +4,11 @@ import {PageIds} from '../../../pages/app/classApp'
 const Buttons = [
 	{
 		id: PageIds.MainPage,
-		text: 'main-page',
+		text: 'MAIN',
 	},
 	{
 		id: PageIds.GamePage,
-		text: 'game-page',
+		text: 'GAME',
 	}
 ];
 

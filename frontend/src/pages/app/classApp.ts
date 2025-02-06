@@ -5,13 +5,13 @@ import Header from '../../core/components/headers/header';
 import ErrorPage, {ErrorTypes} from '../error/error';
 
 export const enum PageIds {
-	MainPage = 'main-page',
-	GamePage = 'game-page',
+	MainPage = 'home',
+	GamePage = 'game',
 }
 
 class App {
 	private static  container: HTMLElement = document.body;
-	private static defaultPageID: string = 'current-page'
+	private static defaultPageID: string = 'current'
 	private initialPage: MainPage;
 	private header: Header;
 
@@ -46,13 +46,13 @@ class App {
 	}
 
 	constructor(){
-		this.initialPage = new MainPage('game-page');
+		this.initialPage = new MainPage('home');
 		this.header = new Header('header', 'header');
 	}
 
 	run(){
 		App.container.append(this.header.render());
-		App.renderNewPage('main-page');
+		App.renderNewPage('home');
 		this.enableRouteChange();
 	}
 }
