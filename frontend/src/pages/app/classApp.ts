@@ -7,6 +7,7 @@ import ErrorPage, {ErrorTypes} from '../error/error';
 export const enum PageIds {
 	MainPage = 'home',
 	GamePage = 'game',
+	DefaultPage = 'home'
 }
 
 class App {
@@ -20,7 +21,6 @@ class App {
 		if(currentPageHTML){
 			currentPageHTML.remove();
 		}
-		// App.container.innerHTML = '';
 		let page: Page | null = null;
 
 		if(idPage === PageIds.MainPage){
@@ -30,7 +30,6 @@ class App {
 		} else {
 			page = new ErrorPage(idPage, ErrorTypes.Error_404);
 		}
-
 		if(page){
 			const pageHTML = page.render();
 			pageHTML.id = App.defaultPageID;
