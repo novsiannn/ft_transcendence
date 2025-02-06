@@ -53,7 +53,7 @@ class App {
 
 	run(){
 		let currentPage = localStorage.getItem('PageName');
-		App.container.append(this.header.render());
+		// App.container.append(this.header.render());
 		if (currentPage === null)
 			currentPage = PageIds.DefaultPage;
 		App.renderNewPage(currentPage);

@@ -1,15 +1,11 @@
 import Page from '../../core/templates/page'
 
 export const enum ErrorTypes{
-	Error_404 = 404,
+	Error_404 = `  ERROR 404 | PAGE DOESN'T EXIST  `,
 }
 
 class ErrorPage extends Page{
 	private errorType: ErrorTypes | string;
-
-	static textObject: {[prop: string]: string} = {
-		'404': 'Error! The page was not found.'
-	};
 
 	constructor(id: string, errorType: ErrorTypes | string){
 		super(id);
@@ -17,8 +13,11 @@ class ErrorPage extends Page{
 	}
 
 	render(){
-		const title = this.createHeaderTitle(ErrorPage.textObject[this.errorType]);
-		this.container.append(title);
+		let errorMsg1 = document.createElement('h1');
+		this.container.classList.add('text-white', 'p-6');
+		errorMsg1.classList.add('text-2xl', 'font-bold');
+		errorMsg1.textContent = ErrorTypes.Error_404;
+		this.container.append(errorMsg1);
 		return this.container;
 	}
 }
