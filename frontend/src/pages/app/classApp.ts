@@ -7,6 +7,7 @@ import ErrorPage, {ErrorTypes} from '../error/error';
 export const enum PageIds {
 	MainPage = 'home',
 	GamePage = 'game',
+	DefaultPage = 'home'
 }
 
 class App {
@@ -20,7 +21,6 @@ class App {
 		if(currentPageHTML){
 			currentPageHTML.remove();
 		}
-		// App.container.innerHTML = '';
 		let page: Page | null = null;
 
 		if(idPage === PageIds.MainPage){
@@ -30,7 +30,8 @@ class App {
 		} else {
 			page = new ErrorPage(idPage, ErrorTypes.Error_404);
 		}
-
+		console.log(idPage);
+		localStorage.setItem('PageName', idPage);
 		if(page){
 			const pageHTML = page.render();
 			pageHTML.id = App.defaultPageID;
@@ -51,8 +52,11 @@ class App {
 	}
 
 	run(){
+		let currentPage = localStorage.getItem('PageName');
 		App.container.append(this.header.render());
-		App.renderNewPage('home');
+		if (currentPage === null)
+			currentPage = PageIds.DefaultPage;
+		App.renderNewPage(currentPage);
 		this.enableRouteChange();
 	}
 }
