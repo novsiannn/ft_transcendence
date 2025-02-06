@@ -1,7 +1,7 @@
-import { App } from './pages/app/classApp'
+import App from './pages/app/classApp'
+
 
 console.log('asd typescript');
 
-const app = new App('AN');
-
-app.run();
+const app = new App();
+app.run()
