@@ -3,11 +3,14 @@ import Game from '../game/game';
 import Page from '../../core/templates/page';
 import Header from '../../core/components/headers/header';
 import ErrorPage, {ErrorTypes} from '../error/error';
+import Registration from '../registration/registration';
 
 export const enum PageIds {
 	MainPage = 'home',
 	GamePage = 'game',
-	DefaultPage = 'home'
+	DefaultPage = 'home',
+	LoginPage = 'login',
+	RegistrationPage = 'registr'
 }
 
 class App {
@@ -28,6 +31,8 @@ class App {
 			page = new MainPage(idPage)
 		} else if (idPage === PageIds.GamePage){
 			page = new Game(idPage);
+		}else if(idPage === PageIds.RegistrationPage){
+			page = new Registration(idPage);
 		} else {
 			page = new ErrorPage(idPage, ErrorTypes.Error_404);
 		}
