@@ -23,6 +23,7 @@ class App {
 		}
 		let page: Page | null = null;
 
+		
 		if(idPage === PageIds.MainPage){
 			page = new MainPage(idPage)
 		} else if (idPage === PageIds.GamePage){
@@ -42,6 +43,7 @@ class App {
 	private enableRouteChange(){
 		window.addEventListener('hashchange', () =>{
 			const hash = window.location.hash.slice(1);
+			
 			App.renderNewPage(hash);
 		});
 	}
