@@ -1,5 +1,5 @@
 import Page from '../../core/templates/page'
-import { PageIds } from '../app/classApp';
+import { PageIds } from '../../shared';
 
 class MainPage extends Page{
 	// static textObject = {

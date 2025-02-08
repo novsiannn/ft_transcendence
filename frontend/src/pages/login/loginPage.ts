@@ -39,6 +39,7 @@ class Login extends Page
         inputPassword.placeholder = "your password"
 
         loginHeader.textContent = TextCollection.LoginHeader;
+        btnSubmitLogin.textContent = TextCollection.LoginHeader;
         linkForQuestion.textContent = TextCollection.ForgotPassword;
 
         textForgotPassword.append(linkForQuestion);
@@ -59,7 +60,7 @@ class Login extends Page
     render(){
         this.removeAllClassesFromElement(this.container);
         document.body.classList.add("flex", "items-center", "justify-center", "min-h-screen", "bg-gray-100");
-        this.container.classList.add("bg-white p-6 rounded-lg shadow w-80");
+        this.container.className = "bg-white p-6 rounded-lg shadow w-80";
         this.createPageElements();
         return this.container;
     }

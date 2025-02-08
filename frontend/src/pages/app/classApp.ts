@@ -5,14 +5,7 @@ import Header from '../../core/components/headers/header';
 import ErrorPage, {ErrorTypes} from '../error/error';
 import Registration from '../registration/registration';
 import Login from '../login/loginPage';
-
-export const enum PageIds {
-	MainPage = 'home',
-	GamePage = 'game',
-	DefaultPage = 'home',
-	LoginPage = 'login',
-	RegistrationPage = 'registr',
-}
+import { PageIds } from '../../shared';
 
 class App {
 	private static  container: HTMLElement = document.body;
@@ -25,6 +18,7 @@ class App {
 		if(currentPageHTML){
 			currentPageHTML.remove();
 		}
+		document.body.className = "";
 		let page: Page | null = null;
 
 		
@@ -51,7 +45,7 @@ class App {
 	private enableRouteChange(){
 		window.addEventListener('hashchange', () =>{
 			const hash = window.location.hash.slice(1);
-			
+			console.log(window.location.pathname);
 			App.renderNewPage(hash);
 		});
 	}

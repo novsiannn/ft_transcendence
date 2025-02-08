@@ -1,5 +1,5 @@
 import Component from '../../templates/components'
-import {PageIds} from '../../../pages/app/classApp'
+import {PageIds} from '../../../shared'
 
 const Buttons = [
 	{

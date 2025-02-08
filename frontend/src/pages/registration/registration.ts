@@ -1,4 +1,5 @@
 import Page from '../../core/templates/page'
+import { PageIds } from '../../shared';
 
 
 const enum TextAboutUs {
@@ -36,6 +37,7 @@ class Registration extends Page
         textAboutProject.textContent = TextAboutUs.TextDescription;
         btnRegistration.textContent = TextAboutUs.BtnContent;
         linkForLogin.text = TextAboutUs.SignIn;
+        loginBtn.textContent = "Already registered? ";
         registrationHeader.textContent = TextAboutUs.registrationHeader;
     
         //All IDs from this page
@@ -54,7 +56,19 @@ class Registration extends Page
         inputName.placeholder = "username";
         inputEmail.placeholder = "your email";
         inputPassword.placeholder = "your password";
-        linkForLogin.href = "#";
+        linkForLogin.href = `#${PageIds.LoginPage}`;
+
+        // btnRegistration.addEventListener('click', () => {
+        //     console.log(124);
+            
+        //     // console.log(`#${PageIds.MainPage}`);
+		// 	// window.location.hash = `#${PageIds.MainPage}`;
+        //     window.location.hash = `#home`;
+		// });
+
+        // linkForLogin.addEventListener('click', () => {
+		// 	window.location.hash = "#login";
+		// });
 
 
 
@@ -82,7 +96,7 @@ class Registration extends Page
         registrationForm.append(inputEmail);
         registrationForm.append(inputPassword);
         registrationForm.append(btnRegistration);
-        registrationForm.append(linkForLogin);
+        registrationForm.append(loginBtn);
 
         
         registrationContainer.append(registrationForm);
