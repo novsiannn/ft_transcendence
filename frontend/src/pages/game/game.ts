@@ -1,135 +1,231 @@
-import Page from '../../core/templates/page';
 
-class Game extends Page {
-  private borders: string[] = [
-    "top-0 left-0 w-full h-4",
-    "bottom-0 left-0 w-full h-4",
-    "top-0 right-0 w-4 h-full",
-  ];
 
-  private animationFrameId: number | null = null;
-  private keydownHandler: (e: KeyboardEvent) => void;
-  private paddleY: number;
-  private ballX: number;
-  private ballY: number;
-  private ballSpeedX: number;
-  private ballSpeedY: number;
-  private paddle: HTMLDivElement | null = null;
+export default function startGame(){
+	const scoreInfo = document.querySelector("#score-info");
+	const gameBoard = document.getElementById("game-board") as HTMLCanvasElement;
+	const restartBtn = document.querySelector("#restart-btn");
+	let intervalID: ReturnType<typeof setInterval>;;
 
-  // Статический экземпляр игры
-  private static currentInstance: Game | null = null;
+	const context = gameBoard?.getContext("2d");
 
-  constructor(id: string) {
-    super(id);
-    this.paddleY = window.innerHeight / 2 - 50;
-    this.ballX = window.innerWidth / 2;
-    this.ballY = window.innerHeight / 2;
-    this.ballSpeedX = 7;
-    this.ballSpeedY = 6;
+	const gameBoardColor = "black";
+	const ballColor = "white";
+	const firstPaddleColor = "yellow";
+	const secondPaddleColor = "blue";
 
-    // Привязываем обработчик события movePaddle
-    this.keydownHandler = this.movePaddle.bind(this);
+	const gameBoardWidth =  gameBoard.width;
+	const gameBoardHeight = gameBoard.height;
 
-    // Сохраняем текущий экземпляр игры
-    Game.currentInstance = this;
-  }
+	const moveFirstPaddleKey = {
+		up: "w",
+		down: "s",
+	}
 
-  // Метод для движения ракетки
-  movePaddle(e: KeyboardEvent): void {
-    if (!this.paddle) return;
-    if (e.key === "ArrowUp" && this.paddleY > 10) this.paddleY -= 15;
-    if (e.key === "ArrowDown" && this.paddleY < window.innerHeight - 100) this.paddleY += 15;
-    if (this.paddle) {
-      this.paddle.style.top = `${this.paddleY}px`;
-    }
-  }
+	const moveSecondPaddleKey = {
+		up: "ArrowUp",
+		down: "ArrowDown"
+	}
 
-  executeMethod(callback: () => void) {
-    callback();  // Вызов переданного метода
-  }
+	const paddleSize = {
+		width: 25,
+		height: 120
+	}
 
-  // Остановка игры
-  stopGame() {
-    // Если существует анимация, останавливаем её
-    if (this.animationFrameId) {
-      cancelAnimationFrame(this.animationFrameId);
-      this.animationFrameId = null;
-    }
+	const ballRadius = 13;
+	const initialBallSpeed = 5;
+	let ballSpeed = initialBallSpeed;
+	const paddleSpeed = 40;
+	let firstPlayerScore = 0;
+	let secondPlayerScore = 0;
 
-    // Удаляем обработчик события 'keydown'
-    window.removeEventListener("keydown", this.keydownHandler);
+	const firstPaddleInitial = {
+		x: 0,
+		y: 0
+	}
 
-    // Убираем все элементы игры
-    if (this.paddle) {
-      this.paddle.remove();
-    }
+	const secondPaddleInitial = {
+		x: gameBoardWidth - paddleSize.width,
+		y: gameBoardHeight - paddleSize.height,
+	}
 
-    if(this.ballX)
-        this.ballX = 0;
-    if(this.ballY)
-      this.ballY = 0;
+	let firstPaddle = {...firstPaddleInitial};
+	let secondPaddle = {...secondPaddleInitial};
 
-    // Очистка всех других ресурсов, если они есть
-    // Например, удаление других DOM элементов, если это необходимо
-  }
+	const ballInitial = {
+		x: gameBoardWidth / 2,
+		y: gameBoardHeight / 2, 
+	}
 
-  // Удаляем все классы у элемента
-  removeAllClassesFromElement(elem: HTMLElement): void {
-    while (elem.classList.length > 0) {
-      elem.classList.remove(elem.classList[0]);
-    }
-  }
+	let ball = {...ballInitial};
+	const ballDirection = {
+		x: 0,
+		y: 0,
+	}
 
-  // Метод для создания элементов игры
-  makeElementsForGame() {
-    this.borders.forEach((cls) => {
-      const border: HTMLDivElement = document.createElement("div");
-      border.className = `absolute bg-blue-500 ${cls}`;
-      this.container.append(border);
-    });
+	function drawBoard(){
+		context!.fillStyle = gameBoardColor;
+		context!.fillRect(0,0 ,gameBoardWidth, gameBoardHeight);
+	}
 
-    this.paddle = document.createElement("div");
-    this.paddle.id = "paddle";
-    this.paddle.className = "absolute left-4 top-1/2 w-4 h-24 bg-white";
-    this.container.appendChild(this.paddle);
+	function drawPaddle(paddleX: number, paddleY: number , color: string){
+		context!.fillStyle = color;
+		context!.fillRect(paddleX, paddleY ,paddleSize.width, paddleSize.height);
+	}
 
-    const ball: HTMLDivElement = document.createElement("div");
-    ball.id = "ball";
-    ball.className = "absolute w-6 h-6 bg-white rounded-full";
-    this.container.appendChild(ball);
+	function drawPaddles(){
+		drawPaddle(firstPaddle.x, firstPaddle.y, firstPaddleColor);
+		drawPaddle(secondPaddle.x, secondPaddle.y, secondPaddleColor);
+	}
 
-    const updateBall = (): void => {
-      this.ballX += this.ballSpeedX;
-      this.ballY += this.ballSpeedY;
+	function drawBall(){
+		context!.beginPath();
+		context!.fillStyle = ballColor;
+		context!.arc(ball.x, ball.y, ballRadius, 0, Math.PI * 2);
+		context!.fill();
+	}
 
-      if (this.ballY <= 0 || this.ballY >= window.innerHeight - 10) this.ballSpeedY *= -1;
-      if (this.ballX <= 20 && this.ballY > this.paddleY && this.ballY < this.paddleY + 100) this.ballSpeedX *= -1;
-      if (this.ballX >= window.innerWidth - 10) this.ballSpeedX *= -1;
-      if (this.ballX < 0) {
-        alert("Lost!");
-        this.ballX = window.innerWidth / 2;
-        this.ballY = window.innerHeight / 2;
-      }
+	function chooseBallDirection(){
+		return Math.random() < 0.5;
+	}
 
-      ball.style.left = `${this.ballX}px`;
-      ball.style.top = `${this.ballY}px`;
-      this.animationFrameId = requestAnimationFrame(updateBall);
-    };
+	function setBallDirection(){
+		if(chooseBallDirection()){
+			ballDirection.x = 1;
+		} else {
+			ballDirection.x = -1;
+		}
+		
+		if(chooseBallDirection()){
+			ballDirection.y = 1;
+		} else {
+			ballDirection.y = -1;
+		}
+	}
 
-    window.addEventListener("keydown", this.keydownHandler);
-    window.addEventListener("hashchange", () =>this.stopGame());
-    this.animationFrameId = requestAnimationFrame(updateBall);
-  }
+	function handleBorderCollision(){
+		const topBallRadius = ball.y <= ballRadius;
+		const bottomBallRadius = ball.y >= gameBoardHeight - ballRadius;
+		if(topBallRadius || bottomBallRadius){
+			ballDirection.y *= -1;
+		}
+	}
 
-  // Рендерим элементы на странице
-  render() {
-    document.body.classList.add("overflow-x-hidden", "overflow-y-auto");
-    this.removeAllClassesFromElement(this.container);
-    this.container.className = "relative w-screen h-screen bg-black overflow-hidden box-border";
-    this.makeElementsForGame();
-    document.body.appendChild(this.container);
-    return this.container;
-  }
+	function checkFirstPaddleCollision(){
+		const xCollision = ball.x <= firstPaddle.x + ballRadius + paddleSize.width;
+		const yCollision = ball.y >= firstPaddle.y && ball.y <= firstPaddle.y + paddleSize.height;
+		return xCollision && yCollision;
+	}
+
+	function checkSecondPaddleCollision(){
+		const xCollision = ball.x >= secondPaddle.x - ballRadius;
+		const yCollision = ball.y >= secondPaddle.y && ball.y <= secondPaddle.y + paddleSize.height;
+		return xCollision && yCollision;
+	}
+
+	function handlePaddleCollision(){
+		const firstPaddleCollision = checkFirstPaddleCollision();
+		const secondPaddleCollision = checkSecondPaddleCollision();
+
+		if(firstPaddleCollision || secondPaddleCollision){
+			ballSpeed *= 1.07;
+			ballDirection.x *= -1;
+		} else {
+			return ;
+		}
+		if(firstPaddleCollision){
+			ball.x = firstPaddle.x + paddleSize.width + ballRadius;
+		} else if(secondPaddleCollision){
+			ball.x = secondPaddle.x - ballRadius;
+		}
+	}
+
+	function moveBall(){
+		ball.x += ballSpeed * ballDirection.x;
+		ball.y += ballSpeed * ballDirection.y;
+		handleBorderCollision();
+		handlePaddleCollision();
+		handleGoal();
+	}
+
+	function updateScore(){
+		scoreInfo!.textContent = `${firstPlayerScore} : ${secondPlayerScore}`
+ 	}
+
+	function handleGoal(){
+		const firstUserGoal = ball.x > gameBoardWidth;
+		const secondUserGoal = ball.x <  0;
+
+		if(!firstUserGoal && !secondUserGoal){
+			return;
+		}
+		if(firstUserGoal){
+			firstPlayerScore++;
+		}
+		if(secondUserGoal){
+			secondPlayerScore++;
+		}
+		updateScore();
+		ball = {...ballInitial};
+		setBallDirection();
+		drawBall();
+		ballSpeed = initialBallSpeed;
+	}
+
+	function movePaddles(ev : KeyboardEvent){
+		console.log('heeree');
+		
+		const firstPaddleGoingUp = ev.key === moveFirstPaddleKey.up;
+		const firstPaddleGoingDown = ev.key === moveFirstPaddleKey.down;
+		const secondPaddleGoingUp = ev.key === moveSecondPaddleKey.up;
+		const secondPaddleGoingDown = ev.key === moveSecondPaddleKey.down;
+
+		const canFirstPaddleMoveUp = firstPaddle.y > 0;
+		const canFirstPaddleMoveDown = firstPaddle.y < gameBoard.height - paddleSize.height;
+		const canSecondPaddleMoveUp = secondPaddle.y > 0;
+		const canSecondPaddleMoveDown = secondPaddle.y < gameBoard.height - paddleSize.height;
+
+		if (firstPaddleGoingUp && canFirstPaddleMoveUp){
+			firstPaddle.y -= paddleSpeed;
+		} else if (firstPaddleGoingDown && canFirstPaddleMoveDown){
+			firstPaddle.y += paddleSpeed;
+		} else if (secondPaddleGoingUp && canSecondPaddleMoveUp){
+			secondPaddle.y -= paddleSpeed;
+		} else if (secondPaddleGoingDown && canSecondPaddleMoveDown){
+			secondPaddle.y += paddleSpeed;
+		}
+	}
+
+	function updateGame(){
+		drawBoard();
+		drawPaddles();
+		moveBall();
+		drawBall();
+	}
+
+	function restartGame(){
+		firstPlayerScore = 0;
+		secondPlayerScore = 0;
+		clearInterval(intervalID);
+		ballSpeed = initialBallSpeed;
+		ball = {...ballInitial};
+		firstPaddle = {...firstPaddle};
+		secondPaddle = {...secondPaddle};
+		initGame();
+	}
+
+	function initGame(){
+		updateScore();
+		setBallDirection();
+		window.addEventListener("keydown",movePaddles);
+		intervalID = setInterval(updateGame, 20);
+		restartBtn!.addEventListener('click', restartGame);
+	}
+
+
+	window.addEventListener("load", initGame);
 }
 
-export default Game;
+
+
+
+
