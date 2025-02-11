@@ -1,37 +1,38 @@
-import Component from '../../templates/components'
-import {PageIds} from '../../../shared'
 
-const Buttons = [
-	{
-		id: PageIds.MainPage,
-		text: 'MAIN',
-	},
-	{
-		id: PageIds.GamePage,
-		text: 'GAME',
-	}
-];
+// import Component from '../../templates/components'
+// import {PageIds} from '../../../pages/app/classApp'
 
-class Header extends Component{
-	constructor(tagName: string, className: string){
-		super(tagName, className);
-	}
+// const Buttons = [
+// 	{
+// 		id: PageIds.MainPage,
+// 		text: 'MAIN',
+// 	},
+// 	{
+// 		id: PageIds.GamePage,
+// 		text: 'GAME',
+// 	}
+// ];
 
-	renderPageButtons(){
-		const pageButtons = document.createElement('div');
-		Buttons.forEach((e) => {
-			const buttonHTML = document.createElement('a');
-			buttonHTML.href = `#${e.id}`;
-			buttonHTML.innerText = e.text;
-			pageButtons.append(buttonHTML);
-		});
-		this.container.append(pageButtons); 
-	}
+// class Header extends Component{
+// 	constructor(tagName: string, className: string){
+// 		super(tagName, className);
+// 	}
 
-	render(){
-		this.renderPageButtons()
-		return this.container;
-	}
-}
+// 	renderPageButtons(){
+// 		const pageButtons = document.createElement('div');
+// 		Buttons.forEach((e) => {
+// 			const buttonHTML = document.createElement('a');
+// 			buttonHTML.href = `#${e.id}`;
+// 			buttonHTML.innerText = e.text;
+// 			pageButtons.append(buttonHTML);
+// 		});
+// 		this.container.append(pageButtons); 
+// 	}
 
-export default Header;
+// 	render(){
+// 		this.renderPageButtons()
+// 		return this.container;
+// 	}
+// }
+
+// export default Header;
