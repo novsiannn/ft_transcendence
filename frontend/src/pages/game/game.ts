@@ -172,7 +172,6 @@ export default function startGame(){
 	}
 
 	function movePaddles(ev : KeyboardEvent){
-		console.log('heeree');
 		
 		const firstPaddleGoingUp = ev.key === moveFirstPaddleKey.up;
 		const firstPaddleGoingDown = ev.key === moveFirstPaddleKey.down;

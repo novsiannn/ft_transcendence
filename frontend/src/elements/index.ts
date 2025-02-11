@@ -1,2 +1,2 @@
 export * from './createButton';
-export * from './createMainWrapper';
+export * from './createWrapper';
