@@ -1,9 +1,10 @@
 import { mainWrapper } from '../elements';
-import startGame from "../pages/game/game";
+import { startGame } from "../pages/game/game";
 import { routes } from "../routing/index"
 import { routeToGame } from "../routing/index";
-import {errorPage} from "../Layout/index"
+import { errorPage } from "../Layout/index"
 import { handleRegistration } from '../pages/registration';
+import { handleLogin } from '../pages/login';
 // import { navigateTo } from '../routing/index';
 
 export default function runSPA(path ?: string){
@@ -24,6 +25,8 @@ export default function runSPA(path ?: string){
             routeToGame();
         } else if (location.pathname === '/registration'){
             handleRegistration();
+        } else if (location.pathname === '/login'){
+            handleLogin();
         }
     }
     if(!(location.pathname in routes)) {
