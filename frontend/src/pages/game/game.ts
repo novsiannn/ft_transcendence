@@ -1,4 +1,4 @@
-export default function startGame(){
+export function startGame(){
 	const scoreInfo = document.querySelector("#score-info");
 	const gameBoard = document.getElementById("game-board") as HTMLCanvasElement;
 	const restartBtn = document.querySelector("#restart-btn");
@@ -218,7 +218,7 @@ export default function startGame(){
 		restartBtn!.addEventListener('click', restartGame);
 	}
 
-	initGame();
+	initGame(); // if the game breaks use the line below
 	// window.addEventListener("load", initGame);
 }
 

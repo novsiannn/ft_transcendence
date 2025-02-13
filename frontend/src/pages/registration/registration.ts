@@ -1,7 +1,8 @@
 // import Page from '../../core/templates/page'
 // import { PageIds } from '../../shared';
 import {routeToHome} from "../../routing/index"
-//has to be removed
+import { navigateTo } from "../../routing/index"
+
 interface IUserDataType{
     text: string | null,
     email: string | null,
@@ -14,6 +15,8 @@ export function handleRegistration(){
     const emailInput = document.querySelector("#emailRegistration") as HTMLInputElement;
     const passwordInput = document.querySelector("#passwordRegistration") as HTMLInputElement;
     const btnRegistr = document.querySelector("#submitRegistration") as HTMLButtonElement;
+    const signInBtn = document.querySelector('#questionAlreadyRegistr');
+
     const inputsUsers: HTMLInputElement[] = [userNameInput, emailInput, passwordInput];
     // dataBase has to be removed. It's created only for tests :)
     let userData : IUserDataType = {
@@ -44,5 +47,8 @@ export function handleRegistration(){
         } catch (error) {
             alert(error);
         }
+    });
+    signInBtn!.addEventListener('click', () =>{
+        navigateTo("/login");
     });
 }
