@@ -1,5 +1,3 @@
-
-
 export default function startGame(){
 	const scoreInfo = document.querySelector("#score-info");
 	const gameBoard = document.getElementById("game-board") as HTMLCanvasElement;
@@ -8,10 +6,10 @@ export default function startGame(){
 
 	const context = gameBoard?.getContext("2d");
 
-	const gameBoardColor = "black";
+	const gameBoardColor = window.getComputedStyle(gameBoard).backgroundColor;
+	const firstPaddleColor = "white";
+	const secondPaddleColor = "white";
 	const ballColor = "white";
-	const firstPaddleColor = "yellow";
-	const secondPaddleColor = "blue";
 
 	const gameBoardWidth =  gameBoard.width;
 	const gameBoardHeight = gameBoard.height;
@@ -220,8 +218,8 @@ export default function startGame(){
 		restartBtn!.addEventListener('click', restartGame);
 	}
 
-
-	window.addEventListener("load", initGame);
+	initGame();
+	// window.addEventListener("load", initGame);
 }
 
 

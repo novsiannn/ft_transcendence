@@ -1,47 +1,36 @@
-import {btn, mainWrapper} from '../elements';
+import { mainWrapper } from '../elements';
 import startGame from "../pages/game/game";
-import { homePage, gamePage } from '../Layout/index';
 import { routes } from "../routing/index"
 import { routeToGame } from "../routing/index";
+import {errorPage} from "../Layout/index"
+import { handleRegistration } from '../pages/registration';
+// import { navigateTo } from '../routing/index';
 
-
-export default function runSPA(){
+export default function runSPA(path ?: string){
 	document.body.append(mainWrapper);
-	
-    for (const k in routes) {
-        if(location.pathname === k) {
 
-            mainWrapper.removeAttribute("id");
-            mainWrapper.className = "";
-            document.body.className = "";
-            mainWrapper.innerHTML = routes[k]();
+    if(location.pathname in routes) {
+
+        mainWrapper.removeAttribute("id");
+        mainWrapper.className = "";
+        document.body.className = "";
+        mainWrapper.innerHTML = routes[location.pathname]();
     
-            if(location.pathname === '/game'){
-                
-                mainWrapper.id = "game-container";
-                mainWrapper.classList.add("h-screen", "flex", "flex-col", "gap-2.5", "justify-center", "items-center");
-                window.addEventListener("DOMContentLoaded", () => {
-                    startGame();
-                });
-            } else if(location.pathname === '/'){
-                routeToGame();
-            }
-
-        }  
+        if(location.pathname === '/game'){  
+            mainWrapper.id = "game-container";
+            mainWrapper.classList.add("h-screen", "flex", "flex-col", "gap-2.5", "justify-center", "items-center");
+            startGame();
+        } else if (location.pathname === '/'){
+            routeToGame();
+        } else if (location.pathname === '/registration'){
+            handleRegistration();
+        }
+    }
+    if(!(location.pathname in routes)) {
+        mainWrapper.innerHTML = errorPage();
     }
 }
 
-
-
-const router = (i: number) => {
-	// const changePage = routes[i][location.pathname] || null;
-	// document.getElementById("app")!.innerHTML = changePage(); 
-}
-
-router(0);
-
-const navigateTo = (url: string) => {
-  history.pushState(null, "", url); // Меняем URL без перезагрузки
-//   router(); // Запускаем отрисовку страницы
-};
-
+window.addEventListener("popstate", () => {
+    runSPA(location.pathname);
+});

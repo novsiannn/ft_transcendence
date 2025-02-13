@@ -1,3 +1,5 @@
 import runSpa from './spaApp/index'
 
-runSpa();
+window.addEventListener("DOMContentLoaded", () => {
+    runSpa(location.pathname);
+});
