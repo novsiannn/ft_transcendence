@@ -6,5 +6,5 @@ export function navigation(){
 				<button class="font-mono h-5" id="naviBtn" > Registration </button>
 				<button class="font-mono h-5" id="naviBtn" > Login </button>
 			</div>
-		`
+		`;
 }

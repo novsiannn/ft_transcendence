@@ -1,4 +1,4 @@
-import { navigation } from "../elements/createNavigation"
+import { navigation } from "../elements"
 
 export function homePage(mainWrapper: HTMLDivElement | undefined){
 	let res =  `
