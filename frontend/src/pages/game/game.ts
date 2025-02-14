@@ -1,9 +1,12 @@
-export function startGame(){
+export function handleGame(mainWrapper: HTMLDivElement | undefined){
 	const scoreInfo = document.querySelector("#score-info");
 	const gameBoard = document.getElementById("game-board") as HTMLCanvasElement;
 	const restartBtn = document.querySelector("#restart-btn");
+	// const mainWrapper = document.getElementById('game-container') as HTMLDivElement;
 	let intervalID: ReturnType<typeof setInterval>;;
 
+	mainWrapper!.id = "game-container";
+	mainWrapper!.classList.add("h-screen", "flex", "flex-col", "gap-2.5", "justify-center", "items-center");
 	const context = gameBoard?.getContext("2d");
 
 	const gameBoardColor = window.getComputedStyle(gameBoard).backgroundColor;
