@@ -4,11 +4,8 @@ import { handleGame } from "../pages/game"
 import { handleRegistration } from "../pages/registration"
 import { handleLogin } from "../pages/login"
 
-
-// type routesType = '/' | '/game' | '/registration' | '/login' ;
-
 interface handleFunctionI {
-    layoutCreate: () => string;
+    layoutCreate: (mainWrapper?: HTMLDivElement) => string;
     handleFunc: (mainWrapper?: HTMLDivElement) => void;
 }
 

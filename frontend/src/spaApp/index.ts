@@ -9,13 +9,15 @@ export default function runSPA(path ?: string){
         mainWrapper.removeAttribute("id");
         mainWrapper.className = "";
         document.body.className = "";
-        mainWrapper.innerHTML = routes[location.pathname].layoutCreate();
+        mainWrapper.innerHTML = routes[location.pathname].layoutCreate(mainWrapper);
         routes[location.pathname].handleFunc(mainWrapper);
     } else {
         mainWrapper.innerHTML = errorPage();
     }
 }
 
+
+// Forward-Back arrows working properly
 window.addEventListener("popstate", () => {
     runSPA(location.pathname);
 });
