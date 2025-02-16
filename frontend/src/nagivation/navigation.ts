@@ -7,8 +7,12 @@ export function navigationHandle(){
 	const profileBtn = document.querySelector("#profileIcon");
 	const dropdownMenu = document.querySelector("#dropdownMenu");
 	const naviDropMenuBtns = document.querySelectorAll("#dropdownMenu a");
+	const imgLogo = document.getElementById('imgLogoNavi');
 
-	
+	imgLogo!.addEventListener('click', () => {
+		navigateTo('/');	
+	})
+
 	naviBtns.forEach((btn) => {
 		btn.addEventListener('click', () => {
 			if(btn.innerHTML.trim() in naviRoutes){

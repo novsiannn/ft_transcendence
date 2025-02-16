@@ -1,7 +1,7 @@
 export function navigation(){
 	return `
 		<nav class="top-0 left-0 bg-black text-white h-16 w-full fixed flex items-center px-6">
-    		<img src="https://img.icons8.com/plasticine/100/ping-pong--v1.png" alt="Logo" class="h-12 w-12 object-cover">
+    		<img src="https://img.icons8.com/plasticine/100/ping-pong--v1.png" alt="Logo" class="h-12 w-12 object-cover" id=imgLogoNavi>
 
 
     		<div class="flex-1 flex justify-center space-x-8">
