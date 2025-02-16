@@ -7,7 +7,8 @@ export default function runSPA(path ?: string){
 
     if (location.pathname in routes) {
         mainWrapper.removeAttribute("id");
-        mainWrapper.className = "";
+        // mainWrapper.className = "flex flex-col h-full w-full";
+        mainWrapper.className = "container mx-auto px-4 h-full w-full";
         document.body.className = "";
         mainWrapper.innerHTML = routes[location.pathname].layoutCreate(mainWrapper);
         routes[location.pathname].handleFunc(mainWrapper);

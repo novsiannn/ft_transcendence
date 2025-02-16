@@ -1,6 +1,6 @@
 export function navigation(){
 	return `
-		<nav class="bg-black text-white h-16 w-full fixed flex items-center px-6">
+		<nav class="top-0 left-0 bg-black text-white h-16 w-full fixed flex items-center px-6">
     		<img src="https://img.icons8.com/plasticine/100/ping-pong--v1.png" alt="Logo" class="h-12 w-12 object-cover">
 
 
