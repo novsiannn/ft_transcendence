@@ -1,0 +1,9 @@
+version: 3.8
+
+services:
+    backend:
+        # Todo
+    frontend:
+        # Todo
+    db:
+        # Todo
