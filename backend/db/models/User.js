@@ -25,6 +25,10 @@ const User = sequelize.define("User", {
     type: DataTypes.STRING,
     defaultValue: "",
   },
+  refreshToken: {
+    type: DataTypes.STRING,
+    allowNull: true, 
+  }
 });
 
 User.beforeCreate(async (user) => {
