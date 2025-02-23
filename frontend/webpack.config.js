@@ -4,6 +4,7 @@ const HtmlWebpackPlugin = require('html-webpack-plugin'); // Плагин для
 module.exports = {
   entry: './src/index.ts', // Входной файл
   devtool: 'inline-source-map', // Для отладки (показывает исходные файлы)
+  mode: 'development', // IF PROGRAMM CRASHS DELETE THIS LINE !!!!!!!!!!!!!!!!!!!!!!!!
   module: {
     rules: [
       {
