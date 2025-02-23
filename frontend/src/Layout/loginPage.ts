@@ -1,4 +1,4 @@
-export function loginPage(){
+export function loginPage() {
     document.body.classList.add("h-screen", "flex", "items-center", "justify-center", "bg-gradient-to-t", "from-black", "via-black", "to-gray-800");
     return `
             <div class="max-w-sm mx-auto mt-10 p-6 bg-white shadow-md rounded-lg">

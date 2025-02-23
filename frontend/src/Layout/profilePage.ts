@@ -7,7 +7,7 @@ export function profilePage(mainWrapper: HTMLDivElement | undefined) {
         "overflow-hidden"
     );
 
-//mx-auto p-6 mt-64 v container dobavit
+    //mx-auto p-6 mt-64 v container dobavit
     let res = `
         ${navigation()}
 

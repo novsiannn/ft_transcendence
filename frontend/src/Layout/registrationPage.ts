@@ -1,4 +1,4 @@
-export function registrationPage(){
+export function registrationPage() {
     // document.body.classList.add("h-screen", "flex", "items-center", "justify-center", "bg-gradient-to-t", "from-black", "via-black", "to-gray-800");
     document.body.classList.add(
         "h-screen", "flex", "flex-col",

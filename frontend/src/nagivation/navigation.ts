@@ -2,7 +2,7 @@ import { navigateTo } from "../routing";
 import { naviRoutes } from "./navigationRoutes";
 import { dropMenuRoutes } from "./navigationRoutes";
 
-export function navigationHandle(){
+export function navigationHandle() {
 	const naviBtns = document.querySelectorAll("#naviBtn");
 	const profileBtn = document.querySelector("#profileIcon");
 	const dropdownMenu = document.querySelector("#dropdownMenu");
@@ -10,31 +10,31 @@ export function navigationHandle(){
 	const imgLogo = document.getElementById('imgLogoNavi');
 
 	imgLogo!.addEventListener('click', () => {
-		navigateTo('/');	
+		navigateTo('/');
 	})
 
 	naviBtns.forEach((btn) => {
 		btn.addEventListener('click', () => {
-			if(btn.innerHTML.trim() in naviRoutes){
-				navigateTo(naviRoutes[btn.innerHTML.trim()]);	
-			}
-		});
-	})
-	
-	naviDropMenuBtns.forEach((btn) => {
-		btn.addEventListener('click', () => {
-			if(btn.innerHTML.trim() in dropMenuRoutes){
-				navigateTo(dropMenuRoutes[btn.innerHTML.trim()]);	
+			if (btn.innerHTML.trim() in naviRoutes) {
+				navigateTo(naviRoutes[btn.innerHTML.trim()]);
 			}
 		});
 	})
 
-	profileBtn!.addEventListener('click', () =>{
+	naviDropMenuBtns.forEach((btn) => {
+		btn.addEventListener('click', () => {
+			if (btn.innerHTML.trim() in dropMenuRoutes) {
+				navigateTo(dropMenuRoutes[btn.innerHTML.trim()]);
+			}
+		});
+	})
+
+	profileBtn!.addEventListener('click', () => {
 		dropdownMenu!.classList.toggle("hidden");
 	});
 
 	document.addEventListener('click', (e) => {
-		if(e.target !== dropdownMenu && e.target !== profileBtn)
+		if (e.target !== dropdownMenu && e.target !== profileBtn)
 			dropdownMenu!.classList.add("hidden");
 	})
 

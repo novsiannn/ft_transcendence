@@ -1,4 +1,4 @@
-export function handleGame(mainWrapper: HTMLDivElement | undefined){
+export function handleGame(mainWrapper: HTMLDivElement | undefined) {
 	const scoreInfo = document.querySelector("#score-info");
 	const gameBoard = document.getElementById("game-board") as HTMLCanvasElement;
 	const restartBtn = document.querySelector("#restart-btn");
@@ -14,7 +14,7 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined){
 	const secondPaddleColor = "white";
 	const ballColor = "white";
 
-	const gameBoardWidth =  gameBoard.width;
+	const gameBoardWidth = gameBoard.width;
 	const gameBoardHeight = gameBoard.height;
 
 	const moveFirstPaddleKey = {
@@ -49,98 +49,98 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined){
 		y: gameBoardHeight - paddleSize.height,
 	}
 
-	let firstPaddle = {...firstPaddleInitial};
-	let secondPaddle = {...secondPaddleInitial};
+	let firstPaddle = { ...firstPaddleInitial };
+	let secondPaddle = { ...secondPaddleInitial };
 
 	const ballInitial = {
 		x: gameBoardWidth / 2,
-		y: gameBoardHeight / 2, 
+		y: gameBoardHeight / 2,
 	}
 
-	let ball = {...ballInitial};
+	let ball = { ...ballInitial };
 	const ballDirection = {
 		x: 0,
 		y: 0,
 	}
 
-	function drawBoard(){
+	function drawBoard() {
 		context!.fillStyle = gameBoardColor;
-		context!.fillRect(0,0 ,gameBoardWidth, gameBoardHeight);
+		context!.fillRect(0, 0, gameBoardWidth, gameBoardHeight);
 	}
 
-	function drawPaddle(paddleX: number, paddleY: number , color: string){
+	function drawPaddle(paddleX: number, paddleY: number, color: string) {
 		context!.fillStyle = color;
-		context!.fillRect(paddleX, paddleY ,paddleSize.width, paddleSize.height);
+		context!.fillRect(paddleX, paddleY, paddleSize.width, paddleSize.height);
 	}
 
-	function drawPaddles(){
+	function drawPaddles() {
 		drawPaddle(firstPaddle.x, firstPaddle.y, firstPaddleColor);
 		drawPaddle(secondPaddle.x, secondPaddle.y, secondPaddleColor);
 	}
 
-	function drawBall(){
+	function drawBall() {
 		context!.beginPath();
 		context!.fillStyle = ballColor;
 		context!.arc(ball.x, ball.y, ballRadius, 0, Math.PI * 2);
 		context!.fill();
 	}
 
-	function chooseBallDirection(){
+	function chooseBallDirection() {
 		return Math.random() < 0.5;
 	}
 
-	function setBallDirection(){
-		if(chooseBallDirection()){
+	function setBallDirection() {
+		if (chooseBallDirection()) {
 			ballDirection.x = 1;
 		} else {
 			ballDirection.x = -1;
 		}
-		
-		if(chooseBallDirection()){
+
+		if (chooseBallDirection()) {
 			ballDirection.y = 1;
 		} else {
 			ballDirection.y = -1;
 		}
 	}
 
-	function handleBorderCollision(){
+	function handleBorderCollision() {
 		const topBallRadius = ball.y <= ballRadius;
 		const bottomBallRadius = ball.y >= gameBoardHeight - ballRadius;
-		if(topBallRadius || bottomBallRadius){
+		if (topBallRadius || bottomBallRadius) {
 			ballDirection.y *= -1;
 		}
 	}
 
-	function checkFirstPaddleCollision(){
+	function checkFirstPaddleCollision() {
 		const xCollision = ball.x <= firstPaddle.x + ballRadius + paddleSize.width;
 		const yCollision = ball.y >= firstPaddle.y && ball.y <= firstPaddle.y + paddleSize.height;
 		return xCollision && yCollision;
 	}
 
-	function checkSecondPaddleCollision(){
+	function checkSecondPaddleCollision() {
 		const xCollision = ball.x >= secondPaddle.x - ballRadius;
 		const yCollision = ball.y >= secondPaddle.y && ball.y <= secondPaddle.y + paddleSize.height;
 		return xCollision && yCollision;
 	}
 
-	function handlePaddleCollision(){
+	function handlePaddleCollision() {
 		const firstPaddleCollision = checkFirstPaddleCollision();
 		const secondPaddleCollision = checkSecondPaddleCollision();
 
-		if(firstPaddleCollision || secondPaddleCollision){
+		if (firstPaddleCollision || secondPaddleCollision) {
 			ballSpeed *= 1.07;
 			ballDirection.x *= -1;
 		} else {
-			return ;
+			return;
 		}
-		if(firstPaddleCollision){
+		if (firstPaddleCollision) {
 			ball.x = firstPaddle.x + paddleSize.width + ballRadius;
-		} else if(secondPaddleCollision){
+		} else if (secondPaddleCollision) {
 			ball.x = secondPaddle.x - ballRadius;
 		}
 	}
 
-	function moveBall(){
+	function moveBall() {
 		ball.x += ballSpeed * ballDirection.x;
 		ball.y += ballSpeed * ballDirection.y;
 		handleBorderCollision();
@@ -148,32 +148,32 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined){
 		handleGoal();
 	}
 
-	function updateScore(){
+	function updateScore() {
 		scoreInfo!.textContent = `${firstPlayerScore} : ${secondPlayerScore}`
- 	}
+	}
 
-	function handleGoal(){
+	function handleGoal() {
 		const firstUserGoal = ball.x > gameBoardWidth;
-		const secondUserGoal = ball.x <  0;
+		const secondUserGoal = ball.x < 0;
 
-		if(!firstUserGoal && !secondUserGoal){
+		if (!firstUserGoal && !secondUserGoal) {
 			return;
 		}
-		if(firstUserGoal){
+		if (firstUserGoal) {
 			firstPlayerScore++;
 		}
-		if(secondUserGoal){
+		if (secondUserGoal) {
 			secondPlayerScore++;
 		}
 		updateScore();
-		ball = {...ballInitial};
+		ball = { ...ballInitial };
 		setBallDirection();
 		drawBall();
 		ballSpeed = initialBallSpeed;
 	}
 
-	function movePaddles(ev : KeyboardEvent){
-		
+	function movePaddles(ev: KeyboardEvent) {
+
 		const firstPaddleGoingUp = ev.key === moveFirstPaddleKey.up;
 		const firstPaddleGoingDown = ev.key === moveFirstPaddleKey.down;
 		const secondPaddleGoingUp = ev.key === moveSecondPaddleKey.up;
@@ -184,39 +184,39 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined){
 		const canSecondPaddleMoveUp = secondPaddle.y > 0;
 		const canSecondPaddleMoveDown = secondPaddle.y < gameBoard.height - paddleSize.height;
 
-		if (firstPaddleGoingUp && canFirstPaddleMoveUp){
+		if (firstPaddleGoingUp && canFirstPaddleMoveUp) {
 			firstPaddle.y -= paddleSpeed;
-		} else if (firstPaddleGoingDown && canFirstPaddleMoveDown){
+		} else if (firstPaddleGoingDown && canFirstPaddleMoveDown) {
 			firstPaddle.y += paddleSpeed;
-		} else if (secondPaddleGoingUp && canSecondPaddleMoveUp){
+		} else if (secondPaddleGoingUp && canSecondPaddleMoveUp) {
 			secondPaddle.y -= paddleSpeed;
-		} else if (secondPaddleGoingDown && canSecondPaddleMoveDown){
+		} else if (secondPaddleGoingDown && canSecondPaddleMoveDown) {
 			secondPaddle.y += paddleSpeed;
 		}
 	}
 
-	function updateGame(){
+	function updateGame() {
 		drawBoard();
 		drawPaddles();
 		moveBall();
 		drawBall();
 	}
 
-	function restartGame(){
+	function restartGame() {
 		firstPlayerScore = 0;
 		secondPlayerScore = 0;
 		clearInterval(intervalID);
 		ballSpeed = initialBallSpeed;
-		ball = {...ballInitial};
-		firstPaddle = {...firstPaddle};
-		secondPaddle = {...secondPaddle};
+		ball = { ...ballInitial };
+		firstPaddle = { ...firstPaddle };
+		secondPaddle = { ...secondPaddle };
 		initGame();
 	}
 
-	function initGame(){
+	function initGame() {
 		updateScore();
 		setBallDirection();
-		window.addEventListener("keydown",movePaddles);
+		window.addEventListener("keydown", movePaddles);
 		intervalID = setInterval(updateGame, 20);
 		restartBtn!.addEventListener('click', restartGame);
 	}

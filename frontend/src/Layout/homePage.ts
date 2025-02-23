@@ -1,9 +1,9 @@
 import { navigation } from "../elements"
 // import  myImg  from "../img/ping-pong.png"
 
-export function homePage(mainWrapper: HTMLDivElement | undefined){
-	document.body.classList.add("h-screen", "flex",  "flex-col", "bg-gradient-to-t", "from-black", "via-black", "to-gray-800", "overflow-hidden");
-                // ${navigation()}
+export function homePage(mainWrapper: HTMLDivElement | undefined) {
+	document.body.classList.add("h-screen", "flex", "flex-col", "bg-gradient-to-t", "from-black", "via-black", "to-gray-800", "overflow-hidden");
+	// ${navigation()}
 	let res = `
         	${navigation()}
         	<div class="container mx-auto p-6 mt-24">

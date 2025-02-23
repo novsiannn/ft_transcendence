@@ -1,9 +1,9 @@
-import {navigateTo} from "./index"
+import { navigateTo } from "./index"
 
-export function routeToGame(){
-		navigateTo("/game");
+export function routeToGame() {
+	navigateTo("/game");
 }
 
-export function routeToHome(){
+export function routeToHome() {
 	navigateTo("/");
 }
