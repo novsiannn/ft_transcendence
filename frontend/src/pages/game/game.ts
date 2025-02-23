@@ -1,4 +1,7 @@
+import { navigationHandle } from "../../nagivation";
+
 export function handleGame(mainWrapper: HTMLDivElement | undefined) {
+	navigationHandle();
 	const scoreInfo = document.querySelector("#score-info");
 	const gameBoard = document.getElementById("game-board") as HTMLCanvasElement;
 	const restartBtn = document.querySelector("#restart-btn");

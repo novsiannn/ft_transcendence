@@ -1,6 +1,7 @@
 import { mainWrapper } from '../elements';
 import { routes } from "../routing/index"
 import { errorPage } from "../Layout/index"
+import { handleErrorPage } from '../pages/errorPage';
 
 export default function runSPA(path?: string) {
     document.body.append(mainWrapper);
@@ -13,7 +14,8 @@ export default function runSPA(path?: string) {
         mainWrapper.innerHTML = routes[location.pathname].layoutCreate(mainWrapper);
         routes[location.pathname].handleFunc(mainWrapper);
     } else {
-        mainWrapper.innerHTML = errorPage();
+        mainWrapper.innerHTML = routes['/error'].layoutCreate();
+        routes['/error'].handleFunc();
     }
 }
 

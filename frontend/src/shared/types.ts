@@ -10,9 +10,9 @@ export const enum PageIds {
 
 export const enum textValueRegistraionPage{
     HEADER = "Transcendence",
-    TEXTDESCRIPTION = "Здесь могла бы быть ваша реклама...",
-    BTNCONTENT = "Registration",
-    SIGNIN = "Sign In",
+    TEXT_DESCRIPTION = "Здесь могла бы быть ваша реклама...",
+    BTN_CONTENT = "Registration",
+    SIGN_IN = "Sign In",
     REGISTRATION = "Registration"
 }
 

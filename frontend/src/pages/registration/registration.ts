@@ -1,5 +1,3 @@
-// import Page from '../../core/templates/page'
-// import { PageIds } from '../../shared';
 import { routeToHome } from "../../routing/index"
 import { navigateTo } from "../../routing/index"
 
