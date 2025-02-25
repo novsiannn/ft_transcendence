@@ -43,4 +43,14 @@ async function registration(email, password) {
   }
 }
 
-module.exports = { registration };
+async function activate(activationLink) {
+  const user = await User.findOne({ where: { activationLink } });
+  if (!user) {
+    console.log("User not found");
+    return { error: "User not found" };
+  }
+  user.isActivated = true;
+  await user.save();
+}
+
+module.exports = { activate, registration };

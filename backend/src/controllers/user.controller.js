@@ -33,7 +33,9 @@ const UserController = {
 
     async activate(req, res) {
         try {
-
+            const activationLink = req.params.link;
+            await userService.activate(activationLink);
+            res.redirect(process.env.CLIENT_URL);
         } catch (error) {
             reply.status(500).send({ error: "Error activating user" });
         }
