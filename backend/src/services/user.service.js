@@ -24,7 +24,7 @@ async function registration(email, password) {
       activationLink,
     });
     console.log("User created in database");
-    sendActivationMail(email, `${process.env.API_URL}/activate/${activationLink}`); //await !!!!!
+    // sendActivationMail(email, `${process.env.API_URL}/activate/${activationLink}`); //await !!!!!
     console.log("Activation mail sent");
     const userDto = new UserDto(user);
     console.log("User DTO created");
