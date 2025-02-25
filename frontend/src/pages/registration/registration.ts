@@ -1,11 +1,8 @@
 import { routeToHome } from "../../routing/index"
 import { navigateTo } from "../../routing/index"
-
-interface IUserDataType {
-    text: string | null,
-    email: string | null,
-    password: string | null
-}
+import { postDatas } from "../../services/api";
+import { IUserDataRegistrationType } from "../../shared";
+import { userDataRegistration } from "../../shared";
 
 
 export function handleRegistration() {
@@ -16,20 +13,12 @@ export function handleRegistration() {
     const signInBtn = document.querySelector('#questionAlreadyRegistr');
 
     const inputsUsers: HTMLInputElement[] = [userNameInput, emailInput, passwordInput];
-    // dataBase has to be removed. It's created only for tests :)
-    let userData: IUserDataType = {
-        text: null,
-        email: null,
-        password: null
-    };
-    const temporaryDataBase: string[][] = [];
-    // till this string
 
     btnRegistr!.addEventListener('click', (e) => {
         e.preventDefault();
         try {
             inputsUsers.forEach(input => {
-                const key = input.type.toLowerCase() as keyof IUserDataType;
+                const key = input.type.toLowerCase() as keyof IUserDataRegistrationType;
                 if (!input.value) {
                     throw new Error("One of your inputs is empty!");
                 }
@@ -39,8 +28,9 @@ export function handleRegistration() {
                 if (input.type === 'email' && !(input.value.match(/@/g))) {
                     throw new Error(`${input.placeholder} has contain ' @ ' symbol`);
                 }
-                userData[key] = input.value;
+                userDataRegistration[key] = input.value;
             });
+            postDatas(userDataRegistration);
             routeToHome();
         } catch (error) {
             alert(error);
