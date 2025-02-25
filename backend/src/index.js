@@ -1,5 +1,5 @@
 require('dotenv').config();
-const fastify = require('fastify')({ logger: true });
+const fastify = require('fastify')({ logger: false });
 const sequelize = require('../db/database');
 const userRoutes = require('./routes/index');
 
