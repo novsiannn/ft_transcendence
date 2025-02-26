@@ -21,7 +21,7 @@ async function sendActivationMail(to, link) {
         <h1>Click on the link to activate your account</h1>
         <a href="${link}">${link}</a>
       </div>
-    ` 
+    `
   });
 }
 

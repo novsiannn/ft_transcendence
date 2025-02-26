@@ -4,13 +4,13 @@ const uuid = require("uuid");
 const { sendActivationMail } = require("./mail.service");
 const tokenService = require("./token.service");
 const UserDto = require("../dtos/user.dto");
+// const { logout } = require("../controllers/user.controller");
 
 async function registration(email, password) {
   try {
     console.log("Starting registration process");
     const us = await User.findOne({ where: { email } });
     if (us) {
-      console.log("User already exists");
       return { error: "User already exists" };
     }
     console.log("User does not exist, proceeding with registration");
@@ -46,11 +46,67 @@ async function registration(email, password) {
 async function activate(activationLink) {
   const user = await User.findOne({ where: { activationLink } });
   if (!user) {
-    console.log("User not found");
     return { error: "User not found" };
   }
   user.isActivated = true;
   await user.save();
 }
 
-module.exports = { activate, registration };
+async function login(email, password) {
+  const user = await User.findOne({ where: { email } });
+  if (!user) {
+    return { error: "Incorrect password or email" };
+  }
+  const isPassEquals = await bcrypt.compare(password, user.password);
+  if (!isPassEquals) {
+    return { error: "Incorrect password or email" };
+  }
+  const userDto = new UserDto(user);
+  const tokens = tokenService.generateTokens({ ...userDto });
+
+  await tokenService.saveToken(userDto.id, tokens.refreshToken);
+  return {
+    ...tokens,
+    user: userDto,
+  };
+}
+
+async function logout(refreshToken) {
+  try {
+    const token = await tokenService.removeToken(refreshToken);
+    return token;
+  } catch (error) {
+    throw error;
+  }
+}
+
+async function refresh(refreshToken) {
+  if (!refreshToken) {
+    return { error: "User not authorized" };
+  }
+  const userData = tokenService.validateRefreshToken(refreshToken);
+  const tokenFromDb = await tokenService.findToken(refreshToken);
+  if (!userData || !tokenFromDb) {
+    return { error: "User not authorized" };
+  }
+  const user = await User.findOne({ where: { id: userData.id } });
+  const userDto = new UserDto(user);
+  const tokens = tokenService.generateTokens({ ...userDto });
+  await tokenService.saveToken(userDto.id, tokens.refreshToken);
+  return {
+    ...tokens,
+    user: userDto,
+  };
+}
+
+async function getAllUsers() {
+  try {
+      const users = await User.findAll();
+      return users;
+  } catch (error) {
+      console.error("Error during getAllUsers process:", error);
+      throw error;
+  }
+}
+
+module.exports = { getAllUsers, refresh, logout, login, activate, registration };

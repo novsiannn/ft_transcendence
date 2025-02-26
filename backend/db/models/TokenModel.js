@@ -2,7 +2,7 @@ const { DataTypes } = require("sequelize");
 const sequelize = require("../database");
 const User = require("./UserModel");
 
-const Token = sequelize.define("Token", {
+const Token = sequelize.define('Token', {
   refreshToken: {
     type: DataTypes.STRING,
     allowNull: false,
@@ -12,9 +12,11 @@ const Token = sequelize.define("Token", {
     allowNull: false,
     references: {
       model: User,
-      key: "id",
+      key: 'id',
     },
   },
+}, {
+  timestamps: true,
 });
 
 module.exports = Token;
