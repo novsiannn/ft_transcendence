@@ -3,10 +3,8 @@ const userService = require("../services/user.service");
 const UserController = {
     async registration(req, res) {
         const { email, password } = req.body;
-        console.log("Registration request received with email:", email);
         try {
             const userData = await userService.registration(email, password);
-            console.log("User registered successfully:", userData);
             res.cookie("refreshToken", userData.refreshToken, {
                 maxAge: 60 * 24 * 60 * 60 * 1000,
                 httpOnly: true,
@@ -71,7 +69,6 @@ const UserController = {
         try {
             console.log("Get users request received");
             users = await userService.getAllUsers();
-            console.log("Users retrieved successfully:", users);
             return users;
         } catch (error) {
             console.error("Error getting users:", error);
