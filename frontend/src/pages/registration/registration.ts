@@ -1,8 +1,9 @@
 import { routeToHome } from "../../routing/index"
 import { navigateTo } from "../../routing/index"
-import { postDatas } from "../../services/api";
+// import { postDatas } from "../../services/api";
 import { IUserDataRegistrationType } from "../../shared";
 import { userDataRegistration } from "../../shared";
+import { userAPI } from "../../services/api";
 
 
 export function handleRegistration() {
@@ -30,7 +31,7 @@ export function handleRegistration() {
                 }
                 userDataRegistration[key] = input.value;
             });
-            postDatas(userDataRegistration);
+            userAPI.postDatas(userDataRegistration);
             routeToHome();
         } catch (error) {
             alert(error);

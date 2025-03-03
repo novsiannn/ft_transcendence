@@ -1,8 +1,11 @@
-import { postDatas } from "../../services/api";
+// import { postDatas } from "../../services/api";
 import { userDataLogin } from "../../shared";
 import { IUserDataTypeLogin } from "../../shared";
 import { routeToHome } from "../../routing";
+import { userAPI } from "../../services/api";
 
+
+// Post datas !!! Delete userAPI if u are using fetch request
 export function handleLogin() {
     const loginEmailInput = document.getElementById("loginInput") as HTMLInputElement;
     const loginPassInput = document.getElementById("loginPass") as HTMLInputElement;;
@@ -21,7 +24,7 @@ export function handleLogin() {
                 }
                 userDataLogin[key] = input.value;
             });
-            postDatas(userDataLogin);
+            userAPI.postDatas(userDataLogin);
             routeToHome();
         } catch (error) {
             alert(error);
