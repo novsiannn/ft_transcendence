@@ -14,7 +14,7 @@ export function navigationHandle() {
 	})
 
 	naviBtns.forEach((btn) => {
-		btn.addEventListener('click', () => {
+		btn.addEventListener('click', () => {			
 			if (btn.innerHTML.trim() in naviRoutes) {
 				navigateTo(naviRoutes[btn.innerHTML.trim()]);
 			}
