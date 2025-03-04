@@ -5,10 +5,10 @@ export function navigation() {
 
 
     		<div class="flex-1 flex justify-center space-x-8">
-       			<button class="font-mono h-5 focus:outline-none transition delay-100 hover:text-green-500" id="naviBtn"> Home </button>
-        		<button class="font-mono h-5 focus:outline-none transition delay-100 hover:text-green-500" id="naviBtn"> Game </button>
-        		<button class="font-mono h-5 focus:outline-none transition delay-100 hover:text-green-500" id="naviBtn"> Registration </button>
-        		<button class="font-mono h-5 focus:outline-none transition delay-100 hover:text-green-500" id="naviBtn"> Login </button>
+       			<button class=" h-5 focus:outline-none transition delay-100 hover:text-green-500" id="naviBtn"> Home </button>
+        		<button class=" h-5 focus:outline-none transition delay-100 hover:text-green-500" id="naviBtn"> Game </button>
+        		<button class=" h-5 focus:outline-none transition delay-100 hover:text-green-500" id="naviBtn"> Registration </button>
+        		<button class=" h-5 focus:outline-none transition delay-100 hover:text-green-500" id="naviBtn"> Login </button>
     		</div>
 
 

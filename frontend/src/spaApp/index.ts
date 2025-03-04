@@ -10,7 +10,7 @@ export default function runSPA(path?: string) {
         mainWrapper.removeAttribute("id");
         // mainWrapper.className = "flex flex-col h-full w-full";
         mainWrapper.className = "container mx-auto px-4 h-full w-full";
-        document.body.className = "";
+        document.body.className = "font-mono";
         mainWrapper.innerHTML = routes[location.pathname].layoutCreate(mainWrapper);
         routes[location.pathname].handleFunc(mainWrapper);
     } else {
