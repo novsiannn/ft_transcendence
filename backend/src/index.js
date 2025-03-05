@@ -2,11 +2,18 @@ require('dotenv').config();
 const fastify = require('fastify')({ logger: true });
 const sequelize = require('../db/database');
 const userRoutes = require('./routes/index');
+const fastifyCors = require('@fastify/cors');
 
 fastify.register(require('@fastify/cookie'), {
   secret: process.env.COOKIE_SECRET || 'my-secret', // for cookies signature
   parseOptions: {} // options for parsing cookies
 });
+
+fastify.register(fastifyCors, {
+  origin: '*',
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
+});
+
 
 fastify.register(require('@fastify/swagger'), {
   routePrefix: '/docs',

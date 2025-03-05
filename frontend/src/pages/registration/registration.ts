@@ -7,13 +7,13 @@ import { userAPI } from "../../services/api";
 
 
 export function handleRegistration() {
-    const userNameInput = document.querySelector("#usernameRegistration") as HTMLInputElement;
+    // const userNameInput = document.querySelector("#usernameRegistration") as HTMLInputElement;
     const emailInput = document.querySelector("#emailRegistration") as HTMLInputElement;
     const passwordInput = document.querySelector("#passwordRegistration") as HTMLInputElement;
     const btnRegistr = document.querySelector("#submitRegistration") as HTMLButtonElement;
     const signInBtn = document.querySelector('#questionAlreadyRegistr');
 
-    const inputsUsers: HTMLInputElement[] = [userNameInput, emailInput, passwordInput];
+    const inputsUsers: HTMLInputElement[] = [emailInput, passwordInput];
 
     btnRegistr!.addEventListener('click', (e) => {
         e.preventDefault();
@@ -31,7 +31,7 @@ export function handleRegistration() {
                 }
                 userDataRegistration[key] = input.value;
             });
-            userAPI.postDatas(userDataRegistration);
+            userAPI.postDatas(userDataRegistration, 'registration');
             routeToHome();
         } catch (error) {
             alert(error);

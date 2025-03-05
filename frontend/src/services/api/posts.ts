@@ -3,19 +3,34 @@ import axios from 'axios'
 // FETCH REQUEST - - - - - - - - - - - - 
 
 export const userAPI = {
-	postDatas: (data: Object) => {
-		//	change in future url (when database will be ready to use) 
-		let url = 'https://jsonplaceholder.typicode.com/posts';
-		fetch(url, {
-			method: "POST",
-			headers: {
-				'Content-type': 'application/json;charset=utf-8'
-			},
-			body: JSON.stringify(data)
-		})
-			.then(response => response.json())
-			.then((result) => console.log("Data successfully delivered:", result))
-			.catch((error) => console.log("Error posting data: " + error));
+	postDatas: async (data: Object, endpoint: string) => {
+		let url = 'http://localhost:3000/' + endpoint;
+
+		try{
+			let response = await fetch(url, {
+				method: "POST",
+				headers: {
+					'Content-type': 'application/json;charset=utf-8'
+				},
+				body: JSON.stringify(data)
+			})	
+
+			const reponseData = await response.json();
+
+			if(response.status === 500)
+			{
+				console.log("User already registred");
+			
+			}
+		} catch (error) {
+			console.log("Caught error ", error);
+			
+		}
+
+
+			// .then(response => response.json())
+			// .then((result) => console.log("Data successfully delivered:", result))
+			// .catch((error) => console.log("Error posting data: " + error));
 	},
 
 	getDatas:  () => {

@@ -11,7 +11,7 @@ async function registration(email, password) {
     console.log("Starting registration process");
     const us = await User.findOne({ where: { email } });
     if (us) {
-      return { error: "User already exists" };
+      throw new Error("User already exists");
     }
     console.log("User does not exist, proceeding with registration");
     const hashPassword = await bcrypt.hash(password, 3);
@@ -23,8 +23,9 @@ async function registration(email, password) {
       password: hashPassword,
       activationLink,
     });
+
     console.log("User created in database");
-    // sendActivationMail(email, `${process.env.API_URL}/activate/${activationLink}`); //await !!!!!
+    sendActivationMail(email, `${process.env.API_URL}/activate/${activationLink}`); //await !!!!!
     console.log("Activation mail sent");
     const userDto = new UserDto(user);
     console.log("User DTO created");

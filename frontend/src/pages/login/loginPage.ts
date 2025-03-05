@@ -24,7 +24,7 @@ export function handleLogin() {
                 }
                 userDataLogin[key] = input.value;
             });
-            userAPI.postDatas(userDataLogin);
+            userAPI.postDatas(userDataLogin, 'login');
             routeToHome();
         } catch (error) {
             alert(error);

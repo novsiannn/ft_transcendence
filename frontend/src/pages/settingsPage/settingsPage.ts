@@ -27,7 +27,7 @@ export function handleSettings() {
 					throw new Error("empty area!");
 				data[input.placeholder.split(" ").join("")] = input.value;
 			})
-			userAPI.postDatas(data);
+			userAPI.postDatas(data, 'settings');
 		}
 		catch (error) {
 			alert(error)
