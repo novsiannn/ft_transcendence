@@ -10,5 +10,5 @@ export const dropMenuRoutes: { [key: string]: string } = {
 	"Game": "/game",
 	"Leaderboard": "/leaderboard",
 	"Settings": "/settings",
-	"Logout": "/logout"
+	"Logout": "/login"
 }  
