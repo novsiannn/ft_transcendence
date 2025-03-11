@@ -1,9 +1,37 @@
-version: "3.8"
-
 services:
-  sqlite:
-    image: alpine
-    container_name: sqlite_container
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "8888:8888"
     volumes:
-      - ./backend/db:/data
-    command: [ "sh", "-c", "apk add --no-cache sqlite && tail -f /dev/null" ]
+      - ./frontend:/src
+      - /frontend/node_modules
+    environment:
+      - NODE_ENV=development
+    stdin_open: true
+    tty: true
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./backend:/src
+      - ./backend/db:/db
+      - /backend/node_modules
+    environment:
+      - NODE_ENV=development
+
+# version: "3.8"
+
+# services:
+#   sqlite:
+#     image: alpine
+#     container_name: sqlite_container
+#     volumes:
+#       - ./backend/db:/data
+#     command: [ "sh", "-c", "apk add --no-cache sqlite && tail -f /dev/null" ]

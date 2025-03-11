@@ -6,12 +6,16 @@ const tokenService = require("./token.service");
 const UserDto = require("../dtos/user.dto");
 // const { logout } = require("../controllers/user.controller");
 
-async function registration(email, password) {
+async function registration(username, email, password) {
   try {
     console.log("Starting registration process");
     const us = await User.findOne({ where: { email } });
     if (us) {
       throw new Error("User already exists");
+    }
+    const name = await User.findOne({ where: { username }});
+    if (name) {
+      throw new Error("Username already exists");
     }
     console.log("User does not exist, proceeding with registration");
     const hashPassword = await bcrypt.hash(password, 3);
@@ -19,6 +23,7 @@ async function registration(email, password) {
     const activationLink = uuid.v4();
     console.log("Activation link generated");
     const user = await User.create({
+      username,
       email,
       password: hashPassword,
       activationLink,
