@@ -1,37 +1,37 @@
-services:
-  frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
-    ports:
-      - "8888:8888"
-    volumes:
-      - ./frontend:/src
-      - /frontend/node_modules
-    environment:
-      - NODE_ENV=development
-    stdin_open: true
-    tty: true
+version: "3.8"
 
+services:
   backend:
     build:
       context: ./backend
       dockerfile: Dockerfile
+    container_name: transcendenc_backend
     ports:
       - "3000:3000"
+    env_file:
+      - ./backend/.env
     volumes:
-      - ./backend:/src
-      - ./backend/db:/db
-      - /backend/node_modules
+      - ./backend:/app
+      - ./backend/db/database.sqlite:/app/database.sqlite
+      # Не монтируем node_modules
+      - /app/node_modules
     environment:
       - NODE_ENV=development
+      - DB_PATH=/app/database.sqlite
+    restart: unless-stopped
+    command: sh -c "chmod 666 /app/database.sqlite && node src/index.js"
 
-# version: "3.8"
-
-# services:
-#   sqlite:
-#     image: alpine
-#     container_name: sqlite_container
-#     volumes:
-#       - ./backend/db:/data
-#     command: [ "sh", "-c", "apk add --no-cache sqlite && tail -f /dev/null" ]
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: transcendenc_frontend
+    ports:
+      - "8888:8888"
+    volumes:
+      - ./frontend:/app
+      # Не монтируем node_modules
+      - /app/node_modules
+    restart: unless-stopped
+    depends_on:
+      - backend

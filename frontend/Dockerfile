@@ -1,10 +1,12 @@
-FROM node:20-alpine
+FROM node:18-alpine
 
-WORKDIR /src
+WORKDIR /app
 
+# Копирование и установка зависимостей
 COPY package*.json ./
 RUN npm install
 
+# Копирование исходного кода
 COPY . .
 
 EXPOSE 8888
