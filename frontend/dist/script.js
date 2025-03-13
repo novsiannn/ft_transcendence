@@ -8,7 +8,7 @@
   \*********************************/
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
-
+//252 changed by kilchenk
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.errorPage = errorPage;
 const elements_1 = __webpack_require__(/*! ../elements */ "./src/elements/index.ts");
@@ -249,7 +249,7 @@ function registrationPage() {
                 <div class="w-2/5 p-10 flex flex-col justify-center rounded-r-lg">
                     <h2 class="text-2xl font-bold text-center mb-4">Registration</h2>
                     <form id="registerForm" class="space-y-4">
-                        <input id="usernameRegistration" type="text" placeholder="Username" class="w-full p-2 border rounded">
+                        <input id="userNameRegistration" type="username" placeholder="Username" class="w-full p-2 border rounded">
                         <input id="emailRegistration" type="email" placeholder="Your email" class="w-full p-2 border rounded">
                         <input id="passwordRegistration" type="password" placeholder="Your password" class="w-full p-2 border rounded">
                         <input id="submitRegistration" type="submit" value="Register" class="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600 cursor-pointer">

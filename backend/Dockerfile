@@ -1,19 +1,22 @@
 FROM node:18-alpine
 
-# Установка необходимых пакетов
-RUN apk add --no-cache sqlite sqlite-dev
+# Install sqlite (run as root)
+RUN apk add --no-cache sqlite
+
+# Create app directory and set permissions (as root)
+# RUN mkdir -p /app/db && chown -R node:node /app
 
 WORKDIR /app
 
-# Копирование и установка зависимостей
+# Install dependencies (as root)
 COPY package*.json ./
 RUN npm install
 
-# Копирование исходного кода
+# Copy app files (as root)
 COPY . .
 
-# Создание пустого файла базы данных, если его нет
-RUN touch database.sqlite && chmod 666 database.sqlite
+# Switch to non-root user (already exists in base image)
+# USER node
 
 EXPOSE 3000
 

@@ -5,21 +5,26 @@ import { IUserDataRegistrationType } from "../../shared";
 import { userDataRegistration } from "../../shared";
 import { userAPI } from "../../services/api";
 
-
+//changed from kilchenk
 export function handleRegistration() {
-    // const userNameInput = document.querySelector("#usernameRegistration") as HTMLInputElement;
+    const userNameInput = document.querySelector("#usernameRegistration") as HTMLInputElement;
     const emailInput = document.querySelector("#emailRegistration") as HTMLInputElement;
     const passwordInput = document.querySelector("#passwordRegistration") as HTMLInputElement;
     const btnRegistr = document.querySelector("#submitRegistration") as HTMLButtonElement;
     const signInBtn = document.querySelector('#questionAlreadyRegistr');
 
-    const inputsUsers: HTMLInputElement[] = [emailInput, passwordInput];
+    const inputsUsers: HTMLInputElement[] = [userNameInput, emailInput, passwordInput];
 
     btnRegistr!.addEventListener('click', (e) => {
         e.preventDefault();
         try {
+            const userDataRegistration: IUserDataRegistrationType = {
+                username: null,
+                email: null,
+                password: null
+            };
             inputsUsers.forEach(input => {
-                const key = input.type.toLowerCase() as keyof IUserDataRegistrationType;
+                // const key = input.type.toLowerCase() as keyof IUserDataRegistrationType;
                 if (!input.value) {
                     throw new Error("One of your inputs is empty!");
                 }
@@ -29,7 +34,17 @@ export function handleRegistration() {
                 if (input.type === 'email' && !(input.value.match(/@/g))) {
                     throw new Error(`${input.placeholder} has contain ' @ ' symbol`);
                 }
-                userDataRegistration[key] = input.value;
+                // userDataRegistration[key] = input.value;
+                if (input.id === 'usernameRegistration') {
+                    userDataRegistration.username = input.value;
+                }
+                else if (input.id === 'emailRegistration') {
+                    userDataRegistration.email = input.value;
+                }
+                else if (input.id === 'passwordRegistration') {
+                    userDataRegistration.password = input.value;
+                }
+                console.log(userDataRegistration);
             });
             userAPI.postDatas(userDataRegistration, 'registration');
             routeToHome();

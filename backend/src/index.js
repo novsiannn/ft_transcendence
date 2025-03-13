@@ -36,13 +36,17 @@ fastify.register(userRoutes);
 
 async function start() {
   try {
-    await sequelize.sync({ force: true });
+    await sequelize.sync({ force: true }); //false for cleaning the database
     console.log('Database & tables created!');
 
-    await fastify.listen({ port: 3000 });
+    await fastify.listen({ 
+      host: '0.0.0.0',  
+      port: 3000,
+    });
     console.log('Server listening at http://localhost:3000');
   } catch (err) {
     console.error('Error:', err);
+    process.exit(1);
   }
 }
 
