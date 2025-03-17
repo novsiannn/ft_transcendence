@@ -1,37 +1,87 @@
 import { navigationHandle } from "../../nagivation";
-import { userAPI } from "../../services/api";
+
+interface IphotoIMG {
+  name: null | string;
+  size: null | number;
+  type: null | string;
+  url: null | string;
+}
+
+interface User {
+  id: number | null;
+  email: string | null;
+  username: string | null;
+  firstName: string | null;
+  lastName: string | null;
+  phoneNumber: string | null;
+  photo: IphotoIMG;
+}
+
+interface ITestUserData {
+  token: string | null;
+  user: User;
+}
+
+export let testUserData: ITestUserData = {
+  token: "test-token",
+  user: {
+    id: 1,
+    email: "userExampleEmail@gmail.com",
+    username: "Leonardo da Vinci",
+    firstName: null,
+    lastName: "Davidovich",
+    phoneNumber: null,
+    photo: {
+      name: null,
+      size: null,
+      type: null,
+      url: null,
+    },
+  },
+};
 
 export function handleSettings() {
-	navigationHandle();
-	const inputs = document.querySelectorAll<HTMLInputElement>("#inputUserInfo");
-	const btnSave = document.querySelector<HTMLButtonElement>("#saveChangesSettings");
-	const profileImgContainer = document.querySelector<HTMLDivElement>("#profileImgContainer");
-	const uploadImgBtn = document.querySelector<HTMLInputElement>("#uploadImgBtn");	
-	
-	const data: Record<string, string> = {};
+  navigationHandle();
+  const inputs = document.querySelectorAll<HTMLInputElement>("#inputUserInfo");
+  const btnSave = document.querySelector<HTMLButtonElement>(
+    "#saveChangesSettings"
+  );
+  const profileImgContainer =
+    document.querySelector<HTMLImageElement>("#profileImg");
+  const uploadImgInput =
+    document.querySelector<HTMLInputElement>("#uploadImgInput");
 
-	// uploadImgBtn!.addEventListener('change', async (event) => {
-	// 	const input = event.target as HTMLInputElement;
+  uploadImgInput!.addEventListener("change", (event: Event) => {
+    const target = event.target as HTMLInputElement;
+    const file = target.files?.[0];
+
+    if (file && file.type.startsWith("image/")) {
+      const reader = new FileReader();
+      reader.onload = (e: ProgressEvent<FileReader>) => {
+        if (e.target?.result) {
+          profileImgContainer!.src = e.target.result as string;
+          profileImgContainer!.style.display = "block";
 		
-	// 	if(input.files!.length > 0){
-	// 		const imgFile = input.files![0];
-	// 		const isImageType = imgFile!.type.startsWith("image");
-	// 	}
-		
-	// })
+          testUserData.user.photo.name = file.name;
+          testUserData.user.photo.size = file.size;
+          testUserData.user.photo.type = file.type;
+          testUserData.user.photo.url = e.target.result as string;
+        }
+      };
+      reader.readAsDataURL(file);
+      console.log(testUserData);
+    }
+  });
 
-	btnSave!.addEventListener('click', () => {
-		try {
-			inputs.forEach((input) => {
-				if(!input.value)
-					throw new Error("empty area!");
-				data[input.placeholder.split(" ").join("")] = input.value;
-			})
-			userAPI.postDatas(data, 'settings');
-		}
-		catch (error) {
-			alert(error)
-		}
-	});
-
+//   btnSave!.addEventListener("click", () => {
+//     try {
+//       inputs.forEach((input) => {
+//         if (!input.value) throw new Error("empty area!");
+//         testUserData[input.placeholder.split(" ").join("")] = input.value;
+//       });
+//       userAPI.postDatas(testUserData, "settings");
+//     } catch (error) {
+//       alert(error);
+//     }
+//   });
 }
