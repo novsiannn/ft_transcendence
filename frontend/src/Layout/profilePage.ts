@@ -16,7 +16,7 @@ export function profilePage(mainWrapper: HTMLDivElement | undefined) {
             <div class="flex items-center justify-center w-full h-full  rounded-2xl text-center">
                 <div class="grid grid-cols-8 grid-rows-4 w-2/3 h-2/3  mt-12 bg-white rounded-3xl">
                     <div class="my-5 col-start-4 col-span-2">
-                            <img src="img/goat.jpg" alt="Profile Photo" 
+                            <img src="https://cdn.pixabay.com/photo/2020/07/01/12/58/icon-5359553_1280.png" alt="Profile Photo" 
                          class="mx-auto w-36 h-36 rounded-full border-4 border-white">
                     </div>
 

@@ -63,14 +63,14 @@ const headerLeaderBoard = () => {
 
 
 export function leaderBoardPage(mainWrapper: HTMLDivElement | undefined) {
-	document.body.classList.add("bg-gradient-to-t", "from-black", "via-black", "to-gray-800", "h-full");
+	document.body.classList.add("bg-gradient-to-t", "from-black", "via-black", "to-gray-800", "h-full", "overflow-hidden");
 	mainWrapper!.className = "h-screen w-full flex items-center";
 
 	let res = `
 		${navigation()}
 
-			<div class="flex items-center justify-center w-full h-full  rounded-2xl text-center mt-12">
-				<div class="grid gap-2 h-4/5 w-full bg-white rounded-3xl">
+			<div class="flex items-center justify-center w-full h-full  rounded-2xl text-center mt-24 m-12">
+				<div class="grid gap-2 h-4/5 w-full bg-white rounded-3xl p-7">
 					<div>
 						<h1 class="text-2xl mt-3">Leaderboard</h1>
 					</div>
