@@ -26,11 +26,6 @@ export const userAPI = {
 			console.log("Caught error ", error);
 			
 		}
-
-
-			// .then(response => response.json())
-			// .then((result) => console.log("Data successfully delivered:", result))
-			// .catch((error) => console.log("Error posting data: " + error));
 	},
 
 	getDatas:  () => {
