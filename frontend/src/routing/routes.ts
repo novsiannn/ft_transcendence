@@ -14,7 +14,7 @@ interface handleFunctionI {
     handleFunc: (mainWrapper?: HTMLDivElement) => void;
 }
 
-export const routes: Record<string, handleFunctionI> = {
+export const privateRoutes: Record<string, handleFunctionI> = {
     "/": { layoutCreate: homePage, handleFunc: handleHomePage },
     "/play": { layoutCreate: playPage, handleFunc: handlePlayPage },
     "/game": { layoutCreate: gamePage, handleFunc: handleGame },
@@ -24,4 +24,11 @@ export const routes: Record<string, handleFunctionI> = {
     "/settings": {layoutCreate: settingsPage, handleFunc: handleSettings},
     "/error": {layoutCreate: errorPage, handleFunc: handleErrorPage},
     "/leaderboard": {layoutCreate: leaderBoardPage, handleFunc: handleLeaderboardPage},
+};
+
+export const publicRoutes: Record<string, handleFunctionI> = {
+    "/": { layoutCreate: homePage, handleFunc: handleHomePage },
+    "/registration": { layoutCreate: registrationPage, handleFunc: handleRegistration },
+    "/login": { layoutCreate: loginPage, handleFunc: handleLogin },
+    "/error": {layoutCreate: errorPage, handleFunc: handleErrorPage},
 };
