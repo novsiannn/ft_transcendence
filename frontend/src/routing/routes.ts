@@ -8,6 +8,8 @@ import { handleProfilePage } from "../pages/profile"
 import { handleSettings } from "../pages/settingsPage"
 import { handleErrorPage } from "../pages/errorPage"
 import { handleLeaderboardPage } from "../pages/leaderboard"
+import { activateAccountPage } from "../Layout/activateAccountPage"
+import { handleActivateAccount } from "../pages/activateAccPage"
 
 interface handleFunctionI {
     layoutCreate: (mainWrapper?: HTMLDivElement) => string;
@@ -31,4 +33,18 @@ export const publicRoutes: Record<string, handleFunctionI> = {
     "/registration": { layoutCreate: registrationPage, handleFunc: handleRegistration },
     "/login": { layoutCreate: loginPage, handleFunc: handleLogin },
     "/error": {layoutCreate: errorPage, handleFunc: handleErrorPage},
+    "/activate": {layoutCreate: activateAccountPage, handleFunc: handleActivateAccount},
+};
+
+export const allRoutes: Record<string, handleFunctionI> = {
+    "/": { layoutCreate: homePage, handleFunc: handleHomePage },
+    "/play": { layoutCreate: playPage, handleFunc: handlePlayPage },
+    "/game": { layoutCreate: gamePage, handleFunc: handleGame },
+    "/profile": { layoutCreate: profilePage, handleFunc: handleProfilePage },
+    "/registration": { layoutCreate: registrationPage, handleFunc: handleRegistration },
+    "/login": { layoutCreate: loginPage, handleFunc: handleLogin },
+    "/settings": {layoutCreate: settingsPage, handleFunc: handleSettings},
+    "/error": {layoutCreate: errorPage, handleFunc: handleErrorPage},
+    "/leaderboard": {layoutCreate: leaderBoardPage, handleFunc: handleLeaderboardPage},
+    "/activate": {layoutCreate: activateAccountPage, handleFunc: handleActivateAccount},
 };
