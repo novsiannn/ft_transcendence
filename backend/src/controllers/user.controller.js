@@ -5,6 +5,9 @@ const UserController = {
         try {
             const { username, email, password } = req.body;
             const userData = await userService.registration(username, email, password);
+            if (userData.error) {
+                return res.code(409).send(userData.error);
+            }
             res.cookie("refreshToken", userData.refreshToken, {
                 maxAge: 60 * 24 * 60 * 60 * 1000,
                 httpOnly: true,
@@ -27,14 +30,24 @@ const UserController = {
     },
 
     async login(req, res) {
-        const { email, password } = req.body;
         try {
+            const { email, password } = req.body;
             const userData = await userService.login(email, password);
+            if (userData.error) {
+                let statusCode = 400;
+
+                if (userData.error === "User is not activated") {
+                    statusCode = 403; //Forbidden
+                } else if (userData.error === "Incorrect password or email") {
+                    statusCode = 401; //Unauthorized
+                }
+                return res.code(statusCode).send(userData.error);
+            }
             res.cookie("refreshToken", userData.refreshToken, {
                 maxAge: 60 * 24 * 60 * 60 * 1000,
                 httpOnly: true,
             });
-            res.code(201).send(userData);
+            res.code(200).send(userData);
         } catch (error) {
             res.code(500).send({ error: "Error logging in user" });
         }
@@ -55,6 +68,16 @@ const UserController = {
         try {
             const { refreshToken } = req.cookies;
             const userData = await userService.refresh(refreshToken);
+            if (userData.error) {
+                let statusCode = 400;
+
+                if (userData.error === "User not authorized") {
+                    statusCode = 401; //Unauthorized
+                } else if (userData.error === "User not found") {
+                    statusCode = 401; //Unauthorized
+                }
+                return res.code(statusCode).send(userData.error);
+            }
             res.cookie("refreshToken", userData.refreshToken, {
                 maxAge: 60 * 24 * 60 * 60 * 1000,
                 httpOnly: true,

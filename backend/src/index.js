@@ -39,8 +39,8 @@ async function start() {
     await sequelize.sync({ force: true }); //false for cleaning the database
     console.log('Database & tables created!');
 
-    await fastify.listen({ 
-      host: '0.0.0.0',  
+    await fastify.listen({
+      host: '0.0.0.0',
       port: 3000,
     });
     console.log('Server listening at http://localhost:3000');

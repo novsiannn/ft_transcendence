@@ -8,20 +8,16 @@ const UserDto = require("../dtos/user.dto");
 
 async function registration(username, email, password) {
   try {
-    console.log("Starting registration process");
     const us = await User.findOne({ where: { email } });
     if (us) {
-      throw new Error("User already exists");
+      return { error: "User already exists" };
     }
-    const name = await User.findOne({ where: { username }});
+    const name = await User.findOne({ where: { username } });
     if (name) {
-      throw new Error("Username already exists");
+      return { error: "User already exists" };
     }
-    console.log("User does not exist, proceeding with registration");
     const hashPassword = await bcrypt.hash(password, 3);
-    console.log("Password hashed");
     const activationLink = uuid.v4();
-    console.log("Activation link generated");
     const user = await User.create({
       username,
       email,
@@ -29,19 +25,15 @@ async function registration(username, email, password) {
       activationLink,
     });
 
-    console.log("User created in database");
-    try {
-      sendActivationMail(email, `${process.env.API_URL}/activate/${activationLink}`); //await !!!!!
-      console.log("Activation mail sent");
-    } catch (error) {
-      console.error("Error sending activation mail:", error);
-    }
+    // try {
+    //   sendActivationMail(email, `${process.env.API_URL}/activate/${activationLink}`); //await !!!!!
+    //   console.log("Activation mail sent");
+    // } catch (error) {
+    //   console.error("Error sending activation mail:", error);
+    // }
     const userDto = new UserDto(user);
-    console.log("User DTO created");
     const tokens = tokenService.generateTokens({ ...userDto });
-    console.log("Tokens generated");
     await tokenService.saveToken(userDto.id, tokens.refreshToken);
-    console.log("Refresh token saved");
 
     return {
       ...tokens,
@@ -72,9 +64,9 @@ async function login(email, password) {
     return { error: "Incorrect password or email" };
   }
 
-  if (!user.isActivated) {
-    return { error: "User is not activated" };
-  }
+  // if (!user.isActivated) {
+  //   return { error: "User is not activated" };
+  // }
 
   const userDto = new UserDto(user);
   const tokens = tokenService.generateTokens({ ...userDto });
@@ -109,11 +101,11 @@ async function refresh(refreshToken) {
     if (!user) {
       return { error: "User not found" };
     }
-  
+
     const userDto = new UserDto(user);
     const tokens = tokenService.generateTokens({ ...userDto });
     await tokenService.saveToken(userDto.id, tokens.refreshToken);
-  
+
     return {
       ...tokens,
       user: userDto,
@@ -125,11 +117,11 @@ async function refresh(refreshToken) {
 
 async function getAllUsers() {
   try {
-      const users = await User.findAll();
-      return users;
+    const users = await User.findAll();
+    return users;
   } catch (error) {
-      console.error("Error during getAllUsers process:", error);
-      throw error;
+    console.error("Error during getAllUsers process:", error);
+    throw error;
   }
 }
 
