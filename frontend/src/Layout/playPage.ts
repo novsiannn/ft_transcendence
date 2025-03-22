@@ -1,6 +1,6 @@
 import { navigation } from "../elements"
 
-export function playPage(mainWrapper: HTMLDivElement | undefined) {
+export function playPage() {
     let res = `
                 ${navigation()}
                 <div class="flex flex-col items-center justify-center min-h-screen bg-gradient-to-t from-black via-black to-gray-800 space-y-8">
