@@ -32,6 +32,10 @@ const User = sequelize.define("User", {
   activationLink: {
     type: DataTypes.STRING,
   },
+  // isOnline: {
+  //   type: DataTypes.BOOLEAN,
+  //   defaultValue: false,
+  // },
 });
 
 // User.beforeCreate(async (user) => {

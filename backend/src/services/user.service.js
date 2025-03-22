@@ -30,8 +30,12 @@ async function registration(username, email, password) {
     });
 
     console.log("User created in database");
-    sendActivationMail(email, `${process.env.API_URL}/activate/${activationLink}`); //await !!!!!
-    console.log("Activation mail sent");
+    try {
+      sendActivationMail(email, `${process.env.API_URL}/activate/${activationLink}`); //await !!!!!
+      console.log("Activation mail sent");
+    } catch (error) {
+      console.error("Error sending activation mail:", error);
+    }
     const userDto = new UserDto(user);
     console.log("User DTO created");
     const tokens = tokenService.generateTokens({ ...userDto });
@@ -67,6 +71,11 @@ async function login(email, password) {
   if (!isPassEquals) {
     return { error: "Incorrect password or email" };
   }
+
+  if (!user.isActivated) {
+    return { error: "User is not activated" };
+  }
+
   const userDto = new UserDto(user);
   const tokens = tokenService.generateTokens({ ...userDto });
 
@@ -90,19 +99,28 @@ async function refresh(refreshToken) {
   if (!refreshToken) {
     return { error: "User not authorized" };
   }
-  const userData = tokenService.validateRefreshToken(refreshToken);
-  const tokenFromDb = await tokenService.findToken(refreshToken);
-  if (!userData || !tokenFromDb) {
-    return { error: "User not authorized" };
+  try {
+    const userData = await tokenService.validateRefreshToken(refreshToken);
+    const tokenFromDb = await tokenService.findToken(refreshToken);
+    if (!userData || !tokenFromDb) {
+      return { error: "User not authorized" };
+    }
+    const user = await User.findOne({ where: { id: userData.id } });
+    if (!user) {
+      return { error: "User not found" };
+    }
+  
+    const userDto = new UserDto(user);
+    const tokens = tokenService.generateTokens({ ...userDto });
+    await tokenService.saveToken(userDto.id, tokens.refreshToken);
+  
+    return {
+      ...tokens,
+      user: userDto,
+    };
+  } catch (error) {
+    console.error("Error during refresh process:", error);
   }
-  const user = await User.findOne({ where: { id: userData.id } });
-  const userDto = new UserDto(user);
-  const tokens = tokenService.generateTokens({ ...userDto });
-  await tokenService.saveToken(userDto.id, tokens.refreshToken);
-  return {
-    ...tokens,
-    user: userDto,
-  };
 }
 
 async function getAllUsers() {

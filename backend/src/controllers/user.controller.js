@@ -12,7 +12,7 @@ const UserController = {
             res.code(201).send(userData);
         } catch (error) {
             console.error("Error registering user:", error);
-            res.status(500).send({ error: "Error registering user" });
+            res.code(500).send({ error: "Error registering user" });
         }
     },
 
@@ -22,7 +22,7 @@ const UserController = {
             await userService.activate(activationLink);
             res.redirect(process.env.CLIENT_URL);
         } catch (error) {
-            res.status(500).send({ error: "Error activating user" });
+            res.code(500).send({ error: "Error activating user" });
         }
     },
 
@@ -36,7 +36,7 @@ const UserController = {
             });
             res.code(201).send(userData);
         } catch (error) {
-            reply.status(500).send({ error: "Error logging in user" });
+            res.code(500).send({ error: "Error logging in user" });
         }
     },
 
@@ -45,9 +45,9 @@ const UserController = {
         try {
             const token = await userService.logout(refreshToken);
             res.clearCookie("refreshToken");
-            res.status(201).send(token);
+            res.code(201).send(token);
         } catch (error) {
-            res.status(500).send({ error: "Error logging out user" });
+            res.code(500).send({ error: "Error logging out user" });
         }
     },
 
@@ -59,9 +59,9 @@ const UserController = {
                 maxAge: 60 * 24 * 60 * 60 * 1000,
                 httpOnly: true,
             });
-            res.status(201).send(userData);
+            res.code(201).send(userData);
         } catch (error) {
-            res.status(500).send({ error: "Error refreshing user" });
+            res.code(500).send({ error: "Error refreshing user" });
         }
     },
 
@@ -69,10 +69,10 @@ const UserController = {
         try {
             console.log("Get users request received");
             users = await userService.getAllUsers();
-            return users;
+            return res.send(users);
         } catch (error) {
             console.error("Error getting users:", error);
-            res.status(500).send({ error: "Error getting users" });
+            res.code(500).send({ error: "Error getting users" });
         }
     },
 };
@@ -114,9 +114,9 @@ module.exports = UserController;
 //                 password,
 //                 avatar,
 //             });
-//             res.status(201).send(newUser);
+//             res.code(201).send(newUser);
 //         } catch (error) {
-//             reply.status(500).send({ error: "Error creating a User" });
+//             reply.code(500).send({ error: "Error creating a User" });
 //         }
 //     },
 // };

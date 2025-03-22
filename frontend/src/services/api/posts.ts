@@ -1,5 +1,3 @@
-import axios from 'axios'
-
 // FETCH REQUEST - - - - - - - - - - - - 
 
 export const userAPI = {
