@@ -1,4 +1,3 @@
-import { routeToHome } from "../../routing/index"
 import { navigateTo } from "../../routing/index"
 // import { postDatas } from "../../services/api";
 import { IUserDataRegistrationType } from "../../shared";
@@ -44,15 +43,15 @@ export function handleRegistration() {
                 else if (input.id === 'passwordRegistration') {
                     userDataRegistration.password = input.value;
                 }
-                console.log(userDataRegistration);
             });
             userAPI.postDatas(userDataRegistration, 'registration');
-            routeToHome();
+            console.log(userDataRegistration);
+            navigateTo("/activate");
         } catch (error) {
             alert(error);
         }
     });
-    signInBtn!.addEventListener('click', () => {
+    signInBtn!.addEventListener('click', () => { 
         navigateTo("/login");
     });
 }
