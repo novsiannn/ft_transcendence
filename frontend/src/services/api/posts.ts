@@ -4,26 +4,19 @@ export const userAPI = {
 	postDatas: async (data: Object, endpoint: string) => {
 		let url = 'http://localhost:3000/' + endpoint;
 
-		try{
-			let response = await fetch(url, {
+		// try{
+			return await fetch(url, {
 				method: "POST",
 				headers: {
 					'Content-type': 'application/json;charset=utf-8'
 				},
 				body: JSON.stringify(data)
-			})	
+			}).then( response => response );
 
-			const reponseData = await response.json();
-
-			if(response.status === 500)
-			{
-				console.log("User already registred");
 			
-			}
-		} catch (error) {
-			console.log("Caught error ", error);
-			
-		}
+		// } catch (error) {
+		// 	console.log("Caught error ", error);
+		// }
 	},
 
 	getDatas:  () => {
