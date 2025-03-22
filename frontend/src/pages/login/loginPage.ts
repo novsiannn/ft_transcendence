@@ -1,8 +1,8 @@
 // import { postDatas } from "../../services/api";
 import { userDataLogin } from "../../shared";
 import { IUserDataTypeLogin } from "../../shared";
-import { routeToHome } from "../../routing";
 import { userAPI } from "../../services/api";
+import { navigateTo } from "../../routing";
 
 
 // Post datas !!! Delete userAPI if u are using fetch request
@@ -10,7 +10,6 @@ export function handleLogin() {
     const loginEmailInput = document.getElementById("loginInput") as HTMLInputElement;
     const loginPassInput = document.getElementById("loginPass") as HTMLInputElement;;
     const loginBtn = document.getElementById("loginBtn");
-    const forgotPassword = document.getElementById("questionPassForgot"); // later implement
 
     const LoginBtns: HTMLInputElement[] = [loginEmailInput, loginPassInput];
 
@@ -24,13 +23,11 @@ export function handleLogin() {
                 }
                 userDataLogin[key] = input.value;
             });
+            console.log(userDataLogin);
             userAPI.postDatas(userDataLogin, 'login');
-            routeToHome();
+            navigateTo("/");
         } catch (error) {
             alert(error);
         }
-
-
-
     })
 }
