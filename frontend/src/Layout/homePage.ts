@@ -1,7 +1,7 @@
 import { navigation } from "../elements"
 // import  myImg  from "../img/ping-pong.png"
 
-export function homePage(mainWrapper: HTMLDivElement | undefined) {
+export function homePage() {
 	document.body.classList.add("h-screen", "flex", "flex-col", "bg-gradient-to-t", "from-black", "via-black", "to-gray-800", "overflow-hidden");
 	// ${navigation()}
 	let res = `
