@@ -2,7 +2,7 @@
 
 export const userAPI = {
 	postDatas: async (data: Object, endpoint: string) => {
-		let url = 'http://localhost:3000/' + endpoint;
+		let url = 'https://localhost:3000/' + endpoint;
 
 		// try{
 			return await fetch(url, {

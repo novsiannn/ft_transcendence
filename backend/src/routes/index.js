@@ -4,7 +4,7 @@ const userController = require('../controllers/user.controller');
 const authMiddleware = require('../middleware/auth.middleware');
 
 async function routes(fastify, options) {
-  fastify.post('/registration', {
+  fastify.post('/registration',{
     schema: {
       body: {
         type: 'object',

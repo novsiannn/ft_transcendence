@@ -1,5 +1,11 @@
 const path = require('path');
+const fs = require('fs');
 const HtmlWebpackPlugin = require('html-webpack-plugin'); // Плагин для копирования index.html и добавления скриптов
+
+const keyPath = path.join(__dirname, '/certs/key.pem'); // added by kilchenk
+const certPath = path.join(__dirname, '/certs/cert.pem'); // added by kilchenk
+
+const isHttps = fs.existsSync(keyPath) && fs.existsSync(certPath); // added by kilchenk
 
 module.exports = {
   entry: './src/index.ts', // Входной файл
@@ -26,10 +32,21 @@ module.exports = {
     static: {
       directory: path.join(__dirname, 'dist'), // Отдаем файлы из папки dist
     },
+    compress: true, // added by kilchenk
     historyApiFallback: true, // Поддержка SPA
     port: 8888, // Запуск на порте 8888
     hot: true,
     open: true, // Автоматически откроется браузер
+
+    //added by kilchenk from
+    server: isHttps ? {
+      type: 'https',
+      options: {
+        key: fs.readFileSync(keyPath),
+        cert: fs.readFileSync(certPath),
+      }
+    } : 'http',
+    //added by kilchenk to
   },
   plugins: [
     new HtmlWebpackPlugin({

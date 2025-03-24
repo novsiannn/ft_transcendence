@@ -1,8 +1,33 @@
 require('dotenv').config();
-const fastify = require('fastify')({ logger: true });
+const fs = require('fs');
+const path = require('path');
+// const fastify = require('fastify')({ logger: true });
 const sequelize = require('../db/database');
 const userRoutes = require('./routes/index');
 const fastifyCors = require('@fastify/cors');
+
+const keyPath = process.env.SSL_KEY_PATH || path.join(__dirname, './../certs/key.pem');
+const certPath = process.env.SSL_CERT_PATH || path.join(__dirname, './../certs/cert.pem');
+
+// const keyPath = path.join(__dirname, './../../certs/key.pem');
+// const certPath = path.join(__dirname, './../../certs/cert.pem');
+
+if (!fs.existsSync(keyPath) || !fs.existsSync(certPath)) {
+  console.error('SSL certificates not found! Please check paths:', keyPath, certPath);
+  process.exit(1);
+}
+
+const httpsOptions = {
+  https: {
+    key: fs.readFileSync(keyPath),
+    cert: fs.readFileSync(certPath),
+  }
+};
+
+const fastify = require('fastify')({
+  logger: true,
+  ...httpsOptions
+});
 
 fastify.register(require('@fastify/cookie'), {
   secret: process.env.COOKIE_SECRET || 'my-secret', // for cookies signature
@@ -23,7 +48,7 @@ fastify.register(require('@fastify/swagger'), {
       version: '1.0.0',
     },
     servers: [
-      { url: 'http://localhost:3000' },
+      { url: 'https://localhost:3000' },
     ],
   },
 });
@@ -43,7 +68,7 @@ async function start() {
       host: '0.0.0.0',
       port: 3000,
     });
-    console.log('Server listening at http://localhost:3000');
+    console.log('Server listening at https://localhost:3000');
   } catch (err) {
     console.error('Error:', err);
     process.exit(1);
