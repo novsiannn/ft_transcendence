@@ -5,14 +5,14 @@ const getProfileIcon = () => {
 }
 
 const getSignInBtn = () => {
-	return `<div id="signInBtn" alt="Profile" class="w-full h-8 cursor-pointer bg-green-300 flex items-center">
-			<h1>SIGN IN</h1>
+	return `<div id="signInBtn" alt="Profile" class="w-full text-black font-thin rounded-md p-2 h-8 cursor-pointer bg-gray-100 flex items-center">
+			<h1>Sign In</h1>
 	</div>`
 }
 
 const getSignUpBtn = () => {
-	return `<div id="registBtn" alt="Profile" class="w-full h-8 cursor-pointer bg-green-300 flex items-center">
-			<h1>SIGN UP</h1>
+	return `<div id="registBtn" alt="Profile" class="w-full text-black font-thin rounded-md p-2 h-8 cursor-pointer bg-gray-100 flex items-center">
+			<h1>Sign Up</h1>
 	</div>`
 }
 
