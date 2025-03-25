@@ -72,16 +72,4 @@ export function handleSettings() {
       console.log(testUserData);
     }
   });
-
-//   btnSave!.addEventListener("click", () => {
-//     try {
-//       inputs.forEach((input) => {
-//         if (!input.value) throw new Error("empty area!");
-//         testUserData[input.placeholder.split(" ").join("")] = input.value;
-//       });
-//       userAPI.postDatas(testUserData, "settings");
-//     } catch (error) {
-//       alert(error);
-//     }
-//   });
 }

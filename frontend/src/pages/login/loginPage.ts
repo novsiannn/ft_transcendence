@@ -3,7 +3,7 @@ import { userDataLogin } from "../../shared";
 import { IUserDataTypeLogin } from "../../shared";
 import { userAPI } from "../../services/api";
 import { navigateTo } from "../../routing";
-import { activateWarning, loginPage } from "../../Layout";
+import { activateWarning, hideWarning } from "../../Layout";
 
 export function handleLogin() {
   const loginEmailInput = document.getElementById(
@@ -15,6 +15,12 @@ export function handleLogin() {
   const loginBtn = document.getElementById("loginBtn");
 
   const LoginBtns: HTMLInputElement[] = [loginEmailInput, loginPassInput];
+
+  LoginBtns.forEach((input) => {
+    input.addEventListener("click", (e) => {
+      hideWarning(e);
+    });
+  });
 
   loginBtn!.addEventListener("click", async (e) => {
     e.preventDefault();
@@ -29,13 +35,10 @@ export function handleLogin() {
       });
       const response = await userAPI.postDatas(userDataLogin, "login");
       if (response.status === 401) {
-        console.log('asd');
-        
         activateWarning();
       } else {
         navigateTo("/");
       }
-      console.log(response);
     } catch (error) {
       alert(error);
     }

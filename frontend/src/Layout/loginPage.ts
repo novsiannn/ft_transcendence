@@ -2,9 +2,15 @@ export const activateWarning = () => {
     const text = document.querySelectorAll("#warningMessage");
     text.forEach((el) => {
         el.classList.remove('hidden');
-        el.classList.add('block');
+        // el.classList.add('block');
     });
-    console.log(text);
+}
+
+export const hideWarning = (e: MouseEvent) => {
+    const text = document.querySelectorAll("#warningMessage");
+    text.forEach((el) => {
+            el.classList.add('hidden');
+    });
 }
 
 export function loginPage(mainWrapper: HTMLDivElement | undefined) {
@@ -17,7 +23,6 @@ export function loginPage(mainWrapper: HTMLDivElement | undefined) {
                 <input type="password" placeholder="your password" class="w-full mb-4 px-3 py-2 border rounded focus:ring-2 focus:ring-blue-400" id="loginPass">
                 <p id="warningMessage" class="hidden text-red-500 text-sm">Incorrect email or password</p>
                 <button class="w-full bg-green-500 text-white py-2 rounded hover:bg-green-600" id="loginBtn">Login</button>
-                <p class="text-center mt-3"><a href="#" class="text-blue-500 hover:underline" id="questionPassForgot">Forgot Password?</a></p>
             </div>
         `
 }

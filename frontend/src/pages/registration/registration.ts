@@ -11,7 +11,6 @@ export function handleRegistration() {
     const passwordInput = document.querySelector("#passwordRegistration") as HTMLInputElement;
     const btnRegistr = document.querySelector("#submitRegistration") as HTMLButtonElement;
     const signInBtn = document.querySelector('#questionAlreadyRegistr');
-    let username: null | string = null;
     const inputsUsers: HTMLInputElement[] = [userNameInput, emailInput, passwordInput];
 
     btnRegistr!.addEventListener('click', (e) => {
