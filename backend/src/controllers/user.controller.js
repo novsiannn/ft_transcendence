@@ -29,6 +29,42 @@ const UserController = {
         }
     },
 
+    async updateUser(req, res) {
+        try {
+            const userId = req.user.id;
+            if (!userId) {
+                return res.code(401).send({ error: "User not found" });
+            }
+
+            const { username } = req.body; //avatar name lastname gonna be added
+            
+            if (!username) {
+                return res.code(400).send({ error: "No data provided for update" });
+            }
+
+            const updateData = {};
+            if (username) updateData.username = username;
+            // if (avatar) updateData.avatar = avatar;
+            // if (name) updateData.name = name;
+            // if (lastname) updateData.lastname = lastname;
+
+            const updatedUser = await userService.updateUser(userId, updateData);
+            if (updatedUser.error === "User not found" ){
+                return res.code(401).send(updatedUser.error);
+            } else if (updatedUser.error === "Username is already taken") {
+                return res.code(409).send(updatedUser.error);
+            }
+
+            res.code(200).send({
+                message: "User updated successfully",
+                user: updatedUser.user,
+            });
+        } catch (error) {
+            console.error("Error updating user:", error);
+            res.code(500).send({ error: "Error updating user" });
+        }
+    },
+
     async login(req, res) {
         try {
             const { email, password } = req.body;
@@ -52,6 +88,8 @@ const UserController = {
             res.code(500).send({ error: "Error logging in user" });
         }
     },
+
+
 
     async logout(req, res) {
         const { refreshToken } = req.cookies;

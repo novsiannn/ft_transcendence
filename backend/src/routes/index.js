@@ -16,8 +16,7 @@ async function routes(fastify, options) {
         }
       }
     }
-  },
-  userController.registration);
+  }, userController.registration);
   fastify.get('/activate/:link', userController.activate);
   fastify.post('/login', userController.login);
   fastify.post('/logout', userController.logout);
@@ -28,6 +27,17 @@ async function routes(fastify, options) {
     preHandler: authMiddleware
   }, userController.getUsers);
 
+  fastify.put('/user/profile', {
+    preHandler: authMiddleware,
+    schema: {
+      body: {
+        type: 'object',
+        properties: {
+          username: { type: 'string', minLength: 3 },
+        }
+      }
+    }
+  }, userController.updateUser);
    // fastify.get('/user/profile', { preHandler: authMiddleware }, userController.getUserProfile);
 }
 

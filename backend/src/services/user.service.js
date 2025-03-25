@@ -4,6 +4,7 @@ const uuid = require("uuid");
 const { sendActivationMail } = require("./mail.service");
 const tokenService = require("./token.service");
 const UserDto = require("../dtos/user.dto");
+const sequelize = require("../../db/database");
 // const { logout } = require("../controllers/user.controller");
 
 async function registration(username, email, password) {
@@ -78,6 +79,38 @@ async function login(email, password) {
   };
 }
 
+async function updateUser(userId, updateData) {
+  try {
+    const user = await User.findByPk(userId);
+    if (!user) {
+      return { error: "User not found" };
+    }
+    if (updateData.username) {
+      const existingUser = await User.findOne({
+        where: {
+          username: updateData.username,
+          id: { [sequelize.Sequelize.Op.ne]: userId} // !=
+        }
+      });
+      if (existingUser) {
+        return { error: "Username is already taken" };
+      }
+    }
+    await user.update(updateData);
+
+    const updatedUser = await User.findByPk(userId,{
+      attributes: ['id', 'email', 'username', 'avatar', 'isActivated']
+    });
+
+    return {
+      user: updatedUser
+    };
+  } catch (error) {
+    console.error("Error during updateUser process:", error);
+    throw error;
+  }
+}
+
 async function logout(refreshToken) {
   try {
     const token = await tokenService.removeToken(refreshToken);
@@ -125,4 +158,4 @@ async function getAllUsers() {
   }
 }
 
-module.exports = { getAllUsers, refresh, logout, login, activate, registration };
+module.exports = { getAllUsers, refresh, logout, login, activate, registration, updateUser };

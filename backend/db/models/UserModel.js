@@ -32,6 +32,11 @@ const User = sequelize.define("User", {
   activationLink: {
     type: DataTypes.STRING,
   },
+  avatar: {
+    type: DataTypes.STRING,
+    allowNull: true,
+    defaultValue: null,
+  },
   // isOnline: {
   //   type: DataTypes.BOOLEAN,
   //   defaultValue: false,
