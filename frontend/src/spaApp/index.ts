@@ -12,7 +12,7 @@ export default function runSPA() {
 
   if (location.pathname in allRoutes) {
     mainWrapper.removeAttribute("id");
-    mainWrapper.className = "container mx-auto px-4 h-full w-full";
+    mainWrapper.className = "h-full w-full";
     document.body.className = "font-mono";
     if (
       checkLoggedUser() &&
