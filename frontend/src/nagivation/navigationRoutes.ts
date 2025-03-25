@@ -1,8 +1,8 @@
 export const naviRoutes: { [key: string]: string } = {
 	"Home": "/",
 	"Game": "/game",
-	"Registration": "/registration",
-	"Login": "/login"
+	"SignUp": "/signUp",
+	"SignIn": "/signIn"
 }
 
 export const dropMenuRoutes: { [key: string]: string } = {

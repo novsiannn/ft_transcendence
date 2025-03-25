@@ -21,8 +21,8 @@ export const privateRoutes: Record<string, handleFunctionI> = {
     "/play": { layoutCreate: playPage, handleFunc: handlePlayPage },
     "/game": { layoutCreate: gamePage, handleFunc: handleGame },
     "/profile": { layoutCreate: profilePage, handleFunc: handleProfilePage },
-    "/registration": { layoutCreate: registrationPage, handleFunc: handleRegistration },
-    "/login": { layoutCreate: loginPage, handleFunc: handleLogin },
+    "/signUp": { layoutCreate: registrationPage, handleFunc: handleRegistration },
+    "/signIn": { layoutCreate: loginPage, handleFunc: handleLogin },
     "/settings": {layoutCreate: settingsPage, handleFunc: handleSettings},
     "/error": {layoutCreate: errorPage, handleFunc: handleErrorPage},
     "/leaderboard": {layoutCreate: leaderBoardPage, handleFunc: handleLeaderboardPage},
@@ -30,8 +30,8 @@ export const privateRoutes: Record<string, handleFunctionI> = {
 
 export const publicRoutes: Record<string, handleFunctionI> = {
     "/": { layoutCreate: homePage, handleFunc: handleHomePage },
-    "/registration": { layoutCreate: registrationPage, handleFunc: handleRegistration },
-    "/login": { layoutCreate: loginPage, handleFunc: handleLogin },
+    "/signUp": { layoutCreate: registrationPage, handleFunc: handleRegistration },
+    "/signIn": { layoutCreate: loginPage, handleFunc: handleLogin },
     "/error": {layoutCreate: errorPage, handleFunc: handleErrorPage},
     "/activate": {layoutCreate: activateAccountPage, handleFunc: handleActivateAccount},
 };
@@ -41,8 +41,8 @@ export const allRoutes: Record<string, handleFunctionI> = {
     "/play": { layoutCreate: playPage, handleFunc: handlePlayPage },
     "/game": { layoutCreate: gamePage, handleFunc: handleGame },
     "/profile": { layoutCreate: profilePage, handleFunc: handleProfilePage },
-    "/registration": { layoutCreate: registrationPage, handleFunc: handleRegistration },
-    "/login": { layoutCreate: loginPage, handleFunc: handleLogin },
+    "/signUp": { layoutCreate: registrationPage, handleFunc: handleRegistration },
+    "/signIn": { layoutCreate: loginPage, handleFunc: handleLogin },
     "/settings": {layoutCreate: settingsPage, handleFunc: handleSettings},
     "/error": {layoutCreate: errorPage, handleFunc: handleErrorPage},
     "/leaderboard": {layoutCreate: leaderBoardPage, handleFunc: handleLeaderboardPage},

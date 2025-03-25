@@ -1,3 +1,5 @@
+import { navigation } from "../nagivation";
+
 export const activateWarning = () => {
     const text = document.querySelectorAll("#warningMessage");
     text.forEach((el) => {
@@ -16,7 +18,8 @@ export const hideWarning = (e: MouseEvent) => {
 export function loginPage(mainWrapper: HTMLDivElement | undefined) {
     document.body.classList.add("h-screen", "flex", "items-center", "justify-center", "bg-gradient-to-t", "from-black", "via-black", "to-gray-800");
     return `
-            <div class="max-w-sm mx-auto mt-10 p-6 bg-white shadow-md rounded-lg">
+        ${navigation()}
+            <div class="max-w-sm mx-auto mt-24 p-6 bg-white shadow-md rounded-lg">
                 <h2 class="text-xl font-semibold text-gray-700 text-center mb-4">Login</h2>
                 <input type="email" placeholder="your email" class="w-full mb-3 px-3 py-2 border rounded focus:ring-2 focus:ring-blue-400" id="loginInput">
                 <p id="warningMessage" class="hidden text-red-500 text-sm">Incorrect email or password</p>

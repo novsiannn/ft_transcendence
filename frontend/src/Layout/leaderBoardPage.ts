@@ -1,4 +1,4 @@
-import { navigation } from "../elements";
+import { navigation } from "../nagivation";
 import { filterLeaderBoard } from "../pages/leaderboard";
 
 const testData: Array<{ id: number, username: string, playedGames: number, wonGames: number, totalPoints: number }> = [

@@ -7,7 +7,7 @@ import {
 } from "../routing/index";
 import { checkLoggedUser } from "../routing/redirect";
 
-export default function runSPA(path?: string) {
+export default function runSPA() {
   document.body.append(mainWrapper);
 
   if (location.pathname in allRoutes) {
@@ -39,5 +39,5 @@ export default function runSPA(path?: string) {
 
 // Forward-Back arrows working properly
 window.addEventListener("popstate", () => {
-  runSPA(location.pathname);
+  runSPA();
 });

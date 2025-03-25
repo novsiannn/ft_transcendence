@@ -3,8 +3,6 @@
 export const userAPI = {
 	postDatas: async (data: Object, endpoint: string) => {
 		let url = 'https://localhost:3000/' + endpoint;
-
-		// try{
 			return await fetch(url, {
 				method: "POST",
 				headers: {
@@ -12,11 +10,6 @@ export const userAPI = {
 				},
 				body: JSON.stringify(data)
 			}).then( response => response );
-
-			
-		// } catch (error) {
-		// 	console.log("Caught error ", error);
-		// }
 	},
 
 	getDatas:  () => {

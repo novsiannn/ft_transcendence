@@ -1,4 +1,5 @@
-import { navigation } from "../elements";
+import { navigation } from "../nagivation";
+
 
 export function profilePage(mainWrapper: HTMLDivElement | undefined) {
     // document.body.classList.add(

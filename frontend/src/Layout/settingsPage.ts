@@ -1,4 +1,4 @@
-import { navigation } from "../elements"
+import { navigation } from "../nagivation";
 import { testUserData } from "../pages/settingsPage";
 
 export function settingsPage(mainWrapper: HTMLDivElement | undefined) {

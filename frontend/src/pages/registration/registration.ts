@@ -3,6 +3,7 @@ import { IUserDataRegistrationType } from "../../shared";
 import { userDataRegistration } from "../../shared";
 import { userAPI } from "../../services/api";
 import { validateInput } from "../../shared/validation";
+import { navigationHandle } from "../../nagivation";
 
 //changed from novsiann
 export function handleRegistration() {
@@ -12,6 +13,8 @@ export function handleRegistration() {
     const btnRegistr = document.querySelector("#submitRegistration") as HTMLButtonElement;
     const signInBtn = document.querySelector('#questionAlreadyRegistr');
     const inputsUsers: HTMLInputElement[] = [userNameInput, emailInput, passwordInput];
+
+    navigationHandle();
 
     btnRegistr!.addEventListener('click', (e) => {
         e.preventDefault();
@@ -36,6 +39,6 @@ export function handleRegistration() {
         }
     });
     signInBtn!.addEventListener('click', () => { 
-        navigateTo("/login");
+        navigateTo("/signIn");
     });
 }

@@ -6,13 +6,25 @@ import { userChangeLoginStatus } from "../routing/redirect";
 export function navigationHandle() {
   const naviBtns = document.querySelectorAll("#naviBtn");
   const profileBtn = document.querySelector("#profileIcon");
-  const loginBtn = document.querySelector("#loginBtn");
+  const signInBtn = document.querySelector("#signInBtn");
+  const signUpBtn = document.querySelector("#registBtn");
   const dropdownMenu = document.querySelector("#dropdownMenu");
   const naviDropMenuBtns = document.querySelectorAll("#dropdownMenu a");
   const imgLogo = document.getElementById("imgLogoNavi");
 
   imgLogo!.addEventListener("click", () => {
     navigateTo("/");
+  });
+
+  signInBtn?.addEventListener("click", () => {
+    console.log('here');
+    navigateTo("/signIn");
+  });
+  
+  signUpBtn?.addEventListener("click", () => {
+    console.log('here');
+    
+    navigateTo("/signUp");
   });
 
   naviBtns.forEach((btn) => {
@@ -37,11 +49,6 @@ export function navigationHandle() {
 
   profileBtn?.addEventListener("click", () => {
     dropdownMenu!.classList.toggle("hidden");
-  });
-
-  loginBtn?.addEventListener("click", () => {
-    userChangeLoginStatus(true);
-    navigateTo("/profile")
   });
 
   document.addEventListener("click", (e) => {

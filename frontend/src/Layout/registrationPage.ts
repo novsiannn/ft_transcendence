@@ -1,3 +1,5 @@
+import { navigation } from "../nagivation";
+
 export function registrationPage() {
     // document.body.classList.add("h-screen", "flex", "items-center", "justify-center", "bg-gradient-to-t", "from-black", "via-black", "to-gray-800");
     document.body.classList.add(
@@ -7,7 +9,7 @@ export function registrationPage() {
     );
 
     return `
-    
+            ${navigation()}
             <div class="mt-10 w-5/5 h-3/5 flex shadow-lg rounded-lg bg-white">
                 <div class="w-3/5 p-10 flex flex-col justify-center bg-gradient-to-r from-purple-900 to-blue-900 text-white rounded-l-lg">
                     <h1 class="text-4xl font-bold cursor-default">Transcendence</h1>

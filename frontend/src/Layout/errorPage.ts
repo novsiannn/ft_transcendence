@@ -1,4 +1,4 @@
-import { navigation } from "../elements";
+import { navigation } from "../nagivation";
 
 export function errorPage() {
 	document.body.classList.add("bg-gradient-to-t", "from-black", "via-black", "to-gray-800");

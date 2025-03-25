@@ -4,8 +4,10 @@ import { IUserDataTypeLogin } from "../../shared";
 import { userAPI } from "../../services/api";
 import { navigateTo } from "../../routing";
 import { activateWarning, hideWarning } from "../../Layout";
+import { navigationHandle } from "../../nagivation";
 
 export function handleLogin() {
+  navigationHandle();
   const loginEmailInput = document.getElementById(
     "loginInput"
   ) as HTMLInputElement;
