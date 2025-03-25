@@ -2,7 +2,7 @@ import { navigation } from "../nagivation";
 import { testUserData } from "../pages/settingsPage";
 
 export function settingsPage(mainWrapper: HTMLDivElement | undefined) {
-	document.body.classList.add("bg-gradient-to-t", "from-black", "via-black", "to-gray-800", "h-full");
+	document.body.classList.add("bg-gradient-to-t", "from-black", "via-black", "to-gray-800", "h-full", "overflow-hidden");
 	mainWrapper!.className = "mx-auto h-screen w-full";
 	let res = `
 				${navigation()}
