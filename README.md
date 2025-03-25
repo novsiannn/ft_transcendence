@@ -86,7 +86,7 @@ The website will be available at **http://localhost:3000**.
 ### Navigate to the backend folder:
 
 ```
-cd backend
+cd backend/src
 ```
 
 ### Install all dependencies:
@@ -97,7 +97,7 @@ npm i
 ### Start the backend:
 
 ```
-node index.ts
+node index.js
 ```
 The backend will be available at **http://localhost:8888**.
 
