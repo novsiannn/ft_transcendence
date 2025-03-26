@@ -5,6 +5,7 @@ import { userAPI } from "../../services/api";
 import { navigateTo } from "../../routing";
 import { activateWarning, hideWarning } from "../../Layout";
 import { navigationHandle } from "../../nagivation";
+import { getModalWindowError, handleModalError } from "../../elements";
 
 export function handleLogin() {
   navigationHandle();
@@ -19,8 +20,8 @@ export function handleLogin() {
   const LoginBtns: HTMLInputElement[] = [loginEmailInput, loginPassInput];
 
   LoginBtns.forEach((input) => {
-    input.addEventListener("click", (e) => {
-      hideWarning(e);
+    input.addEventListener("click", () => {
+      hideWarning();
     });
   });
 
@@ -41,8 +42,8 @@ export function handleLogin() {
       } else {
         navigateTo("/");
       }
-    } catch (error) {
-      alert(error);
+    } catch (error: any) {
+      handleModalError(error);
     }
   });
 }
