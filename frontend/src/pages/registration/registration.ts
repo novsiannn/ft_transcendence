@@ -1,9 +1,9 @@
 import { navigateTo } from "../../routing/index"
 import { IUserDataRegistrationType } from "../../shared";
-import { userDataRegistration } from "../../shared";
 import { userAPI } from "../../services/api";
 import { validateInput } from "../../shared/validation";
 import { navigationHandle } from "../../nagivation";
+import { handleModalError } from "../../elements/ModalError.ts/handleModalError";
 
 //changed from novsiann
 export function handleRegistration() {
@@ -14,41 +14,13 @@ export function handleRegistration() {
     const signInBtn = document.querySelector('#questionAlreadyRegistr');
     const inputsUsers: HTMLInputElement[] = [userNameInput, emailInput, passwordInput];
 
-    const showModal = document.querySelector('#showModal');
-    const modalWindow = document.querySelector('#modalWindow');
-    const modalContent = modalWindow?.querySelector("div");
-    const closeModal = document.querySelector('#closeModal');
-
-    showModal?.addEventListener("click", () => {
-        modalWindow?.classList.remove("hidden");
-        setTimeout(() => {
-            modalContent?.classList.remove("-translate-y-full", "opacity-0");
-            modalContent?.classList.add("translate-y-0", "opacity-100");
-        }, 10);
-    });
-
-        closeModal?.addEventListener("click", () => {
-        modalContent?.classList.remove("translate-y-0", "opacity-100");
-        modalContent?.classList.add("-translate-y-full", "opacity-0");
-
-        setTimeout(() => {
-            modalWindow?.classList.add("hidden");
-        }, 500);
-    });
-
-    modalWindow?.addEventListener("click", (e) => {
-        if (e.target === modalWindow) {
-            modalContent?.classList.remove("translate-y-0", "opacity-100");
-            modalContent?.classList.add("-translate-y-full", "opacity-0");
-
-            setTimeout(() => {
-                modalWindow?.classList.add("hidden");
-            }, 500);
-        }
-    });
-
-
     navigationHandle();
+
+    inputsUsers.forEach((input)=> {
+        input.addEventListener('click', () => {
+            input.className = "w-full p-2 border rounded"
+        })
+    });
 
     btnRegistr!.addEventListener('click', (e) => {
         e.preventDefault();
@@ -68,8 +40,8 @@ export function handleRegistration() {
             });
             userAPI.postDatas(userDataRegistration, 'registration');
             navigateTo("/activate");
-        } catch (error) {
-            alert(error);
+        } catch (error: any) {
+            handleModalError(error);
         }
     });
     signInBtn!.addEventListener('click', () => { 
