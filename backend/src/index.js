@@ -1,16 +1,12 @@
 require('dotenv').config();
 const fs = require('fs');
 const path = require('path');
-// const fastify = require('fastify')({ logger: true });
 const sequelize = require('../db/database');
 const userRoutes = require('./routes/index');
 const fastifyCors = require('@fastify/cors');
 
 const keyPath = process.env.SSL_KEY_PATH || path.join(__dirname, './../certs/key.pem');
 const certPath = process.env.SSL_CERT_PATH || path.join(__dirname, './../certs/cert.pem');
-
-// const keyPath = path.join(__dirname, './../../certs/key.pem');
-// const certPath = path.join(__dirname, './../../certs/cert.pem');
 
 if (!fs.existsSync(keyPath) || !fs.existsSync(certPath)) {
   console.error('SSL certificates not found! Please check paths:', keyPath, certPath);
@@ -27,6 +23,17 @@ const httpsOptions = {
 const fastify = require('fastify')({
   logger: true,
   ...httpsOptions
+});
+
+fastify.register(require('@fastify/multipart'), {
+  limits: {
+    fileSize: 5 * 1024 * 1024, // 5MB
+  }
+});
+
+fastify.register(require('@fastify/static'), {
+  root: path.join(__dirname, '../uploads'),
+  prefix: '/uploads/',
 });
 
 fastify.register(require('@fastify/cookie'), {

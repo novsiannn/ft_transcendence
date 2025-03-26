@@ -11,6 +11,7 @@ const UserController = {
             res.cookie("refreshToken", userData.refreshToken, {
                 maxAge: 60 * 24 * 60 * 60 * 1000,
                 httpOnly: true,
+                secure: true,
             });
             res.code(201).send(userData);
         } catch (error) {
@@ -26,6 +27,61 @@ const UserController = {
             res.redirect(process.env.CLIENT_URL);
         } catch (error) {
             res.code(500).send({ error: "Error activating user" });
+        }
+    },
+
+    async uploadAvatar(req, res) {
+        try {
+            const userId = req.user.id;
+            if (!userId){
+                return res.code(401).send({ error: "User not found"});
+            }
+
+            const data = await req.file();
+            if (!data) {
+                return res.code(400).send({ error: "No file uploaded" });
+            }
+
+            const mimetype = data.mimetype;
+            if (!mimetype.startsWith('image/')) {
+                return res.code(400).send({ error: "Only image files are allowed" });
+            }
+
+            const buffer = await data.toBuffer();
+            const result = await userService.saveAvatar(userId, buffer, mimetype);
+
+            if (result.error === "User not found" ) {
+                return res.code(401).send(result.error);
+            } else if (result.error) {
+                return res.code(400).send(result.error);
+            }  
+            return res.code(200).send({
+                message: "Avatar uploded successfully",
+                avatar: result.avatar,
+                user: result.user,
+            });
+        } catch (error) {
+            console.error("Error uploading avatar:", error);
+            res.code(500).send({error: "Error uploading avatar"});
+        }
+    },
+
+    async getUserProfile(req, res) {
+        try {
+            const userId = req.user.id;
+            if (!userId){
+                return res.code(401).send({ error: "User not found"});
+            }
+
+            const result = await userService.getUserProfile(userId);
+            if(result.error){
+                return res.code(401).send(result.error);
+            }
+
+            return res.code(200).send({ user: result.user});
+        } catch {
+            console.error("Error getting user profile:", error);
+            return reply.code(500).send({ error: "Error getting user profile" });
         }
     },
 

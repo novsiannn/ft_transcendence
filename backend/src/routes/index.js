@@ -17,9 +17,21 @@ async function routes(fastify, options) {
       }
     }
   }, userController.registration);
+
   fastify.get('/activate/:link', userController.activate);
+  
   fastify.post('/login', userController.login);
+  
+  fastify.post('/user/avatar', {
+    preHandler: authMiddleware,
+  }, userController.uploadAvatar);
+
+  fastify.get('/user/profile', {
+    preHandler: authMiddleware,
+  }, userController.getUserProfile);
+
   fastify.post('/logout', userController.logout);
+
   fastify.get('/refresh', userController.refreshUser);
 
 

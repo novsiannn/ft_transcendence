@@ -5,7 +5,8 @@ const { sendActivationMail } = require("./mail.service");
 const tokenService = require("./token.service");
 const UserDto = require("../dtos/user.dto");
 const sequelize = require("../../db/database");
-// const { logout } = require("../controllers/user.controller");
+const fs = require("fs-extra");
+const path = require("path");
 
 async function registration(username, email, password) {
   try {
@@ -77,6 +78,70 @@ async function login(email, password) {
     ...tokens,
     user: userDto,
   };
+}
+
+async function saveAvatar(userId, fileBuffer, mimetype) {
+  try {
+    const fileExtension = mimetype.split("/")[1];
+    const fileName = `user_${userId}_${Date.now()}.${fileExtension}`;
+    const filePath = path.join(__dirname, '../../uploads/avatars', fileName);
+
+    await fs.ensureDir(path.dirname(filePath));
+
+    await fs.writeFile(filePath, fileBuffer);
+
+    const avatarPath = `/uploads/avatars/${fileName}`;
+    
+    const user = await User.findByPk(userId);
+    if (!user) {
+      return { error: "User not found" };
+    }
+
+    if (user.avatar) {
+      try {
+        const oldAvatarPath = path.join(__dirname, '../..', user.avatar);
+        if (fs.existsSync(oldAvatarPath) && user.avatar.includes('/uploads/avatars/')) {
+          await fs.unlink(oldAvatarPath);
+        }
+      } catch (error) {
+        console.error("Error during deleting old avatar:", error);
+      }
+    }
+    
+    user.avatar = avatarPath;
+    await user.save();
+
+    return {
+      avatar: avatarPath,
+      user: {
+        id: user.id,
+        email: user.email,
+        username: user.username,
+        avatar: user.avatar,
+        isActivated: user.isActivated,
+      }
+    };
+  } catch (error) {
+    console.error("Error saving avatar:", error);
+    throw error;
+  }
+}
+
+async function getUserProfile(userId) {
+  try {
+    const user = await User.findByPk(userId, {
+      attributes: ['id', 'email', 'username', 'avatar', 'isActivated']
+    });
+
+    if (!user) {
+      return { error: "User not found" };
+    }
+
+    return { user };
+  } catch (error) {
+    console.error("Error getting user profile:", error);
+    throw error;
+  }
 }
 
 async function updateUser(userId, updateData) {
@@ -158,4 +223,4 @@ async function getAllUsers() {
   }
 }
 
-module.exports = { getAllUsers, refresh, logout, login, activate, registration, updateUser };
+module.exports = { getAllUsers, refresh, logout, login, activate, registration, updateUser, saveAvatar, getUserProfile };

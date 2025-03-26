@@ -10,6 +10,7 @@ services:
       - ./backend/.env
     volumes:
       - ./backend/db:/app/db
+      - ./backend/uploads:/app/uploads
     environment:
       - NODE_ENV=development
     command: sh -c "mkdir -p /app/db && touch /app/db/database.sqlite && node src/index.js"  
