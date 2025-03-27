@@ -81,7 +81,7 @@ const UserController = {
             return res.code(200).send({ user: result.user});
         } catch {
             console.error("Error getting user profile:", error);
-            return reply.code(500).send({ error: "Error getting user profile" });
+            return res.code(500).send({ error: "Error getting user profile" });
         }
     },
 
@@ -150,7 +150,31 @@ const UserController = {
         }
     },
 
+    async deleteUserAccount(req, res) {
+        try {
+            const userId = req.user.id;
+            if (!userId){
+                return res.code(401).send({ error: "User not found" });
+            }
 
+            const { password } = req.body;
+            if (!password) {
+                return res.code(400).send({ error: "Password is required to delete account" });
+            }
+
+            const result = await userService.deleteUserAccount(userId, password);
+            if (result.error) {
+                return res.code(401).send(result.error);
+            }
+
+            return res.code(204).send({
+                message: "Account successfully deleted"
+            })
+        } catch (error) {
+            console.error("Error deleting user account:", error);
+            return res.code(500).send({ error: "Error deleting user account" });
+        }
+    },
 
     async logout(req, res) {
         const { refreshToken } = req.cookies;

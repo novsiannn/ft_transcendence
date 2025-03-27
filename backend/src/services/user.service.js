@@ -1,4 +1,5 @@
 const User = require("../../db/models/UserModel");
+const Token = require("../../db/models/TokenModel");
 const bcrypt = require("bcrypt");
 const uuid = require("uuid");
 const { sendActivationMail } = require("./mail.service");
@@ -7,6 +8,7 @@ const UserDto = require("../dtos/user.dto");
 const sequelize = require("../../db/database");
 const fs = require("fs-extra");
 const path = require("path");
+
 
 async function registration(username, email, password) {
   try {
@@ -199,6 +201,42 @@ async function logout(refreshToken) {
   }
 }
 
+async function deleteUserAccount(userId, password) {
+  try {
+    const user = await User.findByPk(userId);
+    if (!user) {
+      return { error: "User not found" };
+    }
+
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) {
+      return { error: "Incorrect password" };
+    }
+
+    const avatarPath = user.avatar;
+
+    await Token.destroy({ where: {userId} }); // have to delete
+
+    await user.destroy();
+
+    if (avatarPath && !avatarPath.includes('default')) {
+      try {
+        const fullAvatarPath = path.join(__dirname, '../..', avatarPath);
+        if (fs.existsSync(fullAvatarPath)) {
+          fs.unlinkSync(fullAvatarPath);
+        }
+      } catch (fileError) {
+        console.error("Error deleting avatar file:", fileError);
+      }
+    }
+
+    return { success: true };
+  } catch (error) {
+    console.error("Error during account deletion:", error);
+    throw error;
+  }
+}
+
 async function refresh(refreshToken) {
   if (!refreshToken) {
     return { error: "User not authorized" };
@@ -237,4 +275,4 @@ async function getAllUsers() {
   }
 }
 
-module.exports = { getAllUsers, refresh, logout, login, activate, registration, updateUser, saveAvatar, getUserProfile };
+module.exports = { getAllUsers, refresh, logout, login, activate, registration, updateUser, saveAvatar, getUserProfile, deleteUserAccount };

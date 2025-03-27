@@ -53,6 +53,19 @@ async function routes(fastify, options) {
       }
     }
   }, userController.updateUser);
+
+  fastify.delete('/user/profile', {
+    preHandler: authMiddleware,
+    schema: {
+      body: {
+        type: 'object',
+        required: ['password'],
+        properties: {
+          password: { type: 'string', minLength: 8} //or 6 
+        }
+      }
+    }
+  }, userController.deleteUserAccount);
    // fastify.get('/user/profile', { preHandler: authMiddleware }, userController.getUserProfile);
 }
 
