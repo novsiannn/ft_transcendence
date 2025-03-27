@@ -46,6 +46,9 @@ async function routes(fastify, options) {
         type: 'object',
         properties: {
           username: { type: 'string', minLength: 3 },
+          firstName: { type: 'string' },
+          lastName: { type: 'string' },
+          phoneNumber: { type: 'string' }
         }
       }
     }

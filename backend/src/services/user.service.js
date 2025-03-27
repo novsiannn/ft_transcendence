@@ -91,7 +91,7 @@ async function saveAvatar(userId, fileBuffer, mimetype) {
     await fs.writeFile(filePath, fileBuffer);
 
     const avatarPath = `/uploads/avatars/${fileName}`;
-    
+
     const user = await User.findByPk(userId);
     if (!user) {
       return { error: "User not found" };
@@ -107,7 +107,7 @@ async function saveAvatar(userId, fileBuffer, mimetype) {
         console.error("Error during deleting old avatar:", error);
       }
     }
-    
+
     user.avatar = avatarPath;
     await user.save();
 
@@ -130,7 +130,7 @@ async function saveAvatar(userId, fileBuffer, mimetype) {
 async function getUserProfile(userId) {
   try {
     const user = await User.findByPk(userId, {
-      attributes: ['id', 'email', 'username', 'avatar', 'isActivated']
+      attributes: ['id', 'email', 'username', 'avatar', 'firstName', 'lastName', 'phoneNumber', 'isActivated']
     });
 
     if (!user) {
@@ -154,17 +154,31 @@ async function updateUser(userId, updateData) {
       const existingUser = await User.findOne({
         where: {
           username: updateData.username,
-          id: { [sequelize.Sequelize.Op.ne]: userId} // !=
+          id: { [sequelize.Sequelize.Op.ne]: userId } // !=
         }
       });
       if (existingUser) {
         return { error: "Username is already taken" };
       }
     }
-    await user.update(updateData);
 
-    const updatedUser = await User.findByPk(userId,{
-      attributes: ['id', 'email', 'username', 'avatar', 'isActivated']
+    const allowedFields = ['username', 'firstName', 'lastName', 'phoneNumber'];
+    const filteredUpdateData = {};
+    for (const field of allowedFields) {
+      if (field in updateData) {
+        if (updateData[field] === null || updateData[field] === "") {
+          filteredUpdateData[field] = null;
+        } else {
+          filteredUpdateData[field] = updateData[field];
+        }
+      }
+    }
+
+    // await user.update(updateData);
+    await user.update(filteredUpdateData);
+
+    const updatedUser = await User.findByPk(userId, {
+      attributes: ['id', 'email', 'username', 'firstName', 'lastName', 'phoneNumber', 'isActivated']
     });
 
     return {

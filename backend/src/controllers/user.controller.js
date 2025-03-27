@@ -87,22 +87,27 @@ const UserController = {
 
     async updateUser(req, res) {
         try {
+            // const firstName = req.user.firstName;
+            // const lastName = req.user.lastName;
+            // const phoneNumber = req.user.phoneNumber;
+
             const userId = req.user.id;
             if (!userId) {
                 return res.code(401).send({ error: "User not found" });
             }
 
-            const { username } = req.body; //avatar name lastname gonna be added
+            const { username, lastName, firstName, phoneNumber } = req.body;
             
-            if (!username) {
+            if (username === undefined && firstName === undefined && 
+                lastName === undefined && phoneNumber === undefined) {
                 return res.code(400).send({ error: "No data provided for update" });
             }
 
             const updateData = {};
-            if (username) updateData.username = username;
-            // if (avatar) updateData.avatar = avatar;
-            // if (name) updateData.name = name;
-            // if (lastname) updateData.lastname = lastname;
+            if ('username' in req.body) updateData.username = username;
+            if ('firstName' in req.body) updateData.firstName = firstName;
+            if ('lastName' in req.body) updateData.lastName = lastName;
+            if ('phoneNumber' in req.body) updateData.phoneNumber = phoneNumber;
 
             const updatedUser = await userService.updateUser(userId, updateData);
             if (updatedUser.error === "User not found" ){
