@@ -5,6 +5,9 @@ const { sendActivationMail } = require("./mail.service");
 const tokenService = require("./token.service");
 const UserDto = require("../dtos/user.dto");
 const sequelize = require("../../db/database");
+const speakeasy = require('speakeasy');//ikhristi
+const QRCode = require('qrcode');//ikhristi
+
 // const { logout } = require("../controllers/user.controller");
 
 async function registration(username, email, password) {
@@ -158,4 +161,65 @@ async function getAllUsers() {
   }
 }
 
-module.exports = { getAllUsers, refresh, logout, login, activate, registration, updateUser };
+async function set2FA(userId){
+  try {
+    const user = await User.findByPk(userId);
+    const secret = speakeasy.generateSecret({
+      name: `Transcendence:${user.email}`,
+      length: 20
+    });
+
+    await user.update({ twoFactorSecret: secret.base32 });
+    const qrCodeUrl = await QRCode.toDataURL(secret.otpauth_url);
+
+    console.log('2FA Setup:', {
+      userId,
+      secret: secret.base32,
+      otpauthUrl: secret.otpauth_url
+    });
+
+    return {
+      qrCodeUrl,
+      secret: secret.base32
+    }
+  } catch (error) {
+    console.error("Error during set2FA process:", error);
+    throw error;
+  }
+}
+
+async function verify2FA(userId, token) {
+  try {
+    const user = await User.findByPk(userId);
+    if (!user || !user.twoFactorSecret) {
+      return { error: "2FA not enabled for this user" };
+    }
+
+    const verif = speakeasy.totp.verify({
+      secret: user.twoFactorSecret,
+      encoding: "base32",
+      token: token,
+    });
+
+    console.log('2FA Verification Details:', {
+      providedToken: token,         // Токен который вы ввели
+      secret: user.twoFactorSecret,
+      verified: verif,
+    });
+
+    if (!verif) {
+      return { error: "Invalid 2FA token" };
+    }
+
+    await user.update({
+      twoFactorVerified: true
+    })
+
+    return { verified: true };
+  } catch (error) {
+    console.error("Error in verify2FA service:", error);
+    return { error: "Error verifying 2FA" };
+  }
+}
+
+module.exports = { getAllUsers, refresh, logout, login, activate, registration, updateUser, set2FA, verify2FA };

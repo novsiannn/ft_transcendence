@@ -61,7 +61,7 @@ fastify.register(userRoutes);
 
 async function start() {
   try {
-    await sequelize.sync({ force: true }); //false for cleaning the database
+    await sequelize.sync({ force: false }); //false for cleaning the database
     console.log('Database & tables created!');
 
     await fastify.listen({
