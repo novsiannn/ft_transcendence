@@ -143,7 +143,7 @@ const UserController = {
         const result = await userService.set2FA(userId);
 
         if(result.error){
-            return res.code(400).send("Error enabling 2FA")
+            return res.code(400).send({ error: result.error })
         }
 
         return res.code(200).send({

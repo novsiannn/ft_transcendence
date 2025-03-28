@@ -172,6 +172,9 @@ async function getAllUsers() {
 async function set2FA(userId){
   try {
     const user = await User.findByPk(userId);
+    if(user.isTwoFactorEnabled) {
+      return { error: "2FA is already enabled for this user" };
+    }
     const secret = speakeasy.generateSecret({
       name: `Transcendence:${user.email}`,
       length: 20
