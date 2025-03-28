@@ -67,7 +67,7 @@ async function routes(fastify, options) {
         }
       }
     }
-  },handle2FAEnable);
+  }, handle2FAEnable);
 
   fastify.post('/2fa/verify', {
   preHandler: authMiddleware,
@@ -89,6 +89,19 @@ async function routes(fastify, options) {
     }
   }
 }, handle2FAVerify);
+
+  fastify.post('/2fa/login', {
+    schema: {
+      body: {
+        type: 'object',
+        required: ['userId', 'token'],
+        properties: {
+          userId: {type: 'number' },
+          token: { type: 'string', minLength: 6, maxLength: 6 }
+        }
+      }
+    }
+  }, userController.verify2FALogin);
 }
 
 module.exports = routes;

@@ -68,6 +68,14 @@ async function login(email, password) {
     return { error: "Incorrect password or email" };
   }
 
+  if(user.isTwoFactorEnabled){
+    return{
+      requiresTwoFactor: true,
+      userId: user.id,
+      email: user.email
+    }
+  }
+
   // if (!user.isActivated) {
   //   return { error: "User is not activated" };
   // }
@@ -202,7 +210,7 @@ async function verify2FA(userId, token) {
     });
 
     console.log('2FA Verification Details:', {
-      providedToken: token,         // Токен который вы ввели
+      providedToken: token,         
       secret: user.twoFactorSecret,
       verified: verif,
     });
@@ -212,7 +220,7 @@ async function verify2FA(userId, token) {
     }
 
     await user.update({
-      twoFactorVerified: true
+      isTwoFactorEnabled: true
     })
 
     return { verified: true };
@@ -222,4 +230,35 @@ async function verify2FA(userId, token) {
   }
 }
 
-module.exports = { getAllUsers, refresh, logout, login, activate, registration, updateUser, set2FA, verify2FA };
+async function verify2FALogin(userId, token) {
+  try {
+    const user = await User.findByPk(userId);
+    if(!user || !user.isTwoFactorEnabled){
+      return { error: "2FA not enabled for this user" };
+    }
+
+    const verif = speakeasy.totp.verify({
+      secret: user.twoFactorSecret,
+      encoding: "base32",
+      token: token,
+    });
+
+    if(!verif)
+      return { error: "Invalid 2FA token" };
+
+    const userDto = new UserDto(user);
+    const tokens = tokenService.generateTokens({ ...userDto });
+    await tokenService.saveToken(userDto.id, tokens.refreshToken);
+    
+    return {
+      ...tokens,
+      user: userDto,
+    };
+
+  } catch (error) {
+    console.error("Error in 2FA login verification:", error);
+    return { error: "Error verifying 2FA" };
+  }
+}
+
+module.exports = { getAllUsers, refresh, logout, login, activate, registration, updateUser, set2FA, verify2FA, verify2FALogin };

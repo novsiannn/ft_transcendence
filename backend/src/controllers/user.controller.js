@@ -168,6 +168,24 @@ const UserController = {
         } catch (error) {
             res.code(500).send({ error: "Error verifying 2FA token" });
         }
+    },
+    async verify2FALogin(req, res) {
+        try {
+            const {userId, token} = req.body;
+
+            if(!userId || !token){         
+                return res.code(400).send({ error: "User ID and token are required" });
+            }
+
+            const userData = await userService.verify2FALogin(userId, token);
+            res.cookie("refreshToken", userData.refreshToken, {
+                maxAge: 60 * 24 * 60 * 60 * 1000,
+                httpOnly: true,
+              });
+            res.code(200).send(userData);
+        } catch (error) {
+            res.code(500).send({ error: "Error verifying 2FA during login:" });
+        }
     }
 };
 

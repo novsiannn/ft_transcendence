@@ -3,7 +3,6 @@ const tokenService = require("../services/token.service");
 async function authMiddleware(request, reply, done) {
     try {
         const authorizationHeader = request.headers.authorization;
-
         if (!authorizationHeader) {
             reply.code(401).send({ error: "User is Unauthorized" });
             return;
