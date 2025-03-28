@@ -51,13 +51,24 @@ fastify.register(require('@fastify/swagger'), {
   routePrefix: '/docs',
   swagger: {
     info: {
-      title: 'API for users in the system',
+      title: 'API for ft_transcendence',
+      description: 'API for web application with chat and ping-pong',
       version: '1.0.0',
     },
     servers: [
       { url: 'https://localhost:3000' },
     ],
+    securityDefinitions: {
+      bearerAuth: {
+        type: 'apiKey',
+        name: 'Authorization',
+        in: 'header'
+      }
+    },
+    consumes: ['application/json'],
+    produces: ['application/json'],
   },
+  exposeRoute: true
 });
 
 fastify.register(require('@fastify/swagger-ui'), {
