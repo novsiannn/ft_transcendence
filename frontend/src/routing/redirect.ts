@@ -1,6 +1,6 @@
 import { navigateTo } from "./navigation";
 
-export let userLoged = false;
+export let userLoged = true;
 
 export const checkLoggedUser = () => {
   if (userLoged) return true;
