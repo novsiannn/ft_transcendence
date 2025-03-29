@@ -1,3 +1,4 @@
+import { handleModalTwoFactor } from "../../elements/ModalTwoFactor";
 import { navigationHandle } from "../../nagivation";
 
 interface IphotoIMG {
@@ -50,6 +51,18 @@ export function handleSettings() {
     document.querySelector<HTMLImageElement>("#profileImg");
   const uploadImgInput =
     document.querySelector<HTMLInputElement>("#uploadImgInput");
+  
+  const enableTwoFactorBtn = document.querySelector<HTMLButtonElement>("#enableTwoFactorBtn");
+  const disableTwoFactorBtn = document.querySelector<HTMLButtonElement>("#disableTwoFactorBtn");
+
+  enableTwoFactorBtn?.addEventListener('click', () => {
+    //here make a request to backend to get info about 2 factor. Before next line
+    handleModalTwoFactor();
+  });
+
+  disableTwoFactorBtn?.addEventListener('click', () => {
+    console.log(2);
+  });
 
   uploadImgInput!.addEventListener("change", (event: Event) => {
     const target = event.target as HTMLInputElement;

@@ -1,2 +1,2 @@
 export * from './createWrapper';
-export * from './ModalError.ts';
+export * from './ModalError';

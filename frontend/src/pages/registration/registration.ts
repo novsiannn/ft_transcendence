@@ -3,7 +3,7 @@ import { IUserDataRegistrationType } from "../../shared";
 import { userAPI } from "../../services/api";
 import { validateInput } from "../../shared/validation";
 import { navigationHandle } from "../../nagivation";
-import { handleModalError } from "../../elements/ModalError.ts/handleModalError";
+import { handleModalError } from "../../elements/ModalError/handleModalError";
 
 //changed from novsiann
 export function handleRegistration() {
