@@ -9,6 +9,10 @@ const sequelize = require("../../db/database");
 const fs = require("fs-extra");
 const path = require("path");
 
+const speakeasy = require('speakeasy');//ikhristi
+const QRCode = require('qrcode');//ikhristi
+
+// const { logout } = require("../controllers/user.controller");
 
 async function registration(username, email, password) {
   try {
@@ -66,6 +70,14 @@ async function login(email, password) {
   const isPassEquals = await bcrypt.compare(password, user.password);
   if (!isPassEquals) {
     return { error: "Incorrect password or email" };
+  }
+
+  if(user.isTwoFactorEnabled){
+    return{
+      requiresTwoFactor: true,
+      userId: user.id,
+      email: user.email
+    }
   }
 
   // if (!user.isActivated) {
@@ -275,4 +287,99 @@ async function getAllUsers() {
   }
 }
 
-module.exports = { getAllUsers, refresh, logout, login, activate, registration, updateUser, saveAvatar, getUserProfile, deleteUserAccount };
+async function set2FA(userId){
+  try {
+    const user = await User.findByPk(userId);
+    if(user.isTwoFactorEnabled) {
+      return { error: "2FA is already enabled for this user" };
+    }
+    const secret = speakeasy.generateSecret({
+      name: `Transcendence:${user.email}`,
+      length: 20
+    });
+    
+    await user.update({ twoFactorSecret: secret.base32 });
+    const qrCodeUrl = await QRCode.toDataURL(secret.otpauth_url);
+    
+    console.log('2FA Setup:', {
+      userId,
+      secret: secret.base32,
+      otpauthUrl: secret.otpauth_url
+    });
+    
+    return {
+      qrCodeUrl,
+      secret: secret.base32
+    }
+  } catch (error) {
+    console.error("Error during set2FA process:", error);
+    throw error;
+  }
+}
+
+async function verify2FA(userId, token) {
+  try {
+    const user = await User.findByPk(userId);
+    if (!user || !user.twoFactorSecret) {
+      return { error: "2FA not enabled for this user" };
+    }
+    
+    const verif = speakeasy.totp.verify({
+      secret: user.twoFactorSecret,
+      encoding: "base32",
+      token: token,
+    });
+    
+    console.log('2FA Verification Details:', {
+      providedToken: token,         
+      secret: user.twoFactorSecret,
+      verified: verif,
+    });
+    
+    if (!verif) {
+      return { error: "Invalid 2FA token" };
+    }
+    
+    await user.update({
+      isTwoFactorEnabled: true
+    })
+    
+    return { verified: true };
+  } catch (error) {
+    console.error("Error in verify2FA service:", error);
+    return { error: "Error verifying 2FA" };
+  }
+}
+
+async function verify2FALogin(userId, token) {
+  try {
+    const user = await User.findByPk(userId);
+    if(!user || !user.isTwoFactorEnabled){
+      return { error: "2FA not enabled for this user" };
+    }
+    
+    const verif = speakeasy.totp.verify({
+      secret: user.twoFactorSecret,
+      encoding: "base32",
+      token: token,
+    });
+    
+    if(!verif)
+      return { error: "Invalid 2FA token" };
+    
+    const userDto = new UserDto(user);
+    const tokens = tokenService.generateTokens({ ...userDto });
+    await tokenService.saveToken(userDto.id, tokens.refreshToken);
+    
+    return {
+      ...tokens,
+      user: userDto,
+    };
+    
+  } catch (error) {
+    console.error("Error in 2FA login verification:", error);
+    return { error: "Error verifying 2FA" };
+  }
+}
+
+module.exports = { getAllUsers, refresh, logout, login, activate, registration, updateUser, saveAvatar, getUserProfile, deleteUserAccount, set2FA, verify2FA, verify2FALogin };

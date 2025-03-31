@@ -221,7 +221,60 @@ const UserController = {
             res.code(500).send({ error: "Error getting users" });
         }
     },
+
+    async enable2FA(req, res) {
+        try {
+        const userId = req.user.id;
+        const result = await userService.set2FA(userId);
+
+        if(result.error){
+            return res.code(400).send({ error: result.error })
+        }
+
+        return res.code(200).send({
+            qrCodeUrl: result.qrCodeUrl,
+            secret: result.secret
+        })
+        } catch (error) {
+          res.code(500).send({ error: "Error with enabling 2FA" });
+        }
+      },
+
+    async verify2FA(req, res) {
+        try {
+            const userId = req.user.id;
+            const { token } = req.body;
+
+            const result = await userService.verify2FA(userId, token);
+            if (result.error) {
+                return res.code(400).send({ error: result.error });
+            }
+            return res.code(200).send({ verified: true });
+        } catch (error) {
+            res.code(500).send({ error: "Error verifying 2FA token" });
+        }
+    },
+    async verify2FALogin(req, res) {
+        try {
+            const {userId, token} = req.body;
+
+            if(!userId || !token){         
+                return res.code(400).send({ error: "User ID and token are required" });
+            }
+
+            const userData = await userService.verify2FALogin(userId, token);
+            res.cookie("refreshToken", userData.refreshToken, {
+                maxAge: 60 * 24 * 60 * 60 * 1000,
+                httpOnly: true,
+              });
+            res.code(200).send(userData);
+        } catch (error) {
+            res.code(500).send({ error: "Error verifying 2FA during login:" });
+        }
+    }
 };
+
+
 
 module.exports = UserController;
 

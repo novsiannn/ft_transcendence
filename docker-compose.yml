@@ -6,14 +6,16 @@ services:
     container_name: transcendenc_backend
     ports:
       - "3000:3000"
+      - "9229:9229"  # Порт для отладчика
     env_file:
       - ./backend/.env
     volumes:
       - ./backend/db:/app/db
+      - /app/node_modules
       - ./backend/uploads:/app/uploads
     environment:
       - NODE_ENV=development
-    command: sh -c "mkdir -p /app/db && touch /app/db/database.sqlite && node src/index.js"  
+    command: sh -c "npm install && node --inspect=0.0.0.0:9229 src/index.js"  
   
   frontend:
     build:

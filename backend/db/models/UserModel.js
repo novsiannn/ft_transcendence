@@ -49,6 +49,15 @@ const User = sequelize.define("User", {
     allowNull: true,
     defaultValue: null,
   },
+  twoFactorSecret: {
+    type: DataTypes.STRING,
+    allowNull: true,
+    defaultValue: null,
+  },
+  isTwoFactorEnabled: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: false,
+  }
   // isOnline: {
   //   type: DataTypes.BOOLEAN,
   //   defaultValue: false,
