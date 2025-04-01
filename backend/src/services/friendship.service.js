@@ -11,7 +11,7 @@ async function sendFriendRequest(requesterId, addresseeId) {
             User.findByPk(requesterId),
             User.findByPk(addresseeId)
         ]);
-        
+
         if (!requester || !addressee) {
             return { error: "User not found" };
         }
@@ -29,7 +29,7 @@ async function sendFriendRequest(requesterId, addresseeId) {
             const status = existingFriendship.status;
 
             if (status === 'pending') {
-                if (existingFriendship.requesterId === requesterId){
+                if (existingFriendship.requesterId === requesterId) {
                     return { error: "Friend request already sent" };
                 } else {
                     existingFriendship.status = 'accepted';
@@ -64,7 +64,7 @@ async function sendFriendRequest(requesterId, addresseeId) {
             addresseeId,
             status: 'pending'
         });
-        
+
         return {
             friendship,
             message: "Friend request sent successfully"
