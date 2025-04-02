@@ -4,6 +4,8 @@ const path = require('path');
 const sequelize = require('../db/database');
 const userRoutes = require('./routes/index');
 const fastifyCors = require('@fastify/cors');
+const fastifyWebSocket = require('fastify-socket.io');
+const socketIo = require('socket.io');
 
 const keyPath = process.env.SSL_KEY_PATH || path.join(__dirname, './../certs/key.pem');
 const certPath = process.env.SSL_CERT_PATH || path.join(__dirname, './../certs/cert.pem');
