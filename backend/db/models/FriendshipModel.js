@@ -13,7 +13,7 @@ const Friendship = sequelize.define("Friendship", {
         allowNull: false,
     },
     requesterId: {
-        type: DataTypes.INTENGER,
+        type: DataTypes.INTEGER,
         allowNull: false,
     },
     addresseeId: {

@@ -75,4 +75,76 @@ async function sendFriendRequest(requesterId, addresseeId) {
     }
 }
 
-module.exports = { sendFriendRequest };
+async function respondToFriendRequest(friendshipId, userId, accept) {
+    try {
+        const friendship = await Friendship.findOne({
+            where: {
+                id: friendshipId,
+                addresseeId: userId,
+                status: 'pending'
+            }
+        });
+
+        if (!friendship) {
+            return { error: "Friend request not found or already in processed" };
+        }
+
+        friendship.status = accept ? 'accepted' : 'rejected';
+        await friendship.save();
+
+        return {
+            friendshipId,
+            message: accept ? "Friend request accepted" : "Friend request rejected"
+        }
+
+    } catch (error) {
+        console.error(`Error ${accept ? 'accepting' : 'rejecting'} friend request`, error);
+        throw error;
+    }
+}
+
+async function getUserFriends(userId) {
+    try {
+        const friendships = await Friendship.findAll({
+            where: {
+                status: 'accepted',
+                [Op.or]: [
+                    { requesterId: userId },
+                    { addresseeId: userId }
+                ]
+            },
+            include: [
+                {
+                    model: User,
+                    as: 'requester',
+                    attributes: ['id', 'username', 'email', 'avatar'],
+                    where: {
+                        id: { [Op.ne]: userId }
+                    },
+                    required: false
+                },
+                {
+                    model: User,
+                    as: 'addressee',
+                    attributes: ['id', 'username', 'email', 'avatar'],
+                    where: {
+                        id: { [Op.ne]: userId }
+                    },
+                    required: false
+                }
+            ]
+        });
+
+        const friends = friendships.map(friendship => {
+            return friendship.requesterId === userId ? friendship.addressee : friendship.requester;
+        }).filter(Boolean);
+
+        return { friends };
+
+    } catch(error) {
+        console.error("Error geting user friends:", error);
+        throw error;
+    }
+}
+
+module.exports = { sendFriendRequest, respondToFriendRequest, getUserFriends};
