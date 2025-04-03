@@ -4,7 +4,7 @@ const { Op } = require('sequelize');
 async function sendFriendRequest(requesterId, addresseeId) {
     try {
         if (requesterId === addresseeId) {
-            return { error: "You cannot send friend request to yourself" };
+            return { error: "You cannot send friend request to yourself" }; //400
         }
 
         const [requester, addressee] = await Promise.all([
@@ -13,7 +13,7 @@ async function sendFriendRequest(requesterId, addresseeId) {
         ]);
 
         if (!requester || !addressee) {
-            return { error: "User not found" };
+            return { error: "User not found" }; // 400
         }
 
         const existingFriendship = await Friendship.findOne({
@@ -30,7 +30,7 @@ async function sendFriendRequest(requesterId, addresseeId) {
 
             if (status === 'pending') {
                 if (existingFriendship.requesterId === requesterId) {
-                    return { error: "Friend request already sent" };
+                    return { error: "Friend request already sent" }; // 400
                 } else {
                     existingFriendship.status = 'accepted';
                     await existingFriendship.save();
@@ -40,7 +40,7 @@ async function sendFriendRequest(requesterId, addresseeId) {
                     };
                 }
             } else if (status === 'accepted') {
-                return { error: "Users are already friends" };
+                return { error: "Users are already friends" }; //400
             } else if (status === 'blocked') {
                 if (existingFriendship.requesterId === requesterId) {
                     return { error: "You have blocked this user" };
