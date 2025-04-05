@@ -16,6 +16,24 @@ class ChatController {
         }
     }
 
+    async getChatMessages(req, res) {
+        try {
+            const {chatId} = req.params;
+            if(!chatId)
+                return res.code(400).send({ message: 'Chat ID is required' });
+         
+            const messages = await chatService.getChatMessages(chatId);
+            return res.code(200).send(messages);
+        }
+        catch (error) {
+            console.error('Error fetching chat messages:', error);
+            return res.code(500).send({ message: 'Internal server error' });
+        }
+    }
+
+    // async handleSocketConnection(socket, io) {
+
+    // }
     
 
 }

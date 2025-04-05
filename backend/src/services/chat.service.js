@@ -51,22 +51,21 @@ const User = require('../../db/models/UserModel');
         }
     }
 
-    async function getChatMessages(req, res) {
+    async function getChatMessages(chatId) {
         try{
-            const { chatId } = req.params;
             const messages = await Message.findAll({
                 where: {chatId},
                 order: [['createdAt', 'DESC']],
-                include: [{
-                    model: User,
-                    attributes: ['id', 'username', 'avatar']
-                }]
+                // include: [{
+                //     model: User,
+                //     attributes: ['id', 'username', 'avatar']
+                // }]
             });
-            return res.code(200).send(messages); 
+            return messages 
         }
         catch(error){
             console.error('Error getting chat messages:', error);
-            return res.code(500).send({ error: 'Internal server error' });
+            throw error;
         }
     }
 
