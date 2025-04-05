@@ -1,11 +1,9 @@
-// import { postDatas } from "../../services/api";
 import { userDataLogin } from "../../shared";
 import { IUserDataTypeLogin } from "../../shared";
 import { userAPI } from "../../services/api";
-import { navigateTo } from "../../routing";
-import { activateWarning, hideWarning } from "../../Layout";
+import { hideWarning } from "../../Layout";
 import { navigationHandle } from "../../nagivation";
-import { getModalWindowError, handleModalError } from "../../elements";
+import { handleModalError } from "../../elements";
 
 export function handleLogin() {
   navigationHandle();
@@ -36,12 +34,7 @@ export function handleLogin() {
           userDataLogin[key] = input.value;
         }
       });
-      const response = await userAPI.postDatas(userDataLogin, "login");
-      if (response.status === 401) {
-        activateWarning();
-      } else {
-        navigateTo("/");
-      }
+      await userAPI.postDatas(userDataLogin, "login");
     } catch (error: any) {
       handleModalError(error);
     }

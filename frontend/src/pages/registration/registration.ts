@@ -22,7 +22,7 @@ export function handleRegistration() {
         })
     });
 
-    btnRegistr!.addEventListener('click', (e) => {
+    btnRegistr!.addEventListener('click', async (e) => {
         e.preventDefault();
         try {
             const userDataRegistration: IUserDataRegistrationType = {
@@ -38,8 +38,7 @@ export function handleRegistration() {
                 }
                 userDataRegistration[key] = input.value;
             });
-            userAPI.postDatas(userDataRegistration, 'registration');
-            navigateTo("/activate");
+            await userAPI.postDatas(userDataRegistration,'registration');
         } catch (error: any) {
             handleModalError(error);
         }
