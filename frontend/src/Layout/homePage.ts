@@ -1,8 +1,8 @@
+import { getModalWindowSuccess } from "../elements/ModalSuccess";
 import { navigation } from "../nagivation";
 
 export function homePage() {
 	document.body.classList.add("h-screen", "flex", "flex-col", "bg-gradient-to-t", "from-black", "via-black", "to-gray-800", "overflow-hidden");
-	// ${navigation()}
 	let res = `
         	${navigation()}
         	<div class="container mx-auto p-6 mt-24">
@@ -20,6 +20,7 @@ export function homePage() {
         	            <img src="../img/ping-pong.png" alt="Rocket for ping pong" class="w-128 h-128 object-cover rounded-xl shadow-md">
         	        </div>
         	    </div>
-        	</div>`;
+        	</div> 
+			${getModalWindowSuccess()}`;
 	return res;
 }
