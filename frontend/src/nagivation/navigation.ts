@@ -22,8 +22,6 @@ export function navigationHandle() {
   });
   
   signUpBtn?.addEventListener("click", () => {
-    console.log('here');
-    
     navigateTo("/signUp");
   });
 
