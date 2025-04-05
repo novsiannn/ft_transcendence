@@ -1,3 +1,4 @@
+import { handleModalSuccess } from "../../elements/ModalSuccess";
 import { activateWarning } from "../../Layout";
 import { navigateTo } from "../../routing";
 
@@ -16,7 +17,7 @@ export const handleRequests = (status: number) => {
 			break;
 		case 200:
 			navigateTo("/");
-			console.log("User has successfully logged in");
+			handleModalSuccess("You have successfully logged in.");
 			break;
 		default:
 			navigateTo("/");
