@@ -1,17 +1,17 @@
-import { checkLoggedUser } from "../routing/redirect";
+import { store } from "../store/store"
 
 const getProfileIcon = () => {
 	return `<img id="profileIcon" src="https://cdn.pixabay.com/photo/2020/07/01/12/58/icon-5359553_1280.png" alt="Profile" class="w-12 h-12 rounded-full cursor-pointer">`
 }
 
 const getSignInBtn = () => {
-	return `<div id="signInBtn" alt="Profile" class="w-full text-black font-thin rounded-md p-2 h-8 cursor-pointer bg-gray-100 flex items-center">
+	return `<div id="signInBtn" alt="Profile" class="w-full select-none text-black font-thin rounded-md p-2 h-8 cursor-pointer bg-gray-100 flex items-center">
 			<h1>Sign In</h1>
 	</div>`
 }
 
 const getSignUpBtn = () => {
-	return `<div id="registBtn" alt="Profile" class="w-full text-black font-thin rounded-md p-2 h-8 cursor-pointer bg-gray-100 flex items-center">
+	return `<div id="registBtn" alt="Profile" class="w-full select-none text-black font-thin rounded-md p-2 h-8 cursor-pointer bg-gray-100 flex items-center">
 			<h1>Sign Up</h1>
 	</div>`
 }
@@ -31,7 +31,7 @@ export function navigation() {
 		<nav class="top-0 left-0 bg-black text-white h-16 w-full fixed flex items-center justify-between px-6">
     		<img src="https://img.icons8.com/plasticine/100/ping-pong--v1.png" alt="Logo" class="h-12 w-12 object-cover" id=imgLogoNavi>
 
-			${checkLoggedUser() ? 
+			${store.getAuth() ? 
     		`<div class="flex-1 flex justify-center space-x-8">
        			<button class=" h-5 focus:outline-none transition delay-100 hover:text-green-500" id="naviBtn"> Home </button>
         		<button class=" h-5 focus:outline-none transition delay-100 hover:text-green-500" id="naviBtn"> Game </button>
@@ -41,7 +41,7 @@ export function navigation() {
 			: ''}
 
 			<div class="relative">
-				${checkLoggedUser() ? getProfileIcon() : getAuthBtn()}
+				${store.getAuth() ? getProfileIcon() : getAuthBtn()}
         		
 
 

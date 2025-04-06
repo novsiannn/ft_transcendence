@@ -1,7 +1,7 @@
 import { navigateTo } from "../routing";
+import { store } from "../store/store";
 import { naviRoutes } from "./navigationRoutes";
 import { dropMenuRoutes } from "./navigationRoutes";
-import { userChangeLoginStatus } from "../routing/redirect";
 
 export function navigationHandle() {
   const naviBtns = document.querySelectorAll("#naviBtn");
@@ -17,7 +17,6 @@ export function navigationHandle() {
   });
 
   signInBtn?.addEventListener("click", () => {
-    console.log('here');
     navigateTo("/signIn");
   });
   
@@ -37,9 +36,8 @@ export function navigationHandle() {
     btn.addEventListener("click", () => {
       if (btn.innerHTML.trim() in dropMenuRoutes) {
         navigateTo(dropMenuRoutes[btn.innerHTML.trim()]);
-        // shit-code, when database will be, this code-area has to be improved
         if (btn.innerHTML.trim() === "Logout") {
-          userChangeLoginStatus(false);
+          store.logout();
         }
       }
     });
