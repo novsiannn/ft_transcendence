@@ -1,9 +1,10 @@
 import { userDataLogin } from "../../shared";
 import { IUserDataTypeLogin } from "../../shared";
-import { userAPI } from "../../services/api";
-import { hideWarning } from "../../Layout";
+// import { userAPI } from "../../services/api";
+import { activateWarning, hideWarning } from "../../Layout";
 import { navigationHandle } from "../../nagivation";
 import { handleModalError } from "../../elements";
+import { store } from "../../store/store";
 
 export function handleLogin() {
   navigationHandle();
@@ -34,9 +35,9 @@ export function handleLogin() {
           userDataLogin[key] = input.value;
         }
       });
-      await userAPI.postDatas(userDataLogin, "login");
+      await store.login(userDataLogin.email, userDataLogin.password);
     } catch (error: any) {
-      handleModalError(error);
+      activateWarning();
     }
   });
 }
