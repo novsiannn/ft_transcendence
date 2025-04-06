@@ -1,9 +1,10 @@
 import { navigateTo } from "../../routing/index"
 import { IUserDataRegistrationType } from "../../shared";
-import { userAPI } from "../../services/api";
+// import { userAPI } from "../../services/api";
 import { validateInput } from "../../shared/validation";
 import { navigationHandle } from "../../nagivation";
 import { handleModalError } from "../../elements/ModalError/handleModalError";
+import { store } from "../../store/store";
 
 //changed from novsiann
 export function handleRegistration() {
@@ -38,7 +39,7 @@ export function handleRegistration() {
                 }
                 userDataRegistration[key] = input.value;
             });
-            await userAPI.postDatas(userDataRegistration,'registration');
+            await store.registration(userDataRegistration.username, userDataRegistration.email, userDataRegistration.password);
         } catch (error: any) {
             handleModalError(error);
         }
