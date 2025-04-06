@@ -4,7 +4,7 @@ export const handleModalError = (text?: string) => {
   const closeModal = document.querySelector("#closeModal");
   const modalErrorText = document.querySelector("#modalErrorText");
 
-  if (text) modalErrorText!.textContent = text;
+  if (text && modalErrorText) modalErrorText.textContent = text;
 
   modalWindow?.classList.remove("hidden");
   setTimeout(() => {
