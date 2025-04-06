@@ -1,3 +1,4 @@
+import { getModalWindowSuccess } from './../elements/ModalSuccess/layoutModalSuccess';
 export function activateAccountPage() {
   document.body.style.margin = "0";
   document.body.style.padding = "0";
@@ -15,5 +16,6 @@ export function activateAccountPage() {
                         <h3 >Please check your inbox and verify your account</h3>
                     </div>
                 </div>
+                ${getModalWindowSuccess}
 		`;
 }
