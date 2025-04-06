@@ -41,9 +41,18 @@ fastify.register(require('@fastify/cookie'), {
   parseOptions: {} // options for parsing cookies
 });
 
+// было
+// fastify.register(fastifyCors, {
+//   origin: '*', // из-за этого браузер блокировал запрос
+//   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
+// });
+
+// стало
 fastify.register(fastifyCors, {
-  origin: '*',
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
+  origin: 'https://localhost:8888', // фронт
+  credentials: true, // нужно для передачи куки/токенов
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 });
 
 
