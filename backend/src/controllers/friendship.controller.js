@@ -23,6 +23,28 @@ const FriendshipController = {
         }
     },
 
+    async cancelFriendRequest(req, res) {
+        try {
+            const userId = req.user.id;
+            const { friendshipId } = req.params;
+
+            if (!friendshipId) {
+                return res.code(400).send({ error: "Friendship ID is required" });
+            }
+
+            const result = await friendshipService.cancelFriendRequest(userId, friendshipId);
+
+            if (result.error) {
+                return res.code(400).send({ error: result.error });
+            }
+
+            return res.code(204).send(result);
+        } catch (error) {
+            console.error("Error in cancelFriendRequest controller:", error);
+            return res.code(500).send({ error: "Internal server error" });           
+        }
+    },
+
     async acceptFriendRequest(req, res) {
         try {
             const userId = req.user.id;
@@ -64,6 +86,106 @@ const FriendshipController = {
         } catch (error) {
             console.error("Error in rejectFriendRequest controller:", error);
             return res.code(500).send({ error: "Internal server error" });
+        }
+    },
+
+    async getIncomingRequests(req, res) {
+        try {
+            const userId = req.user.id;
+            
+            // if (!userId) {
+            //     return res.code(400).send({ error: "User not found" });
+            // }
+
+            const result = await friendshipService.getIncomingRequests(userId);
+
+            return res.code(200).send(result);
+        } catch (error){
+            console.error("Error in getIncomingRequests controller:", error);
+            return res.code(500).send({ error: "Internal server error" });
+        }
+    },
+
+    async getOutgoingRequests(req, res) {
+        try {
+            const userId = req.user.id;
+
+            const status = req.query.status || 'accepted';
+
+            const result = await friendshipService.getOutgoingRequests(userId, status);
+
+            return res.code(200).send(result);
+        } catch (error) {
+            console.error("Error in getOutgoingRequests controller:", error);
+            return res.code(500).send({ error: "Internal server error" });
+        }
+    },
+
+    async removeFriend(req, res) {
+        try {
+            const userId = req.user.id;
+            const { friendId } = req.params;
+
+            if (!friendId) {
+                return res.code(400).send({ error: "Friend ID is requierd" });
+            }
+
+            const result = await friendshipService.removeFriend(userId, friendId);
+
+            if (result.error) {
+                return res.code(400).send({ error: result.error });
+            }
+
+            return res.code(204).send(result);
+
+        } catch (error) {
+            console.error("Error in removeFriend controller:", error);
+            return res.code(500).send({ error: "Internal server error" });
+        }
+    },
+
+    async blockUser(req, res) {
+        try {
+            const userId = req.user.id;
+            const { blockedUserId } = req.params;
+
+            if (!blockedUserId) {
+                return res.code(400).send({ error: "Blocked user ID is required" });
+            }
+
+            const result = await friendshipService.blockUser(userId, blockedUserId);
+
+            if (result.error) {
+                return res.code(400).send({ error: result.error });
+            }
+
+            return res.code(200).send(result);
+
+        } catch (error) {
+            console.error("Error in blockUser controller:", error);
+            return res.code(500).send({ error: "Internal serevr error" });
+        }
+    },
+
+    async unblockUser(req, res) {
+        try {
+            const userId = req.user.id;
+            const { blockedUserId } = req.params;
+
+            if (!blockedUserId) {
+                return res.code(400).send({ error: "Blocked user ID is required" });
+            }
+
+            const result = await friendshipService.unblockUser(userId, blockedUserId);
+
+            if (result.error) {
+                return res.code(400).send({ error: result.error });
+            }
+
+            return res.code(204).send(result);
+        } catch (error) {
+            console.error("Error in unblockUser controller:", error);
+            return res.code(500).send({ error: "Internal serevr error" });
         }
     },
 

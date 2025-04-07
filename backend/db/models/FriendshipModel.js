@@ -20,6 +20,14 @@ const Friendship = sequelize.define("Friendship", {
         type: DataTypes.INTEGER,
         allowNull: false,
     },
+}, {
+    indexes: [
+        {
+            unique: true,
+            fields: ['requesterId', 'addresseeId'],
+            name: 'friendship_unique'
+        }
+    ]
 });
 
 module.exports = Friendship;

@@ -8,11 +8,12 @@ const UserController = {
             if (userData.error) {
                 return res.code(409).send(userData.error);
             }
-            res.cookie("refreshToken", userData.refreshToken, {
-                maxAge: 60 * 24 * 60 * 60 * 1000,
-                httpOnly: true,
-                secure: true,
-            });
+            //no needed 
+            // res.cookie("refreshToken", userData.refreshToken, {
+            //     maxAge: 60 * 24 * 60 * 60 * 1000,
+            //     httpOnly: true,
+            //     secure: true,
+            // });
             res.code(201).send(userData);
         } catch (error) {
             console.error("Error registering user:", error);
@@ -181,7 +182,7 @@ const UserController = {
         try {
             const token = await userService.logout(refreshToken);
             res.clearCookie("refreshToken");
-            res.code(201).send(token);
+            res.code(200).send(token);
         } catch (error) {
             res.code(500).send({ error: "Error logging out user" });
         }

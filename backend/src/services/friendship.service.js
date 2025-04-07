@@ -75,6 +75,29 @@ async function sendFriendRequest(requesterId, addresseeId) {
     }
 }
 
+async function cancelFriendRequest(userId, friendshipId) {
+    try {
+        const friendRequest = await Friendship.findOne({
+            where: {
+                id: friendshipId,
+                requesterId: userId,
+                status: 'pending'
+            }
+        });
+
+        if (!friendRequest) {
+            return { error: "Friend request not found or you don't have permission to cancel it" };
+        }
+
+        await friendRequest.destroy();
+
+        return { message: "Friend request cancelled successfully" };
+    } catch (error) {
+        console.error("Error cancelling friend request:", error);
+        throw error;
+    }
+}
+
 async function respondToFriendRequest(friendshipId, userId, accept) {
     try {
         const friendship = await Friendship.findOne({
@@ -99,6 +122,193 @@ async function respondToFriendRequest(friendshipId, userId, accept) {
 
     } catch (error) {
         console.error(`Error ${accept ? 'accepting' : 'rejecting'} friend request`, error);
+        throw error;
+    }
+}
+
+async function getIncomingRequests(userId) {
+    try {
+        const incomingRequests = await Friendship.findAll({
+            where: {
+                addresseeId: userId,
+                status: 'pending'
+            },
+            include: [{
+                model: User,
+                as: 'requester',
+                attributes: ['id', 'username', 'email', 'avatar']
+            }],
+            order: [['createdAt', 'DESC']]
+        });
+
+        return { requests: incomingRequests };
+
+    } catch (error) {
+        console.error("Error getting incoming requests:", error);
+        throw error;
+    }
+}
+
+async function getOutgoingRequests(userId, status = 'accepted') {
+    try {
+
+        const validStatuses = ['pending', 'accepted', 'rejected'];
+        if (!validStatuses.includes(status)) {
+            status = 'accepted';
+        }
+
+        const outgoingRequests = await Friendship.findAll({
+            where: {
+                requesterId: userId,
+                status: 'accepted'
+            },
+            include: [{
+                model: User,
+                as: 'addressee',
+                attributes: ['id', 'username', 'email', 'avatar']
+            }],
+            order: [['updatedAt', 'DESC']]
+        });
+
+        return { requests: outgoingRequests };
+
+    } catch (error) {
+        console.error(`Error getting ${status} outgoing requests:`, error);
+        throw error;
+    }
+}
+
+async function removeFriend(userId, friendId) {
+    try {
+        if (userId === friendId) {
+            return { error: "You cannot remove yourself from friends" };
+        }
+
+        const [user, friend] = await Promise.all([
+            User.findByPk(userId),
+            User.findByPk(friendId)
+        ]);
+
+        if (!user || !friend) {
+            return { error: "User not found" };
+        }
+
+        const  friendship = await Friendship.findOne({
+            where: {
+                status: 'accepted',
+                [Op.or]: [
+                    { requesterId: userId, addresseeId: friendId },
+                    { requesterId: friendId, addresseeId: userId }
+                ]
+            }
+        });
+
+        if (!friendship) {
+            return { error: "Friendship not found" };
+        }
+
+        await friendship.destroy();
+
+        return { message: "Friend removed successfuly" };
+
+    } catch (error) {
+        console.error("Error removing friend:", error);
+        throw error;
+    }
+}
+
+async function blockUser(userId, blockedUserId)
+{
+    try {
+        if (userId === blockedUserId) {
+            return { error: "You cannot block yourself" };
+        }
+
+        const [user, blockedUser] = await Promise.all([
+            User.findByPk(userId),
+            User.findByPk(blockedUserId)
+        ]);
+
+        if (!user || !blockedUser) {
+            return { error: "User not found" };
+        }
+
+        const existingFriendship = await Friendship.findOne({
+            where: {
+                [Op.or]: [
+                    { requesterId: userId, addresseeId: blockedUserId },
+                    { requesterId: blockedUserId, addresseeId: userId }
+                ]
+            }
+        });
+
+        if (existingFriendship) {
+            if (existingFriendship.status === 'blocked' &&
+                existingFriendship.requesterId === userId &&
+                existingFriendship.addresseeId === blockedUser) {
+                return { error: "User is allready blocked" };
+            }
+
+            existingFriendship.requesterId = userId;
+            existingFriendship.addresseeId = blockedUserId;
+            existingFriendship.status = 'blocked';
+            await existingFriendship.save();
+
+            return {
+                friendship: existingFriendship,
+                message: "User blocked successfully"
+            };
+        }
+
+        const friendship = await Friendship.create({
+            requesterId: userId,
+            addresseeId: blockedUserId,
+            status: 'blocked'
+        });
+
+        return {
+            friendship,
+            message: "User blocked successfully"
+        };
+        
+    } catch (error) {
+        console.error("Error block user:", error);
+        throw error;
+    }
+}
+
+async function unblockUser(userId, blockedUserId) {
+    try {
+        if (userId === blockedUserId) {
+            return { error: "You cannot unblock yourself" };
+        }
+
+        const [user, blockedUser] = await Promise.all([
+            User.findByPk(userId),
+            User.findByPk(blockedUserId)
+        ]);
+
+        if (!user || !blockedUser) {
+            return { error: "User not found" };
+        }
+
+        const blockRecord = await Friendship.findOne({
+            where: {
+                requesterId: userId,
+                addresseeId: blockedUserId,
+                status: 'blocked'
+            }
+        });
+
+        if (!blockRecord) {
+            return { error: "This user is not blocked by you" };
+        }
+
+        await blockRecord.destroy();
+
+        return { message: "User unblocked successfully" };
+    } catch (error) {
+        console.error("Error unblocking user:", error);
         throw error;
     }
 }
@@ -147,4 +357,4 @@ async function getUserFriends(userId) {
     }
 }
 
-module.exports = { sendFriendRequest, respondToFriendRequest, getUserFriends};
+module.exports = { sendFriendRequest, cancelFriendRequest, respondToFriendRequest, getIncomingRequests, getOutgoingRequests, removeFriend, blockUser, unblockUser, getUserFriends};
