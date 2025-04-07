@@ -41,7 +41,7 @@ const FriendshipController = {
             return res.code(204).send(result);
         } catch (error) {
             console.error("Error in cancelFriendRequest controller:", error);
-            return res.code(500).send({ error: "Internal server error" });           
+            return res.code(500).send({ error: "Internal server error" });
         }
     },
 
@@ -92,7 +92,7 @@ const FriendshipController = {
     async getIncomingRequests(req, res) {
         try {
             const userId = req.user.id;
-            
+
             // if (!userId) {
             //     return res.code(400).send({ error: "User not found" });
             // }
@@ -100,7 +100,7 @@ const FriendshipController = {
             const result = await friendshipService.getIncomingRequests(userId);
 
             return res.code(200).send(result);
-        } catch (error){
+        } catch (error) {
             console.error("Error in getIncomingRequests controller:", error);
             return res.code(500).send({ error: "Internal server error" });
         }
@@ -196,7 +196,7 @@ const FriendshipController = {
             if (!userId) {
                 return res.code(400).send({ error: "User not found" });
             }
-            
+
             const result = await friendshipService.getUserFriends(userId);
 
             return res.code(200).send(result);

@@ -193,7 +193,7 @@ async function removeFriend(userId, friendId) {
             return { error: "User not found" };
         }
 
-        const  friendship = await Friendship.findOne({
+        const friendship = await Friendship.findOne({
             where: {
                 status: 'accepted',
                 [Op.or]: [
@@ -217,8 +217,7 @@ async function removeFriend(userId, friendId) {
     }
 }
 
-async function blockUser(userId, blockedUserId)
-{
+async function blockUser(userId, blockedUserId) {
     try {
         if (userId === blockedUserId) {
             return { error: "You cannot block yourself" };
@@ -270,7 +269,7 @@ async function blockUser(userId, blockedUserId)
             friendship,
             message: "User blocked successfully"
         };
-        
+
     } catch (error) {
         console.error("Error block user:", error);
         throw error;
@@ -351,10 +350,10 @@ async function getUserFriends(userId) {
 
         return { friends };
 
-    } catch(error) {
+    } catch (error) {
         console.error("Error geting user friends:", error);
         throw error;
     }
 }
 
-module.exports = { sendFriendRequest, cancelFriendRequest, respondToFriendRequest, getIncomingRequests, getOutgoingRequests, removeFriend, blockUser, unblockUser, getUserFriends};
+module.exports = { sendFriendRequest, cancelFriendRequest, respondToFriendRequest, getIncomingRequests, getOutgoingRequests, removeFriend, blockUser, unblockUser, getUserFriends };
