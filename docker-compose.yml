@@ -15,7 +15,8 @@ services:
       - ./backend/uploads:/app/uploads
     environment:
       - NODE_ENV=development
-    command: sh -c "npm install && node --inspect=0.0.0.0:9229 src/index.js"  
+    # command: sh -c "npm install && node --inspect=0.0.0.0:9229 src/index.js"  
+    command: sh -c "npm install && node src/index.js"
   
   frontend:
     build:

@@ -39,14 +39,25 @@ async function registration(username, email, password) {
     // } catch (error) {
     //   console.error("Error sending activation mail:", error);
     // }
-    const userDto = new UserDto(user);
-    const tokens = tokenService.generateTokens({ ...userDto });
-    await tokenService.saveToken(userDto.id, tokens.refreshToken);
+    //no needed 
+    // const userDto = new UserDto(user);
+    // const tokens = tokenService.generateTokens({ ...userDto });
+    // await tokenService.saveToken(userDto.id, tokens.refreshToken);
 
+    // return {
+    //   ...tokens,
+    //   user: userDto,
+    // };
+    //no needed
     return {
-      ...tokens,
-      user: userDto,
-    };
+      message: "User registered successfully",
+      user: {
+        id: user.id,
+        email: user.email,
+        username: user.username,
+        isActivated: user.isActivated
+      }
+    };  
   } catch (error) {
     console.error("Error during registration process:", error);
     throw error;

@@ -19,6 +19,7 @@ COPY . .
 # USER node
 
 EXPOSE 3000
-EXPOSE 9229  
+# EXPOSE 9229  
 
-CMD ["node", "--inspect=0.0.0.0:9229", "src/index.js"]
+# CMD ["node", "--inspect=0.0.0.0:9229", "src/index.js"]
+CMD ["node", "src/index.js"]

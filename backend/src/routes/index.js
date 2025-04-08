@@ -3,6 +3,8 @@ const fastify = require('fastify');
 const userController = require('../controllers/user.controller');
 const authMiddleware = require('../middleware/auth.middleware');
 const Token = require('../../db/models/TokenModel');
+const FriendshipController = require('../controllers/friendship.controller');
+const { schema } = require('../../db/models/UserModel');
 
 const handle2FAEnable = (req, res) => {
   // Проверка на повторную обработку
@@ -103,7 +105,7 @@ async function routes(fastify, options) {
       }
     }
   }, userController.activate);
-  
+
   fastify.post('/login', {
     schema: {
       description: 'Login user',
@@ -159,7 +161,7 @@ async function routes(fastify, options) {
       }
     }
   }, userController.login);
-  
+
 
   fastify.post('/user/avatar', {
     schema: {
@@ -446,7 +448,7 @@ async function routes(fastify, options) {
         }
       },
       response: {
-        200: {
+        204: {
           description: 'User account deleted successfully',
           type: 'object',
           properties: {
@@ -478,7 +480,8 @@ async function routes(fastify, options) {
     },
     preHandler: authMiddleware
   }, userController.deleteUserAccount);
-   // fastify.get('/user/profile', { preHandler: authMiddleware }, userController.getUserProfile);
+  // 2FA start
+  // fastify.get('/user/profile', { preHandler: authMiddleware }, userController.getUserProfile);
   fastify.post('/2fa/enable', {
     preHandler: authMiddleware,
     schema: {
@@ -495,25 +498,25 @@ async function routes(fastify, options) {
   }, handle2FAEnable);
 
   fastify.post('/2fa/verify', {
-  preHandler: authMiddleware,
-  schema: {
-    body: {
-      type: 'object',
-      required: ['token'],
-      properties: {
-        token: { type: 'string', minLength: 6, maxLength: 6 }
-      }
-    },
-    response: {
-      200: {
+    preHandler: authMiddleware,
+    schema: {
+      body: {
         type: 'object',
+        required: ['token'],
         properties: {
-          verified: { type: 'boolean' }
+          token: { type: 'string', minLength: 6, maxLength: 6 }
+        }
+      },
+      response: {
+        200: {
+          type: 'object',
+          properties: {
+            verified: { type: 'boolean' }
+          }
         }
       }
     }
-  }
-}, handle2FAVerify);
+  }, handle2FAVerify);
 
   fastify.post('/2fa/login', {
     schema: {
@@ -521,12 +524,439 @@ async function routes(fastify, options) {
         type: 'object',
         required: ['userId', 'token'],
         properties: {
-          userId: {type: 'number' },
+          userId: { type: 'number' },
           token: { type: 'string', minLength: 6, maxLength: 6 }
         }
       }
     }
   }, userController.verify2FALogin);
+  //friendship start
+  fastify.post('/friendship', {
+    schema: {
+      description: 'Send a friend request',
+      tags: ['Friendship'],
+      security: [{ bearerAuth: [] }],
+      body: {
+        type: 'object',
+        required: ['addresseeId'],
+        properties: {
+          addresseeId: { type: 'integer' }
+        }
+      },
+      response: {
+        201: {
+          description: 'Friend request sent successfully',
+          type: 'object',
+          properties: {
+            friendship: {
+              type: 'object',
+              properties: {
+                id: { type: 'integer' },
+                requesterId: { type: 'integer' },
+                addresseeId: { type: 'integer' },
+                status: { type: 'string', enum: ['pending', 'accepted', 'rejected', 'blocked'] },
+                createdAt: { type: 'string', format: 'date-time' },
+                updatedAt: { type: 'string', format: 'date-time' }
+              }
+            },
+            message: { type: 'string' }
+          }
+        },
+        400: {
+          description: 'Bad request',
+          type: 'object',
+          properties: {
+            error: { type: 'string' }
+          }
+        },
+      }
+    },
+    preHandler: authMiddleware
+  }, FriendshipController.sendFriendRequest);
+  fastify.delete('/friendship/outgoing/:friendshipId', {
+    schema: {
+      description: 'Cancel a pending friend request',
+      tags: ['Friendship'],
+      security: [{ bearerAuth: [] }],
+      params: {
+        type: 'object',
+        required: ['friendshipId'],
+        properties: {
+          friendshipId: { type: 'integer' }
+        }
+      },
+      response: {
+        204: {
+          description: 'Friend request cancelled successfully',
+          type: 'object',
+          properties: {
+            message: { type: 'string' }
+          }
+        },
+        400: {
+          description: 'Bad request',
+          type: 'object',
+          properties: {
+            error: { type: 'string' }
+          }
+        },
+        500: {
+          description: 'Internal server error',
+          type: 'object',
+          properties: {
+            error: { type: 'string' }
+          }
+        }
+      }
+    },
+    preHandler: authMiddleware
+  }, FriendshipController.cancelFriendRequest);
+  fastify.put('/friendship/:friendshipId/accept', {
+    schema: {
+      description: 'Accept a friend request',
+      tags: ['Friendship'],
+      security: [{ bearerAuth: [] }],
+      params: {
+        type: 'object',
+        required: ['friendshipId'],
+        properties: {
+          friendshipId: { type: 'integer' }
+        }
+      },
+      response: {
+        200: {
+          description: 'Friend request accepted successfully',
+          type: 'object',
+          properties: {
+            friendship: {
+              type: 'object',
+              properties: {
+                id: { type: 'integer' },
+                requesterId: { type: 'integer' },
+                addresseeId: { type: 'integer' },
+                status: { type: 'string', enum: ['pending', 'accepted', 'rejected', 'blocked'] },
+                createdAt: { type: 'string', format: 'date-time' },
+                updatedAt: { type: 'string', format: 'date-time' }
+              }
+            },
+            message: { type: 'string' }
+          }
+        },
+        400: {
+          description: 'Bad request',
+          type: 'object',
+          properties: {
+            error: { type: 'string' }
+          }
+        }
+      }
+    },
+    preHandler: authMiddleware
+  }, FriendshipController.acceptFriendRequest);
+  fastify.put('/friendship/:friendshipId/reject', {
+    schema: {
+      description: 'reject a friend request',
+      tags: ['Friendship'],
+      security: [{ bearerAuth: [] }],
+      params: {
+        type: 'object',
+        required: ['friendshipId'],
+        properties: {
+          friendshipId: { type: 'integer' }
+        }
+      },
+      response: {
+        200: {
+          description: 'Friend request rejected successfully',
+          type: 'object',
+          properties: {
+            friendship: {
+              type: 'object',
+              properties: {
+                id: { type: 'integer' },
+                requesterId: { type: 'integer' },
+                addresseeId: { type: 'integer' },
+                status: { type: 'string', enum: ['pending', 'accepted', 'rejected', 'blocked'] },
+                createdAt: { type: 'string', format: 'date-time' },
+                updatedAt: { type: 'string', format: 'date-time' }
+              }
+            },
+            message: { type: 'string' }
+          }
+        },
+        400: {
+          description: 'Bad request',
+          type: 'object',
+          properties: {
+            error: { type: 'string' }
+          }
+        }
+      }
+    },
+    preHandler: authMiddleware
+  }, FriendshipController.rejectFriendRequest);
+  fastify.get('/friendship/incoming', {
+    schema: {
+      description: 'Get incoming friend requests',
+      tags: ['Friendship'],
+      security: [{ bearerAuth: [] }],
+      response: {
+        200: {
+          description: 'List of incoming friend requests',
+          type: 'object',
+          properties: {
+            requests: {
+              type: 'array',
+              items: {
+                type: 'object',
+                properties: {
+                  id: { type: 'integer' },
+                  requesterId: { type: 'integer' },
+                  addresseeId: { type: 'integer' },
+                  status: { type: 'string', enum: ['pending'] },
+                  createdAt: { type: 'string', format: 'date-time' },
+                  updatedAt: { type: 'string', format: 'date-time' },
+                  requester: {
+                    type: 'object',
+                    properties: {
+                      id: { type: 'integer' },
+                      username: { type: 'string' },
+                      email: { type: 'string' },
+                      avatar: { type: 'string' }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        500: {
+          description: 'Internal server error',
+          type: 'object',
+          properties: {
+            error: { type: 'string' }
+          }
+        }
+      }
+    },
+    preHandler: authMiddleware
+  }, FriendshipController.getIncomingRequests);
+  fastify.get('/friendship/outgoing', {
+    schema: {
+      description: 'Get outgoing friend requests filtered by status',
+      tags: ['Friendship'],
+      security: [{ bearerAuth: [] }],
+      querystring: {
+        type: 'object',
+        properties: {
+          status: {
+            type: 'string',
+            enum: ['pending', 'accepted', 'rejected'],
+            default: 'accepted'
+          }
+        }
+      },
+      response: {
+        200: {
+          description: 'List of accepted outgoing friend requests',
+          type: 'object',
+          properties: {
+            requests: {
+              type: 'array',
+              items: {
+                type: 'object',
+                properties: {
+                  id: { type: 'integer' },
+                  requesterId: { type: 'integer' },
+                  addresseeId: { type: 'integer' },
+                  status: { type: 'string', enum: ['accepted'] },
+                  createdAt: { type: 'string', format: 'date-time' },
+                  updatedAt: { type: 'string', format: 'date-time' },
+                  addressee: {
+                    type: 'object',
+                    properties: {
+                      id: { type: 'integer' },
+                      username: { type: 'string' },
+                      email: { type: 'string' },
+                      avatar: { type: 'string' }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        500: {
+          description: 'Internal server error',
+          type: 'object',
+          properties: {
+            error: { type: 'string' }
+          }
+        }
+      }
+    },
+    preHandler: authMiddleware
+  }, FriendshipController.getOutgoingRequests);
+  fastify.delete('/friendship/:friendId', {
+    schema: {
+      description: 'Remove a friend',
+      tags: ['Friendship'],
+      security: [{ bearerAuth: [] }],
+      params: {
+        type: 'object',
+        required: ['friendId'],
+        properties: {
+          friendId: { type: 'integer' }
+        }
+      },
+      response: {
+        204: {
+          description: 'Friend removed successfully',
+          type: 'object',
+          properties: {
+            message: { type: 'string' }
+          }
+        },
+        400: {
+          description: 'Bad request',
+          type: 'object',
+          properties: {
+            error: { type: 'string' }
+          }
+        },
+        500: {
+          description: 'Internal server error',
+          type: 'object',
+          properties: {
+            error: { type: 'string' }
+          }
+        }
+      }
+    },
+    preHandler: authMiddleware
+  }, FriendshipController.removeFriend);
+  fastify.post('/friendship/:blockedUserId/block', {
+    schema: {
+      description: 'Block a user',
+      tags: ['Friendship'],
+      security: [{ bearerAuth: [] }],
+      params: {
+        type: 'object',
+        required: ['blockedUserId'],
+        properties: {
+          blockedUserId: { type: 'integer' }
+        }
+      },
+      response: {
+        200: {
+          description: 'User blocked successfully',
+          type: 'object',
+          properties: {
+            friendship: {
+              type: 'object',
+              properties: {
+                id: { type: 'integer' },
+                requesterId: { type: 'integer' },
+                addresseeId: { type: 'integer' },
+                status: { type: 'string', enum: ['blocked'] },
+                createdAt: { type: 'string', format: 'date-time' },
+                updatedAt: { type: 'string', format: 'date-time' }
+              }
+            },
+            message: { type: 'string' }
+          }
+        },
+        400: {
+          description: 'Bad request',
+          type: 'object',
+          properties: {
+            error: { type: 'string' }
+          }
+        },
+        500: {
+          description: 'Internal server error',
+          type: 'object',
+          properties: {
+            error: { type: 'string' }
+          }
+        }
+      }
+    },
+    preHandler: authMiddleware
+  }, FriendshipController.blockUser);
+  fastify.delete('/friendship/:blockedUserId/block', {
+    schema: {
+      description: 'Unblock a user',
+      tags: ['Friendship'],
+      security: [{ bearerAuth: [] }],
+      params: {
+        type: 'object',
+        required: ['blockedUserId'],
+        properties: {
+          blockedUserId: { type: 'integer' }
+        }
+      },
+      response: {
+        204: {
+          description: 'User unblocked successfully',
+          type: 'object',
+          properties: {
+            message: { type: 'string' }
+          }
+        },
+        400: {
+          description: 'Bad request',
+          type: 'object',
+          properties: {
+            error: { type: 'string' }
+          }
+        },
+        500: {
+          description: 'Internal server error',
+          type: 'object',
+          properties: {
+            error: { type: 'string' }
+          }
+        }
+      }
+    },
+    preHandler: authMiddleware
+  }, FriendshipController.unblockUser);
+  fastify.get('/friendship', {
+    schema: {
+      description: 'Get user\'s friends',
+      tags: ['Friendship'],
+      security: [{ bearerAuth: [] }],
+      response: {
+        200: {
+          description: 'List of friends',
+          type: 'object',
+          properties: {
+            friends: {
+              type: 'array',
+              items: {
+                type: 'object',
+                properties: {
+                  id: { type: 'integer' },
+                  username: { type: 'string' },
+                  email: { type: 'string' },
+                  avatar: { type: 'string' },
+                }
+              }
+            }
+          }
+        },
+        500: {
+          description: 'Internal server error',
+          type: 'object',
+          properties: {
+            error: { type: 'string' }
+          }
+        }
+      }
+    },
+    preHandler: authMiddleware
+  }, FriendshipController.getUserFriends);
 }
 
 module.exports = routes;
