@@ -1,6 +1,5 @@
 import { navigateTo } from "../../routing/index"
 import { IUserDataRegistrationType } from "../../shared";
-// import { userAPI } from "../../services/api";
 import { validateInput } from "../../shared/validation";
 import { navigationHandle } from "../../nagivation";
 import { handleModalError } from "../../elements/ModalError/handleModalError";
