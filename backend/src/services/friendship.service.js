@@ -227,6 +227,7 @@ async function blockUser(userId, blockedUserId) {
             User.findByPk(userId),
             User.findByPk(blockedUserId)
         ]);
+        
 
         if (!user || !blockedUser) {
             return { error: "User not found" };

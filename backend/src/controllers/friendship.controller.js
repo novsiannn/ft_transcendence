@@ -5,7 +5,6 @@ const FriendshipController = {
         try {
             const requesterId = req.user.id;
             const { addresseeId } = req.body;
-
             if (!addresseeId) {
                 return res.code(400).send({ error: "Addressee ID is required" })
             }
