@@ -482,7 +482,7 @@ async function routes(fastify, options) {
   }, userController.deleteUserAccount);
   // 2FA start
   // fastify.get('/user/profile', { preHandler: authMiddleware }, userController.getUserProfile);
-  fastify.get('/2fa/enable', {
+  fastify.post('/2fa/enable', {
     preHandler: authMiddleware,
     schema: {
       response: {
