@@ -7,6 +7,8 @@ async function sendFriendRequest(requesterId, addresseeId) {
             return { error: "You cannot send friend request to yourself" }; //400
         }
 
+        // console.log("Doubl call check");
+
         const [requester, addressee] = await Promise.all([
             User.findByPk(requesterId),
             User.findByPk(addresseeId)

@@ -24,7 +24,7 @@ async function authMiddleware(request, reply, done) {
         done();
     } catch (error) {
         reply.code(401).send({ error: "User is Unauthorized" });
-        return;
+        done(error);
     }
 }
 

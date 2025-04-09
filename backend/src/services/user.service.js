@@ -155,7 +155,7 @@ async function saveAvatar(userId, fileBuffer, mimetype) {
 async function getUserProfile(userId) {
   try {
     const user = await User.findByPk(userId, {
-      attributes: ['id', 'email', 'username', 'avatar', 'firstName', 'lastName', 'phoneNumber', 'isActivated']
+      attributes: ['id', 'email', 'username', 'avatar', 'firstName', 'lastName', 'phoneNumber', 'isActivated', 'isTwoFactorEnabled']
     });
 
     if (!user) {

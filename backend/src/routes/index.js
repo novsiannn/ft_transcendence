@@ -234,7 +234,8 @@ async function routes(fastify, options) {
                 firstName: { type: 'string' },
                 lastName: { type: 'string' },
                 phoneNumber: { type: 'string' },
-                isActivated: { type: 'boolean' }
+                isActivated: { type: 'boolean' },
+                isTwoFactorEnabled: { type: 'boolean' }
               }
             }
           }
