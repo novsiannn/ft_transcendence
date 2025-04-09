@@ -8,3 +8,8 @@ export interface IUserDataTypeLogin {
     email: string | null,
     password: string | null
 }
+
+export interface IQRCodeEnableResponse {
+	qrCodeUrl: string,
+	secret: string
+}
