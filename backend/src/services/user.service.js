@@ -202,10 +202,8 @@ async function updateUser(userId, updateData) {
             (typeof updateData[field] === 'string' && updateData[field].trim() === '')
           ) {
           filteredUpdateData[field] = null;
-          console.log(`Setting ${field} to null from value:`, updateData[field]); // delete
         } else {
           filteredUpdateData[field] = updateData[field];
-          console.log(`Setting ${field} to:`, updateData[field]); // delete
         }
       }
     }
