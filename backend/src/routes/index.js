@@ -233,7 +233,7 @@ async function routes(fastify, options) {
                 avatar: { type: 'string' },
                 firstName: { type: 'string' },
                 lastName: { type: 'string' },
-                phoneNumber: { type: 'integer' },
+                phoneNumber: { type: 'string' },
                 isActivated: { type: 'boolean' }
               }
             }
@@ -341,7 +341,7 @@ async function routes(fastify, options) {
               username: { type: 'string' },
               firstName: { type: 'string' },
               lastName: { type: 'string' },
-              phoneNumber: { type: 'integer' },
+              phoneNumber: { type: 'string' },
               isActivated: { type: 'boolean' },
               avatar: { type: 'string' },
               createdAt: { type: 'string', format: 'date-time' },
@@ -379,7 +379,7 @@ async function routes(fastify, options) {
           username: { type: 'string', minLength: 3 },
           firstName: { type: ['string', 'null'] },
           lastName: { type: ['string', 'null'] },
-          phoneNumber: { type: ['integer', 'null'] }
+          phoneNumber: { type: ['string', 'null'] }
         }
       },
       response: {
@@ -396,7 +396,7 @@ async function routes(fastify, options) {
                 username: { type: 'string' },
                 firstName: { type: ['string', 'null'] },
                 lastName: { type: ['string', 'null'] },
-                phoneNumber: { type: ['integer', 'null'] },
+                phoneNumber: { type: ['string', 'null'] },
                 isActivated: { type: 'boolean' }
               }
             }

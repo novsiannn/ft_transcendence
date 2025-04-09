@@ -57,7 +57,7 @@ async function registration(username, email, password) {
         username: user.username,
         isActivated: user.isActivated
       }
-    };  
+    };
   } catch (error) {
     console.error("Error during registration process:", error);
     throw error;
@@ -83,8 +83,8 @@ async function login(email, password) {
     return { error: "Incorrect password or email" };
   }
 
-  if(user.isTwoFactorEnabled){
-    return{
+  if (user.isTwoFactorEnabled) {
+    return {
       requiresTwoFactor: true,
       userId: user.id,
       email: user.email
@@ -172,9 +172,11 @@ async function getUserProfile(userId) {
 async function updateUser(userId, updateData) {
   try {
     const user = await User.findByPk(userId);
+
     if (!user) {
       return { error: "User not found" };
     }
+
     if (updateData.username) {
       const existingUser = await User.findOne({
         where: {
@@ -182,6 +184,7 @@ async function updateUser(userId, updateData) {
           id: { [sequelize.Sequelize.Op.ne]: userId } // !=
         }
       });
+
       if (existingUser) {
         return { error: "Username is already taken" };
       }
@@ -189,18 +192,28 @@ async function updateUser(userId, updateData) {
 
     const allowedFields = ['username', 'firstName', 'lastName', 'phoneNumber'];
     const filteredUpdateData = {};
+
     for (const field of allowedFields) {
       if (field in updateData) {
-        if (updateData[field] === null || updateData[field] === "") {
+        if (updateData[field] === null ||
+            updateData[field] === "" ||
+            updateData[field] === 0 ||
+            updateData[field] === "0" ||
+            (typeof updateData[field] === 'string' && updateData[field].trim() === '')
+          ) {
           filteredUpdateData[field] = null;
+          console.log(`Setting ${field} to null from value:`, updateData[field]); // delete
         } else {
           filteredUpdateData[field] = updateData[field];
+          console.log(`Setting ${field} to:`, updateData[field]); // delete
         }
       }
     }
 
     // await user.update(updateData);
     await user.update(filteredUpdateData);
+
+    await user.reload(); // delete mb
 
     const updatedUser = await User.findByPk(userId, {
       attributes: ['id', 'email', 'username', 'firstName', 'lastName', 'phoneNumber', 'isActivated']
@@ -238,7 +251,7 @@ async function deleteUserAccount(userId, password) {
 
     const avatarPath = user.avatar;
 
-    await Token.destroy({ where: {userId} }); // have to delete
+    await Token.destroy({ where: { userId } }); // have to delete
 
     await user.destroy();
 
@@ -298,26 +311,26 @@ async function getAllUsers() {
   }
 }
 
-async function set2FA(userId){
+async function set2FA(userId) {
   try {
     const user = await User.findByPk(userId);
-    if(user.isTwoFactorEnabled) {
+    if (user.isTwoFactorEnabled) {
       return { error: "2FA is already enabled for this user" };
     }
     const secret = speakeasy.generateSecret({
       name: `Transcendence:${user.email}`,
       length: 20
     });
-    
+
     await user.update({ twoFactorSecret: secret.base32 });
     const qrCodeUrl = await QRCode.toDataURL(secret.otpauth_url);
-    
+
     console.log('2FA Setup:', {
       userId,
       secret: secret.base32,
       otpauthUrl: secret.otpauth_url
     });
-    
+
     return {
       qrCodeUrl,
       secret: secret.base32
@@ -334,27 +347,27 @@ async function verify2FA(userId, token) {
     if (!user || !user.twoFactorSecret) {
       return { error: "2FA not enabled for this user" };
     }
-    
+
     const verif = speakeasy.totp.verify({
       secret: user.twoFactorSecret,
       encoding: "base32",
       token: token,
     });
-    
+
     console.log('2FA Verification Details:', {
-      providedToken: token,         
+      providedToken: token,
       secret: user.twoFactorSecret,
       verified: verif,
     });
-    
+
     if (!verif) {
       return { error: "Invalid 2FA token" };
     }
-    
+
     await user.update({
       isTwoFactorEnabled: true
     })
-    
+
     return { verified: true };
   } catch (error) {
     console.error("Error in verify2FA service:", error);
@@ -365,28 +378,28 @@ async function verify2FA(userId, token) {
 async function verify2FALogin(userId, token) {
   try {
     const user = await User.findByPk(userId);
-    if(!user || !user.isTwoFactorEnabled){
+    if (!user || !user.isTwoFactorEnabled) {
       return { error: "2FA not enabled for this user" };
     }
-    
+
     const verif = speakeasy.totp.verify({
       secret: user.twoFactorSecret,
       encoding: "base32",
       token: token,
     });
-    
-    if(!verif)
+
+    if (!verif)
       return { error: "Invalid 2FA token" };
-    
+
     const userDto = new UserDto(user);
     const tokens = tokenService.generateTokens({ ...userDto });
     await tokenService.saveToken(userDto.id, tokens.refreshToken);
-    
+
     return {
       ...tokens,
       user: userDto,
     };
-    
+
   } catch (error) {
     console.error("Error in 2FA login verification:", error);
     return { error: "Error verifying 2FA" };
