@@ -1,7 +1,7 @@
-import runSpa from './spaApp/index'
+import runSPA from './spaApp/index'
 import { store } from './store/store';
 
-window.addEventListener("DOMContentLoaded", () => {
-    store.checkAuth();
-    runSpa();
+window.addEventListener("DOMContentLoaded", async () => {
+    await store.checkAuth();
+    runSPA();
 });

@@ -1,5 +1,6 @@
 import { handleModalTwoFactor } from "../../elements/ModalTwoFactor";
 import { navigationHandle } from "../../nagivation";
+import { store } from "../../store/store";
 
 interface IphotoIMG {
   name: null | string;
@@ -43,10 +44,20 @@ export let testUserData: ITestUserData = {
 
 export function handleSettings() {
   navigationHandle();
+  const state = store.getState();
+  const {username, email, firstName, lastName} = store.getState().auth.user;
+  const userData = [firstName, lastName, username,  email]
   const inputs = document.querySelectorAll<HTMLInputElement>("#inputUserInfo");
   const btnSave = document.querySelector<HTMLButtonElement>(
     "#saveChangesSettings"
   );
+  inputs.forEach((input, i ) => {
+    if(userData[i].length > 0)
+      input.value = userData[i];
+    else
+      input.value = 'Empty';
+  })
+  
   const profileImgContainer =
     document.querySelector<HTMLImageElement>("#profileImg");
   const uploadImgInput =

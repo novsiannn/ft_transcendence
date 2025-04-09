@@ -4,7 +4,6 @@ import instanceAPI from "../services/api/instanceAxios";
 import { IAuthResponse } from "../services/api/models/response/AuthResponse";
 import { IUser } from "./../services/api/models/response/IUser";
 import { navigateTo } from "../routing";
-import { handleModalError } from "../elements";
 import { handleModalSuccess } from "../elements/ModalSuccess";
 
 const API_URL: string = "https://localhost:3000/";
@@ -66,11 +65,6 @@ class Store {
   ) => {
     try {
       const response = await authService.registration(userName, email, password);
-      console.log(response);
-
-      // localStorage.setItem("token", response.data.accessToken);
-      // this.setAuth(true);
-      // this.setUser(response.data.user);
       if(response.status === 201){
         navigateTo('/activate');
         handleModalSuccess('You have successfully created an account')
@@ -88,7 +82,8 @@ class Store {
       localStorage.removeItem("token");
       this.setAuth(false);
       this.setUser({} as IUser);
-      navigateTo('/');
+      if(response.status)
+        navigateTo('/');
     } catch (e: any) {
       console.log(e.response?.data);
     }
@@ -110,7 +105,6 @@ class Store {
       return;
     }
     try {
-      // const response = await instanceAPI.get<IAuthResponse>("refresh");
       const response = await axios.get<IAuthResponse>(API_URL + "refresh", {withCredentials: true});
       console.log(response);
       localStorage.setItem("token", response.data.accessToken);

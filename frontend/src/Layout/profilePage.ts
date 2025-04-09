@@ -2,15 +2,9 @@ import { navigation } from "../nagivation";
 
 
 export function profilePage(mainWrapper: HTMLDivElement | undefined) {
-    // document.body.classList.add(
-    //     "h-screen", "flex", "flex-col",
-    //     "bg-gradient-to-t", "from-black", "via-black", "to-gray-800",
-    //     "overflow-hidden"
-    // );
     document.body.classList.add("bg-gradient-to-t", "from-black", "via-black", "to-gray-800", "h-full");
     mainWrapper!.className = "h-screen w-full flex items-center";
 
-    //mx-auto p-6 mt-64 v container dobavit
     let res = `
         ${navigation()}
 
@@ -22,7 +16,7 @@ export function profilePage(mainWrapper: HTMLDivElement | undefined) {
                     </div>
 
                     <div class="flex justify-center items-center col-start-4 col-span-2 ">
-                        <h2 class="text-4xl font-bold text-gray-800">Username</h2>
+                        <h2 class="text-4xl font-bold text-gray-800" id="userNameProfile"></h2>
                     </div>
 
                     <div class=" flex justify-center items-center col-start-2 col-span-6   flex justify-between text-gray-600 text-lg">

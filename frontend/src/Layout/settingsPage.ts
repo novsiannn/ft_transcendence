@@ -30,35 +30,19 @@ export function settingsPage(mainWrapper: HTMLDivElement | undefined) {
 							</div>
 							<div class=" col-start-2 col-span-4 row-start-3">
 								<h1 >Your first name</h1>
-								<input placeholder=${
-                  testUserData.user.firstName
-                    ? testUserData.user.firstName
-                    : `empty`
-                } 
-								class="border-2 border-blue-700 max-w-xs p-2 m-1" id="inputUserInfo" </input>
+								<input class="border-2 border-blue-700 max-w-xs p-2 m-1" id="inputUserInfo" </input>
 							</div>
 							<div class="col-start-6 col-span-4" >
 								<p >Your last name</p>
-								<input placeholder=${
-                  testUserData.user.lastName
-                    ? testUserData.user.lastName
-                    : `empty`
-                } 
-								class="border-2 border-blue-700 max-w-xs p-2 m-1" id="inputUserInfo"> </input>
+								<input class="border-2 border-blue-700 max-w-xs p-2 m-1" id="inputUserInfo"> </input>
 							</div>
 							<div class=" col-start-2 col-span-4">
 								<p >Your username</p>
-								<input placeholder=${
-                  testUserData.user.username
-                    ? testUserData.user.username
-                    : `empty`
-                }  
-								class="border-2 border-blue-700 max-w-xs p-2 m-1" id="inputUserInfo"> </input>
+								<input class="border-2 border-blue-700 max-w-xs p-2 m-1" id="inputUserInfo"> </input>
 							</div>
 							<div class=" col-start-6 col-span-4">
 								<p >Your email</p>
-								<input value=${testUserData.user.email ? testUserData.user.email : `empty`}  
-								class="border-2 border-blue-700 max-w-xs p-2 m-1" id="inputUserInfo"> </input>
+								<input class="border-2 border-blue-700 max-w-xs p-2 m-1" id="inputUserInfo"> </input>
 							</div>
 							<div class="grid col-start-2 col-span-4 m-2 place-items-center max-w-s ">
 								<p>Two-factor Authentication <p>

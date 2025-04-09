@@ -22,10 +22,13 @@ export default function runSPA() {
     ) {
       mainWrapper.innerHTML =
         privateRoutes[location.pathname].layoutCreate(mainWrapper);
-        privateRoutes[location.pathname].handleFunc(mainWrapper);
+      privateRoutes[location.pathname].handleFunc(mainWrapper);
     } else {
-      if (!store.getAuth() && Object.keys(publicRoutes).includes(location.pathname)) {
-          mainWrapper.innerHTML =
+      if (
+        !store.getAuth() &&
+        Object.keys(publicRoutes).includes(location.pathname)
+      ) {
+        mainWrapper.innerHTML =
           publicRoutes[location.pathname].layoutCreate(mainWrapper);
         publicRoutes[location.pathname].handleFunc(mainWrapper);
       } else {
@@ -34,8 +37,6 @@ export default function runSPA() {
     }
   } else {
     navigateTo("/error");
-    // mainWrapper.innerHTML = privateRoutes["/error"].layoutCreate();
-    // privateRoutes["/error"].handleFunc();
   }
 }
 
