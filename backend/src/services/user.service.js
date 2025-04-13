@@ -382,4 +382,32 @@ async function verify2FALogin(userId, token) {
   }
 }
 
-module.exports = { getAllUsers, refresh, logout, login, activate, registration, updateUser, saveAvatar, getUserProfile, deleteUserAccount, set2FA, verify2FA, verify2FALogin };
+async function disable2FA(userId, token) {
+  try {
+    const user = await User.findByPk(userId);
+    if (!user || !user.isTwoFactorEnabled) {
+      return { error: "2FA not enabled for this user" };
+    }
+    
+    const verif = speakeasy.totp.verify({
+      secret: user.twoFactorSecret,
+      encoding: "base32",
+      token: token,
+    });
+    
+    if (!verif) {
+      return { error: "Invalid 2FA token" };
+    }
+    
+    await user.update({
+      isTwoFactorEnabled: false,
+      twoFactorSecret: null
+    });
+    
+    return { success: true };
+  } catch (error) {
+    console.error("Error in disable2FA service:", error);
+    return { error: "Error disabling 2FA" };
+  }
+}
+module.exports = { getAllUsers, refresh, logout, login, activate, registration, updateUser, saveAvatar, getUserProfile, deleteUserAccount, set2FA, verify2FA, verify2FALogin,disable2FA };

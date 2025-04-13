@@ -130,6 +130,15 @@ const UserController = {
         try {
             const { email, password } = req.body;
             const userData = await userService.login(email, password);
+
+            if (userData.requiresTwoFactor) {
+                return res.code(200).send({
+                    requiresTwoFactor: true,
+                    userId: userData.userId,
+                    email: userData.email
+                });
+            }
+            
             if (userData.error) {
                 let statusCode = 400;
 
@@ -270,6 +279,20 @@ const UserController = {
             res.code(200).send(userData);
         } catch (error) {
             res.code(500).send({ error: "Error verifying 2FA during login:" });
+        }
+    },
+    async disable2FA(req, res) {
+        try {
+          const userId = req.user.id;
+          const { token } = req.body;
+      
+          const result = await userService.disable2FA(userId, token);
+          if (result.error) {
+            return res.code(400).send({ error: result.error });
+          }
+          return res.code(200).send({ message: "2FA disabled successfully" });
+        } catch (error) {
+          res.code(500).send({ error: "Error disabling 2FA" });
         }
     }
 };
