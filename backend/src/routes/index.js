@@ -120,9 +120,12 @@ async function routes(fastify, options) {
       },
       response: {
         200: {
-          description: 'User logged in successfully',
+          description: 'User logged in successfully OR 2FA required',
           type: 'object',
           properties: {
+            requiresTwoFactor: { type: 'boolean' },
+            userId: { type: 'integer' },
+            email: { type: 'string' },
             accessToken: { type: 'string' },
             refreshToken: { type: 'string' },
             user: {
@@ -531,6 +534,28 @@ async function routes(fastify, options) {
       }
     }
   }, userController.verify2FALogin);
+
+  fastify.post('/2fa/disable', {
+    preHandler: authMiddleware,
+    schema: {
+      body: {
+        type: 'object',
+        required: ['token'],
+        properties: {
+          token: { type: 'string', minLength: 6, maxLength: 6 }
+        }
+      },
+      response: {
+        200: {
+          type: 'object',
+          properties: {
+            message: { type: 'string' }
+          }
+        }
+      }
+    }
+  }, userController.disable2FA);
+
   //friendship start
   fastify.post('/friendship', {
     schema: {
