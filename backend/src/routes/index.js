@@ -61,6 +61,13 @@ async function routes(fastify, options) {
             }
           }
         },
+        400: {
+          description: 'Validation error',
+          type: 'object',
+          properties: {
+            error: { type: 'string' }
+          }
+        },
         409: {
           description: 'User already exists',
           type: 'object',
