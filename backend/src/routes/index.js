@@ -7,14 +7,12 @@ const FriendshipController = require('../controllers/friendship.controller');
 const { schema } = require('../../db/models/UserModel');
 
 const handle2FAEnable = (req, res) => {
-  // Проверка на повторную обработку
   if (req._handled) return;
   req._handled = true;
   return userController.enable2FA(req, res);
 };
 
 const handle2FAVerify = (req, res) => {
-  // Проверка на повторную обработку
   if (req._handled) return;
   req._handled = true;
   return userController.verify2FA(req, res);
