@@ -8,7 +8,6 @@ const UserDto = require("../dtos/user.dto");
 const sequelize = require("../../db/database");
 const fs = require("fs-extra");
 const path = require("path");
-
 const speakeasy = require('speakeasy');//ikhristi
 const QRCode = require('qrcode');//ikhristi
 
@@ -39,16 +38,7 @@ async function registration(username, email, password) {
     // } catch (error) {
     //   console.error("Error sending activation mail:", error);
     // }
-    //no needed 
-    // const userDto = new UserDto(user);
-    // const tokens = tokenService.generateTokens({ ...userDto });
-    // await tokenService.saveToken(userDto.id, tokens.refreshToken);
 
-    // return {
-    //   ...tokens,
-    //   user: userDto,
-    // };
-    //no needed
     return {
       message: "User registered successfully",
       user: {

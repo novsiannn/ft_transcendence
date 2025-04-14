@@ -19,6 +19,19 @@ const handle2FAVerify = (req, res) => {
 };
 
 async function routes(fastify, options) {
+
+  fastify.addSchema({
+    $id: 'validateUsername',
+    type: 'string',
+    pattern: '^[a-zA-Zа-яА-Я0-9]([a-zA-Zа-яА-Я0-9_-]{1,14})[a-zA-Zа-яА-Я0-9]$',
+  });
+
+  fastify.addSchema({
+    $id: 'validatePassword',
+    type: 'string', 
+    pattern: '^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$',
+  });
+
   fastify.post('/registration', {
     schema: {
       description: 'Register a new user',
@@ -27,9 +40,9 @@ async function routes(fastify, options) {
         type: 'object',
         required: ['username', 'email', 'password'],
         properties: {
-          username: { type: 'string', minLength: 3 },
+          username: { $ref: 'validateUsername#' },
           email: { type: 'string', format: 'email' },
-          password: { type: 'string', minLength: 6 }
+          password: { $ref: 'validatePassword#' }
         }
       },
       response: {
@@ -37,15 +50,12 @@ async function routes(fastify, options) {
           description: 'User created successfully',
           type: 'object',
           properties: {
-            accessToken: { type: 'string' },
-            refreshToken: { type: 'string' },
             user: {
               type: 'object',
               properties: {
                 id: { type: 'integer' },
                 email: { type: 'string' },
                 username: { type: 'string' },
-                avatar: { type: 'string' },
                 isActivated: { type: 'boolean' }
               }
             }
@@ -121,9 +131,6 @@ async function routes(fastify, options) {
           description: 'User logged in successfully OR 2FA required',
           type: 'object',
           properties: {
-            requiresTwoFactor: { type: 'boolean' },
-            userId: { type: 'integer' },
-            email: { type: 'string' },
             accessToken: { type: 'string' },
             refreshToken: { type: 'string' },
             user: {
@@ -131,9 +138,7 @@ async function routes(fastify, options) {
               properties: {
                 id: { type: 'integer' },
                 email: { type: 'string' },
-                username: { type: 'string' },
                 isActivated: { type: 'boolean' },
-                avatar: { type: 'string' }
               }
             }
           }

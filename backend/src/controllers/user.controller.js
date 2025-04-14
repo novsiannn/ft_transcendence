@@ -1,19 +1,25 @@
 const userService = require("../services/user.service");
+const ValidationError = require("../utils/validation");
 
 const UserController = {
     async registration(req, res) {
         try {
             const { username, email, password } = req.body;
+
+            const usernameValidation = ValidationError.validateUsername(username);
+            if (!usernameValidation.valid) {
+              return res.code(400).send({ error: usernameValidation.message });
+            }
+            
+            const passwordValidation = ValidationError.validatePassword(password);
+            if (!passwordValidation.valid) {
+              return res.code(400).send({ error: passwordValidation.message });
+            }
+
             const userData = await userService.registration(username, email, password);
             if (userData.error) {
                 return res.code(409).send(userData.error);
             }
-            //no needed 
-            // res.cookie("refreshToken", userData.refreshToken, {
-            //     maxAge: 60 * 24 * 60 * 60 * 1000,
-            //     httpOnly: true,
-            //     secure: true,
-            // });
             res.code(201).send(userData);
         } catch (error) {
             console.error("Error registering user:", error);
