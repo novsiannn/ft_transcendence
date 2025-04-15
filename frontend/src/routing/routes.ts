@@ -17,6 +17,8 @@ import { loginPage } from "../pages/login/loginPage"
 import { profilePage } from "../pages/profile/profilePage"
 import { playPage } from "../pages/playPage/playPage"
 import { registrationPage } from "../pages/registration/registrationPage"
+import { handleFriendsPage } from "../pages/friends"
+import { friendsPage } from "../pages/friends/friendsPage"
 
 interface handleFunctionI {
     layoutCreate: (mainWrapper?: HTMLDivElement) => string;
@@ -33,6 +35,7 @@ export const privateRoutes: Record<string, handleFunctionI> = {
     "/settings": {layoutCreate: settingsPage, handleFunc: handleSettings},
     "/error": {layoutCreate: errorPage, handleFunc: handleErrorPage},
     "/leaderboard": {layoutCreate: leaderBoardPage, handleFunc: handleLeaderboardPage},
+    "/friends": {layoutCreate: friendsPage, handleFunc: handleFriendsPage}
 };
 
 export const publicRoutes: Record<string, handleFunctionI> = {
@@ -54,4 +57,5 @@ export const allRoutes: Record<string, handleFunctionI> = {
     "/error": {layoutCreate: errorPage, handleFunc: handleErrorPage},
     "/leaderboard": {layoutCreate: leaderBoardPage, handleFunc: handleLeaderboardPage},
     "/activate": {layoutCreate: activateAccountPage, handleFunc: handleActivateAccount},
+    "/friends": {layoutCreate: friendsPage, handleFunc: handleFriendsPage}
 };
