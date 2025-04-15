@@ -69,18 +69,39 @@ export function handleSettings() {
     "#disableTwoFactorBtn"
   );
 
-  if (isTwoFactorEnabled) {
-    enableTwoFactorBtn!.disabled = true;
-    disableTwoFactorBtn!.disabled = false;
-    enableTwoFactorBtn?.classList.add('opacity-25')
-  } else {
-    disableTwoFactorBtn!.disabled = true;
-    disableTwoFactorBtn?.classList.add('opacity-25')
-    enableTwoFactorBtn!.disabled = false;
-  }
-  enableTwoFactorBtn?.addEventListener("click", () => handleModalTwoFactor());
+  const switchButtonActivity = (isEnable: boolean) => {
+    if (isEnable) {
+      enableTwoFactorBtn!.disabled = true;
+      enableTwoFactorBtn?.classList.add("opacity-25");
 
-  disableTwoFactorBtn?.addEventListener("click", () => handleModalInput('2fa/disable', 'Disable 2FA'));
+      disableTwoFactorBtn!.disabled = false;
+      disableTwoFactorBtn?.classList.remove("opacity-25");
+    } else {
+      disableTwoFactorBtn!.disabled = true;
+      disableTwoFactorBtn?.classList.add("opacity-25");
+
+      enableTwoFactorBtn!.disabled = false;
+      enableTwoFactorBtn?.classList.remove("opacity-25");
+    }
+  };
+
+  if (isTwoFactorEnabled) {
+    switchButtonActivity(isTwoFactorEnabled);
+  } else {
+    switchButtonActivity(isTwoFactorEnabled);
+  }
+  enableTwoFactorBtn?.addEventListener("click", async () => {
+    await handleModalTwoFactor(switchButtonActivity);
+  });
+
+  disableTwoFactorBtn?.addEventListener("click", async () => {
+    await handleModalInput(
+      "2fa/disable",
+      "Disable 2FA",
+      "0",
+      switchButtonActivity
+    );
+  });
 
   uploadImgInput!.addEventListener("change", (event: Event) => {
     const target = event.target as HTMLInputElement;

@@ -3,7 +3,6 @@ import { IUserDataTypeLogin } from "../../shared";
 import { activateWarning, hideWarning } from "../../Layout";
 import { navigationHandle } from "../../nagivation";
 import { store } from "../../store/store";
-import { handleModalInput } from "../../elements/ModalInput";
 
 export function handleLogin() {
   navigationHandle();
@@ -20,7 +19,7 @@ export function handleLogin() {
 
   LoginBtns.forEach((input) => {
     input.addEventListener("click", () => {
-      hideWarning();
+      hideWarning('#warningMessage');
     });
   });
 
@@ -38,7 +37,7 @@ export function handleLogin() {
       const response = await store.login(userDataLogin.email, userDataLogin.password);
       console.log(response);
     } catch (error: any) {
-      activateWarning();
+      activateWarning('#warningMessage','Incorrect email or password');
     }
   });
 }
