@@ -1,4 +1,4 @@
-import { navigation } from "../../nagivation";
+import { navigation } from "../../elements/nagivation";
 
 
 export function errorPage() {

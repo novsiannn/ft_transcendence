@@ -1,4 +1,5 @@
-import { navigationHandle } from "../../nagivation";
+import { navigationHandle } from "../../elements/nagivation";
+
 
 export function handleGame(mainWrapper: HTMLDivElement | undefined) {
 	navigationHandle();

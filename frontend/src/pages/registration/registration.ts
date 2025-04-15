@@ -1,9 +1,9 @@
 import { navigateTo } from "../../routing/index"
 import { IUserDataRegistrationType } from "../../shared";
 import { validateInput } from "../../shared/validation";
-import { navigationHandle } from "../../nagivation";
 import { handleModalError } from "../../elements/ModalError/handleModalError";
 import { store } from "../../store/store";
+import { navigationHandle } from "../../elements/nagivation";
 
 //changed from novsiann
 export function handleRegistration() {

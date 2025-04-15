@@ -1,6 +1,4 @@
-import { navigation } from "../../nagivation";
-
-
+import { navigation } from "../../elements/nagivation";
 
 export function gamePage() {
     document.body.style.margin = "0";

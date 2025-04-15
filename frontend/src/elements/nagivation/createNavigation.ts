@@ -1,4 +1,5 @@
-import { store } from "../store/store"
+import { store } from "../../store/store"
+
 
 const getProfileIcon = () => {
 	return `<img id="profileIcon" src="https://cdn.pixabay.com/photo/2020/07/01/12/58/icon-5359553_1280.png" alt="Profile" class="w-12 h-12 rounded-full cursor-pointer">`

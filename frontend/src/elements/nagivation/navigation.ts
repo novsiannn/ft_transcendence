@@ -1,5 +1,6 @@
-import { navigateTo } from "../routing";
-import { store } from "../store/store";
+
+import { navigateTo } from "../../routing";
+import { store } from "../../store/store";
 import { naviRoutes } from "./navigationRoutes";
 import { dropMenuRoutes } from "./navigationRoutes";
 

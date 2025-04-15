@@ -1,5 +1,5 @@
+import { navigationHandle } from "../../elements/nagivation";
 import { routeToGame } from "../../routing";
-import { navigationHandle } from "../../nagivation";
 
 export function handlePlayPage() {
 	navigationHandle();

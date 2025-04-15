@@ -1,4 +1,5 @@
-import { navigation } from "../../nagivation";
+import { navigation } from "../../elements/nagivation";
+
 
 export function friendsPage() {
 	document.body.classList.add("bg-gradient-to-t", "from-black", "via-black", "to-gray-800");

@@ -1,7 +1,7 @@
 import { getModalInput } from "../../elements/ModalInput";
 import { getModalWindowSuccess } from "../../elements/ModalSuccess";
 import { getModalTwoFactor } from "../../elements/ModalTwoFactor";
-import { navigation } from "../../nagivation";
+import { navigation } from "../../elements/nagivation";
 import { testUserData } from "./handleSettingsPage";
 
 export function settingsPage(mainWrapper: HTMLDivElement | undefined) {

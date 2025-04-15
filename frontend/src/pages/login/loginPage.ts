@@ -1,6 +1,7 @@
 import { getModalWindowError } from "../../elements";
 import { getModalInput } from "../../elements/ModalInput";
-import { navigation } from "../../nagivation";
+import { navigation } from "../../elements/nagivation";
+
 
 
 export const activateWarning = (elementID: string, errorValue?: string) => {

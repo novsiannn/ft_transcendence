@@ -1,6 +1,5 @@
 import { getModalWindowError } from "../../elements";
-import { navigation } from "../../nagivation";
-
+import { navigation } from "../../elements/nagivation";
 
 export function registrationPage() {
   document.body.classList.add(

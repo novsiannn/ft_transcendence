@@ -1,5 +1,4 @@
-import { handleModalSuccess } from "../../elements/ModalSuccess";
-import { navigationHandle } from "../../nagivation";
+import { navigationHandle } from "../../elements/nagivation";
 
 export function handleHomePage(mainWrapper: HTMLDivElement | undefined) {
 	navigationHandle();

@@ -1,6 +1,6 @@
 import { handleModalInput } from "../../elements/ModalInput";
 import { handleModalTwoFactor } from "../../elements/ModalTwoFactor";
-import { navigationHandle } from "../../nagivation";
+import { navigationHandle } from "../../elements/nagivation";
 import { store } from "../../store/store";
 
 interface IphotoIMG {

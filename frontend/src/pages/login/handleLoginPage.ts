@@ -1,7 +1,8 @@
+import { navigationHandle } from "../../elements/nagivation";
 import { userDataLogin } from "../../shared";
 import { IUserDataTypeLogin } from "../../shared";
 
-import { navigationHandle } from "../../nagivation";
+
 import { store } from "../../store/store";
 import { activateWarning, hideWarning } from "./loginPage";
 
