@@ -24,6 +24,17 @@ instanceAPI.interceptors.response.use(
     const originalRequest = error.config;
     if (
       error.response.status === 401 &&
+      error.response.data?.requiresTwoFactor &&
+      error.config
+    ) {
+      return Promise.resolve({ 
+        data: error.response.data,
+        status: 401
+      });
+    }
+
+    if (
+      error.response.status === 401 &&
       error.config &&
       !error.config._isRetry
     ) {
@@ -38,7 +49,7 @@ instanceAPI.interceptors.response.use(
         console.log("user is not authorized");
       }
     }
-	throw error;
+    return Promise.reject(error);
   }
 );
 
