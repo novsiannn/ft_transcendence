@@ -12,7 +12,6 @@ export const handleRequests = (status: number) => {
 			throw new Error("This username or email was already created!");
 		case 401:
 		case 400:
-			console.log('here');
 			activateWarning();
 			break;
 		case 200:
