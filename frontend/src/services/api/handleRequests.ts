@@ -12,7 +12,7 @@ export const handleRequests = (status: number) => {
 			throw new Error("This username or email was already created!");
 		case 401:
 		case 400:
-			activateWarning();
+			activateWarning('#warningMessage', 'Bad Request');
 			break;
 		case 200:
 			navigateTo("/");
