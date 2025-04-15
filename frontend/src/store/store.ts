@@ -42,21 +42,17 @@ class Store {
   };
 
   login = async (email: string | null, password: string | null) => {
-    const testTwoFactor = true;
     try {
       const response = await authService.login(email, password);
-      console.log(response);
-      
-      if (response.status === 200) {
-        // if (testTwoFactor) {
-        //   handleModalInput("2fa/login", "Code for 2FA", response.data.user.id);
-        // } else {
-          localStorage.setItem("token", response.data.accessToken);
-          this.setAuth(true);
-          this.setUser(response.data.user);
-          navigateTo("/");
-          handleModalSuccess("You have successfully logged in!");
-        // }
+      if (response.status === 200 ) {
+        localStorage.setItem("token", response.data.accessToken);
+        this.setAuth(true);
+        this.setUser(response.data.user);
+        await this.checkAuth();
+        navigateTo("/");
+        handleModalSuccess("You have successfully logged in!");
+        } else if (response.status === 401 && response.data.requiresTwoFactor){
+        handleModalInput("2fa/login", "Code for 2FA", response.data.userId);
       }
       return response;
     } catch (e: any) {
@@ -95,6 +91,8 @@ class Store {
       if (response.status) navigateTo("/");
     } catch (e: any) {
       console.log(e.response?.data);
+      console.log(e);
+      
     }
   };
   enableTwoFactor = async () => {
@@ -110,6 +108,7 @@ class Store {
   verifyTwoFactor = async (token: string) => {
     try {
       const response = await authService.verifyTwoFactor(token);
+      await this.checkAuth();
       return response;
     } catch (e: any) {
       console.log(e.response?.data);
@@ -120,6 +119,7 @@ class Store {
   disableTwoFactor = async (token: string) => {
     try {
       const response = await authService.disableTwoFactor(token);
+      await this.checkAuth();
       return response;
     } catch (e: any) {
       console.log(e.response?.data);
@@ -129,6 +129,15 @@ class Store {
   loginWithTwoFactor = async (token: string, userID: string) => {
     try {
       const response = await authService.loginWithTwoFactor(token, userID);
+      // remove response.data.accessToken in statement
+      if(response.status === 200 && response.data.accessToken){
+        localStorage.setItem("token", response.data.accessToken);
+        this.setAuth(true);
+        this.setUser(response.data.user);
+        await this.checkAuth();
+        navigateTo("/");
+        handleModalSuccess("You have successfully logged in!");
+      }
       return response;
     } catch (e: any) {
       console.log(e.response?.data);
