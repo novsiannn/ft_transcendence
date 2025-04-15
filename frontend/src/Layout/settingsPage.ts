@@ -3,6 +3,7 @@ import { getModalTwoFactor } from "../elements/ModalTwoFactor";
 import { navigation } from "../nagivation";
 import { testUserData } from "../pages/settingsPage";
 import { getModalInput } from "../elements/ModalInput";
+import { getModalWindowSuccess } from "../elements/ModalSuccess";
 
 export function settingsPage(mainWrapper: HTMLDivElement | undefined) {
   const twoFactorEnabled = store.getState().auth.user.isTwoFactorEnabled;
@@ -61,6 +62,7 @@ export function settingsPage(mainWrapper: HTMLDivElement | undefined) {
   					</div>
 					${getModalTwoFactor()}
 					${getModalInput()}
+					${getModalWindowSuccess()}
 				</div>`;
   return res;
 }
