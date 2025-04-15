@@ -195,6 +195,9 @@ const UserController = {
     async logout(req, res) {
         const { refreshToken } = req.cookies;
         try {
+         if (!refreshToken) {
+                res.code(400).send({ error: "Refresh token not found" });
+            }
             const token = await userService.logout(refreshToken);
             res.clearCookie("refreshToken");
             res.code(200).send(token);
