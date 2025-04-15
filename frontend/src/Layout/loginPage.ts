@@ -1,11 +1,13 @@
 import { getModalWindowError } from "../elements";
+import { getModalInput } from "../elements/ModalInput";
 import { navigation } from "../nagivation";
 
-export const activateWarning = () => {
+export const activateWarning = (errorValue?: string) => {
     const text = document.querySelectorAll("#warningMessage");
     text.forEach((el) => {
         el.classList.remove('hidden');
-        // el.classList.add('block');
+        if(errorValue)
+            el.textContent = errorValue;
     });
 }
 
@@ -29,5 +31,6 @@ export function loginPage(mainWrapper: HTMLDivElement | undefined) {
                 <button class="w-full select-none bg-green-500 m-1 text-white py-2 rounded hover:bg-green-600" id="loginBtn">Login</button>
             </div>
             ${getModalWindowError()}
+            ${getModalInput()}
         `
 }

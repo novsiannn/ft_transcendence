@@ -1,10 +1,11 @@
+import { store } from "./../store/store";
 import { getModalTwoFactor } from "../elements/ModalTwoFactor";
 import { navigation } from "../nagivation";
 import { testUserData } from "../pages/settingsPage";
-
-const twoFactorEnabled = false;
+import { getModalInput } from "../elements/ModalInput";
 
 export function settingsPage(mainWrapper: HTMLDivElement | undefined) {
+  const twoFactorEnabled = store.getState().auth.user.isTwoFactorEnabled;
   document.body.classList.add(
     "bg-gradient-to-t",
     "from-black",
@@ -45,12 +46,11 @@ export function settingsPage(mainWrapper: HTMLDivElement | undefined) {
 								<input class="border-2 border-blue-700 max-w-xs p-2 m-1" id="inputUserInfo"> </input>
 							</div>
 							<div class="grid col-start-2 col-span-4 m-2 place-items-center max-w-s ">
-								<p>Two-factor Authentication <p>
-								${
-                  twoFactorEnabled
-                    ? "<button class='bg-red-500 p-2 m-1 border rounded text-white' id='disableTwoFactorBtn'>Disable</button>"
-                    : "<button class='bg-green-500 p-2 m-1 border rounded text-white' id='enableTwoFactorBtn'>Enable</button>"
-                }
+								<p>Two-factor Authentication </p>
+								<div class="flex">
+                    				<button class='bg-red-500 p-2 m-1 border rounded text-white' id='disableTwoFactorBtn'>Disable</button>
+                					<button class='bg-green-500 p-2 m-1 border rounded text-white' id='enableTwoFactorBtn'>Enable</button>
+								</div>
 							</div>
 							<div class="col-start-6 col-span-4 max-w-s">
 								<p >Upload Profile Image</p>
@@ -60,6 +60,7 @@ export function settingsPage(mainWrapper: HTMLDivElement | undefined) {
 						</div>
   					</div>
 					${getModalTwoFactor()}
+					${getModalInput()}
 				</div>`;
   return res;
 }
