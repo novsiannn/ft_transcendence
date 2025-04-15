@@ -34,7 +34,7 @@ const authService = {
     });
   },
   loginWithTwoFactor: async (token: string, userId: string) => {
-    return await instanceAPI.post("2fa/login", {
+    return await instanceAPI.post<IAuthResponse>("2fa/login", {
       token,
       userId,
     });
