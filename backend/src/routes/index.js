@@ -135,7 +135,7 @@ async function routes(fastify, options) {
       },
       response: {
         200: {
-          description: 'User logged in successfully OR 2FA required',
+          description: 'User logged in successfully',
           type: 'object',
           properties: {
             accessToken: { type: 'string' },
@@ -145,17 +145,36 @@ async function routes(fastify, options) {
               properties: {
                 id: { type: 'integer' },
                 email: { type: 'string' },
+                username: { type: 'string' },
                 isActivated: { type: 'boolean' },
+                avatar: { type: 'string' }
               }
             }
           }
         },
         401: {
-          description: 'Invalid credentials',
+          description: 'Invalid credentials OR 2FA required',
           type: 'object',
-          properties: {
-            error: { type: 'string' }
-          }
+          oneOf: [
+            {
+              description: 'Invalid credentials',
+              type: 'object',
+              properties: {
+                error: { type: 'string' }
+              },
+              required: ['error']
+            },
+            {
+              description: '2FA required',
+              type: 'object',
+              properties: {
+                requiresTwoFactor: { type: 'boolean' },
+                userId: { type: 'integer' },
+                email: { type: 'string' }
+              },
+              required: ['requiresTwoFactor', 'userId', 'email']
+            }
+          ]
         },
         403: {
           description: 'User not activated',
@@ -173,7 +192,7 @@ async function routes(fastify, options) {
         }
       }
     }
-  }, userController.login);
+  }, userController.login)
 
 
   fastify.post('/user/avatar', {

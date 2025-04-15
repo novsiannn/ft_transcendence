@@ -139,7 +139,7 @@ const UserController = {
             const userData = await userService.login(email, password);
 
             if (userData.requiresTwoFactor) {
-                return res.code(200).send({
+                return res.code(401).send({
                     requiresTwoFactor: true,
                     userId: userData.userId,
                     email: userData.email
