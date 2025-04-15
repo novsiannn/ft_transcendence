@@ -1,10 +1,9 @@
 import { userDataLogin } from "../../shared";
 import { IUserDataTypeLogin } from "../../shared";
-// import { userAPI } from "../../services/api";
 import { activateWarning, hideWarning } from "../../Layout";
 import { navigationHandle } from "../../nagivation";
-import { handleModalError } from "../../elements";
 import { store } from "../../store/store";
+import { handleModalInput } from "../../elements/ModalInput";
 
 export function handleLogin() {
   navigationHandle();
@@ -15,6 +14,7 @@ export function handleLogin() {
     "loginPass"
   ) as HTMLInputElement;
   const loginBtn = document.getElementById("loginBtn");
+  
 
   const LoginBtns: HTMLInputElement[] = [loginEmailInput, loginPassInput];
 
@@ -35,7 +35,8 @@ export function handleLogin() {
           userDataLogin[key] = input.value;
         }
       });
-      await store.login(userDataLogin.email, userDataLogin.password);
+      const response = await store.login(userDataLogin.email, userDataLogin.password);
+      console.log(response);
     } catch (error: any) {
       activateWarning();
     }
