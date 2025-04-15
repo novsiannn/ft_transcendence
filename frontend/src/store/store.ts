@@ -5,7 +5,7 @@ import { IAuthResponse } from "../services/api/models/response/AuthResponse";
 import { IUser } from "./../services/api/models/response/IUser";
 import { navigateTo } from "../routing";
 import { handleModalSuccess } from "../elements/ModalSuccess";
-import { IQRCodeEnableResponse } from "../shared";
+import { IQRCodeEnableResponse, IUsers } from "../shared";
 import { handleModalInput } from "../elements/ModalInput";
 
 const API_URL: string = "https://localhost:3000/";
@@ -88,7 +88,7 @@ class Store {
       localStorage.removeItem("token");
       this.setAuth(false);
       this.setUser({} as IUser);
-      if (response.status) navigateTo("/");
+      if (response.status === 200) navigateTo("/");
     } catch (e: any) {
       console.log(e.response?.data);
       console.log(e);
@@ -142,6 +142,14 @@ class Store {
     } catch (e: any) {
       console.log(e.response?.data);
     }
+  };
+
+  getAllUsers = async () => {
+    let response = await instanceAPI.get<IUser[]>(
+        "https://localhost:3000/users"
+      );
+      console.log(response.data);
+      return response.data;
   };
 
   checkAuth = async () => {
