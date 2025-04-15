@@ -6,6 +6,11 @@ export function friendsPage() {
 	return `
 			${navigation()}
 			<div class="flex flex-col items-center justify-center min-h-screen">
-				<h1 class="text-9xl text-white font-black"> Friends Page </h1>
+				<div class="w-1/2 h-auto ">
+					<h1 class="text-2xl text-white font-black text-center m-5"> Transcendence</h1>
+					<div id="friendsContainer" class="flex flex-col">
+					
+					</div>
+				</div>
 			</div>`
 }
