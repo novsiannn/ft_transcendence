@@ -1,5 +1,5 @@
 import { handleModalSuccess } from "../../elements/ModalSuccess";
-import { activateWarning } from "../../Layout";
+import { activateWarning } from "../../pages/login/loginPage";
 import { navigateTo } from "../../routing";
 
 export const handleRequests = (status: number) => {

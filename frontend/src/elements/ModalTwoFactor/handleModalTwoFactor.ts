@@ -1,4 +1,5 @@
-import { activateWarning, hideWarning } from "../../Layout";
+
+import { activateWarning, hideWarning } from "../../pages/login/loginPage";
 import { IQRCodeEnableResponse } from "../../shared";
 import { store } from "../../store/store";
 import { handleModalSuccess } from "../ModalSuccess";
