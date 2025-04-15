@@ -1,3 +1,4 @@
+import { handleModalInput } from "../../elements/ModalInput";
 import { handleModalTwoFactor } from "../../elements/ModalTwoFactor";
 import { navigationHandle } from "../../nagivation";
 import { store } from "../../store/store";
@@ -44,36 +45,42 @@ export let testUserData: ITestUserData = {
 
 export function handleSettings() {
   navigationHandle();
-  const state = store.getState();
-  const {username, email, firstName, lastName} = store.getState().auth.user;
-  const userData = [firstName, lastName, username,  email]
+  const { username, email, firstName, lastName, isTwoFactorEnabled } =
+    store.getState().auth.user;
+  const userData = [firstName, lastName, username, email];
   const inputs = document.querySelectorAll<HTMLInputElement>("#inputUserInfo");
   const btnSave = document.querySelector<HTMLButtonElement>(
     "#saveChangesSettings"
   );
-  inputs.forEach((input, i ) => {
-    if(userData[i].length > 0)
-      input.value = userData[i];
-    else
-      input.value = 'Empty';
-  })
-  
+  inputs.forEach((input, i) => {
+    if (userData[i] && userData[i].length > 0) input.value = userData[i];
+    else input.value = "Empty";
+  });
+
   const profileImgContainer =
     document.querySelector<HTMLImageElement>("#profileImg");
   const uploadImgInput =
     document.querySelector<HTMLInputElement>("#uploadImgInput");
-  
-  const enableTwoFactorBtn = document.querySelector<HTMLButtonElement>("#enableTwoFactorBtn");
-  const disableTwoFactorBtn = document.querySelector<HTMLButtonElement>("#disableTwoFactorBtn");
 
-  enableTwoFactorBtn?.addEventListener('click', () => {
-    //here make a request to backend to get info about 2 factor. Before next line
-    handleModalTwoFactor();
-  });
+  const enableTwoFactorBtn = document.querySelector<HTMLButtonElement>(
+    "#enableTwoFactorBtn"
+  );
+  const disableTwoFactorBtn = document.querySelector<HTMLButtonElement>(
+    "#disableTwoFactorBtn"
+  );
 
-  disableTwoFactorBtn?.addEventListener('click', () => {
-    console.log(2);
-  });
+  if (isTwoFactorEnabled) {
+    enableTwoFactorBtn!.disabled = true;
+    disableTwoFactorBtn!.disabled = false;
+    enableTwoFactorBtn?.classList.add('opacity-25')
+  } else {
+    disableTwoFactorBtn!.disabled = true;
+    disableTwoFactorBtn?.classList.add('opacity-25')
+    enableTwoFactorBtn!.disabled = false;
+  }
+  enableTwoFactorBtn?.addEventListener("click", () => handleModalTwoFactor());
+
+  disableTwoFactorBtn?.addEventListener("click", () => handleModalInput('2fa/disable', 'Disable 2FA'));
 
   uploadImgInput!.addEventListener("change", (event: Event) => {
     const target = event.target as HTMLInputElement;
@@ -85,7 +92,7 @@ export function handleSettings() {
         if (e.target?.result) {
           profileImgContainer!.src = e.target.result as string;
           profileImgContainer!.style.display = "block";
-		
+
           testUserData.user.photo.name = file.name;
           testUserData.user.photo.size = file.size;
           testUserData.user.photo.type = file.type;
