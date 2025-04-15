@@ -1,9 +1,14 @@
 export interface IUser {
+  avatar: string;
+  createdAt: string;
   email: string;
-  isActivated: boolean;
-  id: string;
-  username: string;
   firstName: string;
+  id: number;
+  isActivated: boolean;
   lastName: string;
+  phoneNumber: string;
+  updatedAt: string;
+  username: string;
   isTwoFactorEnabled: boolean;
 }
+
