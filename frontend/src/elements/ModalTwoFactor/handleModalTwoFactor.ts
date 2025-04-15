@@ -1,8 +1,9 @@
 import { activateWarning, hideWarning } from "../../Layout";
 import { IQRCodeEnableResponse } from "../../shared";
 import { store } from "../../store/store";
+import { handleModalSuccess } from "../ModalSuccess";
 
-export const handleModalTwoFactor = async () => {
+export const handleModalTwoFactor = async (switchButtonActivity?: (isEnable: boolean) => void) => {
   const modalWindow = document.querySelector("#modalWindowTwoFactor");
   const modalContent = modalWindow?.querySelector("div");
   const qrCodeImg =
@@ -25,10 +26,10 @@ export const handleModalTwoFactor = async () => {
     modalContent?.classList.add("translate-y-0", "opacity-100");
   }, 50);
 
-  codeForTwoFactor?.addEventListener('click', () => hideWarning());
+  codeForTwoFactor?.addEventListener('click', () => hideWarning('#warningMessage'));
 
   modalBtn?.addEventListener("click", async () => {
-    hideWarning();
+    hideWarning('#warningMessage');
     const response = await store.verifyTwoFactor(
       codeForTwoFactor?.value ? codeForTwoFactor.value : ""
     );
@@ -38,14 +39,17 @@ export const handleModalTwoFactor = async () => {
       setTimeout(() => {
         modalWindow?.classList.add("hidden");
       }, 400);
+      handleModalSuccess('2FA added successfull');
+      if(switchButtonActivity)
+        switchButtonActivity(true);
     } else if (response.status === 400){
-      activateWarning(response.data.message);
+      activateWarning('#warningMessage', response.data.message);
     }
   });
 
   modalWindow?.addEventListener("click", (e) => {
     if (e.target === modalWindow) {
-      hideWarning();
+      hideWarning('#warningMessage');
       modalContent?.classList.remove("translate-y-0", "opacity-100");
       modalContent?.classList.add("-translate-y-full", "opacity-0");
 
