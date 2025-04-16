@@ -286,6 +286,9 @@ const UserController = {
                 maxAge: 60 * 24 * 60 * 60 * 1000,
                 httpOnly: true,
               });
+            if (userData.error) {
+                return res.code(401).send({ error: userData.error });
+            }
             res.code(200).send(userData);
         } catch (error) {
             res.code(500).send({ error: "Error verifying 2FA during login:" });

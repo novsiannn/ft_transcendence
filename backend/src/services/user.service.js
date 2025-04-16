@@ -384,7 +384,7 @@ async function verify2FALogin(userId, token) {
     await tokenService.saveToken(userDto.id, tokens.refreshToken);
 
     return {
-      ...tokens,
+      accessToken: tokens.accessToken,
       user: userDto,
     };
 

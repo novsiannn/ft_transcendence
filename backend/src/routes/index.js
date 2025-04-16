@@ -560,9 +560,50 @@ async function routes(fastify, options) {
           userId: { type: 'number' },
           token: { type: 'string', minLength: 6, maxLength: 6 }
         }
+      },
+      response: {
+        200: {
+          description: '2FA login successful',
+          type: 'object',
+          properties: {
+            accessToken: { type: 'string' },
+            refreshToken: { type: 'string' },
+            user: {
+              type: 'object',
+              properties: {
+                id: { type: 'integer' },
+                email: { type: 'string' },
+                username: { type: 'string' },
+                isActivated: { type: 'boolean' }
+              }
+            }
+          }
+        },
+        401: {
+          description: 'Invalid 2FA token',
+          type: 'object',
+          properties: {
+            error: { type: 'string' }
+          },
+          required: ['error']
+        },
+        400: {
+          description: 'Bad request',
+          type: 'object',
+          properties: {
+            error: { type: 'string' }
+          }
+        },
+        500: {
+          description: 'Internal server error',
+          type: 'object',
+          properties: {
+            error: { type: 'string' }
+          }
+        }
       }
     }
-  }, userController.verify2FALogin);
+  }, userController.verify2FALogin)
 
   fastify.post('/2fa/disable', {
     preHandler: authMiddleware,
