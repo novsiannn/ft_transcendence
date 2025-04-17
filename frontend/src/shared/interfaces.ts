@@ -16,6 +16,17 @@ export interface IQRCodeEnableResponse {
   secret: string;
 }
 
-export interface IUsers {
-  users: IUser[]
+export interface IRouteParams {
+    id?: number
+}
+
+export interface IAuth {
+  user: IUser,
+  isAuth: boolean,
+  isLoading: boolean,
+  allUsers: IUser[]
+}
+
+export interface IInitialState {
+  auth: IAuth
 }
