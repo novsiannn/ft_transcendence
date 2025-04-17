@@ -7,30 +7,53 @@ import {
 } from "../routing/index";
 import { store } from "../store/store";
 
+const matchRoute = (pathname: string) => {
+  if (pathname === '/'){
+    return {route: `/`, params: {}}
+  }
+  const segments = pathname.split('/').filter(Boolean);
+
+  if(`/${segments[0]}` in allRoutes){
+    if(segments.length === 1)
+      return {route: `/${segments[0]}`, params: {}}
+    else if(segments.length === 2 && /^\d+$/.test(segments[1])){
+       return { route: '/profile', params: { id: segments[1] } }
+    }
+  }
+  return null;
+}
+
+
 export default function runSPA() {
   document.body.append(mainWrapper);
 
-  if (location.pathname in allRoutes) {
+  const matched = matchRoute(location.pathname);
+  
+  
+  if (matched) {
+    const {route, params} = matched;
     console.log(store.getState());
+    console.log(route);
+    console.log(params);
     
     mainWrapper.removeAttribute("id");
     mainWrapper.className = "h-full w-full";
     document.body.className = "font-mono";
     if (
       store.getAuth() &&
-      Object.keys(privateRoutes).includes(location.pathname)
+      Object.keys(privateRoutes).includes(route)
     ) {
       mainWrapper.innerHTML =
-        privateRoutes[location.pathname].layoutCreate(mainWrapper);
-      privateRoutes[location.pathname].handleFunc(mainWrapper);
+        privateRoutes[route].layoutCreate(mainWrapper, params);
+      privateRoutes[route].handleFunc(mainWrapper, params);
     } else {
       if (
         !store.getAuth() &&
-        Object.keys(publicRoutes).includes(location.pathname)
+        Object.keys(publicRoutes).includes(route)
       ) {
         mainWrapper.innerHTML =
-          publicRoutes[location.pathname].layoutCreate(mainWrapper);
-        publicRoutes[location.pathname].handleFunc(mainWrapper);
+          publicRoutes[route].layoutCreate(mainWrapper, params);
+        publicRoutes[route].handleFunc(mainWrapper, params);
       } else {
         navigateTo("/");
       }
