@@ -385,6 +385,7 @@ async function verify2FALogin(userId, token) {
 
     return {
       accessToken: tokens.accessToken,
+      refreshToken: tokens.refreshToken,
       user: userDto,
     };
 

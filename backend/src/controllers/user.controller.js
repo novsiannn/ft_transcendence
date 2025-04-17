@@ -288,8 +288,12 @@ const UserController = {
             res.cookie("refreshToken", userData.refreshToken, {
                 maxAge: 60 * 24 * 60 * 60 * 1000,
                 httpOnly: true,
+                path: '/'
               });
-            res.code(200).send(userData);
+            res.code(200).send({
+                accessToken: userData.accessToken,
+                user: userData.user,
+            });
         } catch (error) {
             res.code(500).send({ error: "Error verifying 2FA during login:" });
         }
