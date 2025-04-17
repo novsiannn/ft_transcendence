@@ -5,7 +5,7 @@ import { IAuthResponse } from "../services/api/models/response/AuthResponse";
 import { IUser } from "./../services/api/models/response/IUser";
 import { navigateTo } from "../routing";
 import { handleModalSuccess } from "../elements/ModalSuccess";
-import { IQRCodeEnableResponse } from "../shared";
+import { IInitialState, IQRCodeEnableResponse } from "../shared";
 import { handleModalInput } from "../elements/ModalInput";
 
 const API_URL: string = "https://localhost:3000/";
@@ -13,23 +13,24 @@ const API_URL: string = "https://localhost:3000/";
 class Store {
   constructor() {}
 
-  state = {
+  state:IInitialState = {
     auth: {
       user: {} as IUser,
       isAuth: false,
       isLoading: false,
+      allUsers: []
     },
   };
 
-  setAuth = (bool: boolean) => {
+  setAuth = (bool: boolean): void => {
     this.state.auth.isAuth = bool;
   };
 
-  setUser = (user: IUser) => {
+  setUser = (user: IUser): void => {
     this.state.auth.user = user;
   };
 
-  setLoading = (bool: boolean) => {
+  setLoading = (bool: boolean): void => {
     this.state.auth.isLoading = bool;
   };
 
@@ -37,8 +38,16 @@ class Store {
     return this.state.auth.isAuth;
   };
 
-  getState = () => {
+  getState = (): IInitialState => {
     return this.state;
+  };
+
+  setAllUsers = (data: IUser[]): void => {
+    this.state.auth.allUsers = data;
+  };
+
+  getAllUsers = (): IUser[] => {
+    return this.state.auth.allUsers;
   };
 
   login = async (email: string | null, password: string | null) => {
@@ -88,7 +97,7 @@ class Store {
       localStorage.removeItem("token");
       this.setAuth(false);
       this.setUser({} as IUser);
-      if (response.status) navigateTo("/");
+      if (response.status === 200) navigateTo("/");
     } catch (e: any) {
       console.log(e.response?.data);
       console.log(e);
@@ -144,15 +153,24 @@ class Store {
     }
   };
 
+  getAllUsersRequest = async () => {
+    let response = await instanceAPI.get<IUser[]>(
+        "https://localhost:3000/users"
+      );
+      this.setAllUsers(response.data);
+      return response.data;
+  };
+
   checkAuth = async () => {
     this.setLoading(true);
     const accessToken = localStorage.getItem("token");
 
     if (accessToken) {
       this.setAuth(true);
-      let response = await instanceAPI.get<IAuthResponse>(
+      const response = await instanceAPI.get<IAuthResponse>(
         "https://localhost:3000/user/profile"
       );
+      await this.getAllUsersRequest();
       this.setUser(response.data.user);
       this.setLoading(false);
       return;
@@ -161,7 +179,6 @@ class Store {
       const response = await axios.get<IAuthResponse>(API_URL + "refresh", {
         withCredentials: true,
       });
-      console.log(response);
       localStorage.setItem("token", response.data.accessToken);
       console.log(
         "New token set from checkAuth = " + response.data.accessToken
