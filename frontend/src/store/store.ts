@@ -5,8 +5,10 @@ import { IAuthResponse } from "../services/api/models/response/AuthResponse";
 import { IUser } from "./../services/api/models/response/IUser";
 import { navigateTo } from "../routing";
 import { handleModalSuccess } from "../elements/ModalSuccess";
-import { IInitialState, IQRCodeEnableResponse } from "../shared";
+import { IFriend, IInitialState, IQRCodeEnableResponse } from "../shared";
 import { handleModalInput } from "../elements/ModalInput";
+import { friendsPage } from "../pages/friends/friendsPage";
+import friendsService from "../services/api/friendsService";
 
 const API_URL: string = "https://localhost:3000/";
 
@@ -159,6 +161,11 @@ class Store {
       );
       this.setAllUsers(response.data);
       return response.data;
+  };
+
+  getAllFriends = async () => {
+    const response = await friendsService.getFriends();
+    return response.data;
   };
 
   checkAuth = async () => {
