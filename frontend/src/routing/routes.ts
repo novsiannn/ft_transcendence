@@ -19,10 +19,11 @@ import { playPage } from "../pages/playPage/playPage"
 import { registrationPage } from "../pages/registration/registrationPage"
 import { handleFriendsPage } from "../pages/friends"
 import { friendsPage } from "../pages/friends/friendsPage"
+import { IRouteParams } from "../shared"
 
 interface handleFunctionI {
-    layoutCreate: (mainWrapper?: HTMLDivElement) => string;
-    handleFunc: (mainWrapper?: HTMLDivElement) => void;
+    layoutCreate: (mainWrapper?: HTMLDivElement, params?: {}) => string;
+    handleFunc: (mainWrapper?: HTMLDivElement, params?: {}) => void;
 }
 
 export const privateRoutes: Record<string, handleFunctionI> = {
