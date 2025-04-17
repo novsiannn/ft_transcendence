@@ -30,3 +30,10 @@ export interface IAuth {
 export interface IInitialState {
   auth: IAuth
 }
+
+export interface IFriend {
+  avatar: string;
+  email: string;
+  id: number;
+  username: string;
+}
