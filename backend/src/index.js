@@ -45,23 +45,6 @@ fastify.register(require('@fastify/static'), {
   decorateReply: false
 });
 
-fastify.get('/api/test-token', async (request, reply) => {
-  try {
-    const token = request.headers.authorization?.split(' ')[1];
-    if (!token) {
-      return reply.code(400).send({ error: 'Token not provided' });
-    }
-    
-    const userData = await tokenService.validateAccessToken(token);
-    return {
-      isValid: !!userData,
-      userData: userData
-    };
-  } catch (error) {
-    return reply.code(500).send({ error: error.message });
-  }
-});
-
 //for WEBSOCKET test end
 
 fastify.register(require('@fastify/cookie'), {
@@ -113,7 +96,7 @@ async function start() {
     const io = setupWebSockets(fastify.server);
     fastify.decorate('io', io);
     console.log('WebSocket server initialized');
-    
+
     await fastify.listen({
       host: '0.0.0.0',
       port: 3000,

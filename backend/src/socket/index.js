@@ -5,7 +5,7 @@ const notificationHandler = require('./handlers/notification');
 function setupWebSockets(server) {
     const io = new Server(server, {
         cors: {
-            origin: ['https://localhost:3000', 'https://localhost:8888'], // for testing
+            origin: 'https://localhost:3000', // for testing
             // origin: 'https://localhost:8888',
             methods: ['GET', 'POST', 'PUT', 'DELETE'],
             credentials: true,
