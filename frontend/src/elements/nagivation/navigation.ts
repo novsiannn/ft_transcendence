@@ -50,7 +50,7 @@ export function navigationHandle() {
 
   document.addEventListener("click", (e) => {
     if (e.target !== dropdownMenu && e.target !== profileBtn)
-      dropdownMenu!.classList.add("hidden");
+      dropdownMenu?.classList.add("hidden");
   });
 
   document.addEventListener("keydown", (e) => {
