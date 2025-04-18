@@ -2,13 +2,7 @@ import { handleModalInput } from "../../elements/ModalInput";
 import { handleModalTwoFactor } from "../../elements/ModalTwoFactor";
 import { navigationHandle } from "../../elements/nagivation";
 import { store } from "../../store/store";
-
-interface IphotoIMG {
-  name: null | string;
-  size: null | number;
-  type: null | string;
-  url: null | string;
-}
+import  instanceAPI from "../../services/api/instanceAxios";
 
 interface User {
   id: number | null;
@@ -17,7 +11,7 @@ interface User {
   firstName: string | null;
   lastName: string | null;
   phoneNumber: string | null;
-  photo: IphotoIMG;
+  avatar?: string | null;
 }
 
 interface ITestUserData {
@@ -34,14 +28,11 @@ export let testUserData: ITestUserData = {
     firstName: null,
     lastName: "Davidovich",
     phoneNumber: null,
-    photo: {
-      name: null,
-      size: null,
-      type: null,
-      url: null,
-    },
+    avatar: null,
   },
 };
+
+const BACKEND_URL = 'https://localhost:3000';
 
 export function handleSettings() {
   navigationHandle();
@@ -103,25 +94,73 @@ export function handleSettings() {
     );
   });
 
-  uploadImgInput!.addEventListener("change", (event: Event) => {
+  const loadUserAvatar = async () => {
+    try {
+      const response = await instanceAPI.get('/user/profile');
+      const userData = response.data as { user: User, avatar: string };
+      
+      if (userData.user.avatar) {
+        profileImgContainer!.src = `${BACKEND_URL}${userData.user.avatar}`;
+        profileImgContainer!.style.display = "block";
+      } else {
+        profileImgContainer!.src = "https://cdn.pixabay.com/photo/2020/07/01/12/58/icon-5359553_1280.png";
+      }
+    } catch (error) {
+      console.error('Failed to load avatar:', error);
+      if (profileImgContainer) {
+        profileImgContainer.src = "https://cdn.pixabay.com/photo/2020/07/01/12/58/icon-5359553_1280.png";
+      }
+    }
+  };
+  
+  loadUserAvatar();
+  
+  uploadImgInput!.addEventListener("change", async (event: Event) => {
     const target = event.target as HTMLInputElement;
     const file = target.files?.[0];
-
+    
     if (file && file.type.startsWith("image/")) {
-      const reader = new FileReader();
-      reader.onload = (e: ProgressEvent<FileReader>) => {
-        if (e.target?.result) {
-          profileImgContainer!.src = e.target.result as string;
-          profileImgContainer!.style.display = "block";
-
-          testUserData.user.photo.name = file.name;
-          testUserData.user.photo.size = file.size;
-          testUserData.user.photo.type = file.type;
-          testUserData.user.photo.url = e.target.result as string;
+      try {
+        const formData = new FormData();
+        formData.append('avatar', file);
+        
+        const response = await instanceAPI.post('/user/avatar', formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data'
+          }
+        });
+        if(response.status == 200) {
+          const responseData = response.data as { avatar: string };
+          
+        if (profileImgContainer && responseData.avatar) {
+          profileImgContainer.src = `${BACKEND_URL}${responseData.avatar}`;
+          profileImgContainer.style.display = "block";
         }
-      };
-      reader.readAsDataURL(file);
-      console.log(testUserData);
+      }
+    } catch (error) {
+      console.error('Error uploading avatar:', error);
     }
+  }
+});
+
+  const dropdownMenu = document.querySelector("#imgDropdownMenu");
+  const changePhotoBtn = document.querySelector("#changePhotoBtn");
+  
+  if (profileImgContainer && dropdownMenu) {
+    profileImgContainer.addEventListener('click', () => {
+      dropdownMenu.classList.toggle('hidden');
+    });
+  
+    document.addEventListener('click', (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+      
+      if (profileImgContainer && !profileImgContainer.contains(target)) {
+        dropdownMenu?.classList.add('hidden');
+      }
+    });
+  }
+
+  changePhotoBtn?.addEventListener("click", () => {
+    uploadImgInput!.click();
   });
 }

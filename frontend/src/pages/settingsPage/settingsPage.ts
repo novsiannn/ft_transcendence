@@ -22,11 +22,16 @@ export function settingsPage(mainWrapper: HTMLDivElement | undefined) {
 						<div class="grid grid-cols-10 grid-rows-5 gap-4 w-5/5 h-4/5 my-5 py-2 px-2 text-gray-500">
     						<div class=" col-start-5 col-span-2 row-start-1 row-span-2">
 								<img id="profileImg" class="w-full h-full rounded-full" src=${
-                  testUserData.user.photo.url
-                    ? testUserData.user.photo.url
+                  testUserData.user.avatar
+                    ? testUserData.user.avatar
                     : "https://cdn.pixabay.com/photo/2020/07/01/12/58/icon-5359553_1280.png"
                 }
 								 alt="Joe Biden">
+								 <div id="imgDropdownMenu"
+									class="hidden absolute z-10 w-48 bg-white rounded-lg shadow-lg">
+									<button id="changePhotoBtn" class="block w-full text-left px-4 py-2 hover:bg-gray-100">Change photo</button>
+									<input type="file" accept="image/*" class=" text-xs border-2 border-blue-700 max-w-xs p-1 m-1" id="uploadImgInput" hidden/>
+								</div>
 							</div>
 							<div class=" col-start-2 col-span-4 row-start-3">
 								<h1 >Your first name</h1>
@@ -50,10 +55,6 @@ export function settingsPage(mainWrapper: HTMLDivElement | undefined) {
                     				<button class='bg-red-500 p-2 m-1 border rounded text-white' id='disableTwoFactorBtn'>Disable</button>
                 					<button class='bg-green-500 p-2 m-1 border rounded text-white' id='enableTwoFactorBtn'>Enable</button>
 								</div>
-							</div>
-							<div class="col-start-6 col-span-4 max-w-s">
-								<p >Upload Profile Image</p>
-								<input type="file" accept="image/*" class=" text-xs border-2 border-blue-700 max-w-xs p-1 m-1" id="uploadImgInput"/>
 							</div>
 							<div class=" col-start-5 col-span-2"><button class="w-full h-full text-white focus:outline-none bg-blue-300" id="saveChangesSettings"> SAVE CHANGES </button></div>
 						</div>

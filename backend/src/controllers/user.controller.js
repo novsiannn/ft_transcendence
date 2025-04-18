@@ -282,14 +282,18 @@ const UserController = {
             }
 
             const userData = await userService.verify2FALogin(userId, token);
-            res.cookie("refreshToken", userData.refreshToken, {
-                maxAge: 60 * 24 * 60 * 60 * 1000,
-                httpOnly: true,
-              });
             if (userData.error) {
                 return res.code(401).send({ error: userData.error });
             }
-            res.code(200).send(userData);
+            res.cookie("refreshToken", userData.refreshToken, {
+                maxAge: 60 * 24 * 60 * 60 * 1000,
+                httpOnly: true,
+                path: '/'
+              });
+            res.code(200).send({
+                accessToken: userData.accessToken,
+                user: userData.user,
+            });
         } catch (error) {
             res.code(500).send({ error: "Error verifying 2FA during login:" });
         }
