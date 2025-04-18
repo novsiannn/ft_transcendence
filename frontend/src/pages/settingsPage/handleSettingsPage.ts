@@ -129,7 +129,6 @@ export function handleSettings() {
             'Content-Type': 'multipart/form-data'
           }
         });
-        console.log('POST response:', response.data);
         if(response.status == 200) {
           const responseData = response.data as { avatar: string };
           
@@ -144,12 +143,11 @@ export function handleSettings() {
   }
 });
 
-const profilePic = document.querySelector("#profileImg");
   const dropdownMenu = document.querySelector("#imgDropdownMenu");
   const changePhotoBtn = document.querySelector("#changePhotoBtn");
   
-  if (profilePic && dropdownMenu) {
-    profilePic.addEventListener('click', () => {
+  if (profileImgContainer && dropdownMenu) {
+    profileImgContainer.addEventListener('click', () => {
       dropdownMenu.classList.toggle('hidden');
     });
   
