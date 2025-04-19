@@ -12,3 +12,15 @@ export interface IUser {
   isTwoFactorEnabled: boolean;
 }
 
+export interface IUserProfile {
+  avatar: string;
+  email: string;
+  firstName: string;
+  id: number;
+  isActivated: boolean;
+  lastName: string;
+  phoneNumber: string;
+  username: string;
+  isTwoFactorEnabled: boolean;
+}
+
