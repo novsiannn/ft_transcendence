@@ -1,8 +1,10 @@
-import { store } from "../../store/store"
+import { store, API_URL } from "../../store/store"
 
 
 const getProfileIcon = () => {
-	return `<img id="profileIcon" src="https://cdn.pixabay.com/photo/2020/07/01/12/58/icon-5359553_1280.png" alt="Profile" class="w-12 h-12 rounded-full cursor-pointer">`
+	const userPhoto = store.getUser().avatar;
+
+	return `${userPhoto ? `<img id="profileIcon" draggable="false" src="${API_URL + userPhoto}" alt="Profile" class="w-12 h-12 rounded-full cursor-pointer">`:`<img id="profileIcon" draggable="false" src="https://cdn.pixabay.com/photo/2020/07/01/12/58/icon-5359553_1280.png" alt="Profile" class="w-12 h-12 rounded-full cursor-pointer">`}`
 }
 
 const getSignInBtn = () => {
@@ -30,7 +32,7 @@ const getAuthBtn = () => {
 export function navigation() {
 	return `
 		<nav class="top-0 left-0 bg-black text-white h-16 w-full fixed flex items-center justify-between px-6">
-    		<img src="https://img.icons8.com/plasticine/100/ping-pong--v1.png" alt="Logo" class="h-12 w-12 object-cover" id=imgLogoNavi>
+    		<img src="https://img.icons8.com/plasticine/100/ping-pong--v1.png" draggable="false" alt="Logo" class="h-12 w-12 object-cover" id=imgLogoNavi>
 
 			${store.getAuth() ? 
     		`<div class="flex-1 flex justify-center space-x-8">
