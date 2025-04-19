@@ -5,22 +5,21 @@ import { IAuthResponse } from "../services/api/models/response/AuthResponse";
 import { IUser } from "./../services/api/models/response/IUser";
 import { navigateTo } from "../routing";
 import { handleModalSuccess } from "../elements/ModalSuccess";
-import { IFriend, IInitialState, IQRCodeEnableResponse } from "../shared";
+import { IInitialState, IQRCodeEnableResponse } from "../shared";
 import { handleModalInput } from "../elements/ModalInput";
-import { friendsPage } from "../pages/friends/friendsPage";
 import friendsService from "../services/api/friendsService";
 
-const API_URL: string = "https://localhost:3000/";
+export const API_URL: string = "https://localhost:3000";
 
 class Store {
   constructor() {}
 
-  state:IInitialState = {
+  state: IInitialState = {
     auth: {
       user: {} as IUser,
       isAuth: false,
       isLoading: false,
-      allUsers: []
+      allUsers: [],
     },
   };
 
@@ -30,6 +29,10 @@ class Store {
 
   setUser = (user: IUser): void => {
     this.state.auth.user = user;
+  };
+
+  getUser = (): IUser => {
+    return this.state.auth.user;
   };
 
   setLoading = (bool: boolean): void => {
@@ -55,14 +58,14 @@ class Store {
   login = async (email: string | null, password: string | null) => {
     try {
       const response = await authService.login(email, password);
-      if (response.status === 200 ) {
+      if (response.status === 200) {
         localStorage.setItem("token", response.data.accessToken);
         this.setAuth(true);
         this.setUser(response.data.user);
         await this.checkAuth();
         navigateTo("/");
         handleModalSuccess("You have successfully logged in!");
-        } else if (response.status === 401 && response.data.requiresTwoFactor){
+      } else if (response.status === 401 && response.data.requiresTwoFactor) {
         handleModalInput("2fa/login", "Code for 2FA", response.data.userId);
       }
       return response;
@@ -103,7 +106,6 @@ class Store {
     } catch (e: any) {
       console.log(e.response?.data);
       console.log(e);
-      
     }
   };
   enableTwoFactor = async () => {
@@ -141,7 +143,7 @@ class Store {
     try {
       const response = await authService.loginWithTwoFactor(token, userID);
       // remove response.data.accessToken in statement
-      if(response.status === 200 && response.data.accessToken){
+      if (response.status === 200 && response.data.accessToken) {
         localStorage.setItem("token", response.data.accessToken);
         this.setAuth(true);
         this.setUser(response.data.user);
@@ -157,10 +159,10 @@ class Store {
 
   getAllUsersRequest = async () => {
     let response = await instanceAPI.get<IUser[]>(
-        "https://localhost:3000/users"
-      );
-      this.setAllUsers(response.data);
-      return response.data;
+      "https://localhost:3000/users"
+    );
+    this.setAllUsers(response.data);
+    return response.data;
   };
 
   getAllFriends = async () => {
@@ -178,12 +180,14 @@ class Store {
         "https://localhost:3000/user/profile"
       );
       await this.getAllUsersRequest();
+      console.log(response);
+
       this.setUser(response.data.user);
       this.setLoading(false);
       return;
     }
     try {
-      const response = await axios.get<IAuthResponse>(API_URL + "refresh", {
+      const response = await axios.get<IAuthResponse>(API_URL + "/refresh", {
         withCredentials: true,
       });
       localStorage.setItem("token", response.data.accessToken);
