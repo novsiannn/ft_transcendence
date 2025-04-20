@@ -170,19 +170,23 @@ class Store {
     return response.data;
   };
 
+  getUserRequest = async () => {
+    const response = await instanceAPI.get<IAuthResponse>(
+        "https://localhost:3000/user/profile"
+      );
+      if(response.status === 200){
+        this.setUser(response.data.user);
+      }
+  };
+
   checkAuth = async () => {
     this.setLoading(true);
     const accessToken = localStorage.getItem("token");
 
     if (accessToken) {
       this.setAuth(true);
-      const response = await instanceAPI.get<IAuthResponse>(
-        "https://localhost:3000/user/profile"
-      );
+      await this.getUserRequest();
       await this.getAllUsersRequest();
-      console.log(response);
-
-      this.setUser(response.data.user);
       this.setLoading(false);
       return;
     }
