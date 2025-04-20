@@ -2,7 +2,7 @@ import { handleModalInput } from "../../elements/ModalInput";
 import { handleModalTwoFactor } from "../../elements/ModalTwoFactor";
 import { navigationHandle } from "../../elements/nagivation";
 import { API_URL, store } from "../../store/store";
-import  instanceAPI from "../../services/api/instanceAxios";
+import instanceAPI from "../../services/api/instanceAxios";
 import { IUserProfile } from "../../services/api/models/response/IUser";
 
 export function handleSettings() {
@@ -11,6 +11,8 @@ export function handleSettings() {
     store.getState().auth.user;
   const userData = [firstName, lastName, username, email];
   const inputs = document.querySelectorAll<HTMLInputElement>("#inputUserInfo");
+  const navigationPhoto = document.querySelector<HTMLImageElement>("#profileIcon");
+  
   const btnSave = document.querySelector<HTMLButtonElement>(
     "#saveChangesSettings"
   );
@@ -67,66 +69,70 @@ export function handleSettings() {
 
   const loadUserAvatar = async () => {
     try {
-      const response = await instanceAPI.get('/user/profile');
+      const response = await instanceAPI.get("/user/profile");
       const userData = response.data as { user: IUserProfile };
-      
+
       if (userData.user.avatar) {
         profileImgContainer!.src = `${API_URL}${userData.user.avatar}`;
         profileImgContainer!.style.display = "block";
       } else {
-        profileImgContainer!.src = "https://cdn.pixabay.com/photo/2020/07/01/12/58/icon-5359553_1280.png";
+        profileImgContainer!.src =
+          "https://cdn.pixabay.com/photo/2020/07/01/12/58/icon-5359553_1280.png";
       }
     } catch (error) {
-      console.error('Failed to load avatar:', error);
+      console.error("Failed to load avatar:", error);
       if (profileImgContainer) {
-        profileImgContainer.src = "https://cdn.pixabay.com/photo/2020/07/01/12/58/icon-5359553_1280.png";
+        profileImgContainer.src =
+          "https://cdn.pixabay.com/photo/2020/07/01/12/58/icon-5359553_1280.png";
       }
     }
   };
-  
+
   loadUserAvatar();
-  
+
   uploadImgInput!.addEventListener("change", async (event: Event) => {
     const target = event.target as HTMLInputElement;
     const file = target.files?.[0];
-    
+
     if (file && file.type.startsWith("image/")) {
       try {
         const formData = new FormData();
-        formData.append('avatar', file);
-        
-        const response = await instanceAPI.post('/user/avatar', formData, {
+        formData.append("avatar", file);
+
+        const response = await instanceAPI.post("/user/avatar", formData, {
           headers: {
-            'Content-Type': 'multipart/form-data'
-          }
+            "Content-Type": "multipart/form-data",
+          },
         });
-        if(response.status == 200) {
+        if (response.status == 200) {
           const responseData = response.data as { avatar: string };
-          
-        if (profileImgContainer && responseData.avatar) {
-          profileImgContainer.src = `${API_URL}${responseData.avatar}`;
-          profileImgContainer.style.display = "block";
+          await store.getUserRequest();
+
+          if (profileImgContainer && responseData.avatar) {
+            navigationPhoto!.src = `${API_URL}${responseData.avatar}`;
+            profileImgContainer.src = `${API_URL}${responseData.avatar}`;
+            profileImgContainer.style.display = "block";
+          }
         }
+      } catch (error) {
+        console.error("Error uploading avatar:", error);
       }
-    } catch (error) {
-      console.error('Error uploading avatar:', error);
     }
-  }
-});
+  });
 
   const dropdownMenu = document.querySelector("#imgDropdownMenu");
   const changePhotoBtn = document.querySelector("#changePhotoBtn");
-  
+
   if (profileImgContainer && dropdownMenu) {
-    profileImgContainer.addEventListener('click', () => {
-      dropdownMenu.classList.toggle('hidden');
+    profileImgContainer.addEventListener("click", () => {
+      dropdownMenu.classList.toggle("hidden");
     });
-  
-    document.addEventListener('click', (event: MouseEvent) => {
+
+    document.addEventListener("click", (event: MouseEvent) => {
       const target = event.target as HTMLElement;
-      
+
       if (profileImgContainer && !profileImgContainer.contains(target)) {
-        dropdownMenu?.classList.add('hidden');
+        dropdownMenu?.classList.add("hidden");
       }
     });
   }
