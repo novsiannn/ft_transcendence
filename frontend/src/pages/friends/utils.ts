@@ -1,13 +1,15 @@
+import { API_URL } from './../../store/store';
 import { navigateTo } from "../../routing";
 import { IUser } from "../../services/api/models/response/IUser";
 import { IFriend } from "../../shared";
 
-export const getUserBlock = (username: string) => {
+export const getUserBlock = (username: string, avatar: string) => {
+
   return `
   <div class="bg-gray-800 flex items-center justify-between rounded-lg p-3 mb-2 w-full mx-auto hover:bg-gray-700 transition-colors duration-300 select-none">
     <div class="flex items-center space-x-4 min-w-0">
       <div class="w-12 h-12 rounded-full bg-green-700 flex items-center justify-center text-white font-bold text-lg hover:scale-105 transition-transform duration-200 flex-shrink-0">
-        ${username.charAt(0).toUpperCase()}
+        <img src=${avatar} class="w-full h-full object-cover rounded-full"/>
       </div>
       <div class="flex flex-col min-w-0">
         <span class="text-white text-base font-semibold truncate">${username}</span>
@@ -24,7 +26,7 @@ export const getUserBlock = (username: string) => {
 };
 
 // it has to be changed
-export const getFriendBlock = (username: string) => {
+export const getFriendBlock = (username: string, avatar: string) => {
   return `<div class="bg-gray-800 flex items-center justify-between rounded-lg p-4 mb-2 w-3/4 mx-auto hover:bg-gray-700 transition-colors duration-300 select-none">
               <div class="flex items-center space-x-4">
 	              <div class="w-14 h-14 rounded-full bg-green-700 flex items-center justify-center text-white font-bold text-xl hover:scale-105 transition-transform duration-200">
@@ -50,7 +52,7 @@ export const getBlocks = (
     length: number,
     data: IUser[] | IFriend[],
     myProfileID: number,
-    callBackFunc: (username: string) => string,
+    callBackFunc: (username: string, avatar: string) => string,
     wrapper: HTMLDivElement | null
   ) => {
     let div;
@@ -59,7 +61,7 @@ export const getBlocks = (
       data.forEach((el) => {
         if (el.id !== myProfileID) {
           div = document.createElement("div");
-          div.innerHTML = callBackFunc(el.username);
+          div.innerHTML = callBackFunc(el.username, API_URL + el.avatar);
           wrapper?.append(div);
           div.querySelector("div")!.addEventListener("click", () => {
             navigateTo(`/profile/${el.id}`);
