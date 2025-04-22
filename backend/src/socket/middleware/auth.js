@@ -6,20 +6,20 @@ function authMiddleware(socket, next) {
 
         const token = socket.handshake.auth.token ||
             (socket.handshake.headers.authorization &&
-            socket.handshake.headers.authorization.split(' ')[1]);
+                socket.handshake.headers.authorization.split(' ')[1]);
         if (!token) {
             console.log('No token provided for socket:', socket.id);
             socket.disconnect();
-            return ;
+            return;
         }
 
         const userData = tokenService.validateAccessToken(token);
         if (!userData || !userData.id) {
             console.log('Invalid token for socket:', socket.id);
             socket.disconnect();
-            return ;
+            return;
         }
-        
+
         socket.user = userData;
         console.log('Socket authenticated:', socket.id, 'User:', userData.id);
         next();

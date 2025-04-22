@@ -22,6 +22,19 @@ const FriendshipController = {
         }
     },
 
+    async getSentPendingRequests(req, res) {
+        try {
+            const userId = req.user.id;
+
+            const result = await friendshipService.getPendingStatus(userId);
+
+            return res.code(200).send(result);
+        } catch (error) {
+            console.error("Error in getSentPendingRequests controller:", error);
+            return res.code(500).send({ error: "Internal server error" });
+        }
+    },
+
     async cancelFriendRequest(req, res) {
         try {
             const userId = req.user.id;

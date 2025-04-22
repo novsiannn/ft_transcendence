@@ -16,7 +16,7 @@ function setupWebSockets(server) {
 
     io.use(authMiddleware);
 
-    io.on('connection', function(socket) {
+    io.on('connection', function (socket) {
         if (!socket.user || !socket.user.id) {
             console.error("Socket connected without valid user:", socket.id);
             socket.disconnect();
@@ -33,7 +33,7 @@ function setupWebSockets(server) {
             username: socket.user.username //may be errors
         })
 
-        socket.on('disconnect', function() {
+        socket.on('disconnect', function () {
             console.log(`Socket disconnected: ${socket.id}, User: ${userId}`);
             userTracker.removeUser(userId, socket);
         });
@@ -44,7 +44,7 @@ function setupWebSockets(server) {
     io.notification = notificationHandler;
 
     console.log('WebSocket server initialized');
-    
+
     return io;
 }
 

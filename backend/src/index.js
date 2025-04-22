@@ -53,7 +53,7 @@ fastify.register(require('@fastify/static'), {
 //     if (!token) {
 //       return reply.code(400).send({ error: 'Token not provided' });
 //     }
-    
+
 //     const userData = await tokenService.validateAccessToken(token);
 //     return {
 //       isValid: !!userData,
@@ -116,7 +116,7 @@ async function start() {
 
     fastify.decorate('io', io);
     friendshipService.setIo(io);
-  
+
     console.log('WebSocket server initialized');
 
     await fastify.listen({
@@ -125,10 +125,10 @@ async function start() {
     });
     console.log('Server listening at https://localhost:3000');
 
-    
+
     await sequelize.sync({ force: true }); //true for cleaning the database
     console.log('Database & tables created!');
-    
+
   } catch (err) {
     console.error('Error:', err);
     process.exit(1);

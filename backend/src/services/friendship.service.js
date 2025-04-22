@@ -385,16 +385,30 @@ async function unblockUser(userId, blockedUserId) {
     }
 }
 
-// async function getPendingStatus(userId) {
-//     try {
-//         const friendships = await Friendship.findAll({
-//             where: {
-//                 status: 'pending',
+async function getPendingStatus(userId) {
+    try {
+        const pendingRequests = await Friendship.findAll({
+            where: {
+                requesterId: userId,
+                status: 'pending',
+            },
+            include: [{
+                model: User,
+                as: 'addressee',
+                attributes: ['id', 'username', 'email', 'avatar']
+            }],
+            order: [['createdAt', 'DESC']]
+        });
 
-//             }
-//         }) 
-//     }
-// }
+        return {
+            requests: pendingRequests,
+            pendingUserIds: pendingRequests.map(req => req.addresseeId)
+        };
+    } catch (error) {
+        console.error("Error getting sent pending requests:", error);
+        throw error;
+    }
+}
 
 async function getUserFriends(userId) {
     try {
@@ -440,4 +454,4 @@ async function getUserFriends(userId) {
     }
 }
 
-module.exports = { setIo, sendFriendRequest, cancelFriendRequest, respondToFriendRequest, getIncomingRequests, getOutgoingRequests, removeFriend, blockUser, unblockUser, getUserFriends };
+module.exports = { setIo, getPendingStatus, sendFriendRequest, cancelFriendRequest, respondToFriendRequest, getIncomingRequests, getOutgoingRequests, removeFriend, blockUser, unblockUser, getUserFriends };

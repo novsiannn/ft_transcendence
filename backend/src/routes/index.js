@@ -28,7 +28,7 @@ async function routes(fastify, options) {
 
   fastify.addSchema({
     $id: 'validatePassword',
-    type: 'string', 
+    type: 'string',
     pattern: '^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$',
   });
 
@@ -669,6 +669,56 @@ async function routes(fastify, options) {
     },
     preHandler: authMiddleware
   }, FriendshipController.sendFriendRequest);
+  fastify.get('/friendship/sent-pending', {
+    schema: {
+      description: 'Get sent pending friend requests',
+      tags: ['Friendship'],
+      security: [{ bearerAuth: [] }],
+      response: {
+        200: {
+          description: 'List of sent pending friend requests',
+          type: 'object',
+          properties: {
+            requests: {
+              type: 'array',
+              items: {
+                type: 'object',
+                properties: {
+                  id: { type: 'integer' },
+                  requesterId: { type: 'integer' },
+                  addresseeId: { type: 'integer' },
+                  status: { type: 'string', enum: ['pending'] },
+                  createdAt: { type: 'string', format: 'date-time' },
+                  updatedAt: { type: 'string', format: 'date-time' },
+                  addressee: {
+                    type: 'object',
+                    properties: {
+                      id: { type: 'integer' },
+                      username: { type: 'string' },
+                      email: { type: 'string' },
+                      avatar: { type: 'string' }
+                    }
+                  }
+                }
+              }
+            },
+            pendingUserIds: {
+              type: 'array',
+              items: { type: 'integer' }
+            }
+          }
+        },
+        500: {
+          description: 'Internal server error',
+          type: 'object',
+          properties: {
+            error: { type: 'string' }
+          }
+        }
+      }
+    },
+    preHandler: authMiddleware
+  }, FriendshipController.getSentPendingRequests);
   fastify.delete('/friendship/outgoing/:friendshipId', {
     schema: {
       description: 'Cancel a pending friend request',
