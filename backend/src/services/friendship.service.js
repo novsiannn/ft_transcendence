@@ -1,5 +1,12 @@
+const sequelize = require('../../db/database');
 const { User, Friendship } = require('../../db/models')
 const { Op } = require('sequelize');
+
+let io = null;
+
+function setIo(ioInstance) {
+    io = ioInstance;
+}
 
 async function sendFriendRequest(requesterId, addresseeId) {
     try {
@@ -18,6 +25,7 @@ async function sendFriendRequest(requesterId, addresseeId) {
             return { error: "User not found" }; // 400
         }
 
+        // const result = await sequelize.transaction(async (transaction) => {
         const existingFriendship = await Friendship.findOne({
             where: {
                 [Op.or]: [
@@ -54,6 +62,22 @@ async function sendFriendRequest(requesterId, addresseeId) {
                 existingFriendship.requesterId = requesterId;
                 existingFriendship.addresseeId = addresseeId;
                 await existingFriendship.save();
+
+                // const resultData = {
+                //     friendship: existingFriendship,
+                // }
+
+                if (io && io.notification) {
+                    const requesterInfo = {
+                        id: requester.id,
+                        username: requester.username,
+                        avatar: requester.avatar,
+                        friendshipId: existingFriendship.id,
+                    };
+
+                    io.notification.sendFriendRequest(addresseeId, requesterInfo);
+                }
+
                 return {
                     friendship: existingFriendship,
                     message: "Friend request sent"
@@ -66,6 +90,17 @@ async function sendFriendRequest(requesterId, addresseeId) {
             addresseeId,
             status: 'pending'
         });
+
+        if (io && io.notification) {
+            const requesterInfo = {
+                id: requester.id,
+                username: requester.username,
+                avatar: requester.avatar,
+                friendshipId: friendship.id,
+            };
+
+            io.notification.sendFriendRequest(addresseeId, requesterInfo);
+        }
 
         return {
             friendship,
@@ -107,7 +142,19 @@ async function respondToFriendRequest(friendshipId, userId, accept) {
                 id: friendshipId,
                 addresseeId: userId,
                 status: 'pending'
-            }
+            },
+            include: [
+                {
+                    model: User,
+                    as: 'requester',
+                    attributes: ['id', 'username', 'email', 'avatar']
+                },
+                {
+                    model: User,
+                    as: 'addressee',
+                    attributes: ['id', 'username', 'email', 'avatar']
+                },
+            ]
         });
 
         if (!friendship) {
@@ -116,6 +163,17 @@ async function respondToFriendRequest(friendshipId, userId, accept) {
 
         friendship.status = accept ? 'accepted' : 'rejected';
         await friendship.save();
+
+        if (accept && io && io.notification) {
+            const addresseeInfo = {
+                id: friendship.addressee.id,
+                username: friendship.addressee.username,
+                avatar: friendship.addressee.avatar,
+                friendshipId: friendship.id
+            };
+            
+            io.notification.sendFriendAccepted(friendship.requester.id, addresseeInfo);
+        }
 
         return {
             friendshipId,
@@ -315,6 +373,17 @@ async function unblockUser(userId, blockedUserId) {
     }
 }
 
+// async function getPendingStatus(userId) {
+//     try {
+//         const friendships = await Friendship.findAll({
+//             where: {
+//                 status: 'pending',
+
+//             }
+//         }) 
+//     }
+// }
+
 async function getUserFriends(userId) {
     try {
         const friendships = await Friendship.findAll({
@@ -359,4 +428,4 @@ async function getUserFriends(userId) {
     }
 }
 
-module.exports = { sendFriendRequest, cancelFriendRequest, respondToFriendRequest, getIncomingRequests, getOutgoingRequests, removeFriend, blockUser, unblockUser, getUserFriends };
+module.exports = { setIo, sendFriendRequest, cancelFriendRequest, respondToFriendRequest, getIncomingRequests, getOutgoingRequests, removeFriend, blockUser, unblockUser, getUserFriends };

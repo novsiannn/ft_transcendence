@@ -1,6 +1,7 @@
 const { Server } = require('socket.io');
 const authMiddleware = require('./middleware/auth');
 const notificationHandler = require('./handlers/notification');
+const userTracker = require('./utils/userTracker');
 
 function setupWebSockets(server) {
     const io = new Server(server, {
@@ -38,7 +39,7 @@ function setupWebSockets(server) {
         });
     });
 
-    // notificationHandler.initialize(io);
+    notificationHandler.initialize(io);
 
     io.notification = notificationHandler;
 
@@ -47,4 +48,4 @@ function setupWebSockets(server) {
     return io;
 }
 
-module.exports = setupWebSockets;
+module.exports = setupWebSockets;   

@@ -1,3 +1,4 @@
+const { sendFriendRequest } = require('../../controllers/friendship.controller');
 const userTracker = require('../utils/userTracker');
 
 const notificationHandler = {
@@ -23,6 +24,17 @@ const notificationHandler = {
         return false;
     },
 
-    
+    sendFriendRequest(addresseeId, requesterInfo) {
+        return this.sendNotification(addresseeId, 'friend_request', {
+            from: requesterInfo
+        });
+    },
 
+    sendFriendAccepted(requesterId, addresseeInfo) {
+        return this.sendNotification(requesterId, 'friend_accepted', {
+            by: addresseeInfo
+        });
+    },
 }
+
+module.exports = notificationHandler;

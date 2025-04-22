@@ -6,6 +6,7 @@ const userRoutes = require('./routes/index');
 const fastifyCors = require('@fastify/cors');
 const setupWebSockets = require('./socket/index');
 const tokenService = require('./services/token.service');
+const friendshipService = require('./services/friendship.service');
 
 const keyPath = process.env.SSL_KEY_PATH || path.join(__dirname, './../certs/key.pem');
 const certPath = process.env.SSL_CERT_PATH || path.join(__dirname, './../certs/cert.pem');
@@ -43,6 +44,23 @@ fastify.register(require('@fastify/static'), {
   root: path.join(__dirname, '..'),
   prefix: '/test/',
   decorateReply: false
+});
+
+fastify.get('/api/test-token', async (request, reply) => {
+  try {
+    const token = request.headers.authorization?.split(' ')[1];
+    if (!token) {
+      return reply.code(400).send({ error: 'Token not provided' });
+    }
+    
+    const userData = await tokenService.validateAccessToken(token);
+    return {
+      isValid: !!userData,
+      userData: userData
+    };
+  } catch (error) {
+    return reply.code(500).send({ error: error.message });
+  }
 });
 
 //for WEBSOCKET test end
@@ -94,7 +112,10 @@ fastify.register(userRoutes);
 async function start() {
   try {
     const io = setupWebSockets(fastify.server);
+
     fastify.decorate('io', io);
+    friendshipService.setIo(io);
+  
     console.log('WebSocket server initialized');
 
     await fastify.listen({
