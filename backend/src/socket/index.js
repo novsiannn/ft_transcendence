@@ -38,7 +38,7 @@ function setupWebSockets(server) {
         });
     });
 
-    notificationHandler.initialize(io);
+    // notificationHandler.initialize(io);
 
     io.notification = notificationHandler;
 
