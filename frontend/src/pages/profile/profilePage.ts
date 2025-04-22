@@ -1,18 +1,30 @@
 import { navigation } from "../../elements/nagivation";
-
+import { store, API_URL } from "../../store/store";
 
 export function profilePage(mainWrapper: HTMLDivElement | undefined) {
-    document.body.classList.add("bg-gradient-to-t", "from-black", "via-black", "to-gray-800", "h-full");
-    mainWrapper!.className = "h-screen w-full flex items-center";
-
-    let res = `
+  document.body.classList.add(
+    "bg-gradient-to-t",
+    "from-black",
+    "via-black",
+    "to-gray-800",
+    "h-full"
+  );
+  mainWrapper!.className = "h-screen w-full flex items-center";
+  const userPhoto = store.getUser().avatar;
+  console.log(userPhoto);
+  
+  let res = `
         ${navigation()}
 
             <div class="flex items-center justify-center w-full h-full  rounded-2xl text-center">
                 <div class="grid grid-cols-8 grid-rows-4 w-2/3 h-2/3  mt-12 bg-white rounded-3xl">
                     <div class="my-5 col-start-4 col-span-2">
-                            <img src="https://cdn.pixabay.com/photo/2020/07/01/12/58/icon-5359553_1280.png" alt="Profile Photo" 
-                         class="mx-auto w-36 h-36 rounded-full border-4 border-white">
+                            ${
+                              userPhoto
+                                ? `<img src=${API_URL + userPhoto} alt="Profile Photo" class="mx-auto w-36 h-36 rounded-full border-4 border-white" draggable="false">`
+                                : `<img src="https://cdn.pixabay.com/photo/2020/07/01/12/58/icon-5359553_1280.png" alt="Profile Photo" 
+                         class="mx-auto w-36 h-36 rounded-full border-4 border-white" draggable="false">`
+                            }
                     </div>
 
                     <div class="flex justify-center items-center col-start-4 col-span-2 ">
@@ -38,5 +50,5 @@ export function profilePage(mainWrapper: HTMLDivElement | undefined) {
         
     `;
 
-    return res;
+  return res;
 }

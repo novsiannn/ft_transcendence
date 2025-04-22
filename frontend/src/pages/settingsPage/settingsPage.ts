@@ -2,7 +2,6 @@ import { getModalInput } from "../../elements/ModalInput";
 import { getModalWindowSuccess } from "../../elements/ModalSuccess";
 import { getModalTwoFactor } from "../../elements/ModalTwoFactor";
 import { navigation } from "../../elements/nagivation";
-import { testUserData } from "./handleSettingsPage";
 
 export function settingsPage(mainWrapper: HTMLDivElement | undefined) {
   document.body.classList.add(
@@ -21,12 +20,7 @@ export function settingsPage(mainWrapper: HTMLDivElement | undefined) {
 						<h1 class="font-bold text-3xl">Your Profile</h1>
 						<div class="grid grid-cols-10 grid-rows-5 gap-4 w-5/5 h-4/5 my-5 py-2 px-2 text-gray-500">
     						<div class=" col-start-5 col-span-2 row-start-1 row-span-2">
-								<img id="profileImg" class="w-full h-full rounded-full" src=${
-                  testUserData.user.avatar
-                    ? testUserData.user.avatar
-                    : "https://cdn.pixabay.com/photo/2020/07/01/12/58/icon-5359553_1280.png"
-                }
-								 alt="Joe Biden">
+								<img id="profileImg" class="rounded-full" src="https://cdn.pixabay.com/photo/2020/07/01/12/58/icon-5359553_1280.png" draggable="false" alt="Profile Image">
 								 <div id="imgDropdownMenu"
 									class="hidden absolute z-10 w-48 bg-white rounded-lg shadow-lg">
 									<button id="changePhotoBtn" class="block w-full text-left px-4 py-2 hover:bg-gray-100">Change photo</button>

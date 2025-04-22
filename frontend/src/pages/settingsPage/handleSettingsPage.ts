@@ -1,38 +1,9 @@
 import { handleModalInput } from "../../elements/ModalInput";
 import { handleModalTwoFactor } from "../../elements/ModalTwoFactor";
 import { navigationHandle } from "../../elements/nagivation";
-import { store } from "../../store/store";
+import { API_URL, store } from "../../store/store";
 import  instanceAPI from "../../services/api/instanceAxios";
-
-interface User {
-  id: number | null;
-  email: string | null;
-  username: string | null;
-  firstName: string | null;
-  lastName: string | null;
-  phoneNumber: string | null;
-  avatar?: string | null;
-}
-
-interface ITestUserData {
-  token: string | null;
-  user: User;
-}
-
-export let testUserData: ITestUserData = {
-  token: "test-token",
-  user: {
-    id: 1,
-    email: "userExampleEmail@gmail.com",
-    username: "Leonardo da Vinci",
-    firstName: null,
-    lastName: "Davidovich",
-    phoneNumber: null,
-    avatar: null,
-  },
-};
-
-const BACKEND_URL = 'https://localhost:3000';
+import { IUserProfile } from "../../services/api/models/response/IUser";
 
 export function handleSettings() {
   navigationHandle();
@@ -97,10 +68,10 @@ export function handleSettings() {
   const loadUserAvatar = async () => {
     try {
       const response = await instanceAPI.get('/user/profile');
-      const userData = response.data as { user: User, avatar: string };
+      const userData = response.data as { user: IUserProfile };
       
       if (userData.user.avatar) {
-        profileImgContainer!.src = `${BACKEND_URL}${userData.user.avatar}`;
+        profileImgContainer!.src = `${API_URL}${userData.user.avatar}`;
         profileImgContainer!.style.display = "block";
       } else {
         profileImgContainer!.src = "https://cdn.pixabay.com/photo/2020/07/01/12/58/icon-5359553_1280.png";
@@ -133,7 +104,7 @@ export function handleSettings() {
           const responseData = response.data as { avatar: string };
           
         if (profileImgContainer && responseData.avatar) {
-          profileImgContainer.src = `${BACKEND_URL}${responseData.avatar}`;
+          profileImgContainer.src = `${API_URL}${responseData.avatar}`;
           profileImgContainer.style.display = "block";
         }
       }
