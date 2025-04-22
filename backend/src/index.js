@@ -40,28 +40,29 @@ fastify.register(require('@fastify/static'), {
 });
 
 //for WEBSOCKET test start
-fastify.register(require('@fastify/static'), {
-  root: path.join(__dirname, '..'),
-  prefix: '/test/',
-  decorateReply: false
-});
 
-fastify.get('/api/test-token', async (request, reply) => {
-  try {
-    const token = request.headers.authorization?.split(' ')[1];
-    if (!token) {
-      return reply.code(400).send({ error: 'Token not provided' });
-    }
+// fastify.register(require('@fastify/static'), {
+//   root: path.join(__dirname, '..'),
+//   prefix: '/test/',
+//   decorateReply: false
+// });
+
+// fastify.get('/api/test-token', async (request, reply) => {
+//   try {
+//     const token = request.headers.authorization?.split(' ')[1];
+//     if (!token) {
+//       return reply.code(400).send({ error: 'Token not provided' });
+//     }
     
-    const userData = await tokenService.validateAccessToken(token);
-    return {
-      isValid: !!userData,
-      userData: userData
-    };
-  } catch (error) {
-    return reply.code(500).send({ error: error.message });
-  }
-});
+//     const userData = await tokenService.validateAccessToken(token);
+//     return {
+//       isValid: !!userData,
+//       userData: userData
+//     };
+//   } catch (error) {
+//     return reply.code(500).send({ error: error.message });
+//   }
+// });
 
 //for WEBSOCKET test end
 

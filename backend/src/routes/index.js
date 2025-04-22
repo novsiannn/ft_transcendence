@@ -715,6 +715,7 @@ async function routes(fastify, options) {
       params: {
         type: 'object',
         required: ['friendshipId'],
+        additionalProperties: true,
         properties: {
           friendshipId: { type: 'integer' }
         }
@@ -757,6 +758,7 @@ async function routes(fastify, options) {
       params: {
         type: 'object',
         required: ['friendshipId'],
+        additionalProperties: true,
         properties: {
           friendshipId: { type: 'integer' }
         }

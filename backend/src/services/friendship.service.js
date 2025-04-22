@@ -1,6 +1,7 @@
 const sequelize = require('../../db/database');
 const { User, Friendship } = require('../../db/models')
 const { Op } = require('sequelize');
+const { sendNotification } = require('../socket/handlers/notification');
 
 let io = null;
 
@@ -25,87 +26,98 @@ async function sendFriendRequest(requesterId, addresseeId) {
             return { error: "User not found" }; // 400
         }
 
-        // const result = await sequelize.transaction(async (transaction) => {
-        const existingFriendship = await Friendship.findOne({
-            where: {
-                [Op.or]: [
-                    { requesterId, addresseeId },
-                    { requesterId: addresseeId, addresseeId: requesterId }
-                ]
-            }
-        });
+        const result = await sequelize.transaction(async (transaction) => {
+            const existingFriendship = await Friendship.findOne({
+                where: {
+                    [Op.or]: [
+                        { requesterId, addresseeId },
+                        { requesterId: addresseeId, addresseeId: requesterId }
+                    ]
+                }
+            });
 
-        if (existingFriendship) {
-            const status = existingFriendship.status;
+            if (existingFriendship) {
+                const status = existingFriendship.status;
 
-            if (status === 'pending') {
-                if (existingFriendship.requesterId === requesterId) {
-                    return { error: "Friend request already sent" }; // 400
-                } else {
-                    existingFriendship.status = 'accepted';
+                if (status === 'pending') {
+                    if (existingFriendship.requesterId === requesterId) {
+                        return { error: "Friend request already sent" }; // 400
+                    } else {
+                        existingFriendship.status = 'accepted';
+                        await existingFriendship.save();
+                        return {
+                            friendship: existingFriendship,
+                            message: "Friend request accepted"
+                        };
+                    }
+                } else if (status === 'accepted') {
+                    return { error: "Users are already friends" }; //400
+                } else if (status === 'blocked') {
+                    if (existingFriendship.requesterId === requesterId) {
+                        return { error: "You have blocked this user" };
+                    } else {
+                        return { error: "You are blocked by this user" };
+                    }
+                } else if (status === 'rejected') {
+                    existingFriendship.status = 'pending';
+                    existingFriendship.requesterId = requesterId;
+                    existingFriendship.addresseeId = addresseeId;
                     await existingFriendship.save();
-                    return {
+
+                    const resultData = {
                         friendship: existingFriendship,
-                        message: "Friend request accepted"
+                        message: "Friend request sent",
+                        sendNotification: true,
+                        notificationInfo: {
+                            addresseeId,
+                            requesterInfo: {
+                                id: requester.id,
+                                username: requester.username,
+                                avatar: requester.avatar,
+                                friendshipId: existingFriendship.id,
+                            }
+                        }
                     };
-                }
-            } else if (status === 'accepted') {
-                return { error: "Users are already friends" }; //400
-            } else if (status === 'blocked') {
-                if (existingFriendship.requesterId === requesterId) {
-                    return { error: "You have blocked this user" };
-                } else {
-                    return { error: "You are blocked by this user" };
-                }
-            } else if (status === 'rejected') {
-                existingFriendship.status = 'pending';
-                existingFriendship.requesterId = requesterId;
-                existingFriendship.addresseeId = addresseeId;
-                await existingFriendship.save();
 
-                // const resultData = {
-                //     friendship: existingFriendship,
-                // }
+                    return resultData;
+                }
+            }
 
-                if (io && io.notification) {
-                    const requesterInfo = {
+            const friendship = await Friendship.create({
+                requesterId,
+                addresseeId,
+                status: 'pending'
+            }, { transaction });
+
+            return {
+                friendship,
+                message: "Friend request sent successfully",
+                sendNotification: true,
+                notificationInfo: {
+                    addresseeId,
+                    requesterInfo: {
                         id: requester.id,
                         username: requester.username,
                         avatar: requester.avatar,
-                        friendshipId: existingFriendship.id,
-                    };
-
-                    io.notification.sendFriendRequest(addresseeId, requesterInfo);
+                        friendshipId: friendship.id,
+                    }
                 }
-
-                return {
-                    friendship: existingFriendship,
-                    message: "Friend request sent"
-                };
-            }
-        }
-
-        const friendship = await Friendship.create({
-            requesterId,
-            addresseeId,
-            status: 'pending'
+            };
         });
 
-        if (io && io.notification) {
-            const requesterInfo = {
-                id: requester.id,
-                username: requester.username,
-                avatar: requester.avatar,
-                friendshipId: friendship.id,
-            };
-
-            io.notification.sendFriendRequest(addresseeId, requesterInfo);
+        if (result.sendNotification && io && io.notification) {
+            io.notification.sendFriendRequest(
+                result.notificationInfo.addresseeId,
+                result.notificationInfo.requesterInfo,
+            );
         }
 
-        return {
-            friendship,
-            message: "Friend request sent successfully"
-        };
+        if (result.sendNotification) {
+            delete result.sendNotification;
+            delete result.notificationInfo;
+        }
+
+        return result;
     } catch (error) {
         console.error("Error sending friend request:", error);
         throw error;
@@ -171,7 +183,7 @@ async function respondToFriendRequest(friendshipId, userId, accept) {
                 avatar: friendship.addressee.avatar,
                 friendshipId: friendship.id
             };
-            
+
             io.notification.sendFriendAccepted(friendship.requester.id, addresseeInfo);
         }
 
@@ -287,7 +299,7 @@ async function blockUser(userId, blockedUserId) {
             User.findByPk(userId),
             User.findByPk(blockedUserId)
         ]);
-        
+
 
         if (!user || !blockedUser) {
             return { error: "User not found" };
