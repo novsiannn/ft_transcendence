@@ -1,5 +1,6 @@
 import { navigation } from "../../elements/nagivation";
-import { store, API_URL } from "../../store/store";
+import { getColorFromUsername } from "../../shared/randomColors";
+import { API_URL, store } from "../../store/store";
 
 export function profilePage(mainWrapper: HTMLDivElement | undefined) {
   document.body.classList.add(
@@ -10,19 +11,18 @@ export function profilePage(mainWrapper: HTMLDivElement | undefined) {
     "h-full"
   );
   mainWrapper!.className = "h-screen w-full flex items-center";
-  //   const userPhoto = store.getUser().avatar;
-  //   console.log(userPhoto);
+//   const color = getColorFromUsername(store.getUser().username);
+//   const firstLetterOfUser = store.getUser().username.charAt(0).toUpperCase();
+//   const userPhoto = store.getUser().avatar;
 
   let res = `
         ${navigation()}
 
             <div class="flex items-center justify-center w-full h-full  rounded-2xl text-center">
                 <div class="grid grid-cols-8 grid-rows-4 w-2/3 h-2/3  mt-12 bg-white rounded-3xl">
-                    <div class="my-5 col-start-4 col-span-2">
-                            
-                        <img src="https://cdn.pixabay.com/photo/2020/07/01/12/58/icon-5359553_1280.png" alt="Profile Photo" id="profileImg"  
-                         class="mx-auto w-36 h-36 rounded-full border-4 border-white" draggable="false">
-                            
+                    <div class="my-5 col-start-4 col-span-2" id="photoContainer">
+                        <img id="profileImg" alt="Profile Photo" class="mx-auto hidden w-36 h-36 rounded-full border-4 border-white" draggable="false" >
+                        <div id="profileImgEmpty" class="text-5xl hidden text-white font-bold mx-auto flex justify-center items-center content-center w-36 h-36 rounded-full cursor-pointer"></div>
                     </div>
 
                     <div class="flex justify-center items-center col-start-4 col-span-2 ">

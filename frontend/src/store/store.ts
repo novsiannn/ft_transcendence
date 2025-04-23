@@ -158,9 +158,7 @@ class Store {
   };
 
   getAllUsersRequest = async () => {
-    let response = await instanceAPI.get<IUser[]>(
-      "https://localhost:3000/users"
-    );
+    let response = await instanceAPI.get<IUser[]>(`${API_URL}/users`);
     this.setAllUsers(response.data);
     return response.data;
   };
@@ -171,12 +169,16 @@ class Store {
   };
 
   getUserRequest = async () => {
-    const response = await instanceAPI.get<IAuthResponse>(
-        "https://localhost:3000/user/profile"
-      );
+    const response = await instanceAPI.get<IAuthResponse>(`${API_URL}/user/profile`);
       if(response.status === 200){
         this.setUser(response.data.user);
       }
+  };
+
+  sendFriendRequest = async (addresseeId: number) =>{
+    const response = await friendsService.sendFriendRequest(addresseeId);
+    return response.status;
+    console.log(response);
   };
 
   checkAuth = async () => {
@@ -191,7 +193,7 @@ class Store {
       return;
     }
     try {
-      const response = await axios.get<IAuthResponse>(API_URL + "/refresh", {
+      const response = await axios.get<IAuthResponse>(`${API_URL}/refresh`, {
         withCredentials: true,
       });
       localStorage.setItem("token", response.data.accessToken);

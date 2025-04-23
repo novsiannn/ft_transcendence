@@ -12,7 +12,6 @@ instanceAPI.interceptors.request.use((config) => {
 	
   if (config.headers)
     config.headers.Authorization = `Bearer ${localStorage.getItem("token")}`;
-  console.log(config.headers);
   return config;
 });
 
