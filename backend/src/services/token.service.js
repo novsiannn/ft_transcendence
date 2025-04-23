@@ -11,7 +11,7 @@ function generateTokens(payload) {
   };
 }
 
-async function validateAccessToken(token) {
+function validateAccessToken(token) { //deleted async
   try {
     const userData = jwt.verify(token, process.env.JWT_SECRET);
     return userData;

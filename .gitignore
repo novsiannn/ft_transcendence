@@ -3,4 +3,5 @@ node_modules
 certs/
 database.sqlite
 *.pem
+test-socket.html
 uploads/

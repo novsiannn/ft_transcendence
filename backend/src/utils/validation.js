@@ -1,7 +1,7 @@
 const ValidationError = {
     validateUsername(username) {
         const usernameRegex = /^[a-zA-Zа-яА-Я0-9]([a-zA-Zа-яА-Я0-9_-]{1,14})[a-zA-Zа-яА-Я0-9]$/;
-    
+
         if (!usernameRegex.test(username)) {
             return {
                 valid: false,
@@ -10,10 +10,10 @@ const ValidationError = {
         }
         return { valid: true };
     },
-    
+
     validatePassword(password) {
         const passwordRegex = /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
-    
+
         if (!passwordRegex.test(password)) {
             return {
                 valid: false,
