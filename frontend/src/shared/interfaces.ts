@@ -17,18 +17,18 @@ export interface IQRCodeEnableResponse {
 }
 
 export interface IRouteParams {
-    id?: number
+  id?: number;
 }
 
 export interface IAuth {
-  user: IUser,
-  isAuth: boolean,
-  isLoading: boolean,
-  allUsers: IUser[]
+  user: IUser;
+  isAuth: boolean;
+  isLoading: boolean;
+  allUsers: IUser[];
 }
 
 export interface IInitialState {
-  auth: IAuth
+  auth: IAuth;
 }
 
 export interface IFriend {
@@ -36,4 +36,25 @@ export interface IFriend {
   email: string;
   id: number;
   username: string;
+}
+
+export interface IFriendsResponse {
+  friends: IFriend[]
+}
+
+
+
+
+export interface IPendingFriendsRequest {
+  addresseeId: number;
+  createdAt: string;
+  id: number;
+  requesterId: number;
+  status: string;
+  updatedAt: string;
+}
+
+export interface IPendingFriendsResponse {
+  pendingUserIds: number[];
+  requests: IPendingFriendsRequest[];
 }
