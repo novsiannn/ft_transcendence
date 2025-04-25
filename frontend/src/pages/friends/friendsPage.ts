@@ -1,3 +1,4 @@
+import { getModalWindowSuccess } from "../../elements/ModalSuccess";
 import { navigation } from "../../elements/nagivation";
 
 export function friendsPage() {
@@ -21,5 +22,6 @@ export function friendsPage() {
     				</div>
     
   				</div>
-			</div>`;
+			</div>
+			${getModalWindowSuccess()}`;
 }

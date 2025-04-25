@@ -1,8 +1,8 @@
 import { navigationHandle } from "../../elements/nagivation";
 import { IUser } from "../../services/api/models/response/IUser";
-import { IFriend } from "../../shared";
+import { IFriendsResponse, IPendingFriendsResponse } from "../../shared";
 import { store } from "../../store/store";
-import { getBlocks, getFriendBlock, getUserBlock } from "./utils";
+import { getFriendsBlock, getUsersBlock } from "./utils";
 
 export const handleFriendsPage = async () => {
   const allUsersContainer = document.querySelector<HTMLDivElement>("#allUsersContainer");
@@ -11,11 +11,13 @@ export const handleFriendsPage = async () => {
   navigationHandle();
   const responseAllUsers = store.getAllUsers();
   const responseAllFriends = await store.getAllFriends();
-  const myProfileID = store.getState().auth.user.id;
-
+  const responseFriendshipSent = await store.getPendingFriendsRequests();
+  
   const users: IUser[] = responseAllUsers;
-  const friends: IFriend[] = responseAllFriends;
+  console.log(responseAllFriends.data);
+  
+  const friends: IFriendsResponse = responseAllFriends.data;
 
-  getBlocks(users.length, users, myProfileID, getUserBlock, allUsersContainer);
-  getBlocks(friends.length, friends, myProfileID, getFriendBlock, friendsContainer);
+  getUsersBlock(users.length, users, friends, allUsersContainer, responseFriendshipSent);
+  getFriendsBlock(friends.friends.length, friends.friends, friendsContainer);
 };
