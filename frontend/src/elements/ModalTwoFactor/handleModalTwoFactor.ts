@@ -2,6 +2,7 @@
 import { activateWarning, hideWarning } from "../../pages/login/loginPage";
 import { IQRCodeEnableResponse } from "../../shared";
 import { store } from "../../store/store";
+import { getLoader } from "../Loader";
 import { handleModalSuccess } from "../ModalSuccess";
 
 export const handleModalTwoFactor = async (switchButtonActivity?: (isEnable: boolean) => void) => {
@@ -31,6 +32,7 @@ export const handleModalTwoFactor = async (switchButtonActivity?: (isEnable: boo
 
   modalBtn?.addEventListener("click", async () => {
     hideWarning('#warningMessage');
+    modalBtn.innerHTML = getLoader();
     const response = await store.verifyTwoFactor(
       codeForTwoFactor?.value ? codeForTwoFactor.value : ""
     );
@@ -45,6 +47,7 @@ export const handleModalTwoFactor = async (switchButtonActivity?: (isEnable: boo
         switchButtonActivity(true);
     } else if (response.status === 400){
       activateWarning('#warningMessage', response.data.message);
+      modalBtn.innerHTML = 'Send';
     }
   });
 
