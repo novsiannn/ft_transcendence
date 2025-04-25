@@ -28,7 +28,7 @@ export function settingsPage(mainWrapper: HTMLDivElement | undefined) {
     						<div class=" col-start-5 col-span-2 row-start-1 row-span-2">
 								${
                   userPhoto
-                    ? `<img id="profileImg" class="rounded-full w-48 h-48" draggable="false" alt="Profile Image">`
+                    ? `<img id="profileImg" class="rounded-full object-cover w-48 h-48" draggable="false" alt="Profile Image">`
                     : `<div id="profileImg" class="text-5xl text-white font-bold mx-auto flex justify-center items-center object-cover content-center select-none w-48 h-48 ${color} rounded-full cursor-pointer">
                       ${firstLetterOfUser}
                     </div>`
@@ -43,19 +43,19 @@ export function settingsPage(mainWrapper: HTMLDivElement | undefined) {
 							</div>
 							<div class=" col-start-2 col-span-4 row-start-3">
 								<h1 >Your first name</h1>
-								<input class="border-2 border-blue-700 max-w-xs p-2 m-1" id="inputUserInfo" </input>
+								<input class="inputUserInfo border-2 border-blue-700 max-w-xs p-2 m-1" name="firstName" autocomplete="first name"> </input>
 							</div>
 							<div class="col-start-6 col-span-4" >
 								<p >Your last name</p>
-								<input class="border-2 border-blue-700 max-w-xs p-2 m-1" id="inputUserInfo"> </input>
+								<input class="inputUserInfo border-2 border-blue-700 max-w-xs p-2 m-1" name="lastName" autocomplete="last name"> </input>
 							</div>
 							<div class=" col-start-2 col-span-4">
 								<p >Your username</p>
-								<input class="border-2 border-blue-700 max-w-xs p-2 m-1" id="inputUserInfo"> </input>
+								<input class="inputUserInfo border-2 border-blue-700 max-w-xs p-2 m-1" name="userName" autocomplete="username"> </input>
 							</div>
 							<div class=" col-start-6 col-span-4">
 								<p >Your email</p>
-								<input class="border-2 border-blue-700 max-w-xs p-2 m-1" id="inputUserInfo"> </input>
+								<input class="inputUserInfo border-2 border-blue-700 max-w-xs p-2 m-1" name="E-mail" autocomplete="email"> </input>
 							</div>
 							<div class="grid col-start-2 col-span-4 m-2 place-items-center max-w-s ">
 								<p>Two-factor Authentication </p>

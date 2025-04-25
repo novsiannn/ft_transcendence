@@ -21,7 +21,7 @@ export function profilePage(mainWrapper: HTMLDivElement | undefined) {
             <div class="flex items-center justify-center w-full h-full  rounded-2xl text-center">
                 <div class="grid grid-cols-8 grid-rows-4 w-2/3 h-2/3  mt-12 bg-white rounded-3xl">
                     <div class="my-5 col-start-4 col-span-2" id="photoContainer">
-                        <img id="profileImg" alt="Profile Photo" class="mx-auto hidden w-36 h-36 rounded-full border-4 border-white" draggable="false" >
+                        <img id="profileImg" alt="Profile Photo" class="mx-auto hidden w-36 h-36 rounded-full border-4 border-white object-cover" draggable="false" >
                         <div id="profileImgEmpty" class="text-5xl hidden text-white font-bold mx-auto flex justify-center items-center content-center w-36 h-36 rounded-full cursor-pointer"></div>
                     </div>
 

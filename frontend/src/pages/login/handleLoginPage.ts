@@ -1,3 +1,4 @@
+import { getLoader } from "../../elements/Loader";
 import { navigationHandle } from "../../elements/nagivation";
 import { userDataLogin } from "../../shared";
 import { IUserDataTypeLogin } from "../../shared";
@@ -36,10 +37,12 @@ export function handleLogin() {
           userDataLogin[key] = input.value;
         }
       });
+      loginBtn!.innerHTML = getLoader();
       const response = await store.login(userDataLogin.email, userDataLogin.password);
       console.log(response);
     } catch (error: any) {
       activateWarning('#warningMessage','Incorrect email or password');
+      loginBtn!.innerHTML = "Login";
     }
   });
 }

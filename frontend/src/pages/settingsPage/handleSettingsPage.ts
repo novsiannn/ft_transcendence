@@ -10,7 +10,7 @@ export function handleSettings() {
   const { username, email, firstName, lastName, isTwoFactorEnabled } =
     store.getState().auth.user;
   const userData = [firstName, lastName, username, email];
-  const inputs = document.querySelectorAll<HTMLInputElement>("#inputUserInfo");
+  const inputs = document.querySelectorAll<HTMLInputElement>(".inputUserInfo");
   const navigationPhoto = document.querySelector<HTMLImageElement>("#profileIcon");
   
   const btnSave = document.querySelector<HTMLButtonElement>(

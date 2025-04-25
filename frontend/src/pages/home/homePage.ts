@@ -17,7 +17,7 @@ export function homePage() {
         	        </div>
 
         	        <div class="md:w-1/2 flex justify-center p-6">
-        	            <img src="../img/ping-pong.png" alt="Rocket for ping pong" class="w-128 h-128 object-cover rounded-xl shadow-md">
+        	            <img src="../img/ping-pong.png" draggable="false" alt="Rocket for ping pong" class="w-128 h-128 object-cover rounded-xl shadow-md">
         	        </div>
         	    </div>
         	</div> 
