@@ -11,10 +11,14 @@
   "license": "ISC",
   "description": "",
   "devDependencies": {
+    "@tailwindcss/postcss": "^4.1.4",
     "@types/axios": "^0.9.36",
     "autoprefixer": "^10.4.21",
+    "css-loader": "^7.1.2",
     "html-webpack-plugin": "^5.6.3",
     "postcss": "^8.5.3",
+    "postcss-loader": "^8.1.1",
+    "style-loader": "^4.0.0",
     "tailwindcss": "^4.1.4",
     "ts-loader": "^9.5.2",
     "typescript": "^5.8.3",
@@ -23,6 +27,7 @@
     "webpack-dev-server": "^5.2.0"
   },
   "dependencies": {
+    "@tailwindcss/cli": "^4.1.4",
     "axios": "^1.8.4"
   }
 }
