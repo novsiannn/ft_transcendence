@@ -1,3 +1,4 @@
+import { getLoader } from "./../Loader/Loader";
 
 import { navigateTo } from "../../routing";
 import { store } from "../../store/store";
@@ -12,6 +13,7 @@ export function navigationHandle() {
   const dropdownMenu = document.querySelector("#dropdownMenu");
   const naviDropMenuBtns = document.querySelectorAll("#dropdownMenu a");
   const imgLogo = document.getElementById("imgLogoNavi");
+  const logoutBtn = document.getElementById("logoutBtn");
 
   imgLogo!.addEventListener("click", () => {
     navigateTo("/");
@@ -20,9 +22,20 @@ export function navigationHandle() {
   signInBtn?.addEventListener("click", () => {
     navigateTo("/signIn");
   });
-  
+
   signUpBtn?.addEventListener("click", () => {
     navigateTo("/signUp");
+  });
+
+  logoutBtn?.addEventListener("click", async() => {
+    logoutBtn.innerHTML = "Logout " + getLoader();
+    const res = await store.logout();
+    if (res!.status === 200){
+        console.log('here');
+        logoutBtn.innerHTML = "Logout ";
+        navigateTo("/signIn");
+      }
+    
   });
 
   naviBtns.forEach((btn) => {
@@ -34,12 +47,11 @@ export function navigationHandle() {
   });
 
   naviDropMenuBtns.forEach((btn) => {
+    console.log(btn);
+    
     btn.addEventListener("click", () => {
       if (btn.innerHTML.trim() in dropMenuRoutes) {
         navigateTo(dropMenuRoutes[btn.innerHTML.trim()]);
-        if (btn.innerHTML.trim() === "Logout") {
-          store.logout();
-        }
       }
     });
   });
@@ -49,7 +61,11 @@ export function navigationHandle() {
   });
 
   document.addEventListener("click", (e) => {
-    if (e.target !== dropdownMenu && e.target !== profileBtn)
+    if (
+      e.target !== dropdownMenu &&
+      e.target !== profileBtn &&
+      e.target !== logoutBtn
+    )
       dropdownMenu?.classList.add("hidden");
   });
 

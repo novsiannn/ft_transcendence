@@ -10,7 +10,7 @@ const getProfileIcon = () => {
     userPhoto
       ? `<img id="profileIcon" draggable="false" src="${
           API_URL + userPhoto
-        }" alt="Profile" class="w-12 h-12 rounded-full cursor-pointer">`
+        }" alt="Profile" class="w-12 h-12 rounded-full cursor-pointer object-cover">`
       : `<div id="profileIcon" alt="Profile" class="flex text-white font-bold text-s justify-center items-center content-center w-12 h-12 ${color} rounded-full cursor-pointer">${firstLetterOfUser}</div>`
   }`;
 };
@@ -62,7 +62,7 @@ export function navigation() {
 					<a class="block px-4 py-2 hover:bg-gray-200 focus:outline-none">Leaderboard</a>
             		<a class="block px-4 py-2 hover:bg-gray-200 focus:outline-none">Settings</a>
 					<a class="block px-4 py-2 hover:bg-gray-200 focus:outline-none">Friends</a>
-            		<a class="block px-4 py-2 text-red-600 hover:bg-gray-200">Logout</a>`
+            		<p class="flex px-4 py-2 text-red-600 hover:bg-gray-200 gap-2" id="logoutBtn">Logout</p>`
             : ""
         }
         		</div>

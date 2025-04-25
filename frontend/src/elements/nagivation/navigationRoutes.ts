@@ -9,5 +9,4 @@ export const dropMenuRoutes: { [key: string]: string } = {
 	"Leaderboard": "/leaderboard",
 	"Settings": "/settings",
 	"Friends": "/friends",
-	"Logout": "/login"
 }  
