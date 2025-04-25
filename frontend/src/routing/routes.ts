@@ -31,8 +31,6 @@ export const privateRoutes: Record<string, handleFunctionI> = {
     "/play": { layoutCreate: playPage, handleFunc: handlePlayPage },
     "/game": { layoutCreate: gamePage, handleFunc: handleGame },
     "/profile": { layoutCreate: profilePage, handleFunc: handleProfilePage },
-    "/signUp": { layoutCreate: registrationPage, handleFunc: handleRegistration },
-    "/signIn": { layoutCreate: loginPage, handleFunc: handleLogin },
     "/settings": {layoutCreate: settingsPage, handleFunc: handleSettings},
     "/error": {layoutCreate: errorPage, handleFunc: handleErrorPage},
     "/leaderboard": {layoutCreate: leaderBoardPage, handleFunc: handleLeaderboardPage},
