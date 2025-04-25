@@ -1,3 +1,4 @@
+import { IPendingFriendsResponse } from "./../shared/interfaces";
 import axios from "axios";
 import authService from "../services/api/authService";
 import instanceAPI from "../services/api/instanceAxios";
@@ -97,15 +98,14 @@ class Store {
   logout = async () => {
     try {
       const response = await authService.logout();
-      console.log(response);
-
       localStorage.removeItem("token");
       this.setAuth(false);
       this.setUser({} as IUser);
-      if (response.status === 200) navigateTo("/");
+      console.log(response);
+      
+      return response;
     } catch (e: any) {
       console.log(e.response?.data);
-      console.log(e);
     }
   };
   enableTwoFactor = async () => {
@@ -164,21 +164,41 @@ class Store {
   };
 
   getAllFriends = async () => {
-    const response = await friendsService.getFriends();
-    return response.data;
+    const response = await friendsService.getFriends();  
+    return response;
   };
 
   getUserRequest = async () => {
-    const response = await instanceAPI.get<IAuthResponse>(`${API_URL}/user/profile`);
-      if(response.status === 200){
-        this.setUser(response.data.user);
-      }
+    const response = await instanceAPI.get<IAuthResponse>(
+      `${API_URL}/user/profile`
+    );
+    if (response.status === 200) {
+      this.setUser(response.data.user);
+    }
   };
 
-  sendFriendRequest = async (addresseeId: number) =>{
+  sendFriendRequest = async (addresseeId: number) => {
     const response = await friendsService.sendFriendRequest(addresseeId);
+    
+    if(response.status === 201){
+      handleModalSuccess('You have successfully sent a friend request');
+    }
     return response.status;
-    console.log(response);
+  };
+
+  getPendingFriendsRequests = async (): Promise<IPendingFriendsResponse> => {
+    const response = await friendsService.getPendingFriendsRequests();
+    return response.data as IPendingFriendsResponse;
+  };
+
+  cancelPendingFriendRequest = async (idFriendship: number) => {
+    const response = await friendsService.cancelPendingFriendRequest(idFriendship);
+
+    if(response.status === 204){
+      handleModalSuccess('You have successfully cancelled a friend request');
+    }
+
+    return response.status;
   };
 
   checkAuth = async () => {
