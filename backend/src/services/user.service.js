@@ -142,6 +142,47 @@ async function saveAvatar(userId, fileBuffer, mimetype) {
   }
 }
 
+async function deleteAvatar(userId) {
+  try {
+    const user = await User.findByPk(userId);
+    if (!user) {
+      return { error: "User not found" };
+    }
+
+    if (!user.avatar) {
+      return { error: "User doesn't have a custom avatar" };
+    }
+
+    try {
+      const fullAvatarPath = path.join(__dirname, '../..', user.avatar);
+      if (fs.existsSync(fullAvatarPath) && user.avatar.includes('/uploads/avatars/')) {
+        await fs.unlink(fullAvatarPath);
+      }
+    } catch (fileError) {
+      console.error("Error deleting avatar file:", fileError);
+    }
+
+    user.avatar = '';
+    await user.save();
+
+    return {
+      user: {
+        id: user.id,
+        username: user.username,
+        email: user.email,
+        avatar: user.avatar,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        phoneNumber: user.phoneNumber,
+        isTwoFactorEnabled: user.isTwoFactorEnabled
+      }
+    };
+  } catch (error) {
+    console.error("Error deleting avatar:", error);
+    throw error;
+  }
+}
+
 async function getUserProfile(userId) {
   try {
     const user = await User.findByPk(userId, {
@@ -186,11 +227,11 @@ async function updateUser(userId, updateData) {
     for (const field of allowedFields) {
       if (field in updateData) {
         if (updateData[field] === null ||
-            updateData[field] === "" ||
-            updateData[field] === 0 ||
-            updateData[field] === "0" ||
-            (typeof updateData[field] === 'string' && updateData[field].trim() === '')
-          ) {
+          updateData[field] === "" ||
+          updateData[field] === 0 ||
+          updateData[field] === "0" ||
+          (typeof updateData[field] === 'string' && updateData[field].trim() === '')
+        ) {
           filteredUpdateData[field] = null;
         } else {
           filteredUpdateData[field] = updateData[field];
@@ -401,26 +442,26 @@ async function disable2FA(userId, token) {
     if (!user || !user.isTwoFactorEnabled) {
       return { error: "2FA not enabled for this user" };
     }
-    
+
     const verif = speakeasy.totp.verify({
       secret: user.twoFactorSecret,
       encoding: "base32",
       token: token,
     });
-    
+
     if (!verif) {
       return { error: "Invalid 2FA token" };
     }
-    
+
     await user.update({
       isTwoFactorEnabled: false,
       twoFactorSecret: null
     });
-    
+
     return { success: true };
   } catch (error) {
     console.error("Error in disable2FA service:", error);
     return { error: "Error disabling 2FA" };
   }
 }
-module.exports = { getAllUsers, refresh, logout, login, activate, registration, updateUser, saveAvatar, getUserProfile, deleteUserAccount, set2FA, verify2FA, verify2FALogin,disable2FA };
+module.exports = { deleteAvatar, getAllUsers, refresh, logout, login, activate, registration, updateUser, saveAvatar, getUserProfile, deleteUserAccount, set2FA, verify2FA, verify2FALogin, disable2FA };
