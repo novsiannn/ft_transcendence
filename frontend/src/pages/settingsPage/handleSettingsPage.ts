@@ -5,6 +5,7 @@ import { API_URL, store } from "../../store/store";
 import instanceAPI from "../../services/api/instanceAxios";
 import { IUserProfile } from "../../services/api/models/response/IUser";
 import { handleModalError } from "../../elements";
+import { getColorFromUsername } from "../../shared/randomColors";
 
 export function handleSettings() {
   navigationHandle();
@@ -22,8 +23,8 @@ export function handleSettings() {
     else input.value = "Empty";
   });
 
-  const profileImgContainer =
-    document.querySelector<HTMLImageElement>("#profileImg");
+  let profileImgContainer = 
+    document.querySelector<HTMLImageElement | HTMLDivElement>("#profileImg");
   const uploadImgInput =
     document.querySelector<HTMLInputElement>("#uploadImgInput");
 
@@ -33,6 +34,7 @@ export function handleSettings() {
   const disableTwoFactorBtn = document.querySelector<HTMLButtonElement>(
     "#disableTwoFactorBtn"
   );
+  
 
   const switchButtonActivity = (isEnable: boolean) => {
     if (isEnable) {
@@ -74,17 +76,14 @@ export function handleSettings() {
       const userData = response.data as { user: IUserProfile };
 
       if (userData.user.avatar) {
-        profileImgContainer!.src = `${API_URL}${userData.user.avatar}`;
+        (profileImgContainer as HTMLImageElement).src = `${API_URL}${userData.user.avatar}`;
         profileImgContainer!.style.display = "block";
       } else {
-        profileImgContainer!.src =
-          "https://cdn.pixabay.com/photo/2020/07/01/12/58/icon-5359553_1280.png";
+        // handleModalError("No avatar found");
       }
     } catch (error) {
-      console.error("Failed to load avatar:", error);
       if (profileImgContainer) {
-        profileImgContainer.src =
-          "https://cdn.pixabay.com/photo/2020/07/01/12/58/icon-5359553_1280.png";
+        handleModalError("Failed to load avatar");
       }
     }
   };
@@ -117,16 +116,37 @@ export function handleSettings() {
 
           if (profileImgContainer && responseData.avatar) {
             const timestamp = new Date().getTime();
+            
             const avatarUrl = `${API_URL}${responseData.avatar}?t=${timestamp}`;
 
-            navigationPhoto!.src = avatarUrl;
-            profileImgContainer.src = avatarUrl;
-            profileImgContainer.style.display = "block";
+            if (profileImgContainer.tagName.toLowerCase() === 'div') {
+              const newImg = document.createElement('img');
+              newImg.id = 'profileImg';
+              newImg.className = 'rounded-full object-cover w-48 h-48';
+              newImg.draggable = false;
+              newImg.alt = 'Profile Image';
+              newImg.src = avatarUrl;
+          
+              profileImgContainer.replaceWith(newImg);
+              profileImgContainer = newImg;
+
+              profileImgContainer.addEventListener("click", () => {
+                const imgDropdownMenu = document.getElementById("imgDropdownMenu");
+                if (imgDropdownMenu) {
+                  imgDropdownMenu.classList.toggle("hidden");
+                }
+              });
+            } else {
+              // It is already an img
+              (profileImgContainer as HTMLImageElement).src = avatarUrl;
+              
+            }
           }
         }
       } catch (error) {
         handleModalError("Failed to upload avatar. Please try again.");
-        uploadImgInput!.value = '';
+      } finally {
+        uploadImgInput!.value = '';  // <- Always reset input here
       }
     }
   });
@@ -153,15 +173,45 @@ export function handleSettings() {
     uploadImgInput!.click();
   });
 
-deletePhotoBtn?.addEventListener("click", async () => {
+  function createProfileDivElement(firstLetter: string, color: string): HTMLDivElement {
+    const newDiv = document.createElement('div');
+    newDiv.id = 'profileImg';
+    newDiv.className = `text-5xl text-white font-bold mx-auto flex justify-center items-center object-cover content-center select-none w-48 h-48 ${color} rounded-full cursor-pointer`;
+    newDiv.textContent = firstLetter;
+    return newDiv;
+  }
+  
+  function attachProfileClickEvent(element: HTMLElement) {
+    element.addEventListener("click", () => {
+      const imgDropdownMenu = document.getElementById("imgDropdownMenu");
+      if (imgDropdownMenu) {
+        imgDropdownMenu.classList.toggle("hidden");
+      }
+    });
+  }
+  
+  // --- Now your delete button listener:
+  
+  deletePhotoBtn?.addEventListener("click", async () => {
     try {
       const response = await instanceAPI.delete("/user/avatar");
-      if (response.status == 200) {
+      if (response.status === 200) {
         await store.getUserRequest();
-        profileImgContainer!.src =
-          "";
-        navigationPhoto!.src =
-          "";
+
+        const color = getColorFromUsername(store.getUser().username);
+        const firstLetterOfUser = store.getUser().username.charAt(0).toUpperCase();
+  
+        // Handling replacement after deletion
+        if (profileImgContainer) {
+          if (profileImgContainer.tagName.toLowerCase() === 'img') {
+            const newDiv = createProfileDivElement(firstLetterOfUser, color);
+  
+            profileImgContainer.replaceWith(newDiv);
+            profileImgContainer = newDiv; // update the reference!
+  
+            attachProfileClickEvent(profileImgContainer);
+          }
+        }
       }
     } catch (error) {
       handleModalError("Failed to delete avatar. Please try again.");
