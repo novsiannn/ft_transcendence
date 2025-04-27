@@ -4,6 +4,7 @@ import { getModalTwoFactor } from "../../elements/ModalTwoFactor";
 import { navigation } from "../../elements/nagivation";
 import { getColorFromUsername } from "../../shared/randomColors";
 import { store } from "../../store/store";
+import { getModalWindowError } from "../../elements";
 
 export function settingsPage(mainWrapper: HTMLDivElement | undefined) {
   document.body.classList.add(
@@ -39,6 +40,7 @@ export function settingsPage(mainWrapper: HTMLDivElement | undefined) {
 									class="hidden absolute z-10 w-48 bg-white rounded-lg shadow-lg">
 									<button id="changePhotoBtn" class="block w-full text-left px-4 py-2 hover:bg-gray-100">Change photo</button>
 									<input type="file" accept="image/*" class=" text-xs border-2 border-blue-700 max-w-xs p-1 m-1" id="uploadImgInput" hidden/>
+									<button id="deletePhotoBtn" class="block w-full text-left px-4 py-2 hover:bg-gray-100">Delete photo</button>
 								</div>
 							</div>
 							<div class=" col-start-2 col-span-4 row-start-3">
@@ -67,6 +69,7 @@ export function settingsPage(mainWrapper: HTMLDivElement | undefined) {
 							<div class=" col-start-5 col-span-2"><button class="w-full h-full text-white focus:outline-none bg-blue-300" id="saveChangesSettings"> SAVE CHANGES </button></div>
 						</div>
   					</div>
+					${getModalWindowError()}
 					${getModalTwoFactor()}
 					${getModalInput()}
 					${getModalWindowSuccess()}

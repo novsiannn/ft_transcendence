@@ -4,6 +4,7 @@ import { navigationHandle } from "../../elements/nagivation";
 import { API_URL, store } from "../../store/store";
 import instanceAPI from "../../services/api/instanceAxios";
 import { IUserProfile } from "../../services/api/models/response/IUser";
+import { handleModalError } from "../../elements";
 
 export function handleSettings() {
   navigationHandle();
@@ -94,7 +95,13 @@ export function handleSettings() {
     const target = event.target as HTMLInputElement;
     const file = target.files?.[0];
 
-    if (file && file.type.startsWith("image/")) {
+    if (file && !file.type.startsWith("image/")) {
+      handleModalError("Please upload an image file (JPEG, PNG, etc)");
+      uploadImgInput!.value = '';
+      return;
+    }
+
+    if (file) {
       try {
         const formData = new FormData();
         formData.append("avatar", file);
@@ -109,19 +116,24 @@ export function handleSettings() {
           await store.getUserRequest();
 
           if (profileImgContainer && responseData.avatar) {
-            navigationPhoto!.src = `${API_URL}${responseData.avatar}`;
-            profileImgContainer.src = `${API_URL}${responseData.avatar}`;
+            const timestamp = new Date().getTime();
+            const avatarUrl = `${API_URL}${responseData.avatar}?t=${timestamp}`;
+
+            navigationPhoto!.src = avatarUrl;
+            profileImgContainer.src = avatarUrl;
             profileImgContainer.style.display = "block";
           }
         }
       } catch (error) {
-        console.error("Error uploading avatar:", error);
+        handleModalError("Failed to upload avatar. Please try again.");
+        uploadImgInput!.value = '';
       }
     }
   });
 
   const dropdownMenu = document.querySelector("#imgDropdownMenu");
   const changePhotoBtn = document.querySelector("#changePhotoBtn");
+  const deletePhotoBtn = document.querySelector("#deletePhotoBtn");
 
   if (profileImgContainer && dropdownMenu) {
     profileImgContainer.addEventListener("click", () => {
@@ -139,5 +151,20 @@ export function handleSettings() {
 
   changePhotoBtn?.addEventListener("click", () => {
     uploadImgInput!.click();
+  });
+
+deletePhotoBtn?.addEventListener("click", async () => {
+    try {
+      const response = await instanceAPI.delete("/user/avatar");
+      if (response.status == 200) {
+        await store.getUserRequest();
+        profileImgContainer!.src =
+          "";
+        navigationPhoto!.src =
+          "";
+      }
+    } catch (error) {
+      handleModalError("Failed to delete avatar. Please try again.");
+    }
   });
 }
