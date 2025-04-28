@@ -69,19 +69,19 @@ const User = require('../../db/models/UserModel');
         }
     }
 
-    async function saveMessage(chatId, senderId, receiverId, message){
+    async function saveMessage({chatId, senderId, receiverId, content}) {
         try{
             const newMessage = await Message.create({
                 chatId,
                 senderId,
                 receiverId,
-                message,
-                isRead: false
+                content,
+                // isRead: false
             });
-            await Chat.update(
-                { lastMessage: content },
-                { where: { id: chatId } }
-            );
+            // await Chat.update(
+            //     { lastMessage: content },
+            //     { where: { id: chatId } }
+            // );
             return newMessage;
         }
         catch(error){
@@ -90,22 +90,22 @@ const User = require('../../db/models/UserModel');
         }       
     }
 
-    async function markMessageAsRead(chatId, userId){
-        try {
-            await Message.update(
-                { isRead: true },
-                {
-                    where: {
-                        chatId,
-                        receiverId: userId,
-                        isRead: false
-                    }
-                }
-            );
-        } catch(error) {
-            throw error;
-        }
-    }
+    // async function markMessageAsRead(chatId, userId){
+    //     try {
+    //         await Message.update(
+    //             { isRead: true },
+    //             {
+    //                 where: {
+    //                     chatId,
+    //                     receiverId: userId,
+    //                     isRead: false
+    //                 }
+    //             }
+    //         );
+    //     } catch(error) {
+    //         throw error;
+    //     }
+    // }
 
 
-module.exports = { markMessageAsRead, getUserChats, findOrCreateChat, getChatMessages, saveMessage, }
+module.exports = { getUserChats, findOrCreateChat, getChatMessages, saveMessage, }

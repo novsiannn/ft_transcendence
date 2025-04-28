@@ -3,6 +3,7 @@ const fastify = require('fastify');
 const userController = require('../controllers/user.controller');
 const authMiddleware = require('../middleware/auth.middleware');
 const Token = require('../../db/models/TokenModel');
+const chatController = require('../controllers/chat.controller');
 const FriendshipController = require('../controllers/friendship.controller');
 const { schema } = require('../../db/models/UserModel');
 
@@ -1105,6 +1106,79 @@ async function routes(fastify, options) {
     },
     preHandler: authMiddleware
   }, FriendshipController.getUserFriends);
+   // Chat routes
+  fastify.post('/chat/create', {
+    schema: {
+      description: 'Create or find existing chat',
+      tags: ['Chat'],
+      security: [{ bearerAuth: [] }],
+      body: {
+        type: 'object',
+        required: ['targetUserId'],
+        properties: {
+          targetUserId: { type: 'integer' }
+        }
+      },
+      response: {
+        200: {
+          description: 'Chat created or found successfully',
+          type: 'object',
+          properties: {
+            chatId: { type: 'integer' },
+            user1: { type: 'integer' },
+            user2: { type: 'integer' }
+          }
+        },
+        400: {
+          description: 'Bad request',
+          type: 'object',
+          properties: {
+            error: { type: 'string' }
+          }
+        },
+        500: {
+          description: 'Internal server error',
+          type: 'object',
+          properties: {
+            error: { type: 'string' }
+          }
+        }
+      }
+    },
+    preHandler: authMiddleware
+  }, chatController.findOrCreateChat);
+
+  fastify.get('/chat/messages/:chatId', {
+    schema: {
+      description: 'Get chat messages',
+      tags: ['Chat'],
+      security: [{ bearerAuth: [] }],
+      params: {
+        type: 'object',
+        required: ['chatId'],
+        properties: {
+          chatId: { type: 'integer' }
+        }
+      },
+      response: {
+        200: {
+          description: 'Chat messages retrieved successfully',
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: {
+              id: { type: 'integer' },
+              chatId: { type: 'integer' },
+              senderId: { type: 'integer' },
+              content: { type: 'string' },
+              createdAt: { type: 'string', format: 'date-time' }
+            }
+          }
+        }
+      }
+    },
+    preHandler: authMiddleware
+  }, chatController.getChatMessages);
 }
 
 module.exports = routes;

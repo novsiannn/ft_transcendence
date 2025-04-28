@@ -2,7 +2,7 @@ const Message = require('../../db/models/MessageModel');
 const User = require('../../db/models/UserModel');
 const chatService = require('../services/chat.service');
 
-class ChatController {
+const ChatController = {
 
     async getUserChats(req, res) {
         try {
@@ -14,7 +14,7 @@ class ChatController {
             console.error('Error fetching user chats:', error);
             return res.code(500).send({ message: 'Internal server error' });
         }
-    }
+    },
 
     async getChatMessages(req, res) {
         try {
@@ -29,11 +29,28 @@ class ChatController {
             console.error('Error fetching chat messages:', error);
             return res.code(500).send({ message: 'Internal server error' });
         }
-    }
+    },
 
-    // async handleSocketConnection(socket, io) {
-
-    // }
+    async findOrCreateChat(req, res) {
+        try {
+            const userId = req.user.id;
+            const { targetUserId } = req.body;
     
+            if (!targetUserId) {
+                return res.code(400).send({ message: 'Target user ID is required' });
+            }
+    
+            const chat = await chatService.findOrCreateChat(userId, targetUserId);
+            return res.code(200).send({ 
+                chatId: chat.id,
+                user1: chat.user_1,
+                user2: chat.user_2
+            });
+        } catch (error) {
+            console.error('Error creating chat:', error);
+            return res.code(500).send({ message: 'Internal server error' });
+        }
+    },
+};
 
-}
+module.exports = ChatController;
