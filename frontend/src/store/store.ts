@@ -1,4 +1,4 @@
-import { IPendingFriendsResponse } from "./../shared/interfaces";
+import { IFriendshipResponseData } from "./../shared/interfaces";
 import axios from "axios";
 import authService from "../services/api/authService";
 import instanceAPI from "../services/api/instanceAxios";
@@ -102,7 +102,7 @@ class Store {
       this.setAuth(false);
       this.setUser({} as IUser);
       console.log(response);
-      
+
       return response;
     } catch (e: any) {
       console.log(e.response?.data);
@@ -142,8 +142,8 @@ class Store {
   loginWithTwoFactor = async (token: string, userID: string) => {
     try {
       const response = await authService.loginWithTwoFactor(token, userID);
-      // remove response.data.accessToken in statement
-      if (response.status === 200 && response.data.accessToken) {
+
+      if (response.status === 200) {
         localStorage.setItem("token", response.data.accessToken);
         this.setAuth(true);
         this.setUser(response.data.user);
@@ -153,7 +153,7 @@ class Store {
       }
       return response;
     } catch (e: any) {
-      console.log(e.response?.data);
+      return e;
     }
   };
 
@@ -164,7 +164,7 @@ class Store {
   };
 
   getAllFriends = async () => {
-    const response = await friendsService.getFriends();  
+    const response = await friendsService.getFriends();
     return response;
   };
 
@@ -179,26 +179,46 @@ class Store {
 
   sendFriendRequest = async (addresseeId: number) => {
     const response = await friendsService.sendFriendRequest(addresseeId);
-    
-    if(response.status === 201){
-      handleModalSuccess('You have successfully sent a friend request');
+
+    if (response.status === 201) {
+      handleModalSuccess("You have successfully sent a friend request");
     }
     return response.status;
   };
 
-  getPendingFriendsRequests = async (): Promise<IPendingFriendsResponse> => {
+  getPendingFriendsRequests = async (): Promise<IFriendshipResponseData> => {
     const response = await friendsService.getPendingFriendsRequests();
-    return response.data as IPendingFriendsResponse;
+    return response.data as IFriendshipResponseData;
+  };
+
+  getIncomingFriendRequest = async () : Promise<IFriendshipResponseData> => {
+    const response = await friendsService.getIncomingFriendRequest();   
+    return response.data as IFriendshipResponseData;
   };
 
   cancelPendingFriendRequest = async (idFriendship: number) => {
-    const response = await friendsService.cancelPendingFriendRequest(idFriendship);
-
-    if(response.status === 204){
-      handleModalSuccess('You have successfully cancelled a friend request');
+    const response = await friendsService.cancelPendingFriendRequest(
+      idFriendship
+    );
+    if (response.status === 204) {
+      handleModalSuccess("You have successfully cancelled a friend request");
     }
-
     return response.status;
+  };
+
+  deleteFriend = async (id: number) => {
+    const response = await friendsService.deleteFriend(id);
+    return response;
+  };
+
+  acceptFriendship = async (friendshipId: number) => {
+    const response = await friendsService.acceptFriendship(friendshipId);
+    return response;
+  };
+
+  rejectFriendship = async (friendshipId: number) => {
+    const response = await friendsService.rejectFriendship(friendshipId);
+    return response;
   };
 
   checkAuth = async () => {
