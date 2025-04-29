@@ -16,7 +16,7 @@ const getProfileIcon = () => {
 };
 
 const getSignInBtn = () => {
-  return `<div id="signInBtn" alt="Profile" class="w-full select-none text-black font-thin rounded-md p-2 h-8 cursor-pointer bg-gray-100 flex items-center">
+  return `<div id="signInBtn" alt="Profile" class="w-full select-none text-white font-thin rounded-md p-2 h-8 cursor-pointer bg-gray-500 flex items-center">
 			<h1>Sign In</h1>
 	</div>`;
 };
