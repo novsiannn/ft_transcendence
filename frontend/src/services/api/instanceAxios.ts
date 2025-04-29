@@ -32,6 +32,11 @@ instanceAPI.interceptors.response.use(
       });
     }
 
+    if (error.response?.status === 409) {
+      const message = error.response.data?.message || "This username is already taken";
+      return Promise.reject({ message, status: 409 });
+    }
+
     if (
       error.response.status === 401 &&
       error.config &&
