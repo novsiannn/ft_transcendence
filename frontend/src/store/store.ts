@@ -1,4 +1,4 @@
-import { IFriendshipResponseData } from "./../shared/interfaces";
+import { IFriendshipResponseData, IUpdateProfileData } from "./../shared/interfaces";
 import axios from "axios";
 import authService from "../services/api/authService";
 import instanceAPI from "../services/api/instanceAxios";
@@ -172,9 +172,23 @@ class Store {
     const response = await instanceAPI.get<IAuthResponse>(
       `${API_URL}/user/profile`
     );
+    console.log(response);
+    
     if (response.status === 200) {
       this.setUser(response.data.user);
     }
+  };
+
+  updateUserData = async (data: IUpdateProfileData) => {
+    const response = await instanceAPI.put<IAuthResponse>(
+      `${API_URL}/user/profile`, data
+    );
+    if (response.status === 200){
+      await this.setUser(response.data.user)
+      console.log((this.getUser()));
+      
+    }
+    console.log(response);
   };
 
   sendFriendRequest = async (addresseeId: number) => {
