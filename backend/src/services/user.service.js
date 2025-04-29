@@ -246,7 +246,7 @@ async function updateUser(userId, updateData) {
     await user.reload(); // delete mb
 
     const updatedUser = await User.findByPk(userId, {
-      attributes: ['id', 'email', 'username', 'firstName', 'lastName', 'phoneNumber', 'isActivated']
+      attributes: ['id', 'email', 'username', 'firstName', 'lastName', 'phoneNumber', 'isActivated', 'avatar']
     });
 
     return {

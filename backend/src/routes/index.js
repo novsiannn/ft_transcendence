@@ -483,7 +483,8 @@ async function routes(fastify, options) {
                 firstName: { type: ['string', 'null'] },
                 lastName: { type: ['string', 'null'] },
                 phoneNumber: { type: ['string', 'null'] },
-                isActivated: { type: 'boolean' }
+                isActivated: { type: 'boolean' },
+                avatar: { type: 'string' }
               }
             }
           }
