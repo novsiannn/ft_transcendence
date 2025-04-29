@@ -355,19 +355,6 @@ const UserController = {
            res.code(500).send({ error: "Error setting language" });
        }
     },
-    async getLanguage(req, res) {
-        try {
-            const userId = req.user.id;
-            const result = await userService.getLanguage(userId);
-            if (result.error) {
-                return res.code(400).send({ error: result.error });
-            }
-            return res.code(200).send({ language: result.language });
-        } catch (error) {
-            res.code(500).send({ error: "Error getting language" });
-        }
-    }
-
 };
 
 

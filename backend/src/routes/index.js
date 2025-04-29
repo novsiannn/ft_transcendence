@@ -319,7 +319,8 @@ async function routes(fastify, options) {
                 lastName: { type: 'string' },
                 phoneNumber: { type: 'string' },
                 isActivated: { type: 'boolean' },
-                isTwoFactorEnabled: { type: 'boolean' }
+                isTwoFactorEnabled: { type: 'boolean' },
+                language: { type: 'string' }
               }
             }
           }
@@ -482,7 +483,8 @@ async function routes(fastify, options) {
                 firstName: { type: ['string', 'null'] },
                 lastName: { type: ['string', 'null'] },
                 phoneNumber: { type: ['string', 'null'] },
-                isActivated: { type: 'boolean' }
+                isActivated: { type: 'boolean' },
+                avatar: { type: 'string' }
               }
             }
           }
@@ -606,38 +608,6 @@ async function routes(fastify, options) {
     },
     preHandler: authMiddleware
   }, userController.setLanguage);
-
-  fastify.get('/user/language', {
-    schema: {
-      description: 'Get user language preference',
-      tags: ['Profile'],
-      security: [{ bearerAuth: [] }],
-      response: {
-        200: {
-          description: 'Language retrieved successfully',
-          type: 'object',
-          properties: {
-            language: { type: 'string' }
-          }
-        },
-        400: {
-          description: 'Bad request',
-          type: 'object',
-          properties: {
-            error: { type: 'string' }
-          }
-        },
-        500: {
-          description: 'Internal server error',
-          type: 'object',
-          properties: {
-            error: { type: 'string' }
-          }
-        }
-      }
-    },
-    preHandler: authMiddleware
-  }, userController.getLanguage);
   // 2FA start
   // fastify.get('/user/profile', { preHandler: authMiddleware }, userController.getUserProfile);
   fastify.post('/2fa/enable', {

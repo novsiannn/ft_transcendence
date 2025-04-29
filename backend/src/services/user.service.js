@@ -187,7 +187,7 @@ async function deleteAvatar(userId) {
 async function getUserProfile(userId) {
   try {
     const user = await User.findByPk(userId, {
-      attributes: ['id', 'email', 'username', 'avatar', 'firstName', 'lastName', 'phoneNumber', 'isActivated', 'isTwoFactorEnabled']
+      attributes: ['id', 'email', 'username', 'avatar', 'firstName', 'lastName', 'phoneNumber', 'isActivated', 'isTwoFactorEnabled', 'language']
     });
 
     if (!user) {
@@ -246,7 +246,7 @@ async function updateUser(userId, updateData) {
     await user.reload(); // delete mb
 
     const updatedUser = await User.findByPk(userId, {
-      attributes: ['id', 'email', 'username', 'firstName', 'lastName', 'phoneNumber', 'isActivated']
+      attributes: ['id', 'email', 'username', 'firstName', 'lastName', 'phoneNumber', 'isActivated', 'avatar']
     });
 
     return {
@@ -486,18 +486,4 @@ async function setLanguage(userId, language)
   }
 }
 
-async function getLanguage(userId) {
-  try{
-    const user = await User.findByPk(userId);
-
-    if (!user) {
-      return { error: "User not found" };
-    }
-    return { language: user.language };
-  }catch (error){
-    console.error("Error with getting Language: ", error);
-    return { error: "Error getting language" };
-  }
-
-}
-module.exports = { deleteAvatar, getAllUsers, refresh, logout, login, activate, registration, updateUser, saveAvatar, getUserProfile, deleteUserAccount, set2FA, verify2FA, verify2FALogin, disable2FA, setLanguage, getLanguage };
+module.exports = { deleteAvatar, getAllUsers, refresh, logout, login, activate, registration, updateUser, saveAvatar, getUserProfile, deleteUserAccount, set2FA, verify2FA, verify2FALogin, disable2FA, setLanguage };
