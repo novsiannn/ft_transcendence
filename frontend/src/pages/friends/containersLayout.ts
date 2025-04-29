@@ -1,0 +1,75 @@
+import { getColorFromUsername } from "../../shared/randomColors";
+import { API_URL } from "../../store/store";
+
+export const getFriendsLayout = (username: string, avatar: string) => {
+  const color = getColorFromUsername(username);
+  const firstLetterOfUser = username.charAt(0).toUpperCase();
+
+  return `<div class="bg-gray-800 flex items-center justify-between rounded-lg p-3 mb-2 w-80 hover:bg-gray-700 transition-colors duration-300 select-none friendBlock">
+			  <div class="flex space-x-4">
+				  <div class="w-12 h-12 rounded-full bg-green-700 flex items-center justify-center text-white font-bold text-lg hover:scale-105 transition-transform duration-200 flex-shrink-0">
+				  ${
+            avatar
+              ? `<img src=${
+                  API_URL + avatar
+                } class="w-full h-full object-cover rounded-full"/>`
+              : `<div alt="Profile" class="flex text-white font-bold text-s justify-center items-center content-center w-12 h-12 ${color} rounded-full cursor-pointer">${firstLetterOfUser}</div>`
+          }
+				  </div>
+				<div>
+					<span class="text-white text-xl font-semibold">${username}</span>
+				  <p class="text-gray-400 text-sm">Online</p>
+				</div>
+			</div>
+			<div class="flex">
+				<button id="btnDeleteFriend" type="button" class=" flex justify-center w-18 h-10 text-white bg-red-700 hover:bg-red-800 focus:outline-none focus:ring-4 focus:ring-red-300 font-medium rounded-full text-sm px-5 py-2.5 text-center me-2 mb-2 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-900">Delete</button>
+			  </div>
+		  </div>`;
+};
+
+export const getEmptyBlock = () => {
+  return `<div class="bg-gray-800 flex items-center justify-between rounded-lg p-4 mb-2 w-full mx-auto hover:bg-gray-700 transition-colors duration-300 select-none">
+			  <div class="flex items-center space-x-4">
+					<span data-i18n='friends.noOneIsHere' class="text-white text-xl font-semibold">No one is here yet!</span>
+			</div>
+		  </div>`;
+};
+
+export const getUserLayout = (username: string, avatar: string) => {
+  const color = getColorFromUsername(username);
+  const firstLetterOfUser = username.charAt(0).toUpperCase();
+
+  return `
+  <div class="bg-white flex items-center justify-between w-128 rounded-lg p-3 mb-2 hover:bg-gray-700 transition-colors duration-300 select-none userBlock">
+	<div class="flex items-center space-x-4 min-w-0">
+	  <div class="w-12 h-12 rounded-full bg-green-700 flex items-center justify-center text-white font-bold text-lg hover:scale-105 transition-transform duration-200 flex-shrink-0">
+		${
+      avatar
+        ? `<img src=${
+            API_URL + avatar
+          } class="w-full h-full object-cover rounded-full"/>`
+        : `<div alt="Profile" class="flex text-white font-bold text-s justify-center items-center content-center w-12 h-12 ${color} rounded-full cursor-pointer">${firstLetterOfUser}</div>`
+    }
+		
+	  </div>
+	  <div class="flex flex-col min-w-0">
+		<span class=" text-base font-semibold truncate">${username}</span>
+		<p class="text-gray-400 text-xs">Online</p>
+	  </div>
+	</div>
+	<div class="flex gap-2 items-center ml-2">
+		  <button 
+  			data-i18n='buttons.cancel'
+  			id="btnCancelFriendRequest"
+  			type="button"
+  			class="hidden text-center h-8 px-4 text-white bg-red-700 hover:bg-red-800 focus:outline-none focus:ring-4 focus:ring-red-300 font-medium rounded-full text-sm dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-900"
+			>
+  			Cancel
+			</button>
+		  <button data-i18n='buttons.add' id="btnAddFriend" type="button" class=" p-1 hidden  px-4 h-8 text-white bg-blue-700 hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 font-medium rounded-full text-sm  text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Add</button>
+		  <button data-i18n='buttons.accept' id="btnAcceptFriend" type="button" class="hidden  px-4 h-8 text-white bg-sky-500 hover:bg-sky-700 focus:outline-none focus:ring-4 focus:ring-sky-300 font-medium rounded-full text-sm text-center dark:bg-blue-200 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Accept</button>
+		  <button data-i18n='buttons.reject' id="btnRejectFriend" type="button" class="hidden  px-4 h-8 text-white bg-red-700 hover:bg-red-800 focus:outline-none focus:ring-4 focus:ring-red-300 font-medium rounded-full text-sm text-center  dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-900">Reject</button>
+	</div>
+  </div>
+  `;
+};
