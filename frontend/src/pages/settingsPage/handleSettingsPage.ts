@@ -6,6 +6,8 @@ import instanceAPI from "../../services/api/instanceAxios";
 import { IUserProfile } from "../../services/api/models/response/IUser";
 import { handleModalError } from "../../elements";
 import { getColorFromUsername } from "../../shared/randomColors";
+import { IUpdateProfileData } from "../../shared";
+import { validateUsername } from "../../shared/validation";
 
 export function handleSettings() {
   navigationHandle();
@@ -13,19 +15,59 @@ export function handleSettings() {
     store.getState().auth.user;
   const userData = [firstName, lastName, username, email];
   const inputs = document.querySelectorAll<HTMLInputElement>(".inputUserInfo");
-  const navigationPhoto = document.querySelector<HTMLImageElement>("#profileIcon");
-  
+  const navigationPhoto =
+    document.querySelector<HTMLImageElement>("#profileIcon");
+
   const btnSave = document.querySelector<HTMLButtonElement>(
     "#saveChangesSettings"
   );
-  
-  inputs.forEach((input, i) => {
-    if (userData[i] && userData[i].length > 0) input.value = userData[i];
-    else input.value = "Empty";
+
+  btnSave!.addEventListener("click", async () => {
+    const updateData: IUpdateProfileData = {
+      username,
+      firstName,
+      lastName,
+      phoneNumber: null,
+    };
+    try {
+      inputs.forEach((input) => {
+        const value = input.value.trim();
+        const name = input.name as
+          | keyof Omit<IUpdateProfileData, "username">
+          | "username";
+
+        if (name === "username") {
+          validateUsername(input);
+          updateData[name] = value;
+        } else {
+          updateData[name] = value || null;
+        }
+      });
+      await store.updateUserData(updateData);
+    } catch (e: any) {
+      handleModalError(e);
+    }
   });
 
-  let profileImgContainer = 
-    document.querySelector<HTMLImageElement | HTMLDivElement>("#profileImg");
+  inputs.forEach((input) => {
+    input.addEventListener("click", () => {
+      if(input.type !== 'email')
+      input.className = "inputUserInfo border-2 border-black p-2";
+    });
+  });
+
+  inputs.forEach((input, i) => {
+    console.log("here");
+
+    if (userData[i] && userData[i].length > 0) {
+      console.log(userData[i]);
+      input.value = userData[i];
+    }
+  });
+
+  let profileImgContainer = document.querySelector<
+    HTMLImageElement | HTMLDivElement
+  >("#profileImg");
   const uploadImgInput =
     document.querySelector<HTMLInputElement>("#uploadImgInput");
 
@@ -35,7 +77,6 @@ export function handleSettings() {
   const disableTwoFactorBtn = document.querySelector<HTMLButtonElement>(
     "#disableTwoFactorBtn"
   );
-  
 
   const switchButtonActivity = (isEnable: boolean) => {
     if (isEnable) {
@@ -77,7 +118,9 @@ export function handleSettings() {
       const userData = response.data as { user: IUserProfile };
 
       if (userData.user.avatar) {
-        (profileImgContainer as HTMLImageElement).src = `${API_URL}${userData.user.avatar}`;
+        (
+          profileImgContainer as HTMLImageElement
+        ).src = `${API_URL}${userData.user.avatar}`;
         profileImgContainer!.style.display = "block";
       } else {
         // handleModalError("No avatar found");
@@ -97,7 +140,7 @@ export function handleSettings() {
 
     if (file && !file.type.startsWith("image/")) {
       handleModalError("Please upload an image file (JPEG, PNG, etc)");
-      uploadImgInput!.value = '';
+      uploadImgInput!.value = "";
       return;
     }
 
@@ -117,22 +160,23 @@ export function handleSettings() {
 
           if (profileImgContainer && responseData.avatar) {
             const timestamp = new Date().getTime();
-            
+
             const avatarUrl = `${API_URL}${responseData.avatar}?t=${timestamp}`;
 
-            if (profileImgContainer.tagName.toLowerCase() === 'div') {
-              const newImg = document.createElement('img');
-              newImg.id = 'profileImg';
-              newImg.className = 'rounded-full object-cover w-48 h-48';
+            if (profileImgContainer.tagName.toLowerCase() === "div") {
+              const newImg = document.createElement("img");
+              newImg.id = "profileImg";
+              newImg.className = "rounded-full object-cover w-48 h-48";
               newImg.draggable = false;
-              newImg.alt = 'Profile Image';
+              newImg.alt = "Profile Image";
               newImg.src = avatarUrl;
-          
+
               profileImgContainer.replaceWith(newImg);
               profileImgContainer = newImg;
 
               profileImgContainer.addEventListener("click", () => {
-                const imgDropdownMenu = document.getElementById("imgDropdownMenu");
+                const imgDropdownMenu =
+                  document.getElementById("imgDropdownMenu");
                 if (imgDropdownMenu) {
                   imgDropdownMenu.classList.toggle("hidden");
                 }
@@ -147,7 +191,7 @@ export function handleSettings() {
       } catch (error) {
         handleModalError("Failed to upload avatar. Please try again.");
       } finally {
-        uploadImgInput!.value = '';  // <- Always reset input here
+        uploadImgInput!.value = ""; // <- Always reset input here
       }
     }
   });
@@ -174,14 +218,17 @@ export function handleSettings() {
     uploadImgInput!.click();
   });
 
-  function createProfileDivElement(firstLetter: string, color: string): HTMLDivElement {
-    const newDiv = document.createElement('div');
-    newDiv.id = 'profileImg';
+  function createProfileDivElement(
+    firstLetter: string,
+    color: string
+  ): HTMLDivElement {
+    const newDiv = document.createElement("div");
+    newDiv.id = "profileImg";
     newDiv.className = `text-5xl text-white font-bold mx-auto flex justify-center items-center object-cover content-center select-none w-48 h-48 ${color} rounded-full cursor-pointer`;
     newDiv.textContent = firstLetter;
     return newDiv;
   }
-  
+
   function attachProfileClickEvent(element: HTMLElement) {
     element.addEventListener("click", () => {
       const imgDropdownMenu = document.getElementById("imgDropdownMenu");
@@ -190,9 +237,9 @@ export function handleSettings() {
       }
     });
   }
-  
+
   // --- Now your delete button listener:
-  
+
   deletePhotoBtn?.addEventListener("click", async () => {
     try {
       const response = await instanceAPI.delete("/user/avatar");
@@ -200,16 +247,19 @@ export function handleSettings() {
         await store.getUserRequest();
 
         const color = getColorFromUsername(store.getUser().username);
-        const firstLetterOfUser = store.getUser().username.charAt(0).toUpperCase();
-  
+        const firstLetterOfUser = store
+          .getUser()
+          .username.charAt(0)
+          .toUpperCase();
+
         // Handling replacement after deletion
         if (profileImgContainer) {
-          if (profileImgContainer.tagName.toLowerCase() === 'img') {
+          if (profileImgContainer.tagName.toLowerCase() === "img") {
             const newDiv = createProfileDivElement(firstLetterOfUser, color);
-  
+
             profileImgContainer.replaceWith(newDiv);
             profileImgContainer = newDiv; // update the reference!
-  
+
             attachProfileClickEvent(profileImgContainer);
           }
         }

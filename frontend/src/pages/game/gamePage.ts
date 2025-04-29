@@ -12,7 +12,7 @@ export function gamePage() {
             <div class="flex flex-row gap-2">
             </div>
         </div>
-        <canvas id="game-board" width="800" height="500" class="bg-[url(/dist/img/user_1_1744904255070.jpeg)] border "></canvas>
+        <canvas id="game-board" width="800" height="500" class="border"></canvas>
 
         <p id="score-info" class="text-4xl text-white" class="bg-gray-500" > Score </p>
         <button id="restart-btn" class="px-3 py-1 border-2 border-crimson rounded-[10px] bg-gray-500 text-white text-[25px]"> Restart </button>`;
