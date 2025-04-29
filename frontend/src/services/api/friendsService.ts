@@ -14,6 +14,16 @@ const friendsService = {
   cancelPendingFriendRequest : async (friendshipId: number) => {
     return await instanceAPI.delete(`friendship/outgoing/${friendshipId}`);
   },
+  deleteFriend : async (id: number) => {
+    return await instanceAPI.delete(`friendship/${id}`);
+  },
+  getIncomingFriendRequest: async () => {
+	return await instanceAPI.get("friendship/incoming");
+  },acceptFriendship: async (friendshipId: number) => {
+	return await instanceAPI.put(`friendship/${friendshipId}/accept`);
+  }, rejectFriendship: async (friendshipId: number) => {
+	return await instanceAPI.put(`friendship/${friendshipId}/reject`);
+  },
 };
 
 export default friendsService;
