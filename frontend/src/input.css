@@ -1,1 +1,29 @@
 @import "tailwindcss";
+
+@keyframes typing {
+  0% {
+    width: 0%;
+    visibility: hidden;
+  }
+  100% {
+    width: 100%;
+  }
+}
+
+@keyframes blink {
+  50% {
+    border-color: transparent;
+  }
+  100% {
+    border-color: white;
+  }
+}
+@layer utilities {
+  .animate-typing {
+    animation: typing 2s steps(20) alternate, blink 0.7s;
+  }
+
+  .animate-scrollLeft {
+    animation: scrollLeft 120s linear infinite;
+  }
+}
