@@ -565,6 +565,79 @@ async function routes(fastify, options) {
     },
     preHandler: authMiddleware
   }, userController.deleteUserAccount);
+
+  fastify.post('/user/language', {
+    schema: {
+      description: 'Set user language preference',
+      tags: ['Profile'],
+      security: [{ bearerAuth: [] }],
+      body: {
+        type: 'object',
+        required: ['language'],
+        properties: {
+          language: { 
+            type: 'string'
+          }
+        }
+      },
+      response: {
+        200: {
+          description: 'Language updated successfully',
+          type: 'object',
+          properties: {
+            message: { type: 'string' }
+          }
+        },
+        400: {
+          description: 'Invalid language',
+          type: 'object',
+          properties: {
+            error: { type: 'string' }
+          }
+        },
+        500: {
+          description: 'Internal server error',
+          type: 'object',
+          properties: {
+            error: { type: 'string' }
+          }
+        }
+      }
+    },
+    preHandler: authMiddleware
+  }, userController.setLanguage);
+
+  fastify.get('/user/language', {
+    schema: {
+      description: 'Get user language preference',
+      tags: ['Profile'],
+      security: [{ bearerAuth: [] }],
+      response: {
+        200: {
+          description: 'Language retrieved successfully',
+          type: 'object',
+          properties: {
+            language: { type: 'string' }
+          }
+        },
+        400: {
+          description: 'Bad request',
+          type: 'object',
+          properties: {
+            error: { type: 'string' }
+          }
+        },
+        500: {
+          description: 'Internal server error',
+          type: 'object',
+          properties: {
+            error: { type: 'string' }
+          }
+        }
+      }
+    },
+    preHandler: authMiddleware
+  }, userController.getLanguage);
   // 2FA start
   // fastify.get('/user/profile', { preHandler: authMiddleware }, userController.getUserProfile);
   fastify.post('/2fa/enable', {

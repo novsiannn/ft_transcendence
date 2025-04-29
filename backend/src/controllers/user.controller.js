@@ -336,7 +336,38 @@ const UserController = {
         } catch (error) {
             res.code(500).send({ error: "Error disabling 2FA" });
         }
+    },
+    async setLanguage(req, res) {
+       try {
+            const userId = req.user.id;
+            const { language } = req.body;
+
+            if(!language)
+                return res.code(400).send({ error: "Language is required"});
+            const result = userService.setLanguage(userId, language);
+            
+            if(result.error)
+                return res.code(400).send({ error: result.error });
+            
+            return res.code(200).send({ message: "Language updated successfully" });
+
+       } catch (error) {
+           res.code(500).send({ error: "Error setting language" });
+       }
+    },
+    async getLanguage(req, res) {
+        try {
+            const userId = req.user.id;
+            const result = await userService.getLanguage(userId);
+            if (result.error) {
+                return res.code(400).send({ error: result.error });
+            }
+            return res.code(200).send({ language: result.language });
+        } catch (error) {
+            res.code(500).send({ error: "Error getting language" });
+        }
     }
+
 };
 
 

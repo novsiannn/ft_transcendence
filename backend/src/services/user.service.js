@@ -10,6 +10,7 @@ const fs = require("fs-extra");
 const path = require("path");
 const speakeasy = require('speakeasy');//ikhristi
 const QRCode = require('qrcode');//ikhristi
+const { error } = require("console");
 
 // const { logout } = require("../controllers/user.controller");
 
@@ -464,4 +465,39 @@ async function disable2FA(userId, token) {
     return { error: "Error disabling 2FA" };
   }
 }
-module.exports = { deleteAvatar, getAllUsers, refresh, logout, login, activate, registration, updateUser, saveAvatar, getUserProfile, deleteUserAccount, set2FA, verify2FA, verify2FALogin, disable2FA };
+
+async function setLanguage(userId, language)
+{
+  try{
+    
+    if (!language) {
+      return { error: "Language is required" };
+    }
+    const user = await User.findByPk(userId);
+    if(!user)
+      return { error: "User not found" };
+    user.language = language;
+    await user.save();
+    return { message: "Language update successfully" };
+  }
+  catch (error){
+    console.error("Error in setLanguage service:", error);
+    return { error: "Error setting language" };
+  }
+}
+
+async function getLanguage(userId) {
+  try{
+    const user = await User.findByPk(userId);
+
+    if (!user) {
+      return { error: "User not found" };
+    }
+    return { language: user.language };
+  }catch (error){
+    console.error("Error with getting Language: ", error);
+    return { error: "Error getting language" };
+  }
+
+}
+module.exports = { deleteAvatar, getAllUsers, refresh, logout, login, activate, registration, updateUser, saveAvatar, getUserProfile, deleteUserAccount, set2FA, verify2FA, verify2FALogin, disable2FA, setLanguage, getLanguage };
