@@ -172,7 +172,6 @@ class Store {
     const response = await instanceAPI.get<IAuthResponse>(
       `${API_URL}/user/profile`
     );
-    console.log(response);
     
     if (response.status === 200) {
       this.setUser(response.data.user);
@@ -185,10 +184,10 @@ class Store {
     );
     if (response.status === 200){
       await this.setUser(response.data.user)
-      console.log((this.getUser()));
-      
     }
     console.log(response);
+    
+    return response;
   };
 
   sendFriendRequest = async (addresseeId: number) => {
