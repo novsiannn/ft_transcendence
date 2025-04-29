@@ -20,6 +20,16 @@ export interface IRouteParams {
   id?: number;
 }
 
+export interface IResponse {
+  status: number;
+  statusText?: string;
+  data: object;
+}
+
+export interface IFriendRequestIncoming extends IResponse {
+  data: IFriendshipResponseData
+}
+
 export interface IAuth {
   user: IUser;
   isAuth: boolean;
@@ -42,10 +52,7 @@ export interface IFriendsResponse {
   friends: IFriend[]
 }
 
-
-
-
-export interface IPendingFriendsRequest {
+export interface IFriendshipResponse {
   addresseeId: number;
   createdAt: string;
   id: number;
@@ -54,7 +61,7 @@ export interface IPendingFriendsRequest {
   updatedAt: string;
 }
 
-export interface IPendingFriendsResponse {
-  pendingUserIds: number[];
-  requests: IPendingFriendsRequest[];
+export interface IFriendshipResponseData {
+  pendingUserIds?: number[];
+  requests: IFriendshipResponse[];
 }
