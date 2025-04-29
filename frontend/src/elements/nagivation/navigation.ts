@@ -25,16 +25,11 @@ export function navigationHandle() {
   signUpBtn?.addEventListener("click", () => {
     navigateTo("/signUp");
   });
-
-  console.log(logoutBtn);
   
   logoutBtn?.addEventListener("click", async() => {
-    console.log('here');
-    
     logoutBtn.innerHTML = "Logout " + getLoader();
     const res = await store.logout();
     if (res!.status === 200){
-        console.log('here');
         logoutBtn.innerHTML = "Logout ";
         navigateTo("/signIn");
       }
