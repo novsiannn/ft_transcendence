@@ -18,6 +18,7 @@ export function handleSettings() {
   const btnSave = document.querySelector<HTMLButtonElement>(
     "#saveChangesSettings"
   );
+  
   inputs.forEach((input, i) => {
     if (userData[i] && userData[i].length > 0) input.value = userData[i];
     else input.value = "Empty";
@@ -139,7 +140,7 @@ export function handleSettings() {
             } else {
               // It is already an img
               (profileImgContainer as HTMLImageElement).src = avatarUrl;
-              
+              navigationPhoto!.src = avatarUrl;
             }
           }
         }
