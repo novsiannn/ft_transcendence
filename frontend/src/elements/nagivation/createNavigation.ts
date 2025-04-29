@@ -41,15 +41,6 @@ export function navigation() {
 		<nav class="top-0 left-0 bg-black text-white h-16 w-full fixed flex items-center justify-between px-6 select-none">
     		<img src="https://img.icons8.com/plasticine/100/ping-pong--v1.png" draggable="false" alt="Logo" class="h-12 w-12 object-cover" id=imgLogoNavi>
 
-			${
-        store.getAuth()
-          ? `<div class="flex-1 flex justify-center space-x-8">
-       			<button class=" h-5 focus:outline-none transition delay-100 hover:text-green-500" id="naviBtn"> Home </button>
-        		<button class=" h-5 focus:outline-none transition delay-100 hover:text-green-500" id="naviBtn"> Game </button>
-    		</div>`
-          : ""
-      }
-
 			<div class="relative">
 				${store.getAuth() ? getProfileIcon() : getAuthBtn()}
         		
@@ -57,12 +48,13 @@ export function navigation() {
 				${
           store.getAuth()
             ? `<div id="dropdownMenu" class="absolute right-0 mt-2 w-48 bg-white text-black shadow-lg rounded-lg p-2 hidden">
-            		<a class="block px-4 py-2 hover:bg-gray-200 focus:outline-none">Profile</a>
-					<a class="block px-4 py-2 hover:bg-gray-200 focus:outline-none">Game</a>
-					<a class="block px-4 py-2 hover:bg-gray-200 focus:outline-none">Leaderboard</a>
-            		<a class="block px-4 py-2 hover:bg-gray-200 focus:outline-none">Settings</a>
-					<a class="block px-4 py-2 hover:bg-gray-200 focus:outline-none">Friends</a>
-            		<p class="flex px-4 py-2 text-red-600 hover:bg-gray-200 gap-2" id="logoutBtn">Logout</p>`
+            		<a id="profileDropNavi" class="block px-4 py-2 hover:bg-gray-200 focus:outline-none" data-i18n='navigation.profile'>Profile</a>
+					      <a id="gameDropNavi" class="block px-4 py-2 hover:bg-gray-200 focus:outline-none" data-i18n='navigation.game'>Game</a>
+					      <a id="leaderboardDropNavi" class="block px-4 py-2 hover:bg-gray-200 focus:outline-none" data-i18n='navigation.leaderboard'>Leaderboard</a>
+            		<a id="settingsDropNavi" class="block px-4 py-2 hover:bg-gray-200 focus:outline-none" data-i18n='navigation.settings'>Settings</a>
+					      <a id="friendsDropNavi" class="block px-4 py-2 hover:bg-gray-200 focus:outline-none" data-i18n='navigation.friends'>Friends</a>
+            		<p class="flex px-4 py-2 text-red-600 hover:bg-gray-200 gap-2" id="logoutBtn" data-i18n='navigation.logout'>Logout</p>
+                `
             : ""
         }
         		</div>
