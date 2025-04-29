@@ -6,4 +6,5 @@ export interface IAuthResponse {
 	requiresTwoFactor: boolean;
 	user: IUser;
 	userId: string;
+	status: number;
 }
