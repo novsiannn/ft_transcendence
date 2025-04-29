@@ -65,3 +65,10 @@ export interface IFriendshipResponseData {
   pendingUserIds?: number[];
   requests: IFriendshipResponse[];
 }
+
+export interface IUpdateProfileData {
+  username: string,
+  firstName: string | null,
+  lastName: string | null,
+  phoneNumber: string | null
+}

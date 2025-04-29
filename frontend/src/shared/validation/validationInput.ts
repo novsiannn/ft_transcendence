@@ -21,7 +21,7 @@ const validatePassword = (input: HTMLInputElement) => {
   }
 };
 
-const validateUsername = (input: HTMLInputElement) => {
+export const validateUsername = (input: HTMLInputElement) => {
   const { value, placeholder } = input;
   const usernameRegex = /^[a-zA-Zа-яА-Я0-9]([a-zA-Zа-яА-Я0-9_-]{1,14})[a-zA-Zа-яА-Я0-9]$/;
 
