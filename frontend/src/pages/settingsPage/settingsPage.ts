@@ -60,7 +60,7 @@ export function settingsPage(mainWrapper: HTMLDivElement | undefined) {
         					</div>
       					</div>
     				</div>
-      				<button class="p-2 px-4 text-white focus:outline-none bg-blue-500 rounded hover:bg-blue-700 transition" id="saveChangesSettings">Save</button>
+					<button id="saveChangesSettings" class=" bg-blue-500 w-18 h-10 text-white focus:outline-none  font-medium rounded text-sm px-5 py-2.5 text-center me-2 mb-2">Save</button>
   				</div>
   			${getModalWindowError()}
   			${getModalTwoFactor()}

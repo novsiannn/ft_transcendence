@@ -8,6 +8,8 @@ import { handleModalError } from "../../elements";
 import { getColorFromUsername } from "../../shared/randomColors";
 import { IUpdateProfileData } from "../../shared";
 import { validateUsername } from "../../shared/validation";
+import { getLoader } from "../../elements/Loader";
+import { handleModalSuccess } from "../../elements/ModalSuccess";
 
 export function handleSettings() {
   navigationHandle();
@@ -23,6 +25,8 @@ export function handleSettings() {
   );
 
   btnSave!.addEventListener("click", async () => {
+    btnSave!.innerHTML = getLoader();
+    btnSave!.disabled = true;
     const updateData: IUpdateProfileData = {
       username,
       firstName,
@@ -43,16 +47,23 @@ export function handleSettings() {
           updateData[name] = value || null;
         }
       });
-      await store.updateUserData(updateData);
+      const res = await store.updateUserData(updateData);
+      if ((res.status = 200)) {
+        handleModalSuccess("You have successfully updated your data!");
+      }
+      btnSave!.innerHTML = "Save";
+      btnSave!.disabled = false;
     } catch (e: any) {
-      handleModalError(e);
+      handleModalError(e.message);
+      btnSave!.innerHTML = "Save";
+      btnSave!.disabled = false;
     }
   });
 
   inputs.forEach((input) => {
     input.addEventListener("click", () => {
-      if(input.type !== 'email')
-      input.className = "inputUserInfo border-2 border-black p-2";
+      if (input.type !== "email")
+        input.className = "inputUserInfo border-2 border-black p-2";
     });
   });
 
