@@ -64,7 +64,7 @@ const headerLeaderBoard = () => {
 
 
 export function leaderBoardPage(mainWrapper: HTMLDivElement | undefined) {
-	document.body.classList.add("bg-gradient-to-t", "from-black", "via-black", "to-gray-800", "h-full", "overflow-hidden");
+	document.body.classList.add("bg-gray-500", "overflow-hidden");
 	mainWrapper!.className = "h-screen w-full flex items-center";
 
 	let res = `

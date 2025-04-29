@@ -7,11 +7,7 @@ import { store } from "../../store/store";
 
 export function settingsPage(mainWrapper: HTMLDivElement | undefined) {
   document.body.classList.add(
-    "bg-gradient-to-t",
-    "from-black",
-    "via-black",
-    "to-gray-800",
-    "h-full",
+    "bg-gray-500",
     "overflow-hidden"
   );
   const color = getColorFromUsername(store.getUser().username);
