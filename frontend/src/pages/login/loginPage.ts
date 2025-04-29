@@ -23,7 +23,7 @@ export const hideWarning = (elementID: string) => {
 }
 
 export function loginPage(mainWrapper: HTMLDivElement | undefined) {
-    document.body.classList.add("h-screen", "flex", "items-center", "justify-center", "bg-gradient-to-t", "from-black", "via-black", "to-gray-800", "overflow-hidden");
+    document.body.classList.add("h-screen", "flex", "items-center", "justify-center", "bg-gray-500", "overflow-hidden");
     return `
         ${navigation()}
             <div class="w-1/3 min-h-1/3 mx-auto mt-24 p-6 bg-white shadow-md rounded-lg flex flex-col justify-center items-center">
