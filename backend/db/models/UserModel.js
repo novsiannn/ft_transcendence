@@ -57,6 +57,10 @@ const User = sequelize.define("User", {
   isTwoFactorEnabled: {
     type: DataTypes.BOOLEAN,
     defaultValue: false,
+  },
+  language: {
+    type: DataTypes.STRING,
+    defaultValue: "eng"
   }
   // isOnline: {
   //   type: DataTypes.BOOLEAN,

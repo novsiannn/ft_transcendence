@@ -8,12 +8,12 @@ const UserController = {
 
             const usernameValidation = ValidationError.validateUsername(username);
             if (!usernameValidation.valid) {
-              return res.code(400).send({ error: usernameValidation.message });
+                return res.code(400).send({ error: usernameValidation.message });
             }
-            
+
             const passwordValidation = ValidationError.validatePassword(password);
             if (!passwordValidation.valid) {
-              return res.code(400).send({ error: passwordValidation.message });
+                return res.code(400).send({ error: passwordValidation.message });
             }
 
             const userData = await userService.registration(username, email, password);
@@ -40,8 +40,8 @@ const UserController = {
     async uploadAvatar(req, res) {
         try {
             const userId = req.user.id;
-            if (!userId){
-                return res.code(401).send({ error: "User not found"});
+            if (!userId) {
+                return res.code(401).send({ error: "User not found" });
             }
 
             const data = await req.file();
@@ -57,11 +57,11 @@ const UserController = {
             const buffer = await data.toBuffer();
             const result = await userService.saveAvatar(userId, buffer, mimetype);
 
-            if (result.error === "User not found" ) {
+            if (result.error === "User not found") {
                 return res.code(401).send(result.error);
             } else if (result.error) {
                 return res.code(400).send(result.error);
-            }  
+            }
             return res.code(200).send({
                 message: "Avatar uploded successfully",
                 avatar: result.avatar,
@@ -69,23 +69,48 @@ const UserController = {
             });
         } catch (error) {
             console.error("Error uploading avatar:", error);
-            res.code(500).send({error: "Error uploading avatar"});
+            res.code(500).send({ error: "Error uploading avatar" });
+        }
+    },
+
+    async deleteAvatar(req, res) {
+        try {
+            const userId = req.user.id;
+            if (!userId) {
+                return res.code(401).send({ error: "User not found" });
+            }
+
+            const result = await userService.deleteAvatar(userId);
+            if (result.error) {
+                if (result.error === "User not found") {
+                    return res.code(401).send({ error: result.error });
+                }
+                return res.code(400).send({ error: result.error });
+            }
+
+            return res.code(200).send({
+                message: "Avatar deleted successfully",
+                user: result.user
+            });
+        } catch (error) {
+            console.error("Error deleting avatar:", error);
+            return res.code(500).send({ error: "Error deleting avatar" });
         }
     },
 
     async getUserProfile(req, res) {
         try {
             const userId = req.user.id;
-            if (!userId){
-                return res.code(401).send({ error: "User not found"});
+            if (!userId) {
+                return res.code(401).send({ error: "User not found" });
             }
 
             const result = await userService.getUserProfile(userId);
-            if(result.error){
+            if (result.error) {
                 return res.code(401).send(result.error);
             }
 
-            return res.code(200).send({ user: result.user});
+            return res.code(200).send({ user: result.user });
         } catch {
             console.error("Error getting user profile:", error);
             return res.code(500).send({ error: "Error getting user profile" });
@@ -104,8 +129,8 @@ const UserController = {
             }
 
             const { username, lastName, firstName, phoneNumber } = req.body;
-            
-            if (username === undefined && firstName === undefined && 
+
+            if (username === undefined && firstName === undefined &&
                 lastName === undefined && phoneNumber === undefined) {
                 return res.code(400).send({ error: "No data provided for update" });
             }
@@ -117,7 +142,7 @@ const UserController = {
             if ('phoneNumber' in req.body) updateData.phoneNumber = phoneNumber;
 
             const updatedUser = await userService.updateUser(userId, updateData);
-            if (updatedUser.error === "User not found" ){
+            if (updatedUser.error === "User not found") {
                 return res.code(401).send(updatedUser.error);
             } else if (updatedUser.error === "Username is already taken") {
                 return res.code(409).send(updatedUser.error);
@@ -145,7 +170,7 @@ const UserController = {
                     email: userData.email
                 });
             }
-            
+
             if (userData.error) {
                 let statusCode = 400;
 
@@ -169,7 +194,7 @@ const UserController = {
     async deleteUserAccount(req, res) {
         try {
             const userId = req.user.id;
-            if (!userId){
+            if (!userId) {
                 return res.code(401).send({ error: "User not found" });
             }
 
@@ -195,7 +220,7 @@ const UserController = {
     async logout(req, res) {
         const { refreshToken } = req.cookies;
         try {
-         if (!refreshToken) {
+            if (!refreshToken) {
                 res.code(400).send({ error: "Refresh token not found" });
             }
             const token = await userService.logout(refreshToken);
@@ -243,21 +268,21 @@ const UserController = {
 
     async enable2FA(req, res) {
         try {
-        const userId = req.user.id;
-        const result = await userService.set2FA(userId);
+            const userId = req.user.id;
+            const result = await userService.set2FA(userId);
 
-        if(result.error){
-            return res.code(400).send({ error: result.error })
-        }
+            if (result.error) {
+                return res.code(400).send({ error: result.error })
+            }
 
-        return res.code(200).send({
-            qrCodeUrl: result.qrCodeUrl,
-            secret: result.secret
-        })
+            return res.code(200).send({
+                qrCodeUrl: result.qrCodeUrl,
+                secret: result.secret
+            })
         } catch (error) {
-          res.code(500).send({ error: "Error with enabling 2FA" });
+            res.code(500).send({ error: "Error with enabling 2FA" });
         }
-      },
+    },
 
     async verify2FA(req, res) {
         try {
@@ -275,9 +300,9 @@ const UserController = {
     },
     async verify2FALogin(req, res) {
         try {
-            const {userId, token} = req.body;
+            const { userId, token } = req.body;
 
-            if(!userId || !token){         
+            if (!userId || !token) {
                 return res.code(400).send({ error: "User ID and token are required" });
             }
 
@@ -289,7 +314,7 @@ const UserController = {
                 maxAge: 60 * 24 * 60 * 60 * 1000,
                 httpOnly: true,
                 path: '/'
-              });
+            });
             res.code(200).send({
                 accessToken: userData.accessToken,
                 user: userData.user,
@@ -300,18 +325,49 @@ const UserController = {
     },
     async disable2FA(req, res) {
         try {
-          const userId = req.user.id;
-          const { token } = req.body;
-      
-          const result = await userService.disable2FA(userId, token);
-          if (result.error) {
-            return res.code(400).send({ error: result.error });
-          }
-          return res.code(200).send({ message: "2FA disabled successfully" });
+            const userId = req.user.id;
+            const { token } = req.body;
+
+            const result = await userService.disable2FA(userId, token);
+            if (result.error) {
+                return res.code(400).send({ error: result.error });
+            }
+            return res.code(200).send({ message: "2FA disabled successfully" });
         } catch (error) {
-          res.code(500).send({ error: "Error disabling 2FA" });
+            res.code(500).send({ error: "Error disabling 2FA" });
+        }
+    },
+    async setLanguage(req, res) {
+       try {
+            const userId = req.user.id;
+            const { language } = req.body;
+
+            if(!language)
+                return res.code(400).send({ error: "Language is required"});
+            const result = userService.setLanguage(userId, language);
+            
+            if(result.error)
+                return res.code(400).send({ error: result.error });
+            
+            return res.code(200).send({ message: "Language updated successfully" });
+
+       } catch (error) {
+           res.code(500).send({ error: "Error setting language" });
+       }
+    },
+    async getLanguage(req, res) {
+        try {
+            const userId = req.user.id;
+            const result = await userService.getLanguage(userId);
+            if (result.error) {
+                return res.code(400).send({ error: result.error });
+            }
+            return res.code(200).send({ language: result.language });
+        } catch (error) {
+            res.code(500).send({ error: "Error getting language" });
         }
     }
+
 };
 
 

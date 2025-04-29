@@ -217,12 +217,30 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
 		initGame();
 	}
 
-	function initGame() {
+	function setupInitialState() {
+		drawBoard();
+		drawPaddles();
+		drawBall();
 		updateScore();
 		setBallDirection();
-		window.addEventListener("keydown", movePaddles);
-		intervalID = setInterval(updateGame, 20);
+		window.addEventListener('keydown', startGame, { once: true });
 		restartBtn!.addEventListener('click', restartGame);
+	  }
+	
+	function initGame() {
+		
+		window.removeEventListener('keydown', movePaddles);
+		clearInterval(intervalID);
+		
+		setupInitialState();
+	}
+
+	function startGame(ev: KeyboardEvent) {
+		if (ev.code === 'Space') {
+			window.addEventListener("keydown", movePaddles);
+			intervalID = setInterval(updateGame, 20);
+			window.removeEventListener('keydown', startGame);
+		  }
 	}
 
 	initGame(); // if the game breaks use the line below
