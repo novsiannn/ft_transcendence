@@ -3,25 +3,24 @@ import { navigation } from "../../elements/nagivation";
 
 export function friendsPage() {
   document.body.classList.add(
-    "bg-gradient-to-t",
-    "from-black",
-    "via-black",
-    "to-gray-800"
+    "bg-gray-500",
   );
-  return `
+  let res = `
 			${navigation()}
-			<div class="flex items-center justify-center min-h-screen w-full px-4 py-8 select-none">
-  				<div class="flex flex-col md:flex-row w-full md:w-3/4 lg:w-2/3 gap-6">
+			<div class="flex items-center justify-center min-h-full mt-24 px-4 py-8 select-none">
+  				<div class="flex flex-col md:flex-row w-full gap-6">
     
-    				<div id="allUsersContainer" class="flex flex-col  rounded-2xl shadow-lg p-6 flex-1">
-      					<h1 class="text-2xl text-white font-black text-center mb-4">All Users</h1>
+    				<div  id="allUsersContainer" class="flex bg-gray-800 flex-col items-center rounded-2xl shadow-lg p-6 flex-1 ">
+      					<h1 data-i18n='friends.allUsers' class="text-2xl text-white font-black text-center mb-4">All Users</h1>
    					</div>
     
-    				<div id="friendsContainer" class="flex flex-col rounded-2xl shadow-lg p-6 flex-1">
-      					<h1 class="text-2xl text-white font-black text-center mb-4">Your Friends</h1>
+    				<div id="friendsContainer" class="flex bg-gray-800 flex-col items-center rounded-2xl shadow-lg p-6 flex-1">
+      					<h1 data-i18n='friends.yourFriends' class="text-2xl text-white font-black text-center mb-4">Your Friends</h1>
     				</div>
     
   				</div>
 			</div>
-			${getModalWindowSuccess()}`;
+			${getModalWindowSuccess()}
+			`;
+  return res
 }
