@@ -4,7 +4,7 @@ import { IFriendsResponse } from "../../shared";
 import { store } from "../../store/store";
 import { getFriendsBlock, getUsersBlock } from "./utils";
 import { getLoader } from '../../elements/Loader';
-import { getLanguageSelector } from '../../elements/LanguageSelector';
+import { getLanguageSelector, updateContent } from '../../elements/LanguageSelector';
 
 export const handleFriendsPage = async (mainWrapper: HTMLDivElement | undefined) => {
   const allUsersContainer = document.querySelector<HTMLDivElement>("#allUsersContainer");
@@ -32,4 +32,5 @@ export const handleFriendsPage = async (mainWrapper: HTMLDivElement | undefined)
 
   getUsersBlock(users, friends, allUsersContainer, responseFriendshipSent, responseFriendshipReceived);
   getFriendsBlock(friends.friends, friendsContainer);
+  updateContent();
 };
