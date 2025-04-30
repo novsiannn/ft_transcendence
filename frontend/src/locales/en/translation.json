@@ -30,6 +30,17 @@
     "add": "Add",
     "cancel": "Cancel",
     "accept": "Accept",
-    "reject": "Reject"
+    "reject": "Reject",
+    "enable": "Enable",
+    "disable": "Disable",
+    "save": "Save",
+    "delete": "Delete"
+  },
+  "settings": {
+    "2fa": "2FA-Authentication",
+    "firstName": "First name",
+    "lastName": "First name",
+    "userName": "Username",
+    "email": "Email"
   }
 }
