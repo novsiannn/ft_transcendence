@@ -1,4 +1,8 @@
-import { IFriendshipResponseData, IUpdateProfileData } from "./../shared/interfaces";
+import {
+  IFriendshipResponseData,
+  IResponse,
+  IUpdateProfileData,
+} from "./../shared/interfaces";
 import axios from "axios";
 import authService from "../services/api/authService";
 import instanceAPI from "../services/api/instanceAxios";
@@ -9,6 +13,8 @@ import { handleModalSuccess } from "../elements/ModalSuccess";
 import { IInitialState, IQRCodeEnableResponse } from "../shared";
 import { handleModalInput } from "../elements/ModalInput";
 import friendsService from "../services/api/friendsService";
+import { initializeI18n } from "../i18n";
+import i18next from "i18next";
 
 export const API_URL: string = "https://localhost:3000";
 
@@ -34,6 +40,16 @@ class Store {
 
   getUser = (): IUser => {
     return this.state.auth.user;
+  };
+
+  getUserLanguage = () => {
+    console.log(this.state.auth.user.language);
+    
+    return this.state.auth.user.language || 'eng';
+  };
+
+  setUserLanguage = (lng: string) => {
+    this.state.auth.user.language = lng;
   };
 
   setLoading = (bool: boolean): void => {
@@ -63,7 +79,9 @@ class Store {
         localStorage.setItem("token", response.data.accessToken);
         this.setAuth(true);
         this.setUser(response.data.user);
+        await this.getUserRequest();
         await this.checkAuth();
+        i18next.changeLanguage(this.getUserLanguage());
         navigateTo("/");
         handleModalSuccess("You have successfully logged in!");
       } else if (response.status === 401 && response.data.requiresTwoFactor) {
@@ -101,8 +119,6 @@ class Store {
       localStorage.removeItem("token");
       this.setAuth(false);
       this.setUser({} as IUser);
-      console.log(response);
-
       return response;
     } catch (e: any) {
       console.log(e.response?.data);
@@ -173,6 +189,7 @@ class Store {
       `${API_URL}/user/profile`
     );
     
+
     if (response.status === 200) {
       this.setUser(response.data.user);
     }
@@ -180,13 +197,12 @@ class Store {
 
   updateUserData = async (data: IUpdateProfileData) => {
     const response = await instanceAPI.put<IAuthResponse>(
-      `${API_URL}/user/profile`, data
+      `${API_URL}/user/profile`,
+      data
     );
-    if (response.status === 200){
-      await this.setUser(response.data.user)
+    if (response.status === 200) {
+      await this.setUser(response.data.user);
     }
-    console.log(response);
-    
     return response;
   };
 
@@ -204,8 +220,8 @@ class Store {
     return response.data as IFriendshipResponseData;
   };
 
-  getIncomingFriendRequest = async () : Promise<IFriendshipResponseData> => {
-    const response = await friendsService.getIncomingFriendRequest();   
+  getIncomingFriendRequest = async (): Promise<IFriendshipResponseData> => {
+    const response = await friendsService.getIncomingFriendRequest();
     return response.data as IFriendshipResponseData;
   };
 
@@ -231,6 +247,19 @@ class Store {
 
   rejectFriendship = async (friendshipId: number) => {
     const response = await friendsService.rejectFriendship(friendshipId);
+    return response;
+  };
+
+  setUserLanguageRequest = async(language: string) => {
+    console.log(language);
+    
+    const response = await instanceAPI.post(
+      `${API_URL}/user/language`,
+      { language }
+    ) as IResponse;
+    if (response.status === 200) {
+      await this.setUserLanguage(language);
+    }
     return response;
   };
 
