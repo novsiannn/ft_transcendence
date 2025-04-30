@@ -58,7 +58,8 @@ export default function runSPA() {
   } else {
     navigateTo("/error");
   }
-  mainWrapper.append(getLanguageSelector());
+  if(store.getAuth())
+    mainWrapper.append(getLanguageSelector());
   updateContent();
 }
 
