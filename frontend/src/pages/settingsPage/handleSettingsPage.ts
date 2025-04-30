@@ -68,10 +68,7 @@ export function handleSettings() {
   });
 
   inputs.forEach((input, i) => {
-    console.log("here");
-
     if (userData[i] && userData[i].length > 0) {
-      console.log(userData[i]);
       input.value = userData[i];
     }
   });

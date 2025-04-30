@@ -38,9 +38,8 @@ export function handleLogin() {
         }
       });
       loginBtn!.innerHTML = getLoader();
-      const response = await store.login(userDataLogin.email, userDataLogin.password);
+      await store.login(userDataLogin.email, userDataLogin.password);
       loginBtn!.innerHTML = "Login";
-      console.log(response);
     } catch (error: any) {
       activateWarning('#warningMessage','Incorrect email or password');
       loginBtn!.innerHTML = "Login";

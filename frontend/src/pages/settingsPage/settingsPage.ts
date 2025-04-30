@@ -34,33 +34,33 @@ export function settingsPage(mainWrapper: HTMLDivElement | undefined) {
         						</div>
 
         						<div class="flex flex-col items-center mt-4">
-          						<p class="text-s">2FA Authentication</p>
+          						<p data-i18n='settings.2fa' class="text-s">2FA Authentication</p>
           						<div class="flex gap-2 mt-2">
-            						<button id="disableTwoFactorBtn" class="bg-red-500 px-4 py-2 rounded text-white hover:bg-red-600">Disable</button>
-            						<button id="enableTwoFactorBtn"  class="bg-green-500 px-4 py-2 rounded text-white hover:bg-green-600">Enable</button>
+            						<button data-i18n='buttons.disable' id="disableTwoFactorBtn" class="bg-red-500 px-4 py-2 rounded text-white hover:bg-red-600">Disable</button>
+            						<button data-i18n='buttons.enable' id="enableTwoFactorBtn"  class="bg-green-500 px-4 py-2 rounded text-white hover:bg-green-600">Enable</button>
           						</div>
         					</div>
       					</div>
       					<div class="flex flex-col flex-wrap gap-4">
         					<div>
-          						<p class="text-left text-sm">First name</p>
+          						<p data-i18n='settings.firstName' class="text-left text-sm">First name</p>
           						<input class="inputUserInfo w-full border-2 border-black  p-2" placeholder="First name" name="firstName" autocomplete="first name" />
         					</div>
        						<div>
-          						<p class="text-left text-sm">Last name</p>
+          						<p data-i18n='settings.lastName' class="text-left text-sm">Last name</p>
           						<input class="inputUserInfo border-2 w-full border-black p-2" placeholder="Last name" name="lastName" autocomplete="last name" />
         					</div>
         					<div>
-          						<p class="text-left text-sm">Username</p>
+          						<p data-i18n='settings.userName' class="text-left text-sm">Username</p>
           						<input class="inputUserInfo w-full border-2 border-black p-2" name="username" placeholder="Username" autocomplete="username" />
         					</div>
         					<div>
-          						<p class="text-left text-sm">Email</p>
+          						<p data-i18n='settings.email' class="text-left text-sm">Email</p>
           						<input type="email" readonly class="inputUserInfo w-full text-sm border-2 border-black p-2" name="E-mail" placeholder="Email" autocomplete="email" />
         					</div>
       					</div>
     				</div>
-					<button id="saveChangesSettings" class=" bg-blue-500 w-18 h-10 text-white focus:outline-none  font-medium rounded text-sm px-5 py-2.5 text-center me-2 mb-2">Save</button>
+					<button data-i18n='buttons.save' id="saveChangesSettings" class=" bg-blue-500 w-28 h-10 text-white focus:outline-none  font-medium rounded text-sm px-5 py-2.5 text-center me-2 mb-2">Save</button>
   				</div>
   			${getModalWindowError()}
   			${getModalTwoFactor()}
