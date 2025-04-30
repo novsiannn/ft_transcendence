@@ -1,4 +1,4 @@
-import { IUser } from "../services/api/models/response/IUser";
+import { IUser } from './../services/api/models/response/IUser';
 
 export interface IUserDataRegistrationType {
   username: string | null;
@@ -23,7 +23,14 @@ export interface IRouteParams {
 export interface IResponse {
   status: number;
   statusText?: string;
-  data: object;
+}
+
+export interface IResponseData {
+  user: IUser
+}
+
+export interface IResponseSetLanguage extends IResponse{ 
+  data: IResponseData
 }
 
 export interface IFriendRequestIncoming extends IResponse {

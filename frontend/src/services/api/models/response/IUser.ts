@@ -10,6 +10,7 @@ export interface IUser {
   updatedAt: string;
   username: string;
   isTwoFactorEnabled: boolean;
+  language: string;
 }
 
 export interface IUserProfile {
@@ -22,5 +23,6 @@ export interface IUserProfile {
   phoneNumber: string;
   username: string;
   isTwoFactorEnabled: boolean;
+  language: string;
 }
 
