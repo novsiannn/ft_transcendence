@@ -12,7 +12,10 @@ export function navigationHandle() {
   const naviDropMenuBtns = document.querySelectorAll("#dropdownMenu a");
   const imgLogo = document.getElementById("imgLogoNavi");
   const logoutBtn = document.getElementById("logoutBtn");
-
+  const notificationMenu = document.getElementById("notificationMenu");
+  const notificationDropDown = document.getElementById(
+    "dropdownMenuNotification"
+  );
 
   imgLogo!.addEventListener("click", () => {
     navigateTo("/");
@@ -25,15 +28,14 @@ export function navigationHandle() {
   signUpBtn?.addEventListener("click", () => {
     navigateTo("/signUp");
   });
-  
-  logoutBtn?.addEventListener("click", async() => {
+
+  logoutBtn?.addEventListener("click", async () => {
     logoutBtn.innerHTML = "Logout " + getLoader();
     const res = await store.logout();
-    if (res!.status === 200){
-        logoutBtn.innerHTML = "Logout ";
-        navigateTo("/signIn");
-      }
-    
+    if (res!.status === 200) {
+      logoutBtn.innerHTML = "Logout ";
+      navigateTo("/signIn");
+    }
   });
 
   naviDropMenuBtns.forEach((btn) => {
@@ -44,20 +46,37 @@ export function navigationHandle() {
     });
   });
 
-  profileBtn?.addEventListener("click", () => {
-    dropdownMenu!.classList.toggle("hidden");
+  profileBtn?.addEventListener("click", (e) => {
+    e.stopPropagation();
+    dropdownMenu?.classList.toggle("hidden");
+    notificationDropDown?.classList.add("hidden");
+  });
+
+  notificationMenu?.addEventListener("click", (e) => {
+    e.stopPropagation();
+    notificationDropDown?.classList.toggle("hidden");
+    dropdownMenu?.classList.add("hidden");
   });
 
   document.addEventListener("click", (e) => {
-    if (
-      e.target !== dropdownMenu &&
-      e.target !== profileBtn &&
-      e.target !== logoutBtn
-    )
+    const target = e.target as Node;
+
+    if (!dropdownMenu?.contains(target) && !profileBtn?.contains(target)) {
       dropdownMenu?.classList.add("hidden");
+    }
+
+    if (
+      !notificationDropDown?.contains(target) &&
+      !notificationMenu?.contains(target)
+    ) {
+      notificationDropDown?.classList.add("hidden");
+    }
   });
 
   document.addEventListener("keydown", (e) => {
-    if (e.keyCode == 27) dropdownMenu!.classList.add("hidden");
+    if (e.keyCode == 27) {
+      dropdownMenu?.classList.add("hidden");
+      notificationDropDown!.classList.add("hidden");
+    }
   });
 }
