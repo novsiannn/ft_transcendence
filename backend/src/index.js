@@ -41,6 +41,12 @@ fastify.register(require('@fastify/static'), {
 
 //for WEBSOCKET test start
 
+fastify.register(require('@fastify/static'), {
+  root: path.join(__dirname, '../test'),
+  prefix: '/test/',
+  decorateReply: false
+});
+
 // fastify.register(require('@fastify/static'), {
 //   root: path.join(__dirname, '..'),
 //   prefix: '/test/',

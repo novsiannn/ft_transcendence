@@ -1,4 +1,4 @@
-const { sendFriendRequest } = require('../../controllers/friendship.controller');
+// const { sendFriendRequest } = require('../../controllers/friendship.controller');
 const userTracker = require('../utils/userTracker');
 
 const notificationHandler = {
