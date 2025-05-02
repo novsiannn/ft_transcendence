@@ -3,33 +3,34 @@ const Chat = require('../../db/models/ChatModel');
 const Message = require('../../db/models/MessageModel');
 const User = require('../../db/models/UserModel');
 
-
-    async function findOrCreateChat(user1Id, user2Id){
+const ChatService = {
+    async findOrCreateChat(user1Id, user2Id) {
         try {
             const existingChat = await Chat.findOne({
                 where: {
-                    [Op.or] : [
-                        { user_1: user1Id, user_2: user2Id},
-                        { user_1: user2Id, user_2: user1Id}
+                    [Op.or]: [
+                        { user_1: user1Id, user_2: user2Id },
+                        { user_1: user2Id, user_2: user1Id }
                     ]
                 }
-            })
+            });
 
-            if(existingChat)
+            if (existingChat)
                 return existingChat;
 
             const newChat = await Chat.create({
                 user_1: user1Id,
                 user_2: user2Id
-            })
+            });
 
             return newChat;
         } catch (error) {
+            console.error('Error finding/creating chat:', error);
             throw error;
         }
-    }
+    },
 
-    async function getUserChats(userId) {
+    async getUserChats(userId) {
         try {
             const chats = await Chat.findAll({
                 where: {
@@ -38,74 +39,95 @@ const User = require('../../db/models/UserModel');
                         { user_2: userId }
                     ]
                 },
-                include: [{
-                    model: Message,
-                    as: 'message',
-                    limit: 1,
-                    order: [['createdAt', 'DESC']]
-                }]
-            })
+                include: [
+                    {
+                        model: Message,
+                        as: 'messages',
+                        attributes: ['id', 'content', 'senderId', 'createdAt', 'receiverId'],
+                        order: [['createdAt', 'DESC']],
+                        limit: 1,
+                        include: [{
+                            model: User,
+                            as: 'sender',
+                            attributes: ['id', 'username', 'avatar']
+                        }]
+                    },
+                    {
+                        model: User,
+                        as: 'User1',
+                        attributes: ['id', 'username', 'avatar']
+                    },
+                    {
+                        model: User,
+                        as: 'User2',
+                        attributes: ['id', 'username', 'avatar']
+                    }
+                ],
+                order: [['createdAt', 'DESC']]
+            });
             return chats;
         } catch (error) {
+            console.error('Error getting user chats:', error);
             throw error;
         }
-    }
+    },
 
-    async function getChatMessages(chatId) {
-        try{
+    async getChatMessages(chatId) {
+        try {
             const messages = await Message.findAll({
-                where: {chatId},
+                where: { chatId },
                 order: [['createdAt', 'DESC']],
-                // include: [{
-                //     model: User,
-                //     attributes: ['id', 'username', 'avatar']
-                // }]
+                include: [{
+                    model: User,
+                    as: 'sender',
+                    attributes: ['id', 'username', 'avatar']
+                }]
             });
-            return messages 
-        }
-        catch(error){
+            return messages;
+        } catch (error) {
             console.error('Error getting chat messages:', error);
             throw error;
         }
-    }
+    },
 
-    async function saveMessage({chatId, senderId, receiverId, content}) {
-        try{
+    async saveMessage({ chatId, senderId, receiverId, content }) {
+        try {
             const newMessage = await Message.create({
                 chatId,
                 senderId,
                 receiverId,
-                content,
-                // isRead: false
+                content
             });
-            // await Chat.update(
-            //     { lastMessage: content },
-            //     { where: { id: chatId } }
-            // );
+
+            await Chat.update(
+                { lastMessageAt: new Date() },
+                { where: { id: chatId } }
+            );
+
             return newMessage;
-        }
-        catch(error){
+        } catch (error) {
             console.error('Error saving message:', error);
             throw error;
-        }       
+        }
+    },
+
+    async markMessageAsRead(chatId, userId) {
+        try {
+            await Message.update(
+                { isRead: true },
+                {
+                    where: {
+                        chatId,
+                        receiverId: userId,
+                        isRead: false
+                    }
+                }
+            );
+        } catch (error) {
+            console.error('Error marking message as read:', error);
+            throw error;
+        }
     }
+};
 
-    // async function markMessageAsRead(chatId, userId){
-    //     try {
-    //         await Message.update(
-    //             { isRead: true },
-    //             {
-    //                 where: {
-    //                     chatId,
-    //                     receiverId: userId,
-    //                     isRead: false
-    //                 }
-    //             }
-    //         );
-    //     } catch(error) {
-    //         throw error;
-    //     }
-    // }
-
-
-module.exports = { getUserChats, findOrCreateChat, getChatMessages, saveMessage, }
+module.exports = ChatService;

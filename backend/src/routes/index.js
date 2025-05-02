@@ -1179,6 +1179,49 @@ async function routes(fastify, options) {
     },
     preHandler: authMiddleware
   }, chatController.getChatMessages);
+
+  fastify.get('/chat', {
+    schema: {
+      description: 'Get user chats',
+      tags: ['Chat'],
+      security: [{ bearerAuth: [] }],
+      response: {
+        200: {
+          description: 'User chats retrieved successfully',
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: {
+              id: { type: 'integer' },
+              user_1: { type: 'integer' },
+              user_2: { type: 'integer' },
+              createdAt: { type: 'string', format: 'date-time' },
+              messages: {
+                type: 'array',
+                items: {
+                  type: 'object',
+                  properties: {
+                    id: { type: 'integer' },
+                    content: { type: 'string' },
+                    senderId: { type: 'integer' },
+                    createdAt: { type: 'string', format: 'date-time' }
+                  }
+                }
+              }
+            }
+          }
+        },
+        500: {
+          description: 'Internal server error',
+          type: 'object',
+          properties: {
+            error: { type: 'string' }
+          }
+        }
+      }
+    },
+    preHandler: authMiddleware
+  }, chatController.getUserChats);
 }
 
 module.exports = routes;

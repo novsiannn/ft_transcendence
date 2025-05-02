@@ -7,12 +7,15 @@ const ChatController = {
     async getUserChats(req, res) {
         try {
             const userId = req.user.id;
+            if (!userId) {
+                return res.code(400).send({ message: 'User ID is required' });
+            }
             const chats = await chatService.getUserChats(userId);
             return res.code(200).send(chats);
         }
         catch (error){
             console.error('Error fetching user chats:', error);
-            return res.code(500).send({ message: 'Internal server error' });
+            return res.code(500).send({ message: error.message || 'Internal server error' });
         }
     },
 
