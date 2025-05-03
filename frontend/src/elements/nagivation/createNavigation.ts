@@ -64,6 +64,7 @@ export function navigation() {
           store.getAuth()
             ? `<div id="dropdownMenu" class="absolute right-0 mt-2 w-48 bg-white text-black shadow-lg rounded-lg hidden">
             		<a id="profileDropNavi" class="block rounded-md px-4 py-2 hover:bg-gray-200 focus:outline-none" data-i18n='navigation.profile'>Profile</a>
+                <a id="chatsDropNavi" class="block rounded-md px-4 py-2 hover:bg-gray-200 focus:outline-none" data-i18n='navigation.chats'>Chats</a>
 					      <a id="gameDropNavi" class="block px-4 py-2 hover:bg-gray-200 focus:outline-none" data-i18n='navigation.game'>Game</a>
 					      <a id="leaderboardDropNavi" class="block px-4 py-2 hover:bg-gray-200 focus:outline-none" data-i18n='navigation.leaderboard'>Leaderboard</a>
             		<a id="settingsDropNavi" class="block px-4 py-2 hover:bg-gray-200 focus:outline-none" data-i18n='navigation.settings'>Settings</a>

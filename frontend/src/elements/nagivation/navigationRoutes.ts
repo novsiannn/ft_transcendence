@@ -4,4 +4,5 @@ export const dropMenuRoutes: { [key: string]: string } = {
 	"leaderboardDropNavi": "/leaderboard",
 	"settingsDropNavi": "/settings",
 	"friendsDropNavi": "/friends",
+	"chatsDropNavi": "/chats",
 }  
