@@ -15,6 +15,9 @@ export function chatsPage(mainWrapper: HTMLDivElement | undefined) {
 					${SearchBar('chat.searchChats', 'searchInputChatsPage')}
 					${Select(1)}
 				</div>
+				<div id="allChatsContainer">
+					
+				</div>
 			</div>
 			<div class="bg-gray-100 w-3/4 h-full">
 				<div class="mt-16 w-full border-t border-gray-300">

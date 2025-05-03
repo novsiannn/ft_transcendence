@@ -3,8 +3,6 @@ import i18next from "i18next";
 export const SearchBar = (placeholderKey: string = 'TRANSLATION UNKNOWN', id: string) => {
   const placeholderText = i18next.t(placeholderKey);
 
-	console.log(placeholderKey);
-	
   return `<div class="m-4">
   			<div class="relative">
     			<input
