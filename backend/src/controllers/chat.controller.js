@@ -38,7 +38,13 @@ const ChatController = {
         try {
             const userId = req.user.id;
             const { targetUserId } = req.body;
-    
+            
+            if(userId === targetUserId) {
+                return res.code(400).send({ message: 'You cannot chat with yourself' });
+            }
+            if (!userId) {
+                return res.code(400).send({ message: 'User ID is required' });
+            }
             if (!targetUserId) {
                 return res.code(400).send({ message: 'Target user ID is required' });
             }
