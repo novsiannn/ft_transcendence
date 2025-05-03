@@ -41,11 +41,16 @@ export interface IAuth {
   user: IUser;
   isAuth: boolean;
   isLoading: boolean;
+}
+
+export interface IFriendsPage {
   allUsers: IUser[];
+  friends: IFriend[];
 }
 
 export interface IInitialState {
   auth: IAuth;
+  friendsPage: IFriendsPage
 }
 
 export interface IFriend {
@@ -56,7 +61,7 @@ export interface IFriend {
 }
 
 export interface IFriendsResponse {
-  friends: IFriend[]
+  friends: IFriend[];
 }
 
 export interface IFriendshipResponse {

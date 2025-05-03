@@ -16,7 +16,7 @@ const validatePassword = (input: HTMLInputElement) => {
   if (!passwordRegex.test(value)) {
     input.className = "w-full p-2 border rounded border-red-500";
     throw new Error(
-      `Your ${placeholder} must have 8+ chars, 1 uppercase, 1 lowercase, 1 number, no spaces and 1 special char.`
+      `${placeholder} must have 8+ chars, 1 uppercase, 1 lowercase, 1 number, no spaces and 1 special char.`
     );
   }
 };
@@ -28,7 +28,7 @@ export const validateUsername = (input: HTMLInputElement) => {
   if (!usernameRegex.test(value)) {
     input.className = "w-full p-2 border rounded border-red-500";
     throw new Error(
-      `Your ${placeholder} must be 3-16 chars long, use letters, numbers, "_" or "-".`
+      `${placeholder} must be 3-16 chars long, use letters, numbers, "_" or "-".`
     );
   }
 };
@@ -38,6 +38,7 @@ export const validateInput = (input: HTMLInputElement) => {
     input.className = "w-full p-2 border rounded border-red-500";
     throw new Error("One of your inputs is empty!");
   }
+
   switch (input.type) {
     case "text":
       validateUsername(input);
