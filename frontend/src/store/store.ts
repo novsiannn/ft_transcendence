@@ -1,4 +1,5 @@
 import {
+  IFriend,
   IFriendshipResponseData,
   IResponse,
   IUpdateProfileData,
@@ -13,7 +14,6 @@ import { handleModalSuccess } from "../elements/ModalSuccess";
 import { IInitialState, IQRCodeEnableResponse } from "../shared";
 import { handleModalInput } from "../elements/ModalInput";
 import friendsService from "../services/api/friendsService";
-import { initializeI18n } from "../i18n";
 import i18next from "i18next";
 
 export const API_URL: string = "https://localhost:3000";
@@ -26,7 +26,10 @@ class Store {
       user: {} as IUser,
       isAuth: false,
       isLoading: false,
+    },
+    friendsPage: {
       allUsers: [],
+      friends: [],
     },
   };
 
@@ -44,8 +47,8 @@ class Store {
 
   getUserLanguage = () => {
     console.log(this.state.auth.user.language);
-    
-    return this.state.auth.user.language || 'eng';
+
+    return this.state.auth.user.language || "eng";
   };
 
   setUserLanguage = (lng: string) => {
@@ -65,11 +68,26 @@ class Store {
   };
 
   setAllUsers = (data: IUser[]): void => {
-    this.state.auth.allUsers = data;
+    this.state.friendsPage.allUsers = data;
   };
 
   getAllUsers = (): IUser[] => {
-    return this.state.auth.allUsers;
+    return this.state.friendsPage.allUsers;
+  };
+
+  setAllFriends = (data: IFriend[]): void => {
+    this.state.friendsPage.friends = data;
+  };
+
+  getAllFriends = (): IFriend[] => {
+    return this.state.friendsPage.friends;
+  };
+
+  getAllFriendsRequest = async () => {
+    const response = await friendsService.getFriends();
+    
+    this.setAllFriends(response.data.friends);
+    return response;
   };
 
   login = async (email: string | null, password: string | null) => {
@@ -179,16 +197,10 @@ class Store {
     return response.data;
   };
 
-  getAllFriends = async () => {
-    const response = await friendsService.getFriends();
-    return response;
-  };
-
   getUserRequest = async () => {
     const response = await instanceAPI.get<IAuthResponse>(
       `${API_URL}/user/profile`
     );
-    
 
     if (response.status === 200) {
       this.setUser(response.data.user);
@@ -250,13 +262,12 @@ class Store {
     return response;
   };
 
-  setUserLanguageRequest = async(language: string) => {
+  setUserLanguageRequest = async (language: string) => {
     console.log(language);
-    
-    const response = await instanceAPI.post(
-      `${API_URL}/user/language`,
-      { language }
-    ) as IResponse;
+
+    const response = (await instanceAPI.post(`${API_URL}/user/language`, {
+      language,
+    })) as IResponse;
     if (response.status === 200) {
       await this.setUserLanguage(language);
     }
@@ -271,6 +282,7 @@ class Store {
       this.setAuth(true);
       await this.getUserRequest();
       await this.getAllUsersRequest();
+      await this.getAllFriendsRequest();
       this.setLoading(false);
       return;
     }
@@ -279,9 +291,6 @@ class Store {
         withCredentials: true,
       });
       localStorage.setItem("token", response.data.accessToken);
-      console.log(
-        "New token set from checkAuth = " + response.data.accessToken
-      );
       this.setAuth(true);
       this.setUser(response.data.user);
     } catch (e: any) {
