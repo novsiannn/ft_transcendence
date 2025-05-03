@@ -40,7 +40,7 @@ export const getUserLayout = (username: string, avatar: string) => {
   const firstLetterOfUser = username.charAt(0).toUpperCase();
 
   return `
-  <div class="bg-white flex items-center justify-between w-128 rounded-lg p-3 mb-2 hover:bg-gray-700 transition-colors duration-300 select-none userBlock">
+  <div class="bg-white flex items-center justify-between w-128 rounded-lg p-3 mb-2 hover:bg-gray-200 transition-colors duration-300 select-none userBlock">
 	<div class="flex items-center space-x-4 min-w-0">
 	  <div class="w-12 h-12 rounded-full bg-green-700 flex items-center justify-center text-white font-bold text-lg hover:scale-105 transition-transform duration-200 flex-shrink-0">
 		${

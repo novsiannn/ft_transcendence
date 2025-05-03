@@ -1,6 +1,6 @@
 import { getLoader } from "../../elements/Loader";
 import { IUser } from "../../services/api/models/response/IUser";
-import { IFriendshipResponse, IFriendshipResponseData, IFriendsResponse } from "../../shared";
+import { IFriend, IFriendshipResponse, IFriendshipResponseData, IFriendsResponse } from "../../shared";
 import { store } from "../../store/store";
 import { getEmptyBlock } from "./containersLayout";
 import { getFriendsBlock, getUsersBlock } from "./utils";
@@ -97,11 +97,12 @@ export const rejectFriend = async (
   }
 };
 
-const rerenderFriendsPage = async () => {
+export const rerenderFriendsPage = async (filteredUsers?: IUser[]) => {
   const friendsContainer =
     document.querySelector<HTMLDivElement>("#friendsContainer");
   const allUsersContainer =
     document.querySelector<HTMLDivElement>("#allUsersContainer");
+  let responseAllUsers;
 
   allUsersContainer!.innerHTML =
     `<h1 data-i18n='friends.allUsers' class="text-2xl text-white font-black text-center mb-4">All Users</h1>
@@ -112,15 +113,18 @@ const rerenderFriendsPage = async () => {
       ${getLoader()}
     `;
 
-  const responseAllFriends = await store.getAllFriends();
-  const responseAllUsers = await store.getAllUsers();
+  const responseAllFriends = store.getAllFriends();
+  if (!filteredUsers){
+    responseAllUsers = store.getAllUsers();
+  } else {
+    responseAllUsers = filteredUsers;
+  }
   const responseFriendshipSent = await store.getPendingFriendsRequests();
   const responseFriendshipReceived = await store.getIncomingFriendRequest();
-  const friends: IFriendsResponse = responseAllFriends.data;
-  const users: IUser[] = responseAllUsers;
-  getFriendsBlock(friends.friends, friendsContainer);
+  const friends: IFriend[] = responseAllFriends;
+  getFriendsBlock(friends, friendsContainer);
   getUsersBlock(
-    users,
+    responseAllUsers,
     friends,
     allUsersContainer,
     responseFriendshipSent,

@@ -11,7 +11,8 @@ import {
   getFriendsLayout,
   getUserLayout,
 } from "./containersLayout";
-import { addBtnsListeners, deleteFriend } from "./handleBtns";
+import { addBtnsListeners, deleteFriend, rerenderFriendsPage } from "./handleBtns";
+import { SearchBar } from "../../elements/SearchBar";
 
 export const getFriendsBlock = (
   data: IFriend[],
@@ -56,19 +57,19 @@ export const getFriendsBlock = (
 
 export const getUsersBlock = (
   users: IUser[],
-  dataFriends: IFriendsResponse,
+  dataFriends: IFriend[],
   wrapper: HTMLDivElement | null,
   responseFriendshipSentUserId: IFriendshipResponseData,
   incomingFriendshipRequest: IFriendshipResponseData
 ) => {
   let div;
   const myProfileID = store.getState().auth.user.id;
-  wrapper!.innerHTML =
-    `<h1 data-i18n='friends.allUsers' class="text-2xl text-white font-black text-center mb-4">All Users</h1>`;
+  wrapper!.innerHTML =``;
+  
   if (users.length) {
     users.forEach((el) => {
       if (el.id !== myProfileID) {
-        if (dataFriends.friends.some((friend) => friend.id == el.id)) return;
+        if (dataFriends.some((friend) => friend.id == el.id)) return;
 
         div = document.createElement("div");
         div.innerHTML = getUserLayout(el.username, el.avatar);
@@ -88,8 +89,7 @@ export const getUsersBlock = (
   }
   const checkIfUserExist = wrapper!.querySelector(".userBlock");
   if (!checkIfUserExist) {
-    wrapper!.innerHTML =
-      `<h1 data-i18n='friends.allUsers' class="text-2xl text-white font-black text-center mb-4">All Users</h1>`;
+    wrapper!.innerHTML = ``;
     div = document.createElement("div");
     div.innerHTML = getEmptyBlock();
     wrapper?.append(div);
