@@ -14,6 +14,7 @@
   },
   "navigation": {
     "home": "Startseite",
+    "chats": "Chats",
     "game": "Spiel",
     "profile": "Profil",
     "leaderboard": "Bestenliste",
@@ -24,7 +25,8 @@
   "friends": {
     "allUsers": "Alle Benutzer",
     "yourFriends": "Deine Freunde",
-    "noOneIsHere": "Noch niemand hier!"
+    "noOneIsHere": "Noch niemand hier!",
+    "findFriend": "Freund finden"
   },
   "buttons": {
     "add": "Hinzufügen",
@@ -42,5 +44,8 @@
     "lastName": "Familienname",
     "userName": "Benutzername",
     "email": "Email"
+  },
+  "chat": {
+    "searchChats": "Chats suchen..."
   }
 }

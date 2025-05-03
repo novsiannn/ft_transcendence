@@ -14,6 +14,7 @@
   },
   "navigation": {
     "home": "Додому",
+    "chats": "Чати",
     "game": "Гра",
     "profile": "Профіль",
     "leaderboard": "Таблиця лідерів",
@@ -24,7 +25,8 @@
   "friends": {
     "allUsers": "Усі користувачі",
     "yourFriends": "Ваші друзі",
-    "noOneIsHere": "Тут ще нікого!"
+    "noOneIsHere": "Тут ще нікого!",
+    "findFriend": "Знайди друга"
   },
   "buttons": {
     "add": "Додати",
@@ -42,5 +44,8 @@
     "lastName": "Фамілія",
     "userName": "Нікнейм",
     "email": "Електронна пошта"
+  },
+  "chat": {
+    "searchChats": "Шукати чати ..."
   }
 }
