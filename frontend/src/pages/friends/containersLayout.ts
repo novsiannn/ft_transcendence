@@ -5,7 +5,7 @@ export const getFriendsLayout = (username: string, avatar: string) => {
   const color = getColorFromUsername(username);
   const firstLetterOfUser = username.charAt(0).toUpperCase();
 
-  return `<div class="bg-gray-800 flex items-center justify-between rounded-lg p-3 mb-2 w-80 hover:bg-gray-700 transition-colors duration-300 select-none friendBlock">
+  return `<div class="bg-white flex items-center justify-between rounded-lg p-3 mb-2 w-80 hover:bg-gray-200 transition-colors duration-300 select-none friendBlock">
 			  <div class="flex space-x-4">
 				  <div class="w-12 h-12 rounded-full bg-green-700 flex items-center justify-center text-white font-bold text-lg hover:scale-105 transition-transform duration-200 flex-shrink-0">
 				  ${
@@ -17,7 +17,7 @@ export const getFriendsLayout = (username: string, avatar: string) => {
           }
 				  </div>
 				<div>
-					<span class="text-white text-xl font-semibold">${username}</span>
+					<span class="text-black text-xl font-semibold">${username}</span>
 				  <p class="text-gray-400 text-sm">Online</p>
 				</div>
 			</div>

@@ -15,6 +15,7 @@ import { IInitialState, IQRCodeEnableResponse } from "../shared";
 import { handleModalInput } from "../elements/ModalInput";
 import friendsService from "../services/api/friendsService";
 import i18next from "i18next";
+import chatsService from "../services/api/chatsService";
 
 export const API_URL: string = "https://localhost:3000";
 
@@ -263,8 +264,6 @@ class Store {
   };
 
   setUserLanguageRequest = async (language: string) => {
-    console.log(language);
-
     const response = (await instanceAPI.post(`${API_URL}/user/language`, {
       language,
     })) as IResponse;
@@ -273,6 +272,17 @@ class Store {
     }
     return response;
   };
+
+  createNewChat = async (targetUserId: string) => {
+    const response = await chatsService.createChat(targetUserId);
+    console.log(response);
+  }
+
+  getAllChats = async () => {
+    const response = await chatsService.getAllChats();
+    console.log(response);
+  }
+
 
   checkAuth = async () => {
     this.setLoading(true);

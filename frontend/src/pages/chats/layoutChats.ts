@@ -13,7 +13,7 @@ export function chatsPage(mainWrapper: HTMLDivElement | undefined) {
 				<div class="flex flex-col mt-16 border-t border-b border-gray-300">
 					<p class="ml-4 mt-2 font-sans text-lg font-normal">Messages</p>
 					${SearchBar('chat.searchChats', 'searchInputChatsPage')}
-					${Select()}
+					${Select(1)}
 				</div>
 			</div>
 			<div class="bg-gray-100 w-3/4 h-full">
@@ -34,7 +34,7 @@ export function chatsPage(mainWrapper: HTMLDivElement | undefined) {
 								start a new conversation with a friend.
     						</p>
 
-    						${Select()}
+    						${Select(2)}
   						</div>
 					</div>
 				</div>
