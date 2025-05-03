@@ -39,7 +39,7 @@ const ChatService = {
                     {
                         model: Message,
                         as: 'messages',
-                        attributes: ['id', 'content', 'senderId', 'createdAt', 'receiverId'],
+                        attributes: ['id', 'content', 'senderId', 'createdAt'],
                         order: [['createdAt', 'DESC']],
                         limit: 1,
                         include: [{
@@ -47,16 +47,6 @@ const ChatService = {
                             as: 'sender',
                             attributes: ['id', 'username', 'avatar']
                         }]
-                    },
-                    {
-                        model: User,
-                        as: 'User1',
-                        attributes: ['id', 'username', 'avatar']
-                    },
-                    {
-                        model: User,
-                        as: 'User2',
-                        attributes: ['id', 'username', 'avatar']
                     }
                 ],
                 order: [['createdAt', 'DESC']]

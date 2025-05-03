@@ -1305,7 +1305,15 @@ async function routes(fastify, options) {
                     id: { type: 'integer' },
                     content: { type: 'string' },
                     senderId: { type: 'integer' },
-                    createdAt: { type: 'string', format: 'date-time' }
+                    createdAt: { type: 'string', format: 'date-time' },
+                    sender: {
+                      type: 'object',
+                      properties: {
+                        id: { type: 'integer' },
+                        username: { type: 'string' },
+                        avatar: { type: 'string' }
+                      }
+                    }
                   }
                 }
               }
