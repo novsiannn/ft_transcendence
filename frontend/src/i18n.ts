@@ -4,7 +4,7 @@ import engTranslation from "./locales/en/translation.json";
 import deTranslation from "./locales/de/translation.json";
 import uaTranslation from "./locales/ua/translation.json";
 import { store } from "./store/store";
-import { updateContent } from "./elements/LanguageSelector";
+
 
 export const initializeI18n = async () => {
   const savedLanguage = store.getUserLanguage();
@@ -19,8 +19,20 @@ export const initializeI18n = async () => {
     },
   });
 
-
   i18next.on("languageChanged", async (lng) => {
-      await store.setUserLanguageRequest(lng);
+    await store.setUserLanguageRequest(lng);
   });
+
+  i18next.on("languageChanged", () => {
+    const inputFriendsPage = document.getElementById("searchInputFriendsPage") as HTMLInputElement;
+    const inputChatsPage = document.getElementById("searchInputChatsPage") as HTMLInputElement;
+  
+    if (inputFriendsPage) {
+      inputFriendsPage.placeholder = i18next.t("friends.findFriend");
+    }
+    if (inputChatsPage) {
+      inputChatsPage.placeholder = i18next.t("chat.searchChats");
+    }
+  });
+
 };

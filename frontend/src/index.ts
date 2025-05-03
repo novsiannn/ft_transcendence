@@ -5,8 +5,7 @@ import { initializeI18n } from "./i18n";
 
 window.addEventListener("DOMContentLoaded",  async() => {
   await store.checkAuth();
-  initializeI18n().then(async () => {
-    runSPA();
-  });
+  await initializeI18n();
+  runSPA(); 
 });
 
