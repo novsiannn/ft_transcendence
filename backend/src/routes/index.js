@@ -19,6 +19,12 @@ const handle2FAVerify = (req, res) => {
   return userController.verify2FA(req, res);
 };
 
+const handleFindOrCreateChat = (req, res) => {
+  if (req._handled) return;
+  req._handled = true;
+  return chatController.findOrCreateChat(req, res);
+};
+
 async function routes(fastify, options) {
 
   fastify.addSchema({
@@ -1228,7 +1234,7 @@ async function routes(fastify, options) {
           description: 'Bad request',
           type: 'object',
           properties: {
-            error: { type: 'string' }
+            message: { type: 'string' }
           }
         },
         500: {

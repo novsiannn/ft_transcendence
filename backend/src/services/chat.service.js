@@ -5,22 +5,18 @@ const User = require('../../db/models/UserModel');
 
 const ChatService = {
     async findOrCreateChat(user1Id, user2Id) {
+        const [u1, u2] = [user1Id, user2Id].sort((a, b) => a - b);
         try {
             const existingChat = await Chat.findOne({
-                where: {
-                    [Op.or]: [
-                        { user_1: user1Id, user_2: user2Id },
-                        { user_1: user2Id, user_2: user1Id }
-                    ]
-                }
+                where: { user_1: u1, user_2: u2 }
             });
 
             if (existingChat)
                 return existingChat;
 
             const newChat = await Chat.create({
-                user_1: user1Id,
-                user_2: user2Id
+                user_1: u1,
+                user_2: u2
             });
 
             return newChat;
