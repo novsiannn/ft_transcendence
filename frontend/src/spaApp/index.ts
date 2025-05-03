@@ -1,4 +1,5 @@
 import { mainWrapper } from "../elements";
+import { getLanguageSelector, updateContent } from "../elements/LanguageSelector";
 import {
   allRoutes,
   navigateTo,
@@ -29,15 +30,11 @@ export default function runSPA() {
 
   const matched = matchRoute(location.pathname);
   
-  
   if (matched) {
     const {route, params} = matched;
-    console.log(store.getState());
-    console.log(route);
-    console.log(params);
     
     mainWrapper.removeAttribute("id");
-    mainWrapper.className = "h-full w-full";
+    mainWrapper.className = "h-full w-full relative";
     document.body.className = "font-mono";
     if (
       store.getAuth() &&
@@ -61,6 +58,9 @@ export default function runSPA() {
   } else {
     navigateTo("/error");
   }
+  if(store.getAuth())
+    mainWrapper.append(getLanguageSelector());
+  updateContent();
 }
 
 // Forward-Back arrows working properly

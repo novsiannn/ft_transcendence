@@ -65,6 +65,13 @@ export const handleModalInput = (
         modalInput?.value ? modalInput.value : "",
         userID ? userID : ""
       );
+      console.log(response);
+      
+      if(response.status === 400 || response.status === 401){
+        activateWarning("#warningMessageModalInput", response.message);
+        modalBtn.innerHTML = 'Send';
+      }
+      
       return response;
     }
     return;

@@ -1,4 +1,4 @@
-import { IUser } from "../services/api/models/response/IUser";
+import { IUser } from './../services/api/models/response/IUser';
 
 export interface IUserDataRegistrationType {
   username: string | null;
@@ -20,15 +20,37 @@ export interface IRouteParams {
   id?: number;
 }
 
+export interface IResponse {
+  status: number;
+  statusText?: string;
+}
+
+export interface IResponseData {
+  user: IUser
+}
+
+export interface IResponseSetLanguage extends IResponse{ 
+  data: IResponseData
+}
+
+export interface IFriendRequestIncoming extends IResponse {
+  data: IFriendshipResponseData
+}
+
 export interface IAuth {
   user: IUser;
   isAuth: boolean;
   isLoading: boolean;
+}
+
+export interface IFriendsPage {
   allUsers: IUser[];
+  friends: IFriend[];
 }
 
 export interface IInitialState {
   auth: IAuth;
+  friendsPage: IFriendsPage
 }
 
 export interface IFriend {
@@ -39,13 +61,10 @@ export interface IFriend {
 }
 
 export interface IFriendsResponse {
-  friends: IFriend[]
+  friends: IFriend[];
 }
 
-
-
-
-export interface IPendingFriendsRequest {
+export interface IFriendshipResponse {
   addresseeId: number;
   createdAt: string;
   id: number;
@@ -54,7 +73,14 @@ export interface IPendingFriendsRequest {
   updatedAt: string;
 }
 
-export interface IPendingFriendsResponse {
-  pendingUserIds: number[];
-  requests: IPendingFriendsRequest[];
+export interface IFriendshipResponseData {
+  pendingUserIds?: number[];
+  requests: IFriendshipResponse[];
+}
+
+export interface IUpdateProfileData {
+  username: string,
+  firstName: string | null,
+  lastName: string | null,
+  phoneNumber: string | null
 }

@@ -20,6 +20,8 @@ import { registrationPage } from "../pages/registration/registrationPage"
 import { handleFriendsPage } from "../pages/friends"
 import { friendsPage } from "../pages/friends/friendsPage"
 import { IRouteParams } from "../shared"
+import { chatsPage } from "../pages/chats/layoutChats"
+import { handleChatsPage } from "../pages/chats/handleChats"
 
 interface handleFunctionI {
     layoutCreate: (mainWrapper?: HTMLDivElement, params?: {}) => string;
@@ -34,7 +36,8 @@ export const privateRoutes: Record<string, handleFunctionI> = {
     "/settings": {layoutCreate: settingsPage, handleFunc: handleSettings},
     "/error": {layoutCreate: errorPage, handleFunc: handleErrorPage},
     "/leaderboard": {layoutCreate: leaderBoardPage, handleFunc: handleLeaderboardPage},
-    "/friends": {layoutCreate: friendsPage, handleFunc: handleFriendsPage}
+    "/friends": {layoutCreate: friendsPage, handleFunc: handleFriendsPage},
+    "/chats": {layoutCreate: chatsPage, handleFunc: handleChatsPage}
 };
 
 export const publicRoutes: Record<string, handleFunctionI> = {
@@ -56,5 +59,6 @@ export const allRoutes: Record<string, handleFunctionI> = {
     "/error": {layoutCreate: errorPage, handleFunc: handleErrorPage},
     "/leaderboard": {layoutCreate: leaderBoardPage, handleFunc: handleLeaderboardPage},
     "/activate": {layoutCreate: activateAccountPage, handleFunc: handleActivateAccount},
-    "/friends": {layoutCreate: friendsPage, handleFunc: handleFriendsPage}
+    "/friends": {layoutCreate: friendsPage, handleFunc: handleFriendsPage},
+    "/chats": {layoutCreate: chatsPage, handleFunc: handleChatsPage}
 };

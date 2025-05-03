@@ -1,0 +1,51 @@
+{
+  "language": "Sprache",
+  "english": "Englisch",
+  "german": "Deutsch",
+  "ukrainian": "Ukrainisch",
+  "home": {
+    "description": "Transcendence ist ein 42 Schulprojekt, um etwas über Webentwicklung und SPA zu lernen. Das Ziel ist es, eine Web-App zu erstellen, um Pong zu spielen und sich mit anderen Nutzern auszutauschen.",
+    "Entwickler": "Entwickelt von novsiann, kilchenk und ikhristi"
+  },
+  "profile": {
+    "level": "Level",
+    "friends": "Freunde",
+    "playedMatches": "Gespielte Spiele"
+  },
+  "navigation": {
+    "home": "Startseite",
+    "chats": "Chats",
+    "game": "Spiel",
+    "profile": "Profil",
+    "leaderboard": "Bestenliste",
+    "settings": "Einstellungen",
+    "friends": "Freunde",
+    "logout": "Abmelden"
+  },
+  "friends": {
+    "allUsers": "Alle Benutzer",
+    "yourFriends": "Deine Freunde",
+    "noOneIsHere": "Noch niemand hier!",
+    "findFriend": "Freund finden"
+  },
+  "buttons": {
+    "add": "Hinzufügen",
+    "cancel": "Abbrechen",
+    "accept": "Akzeptieren",
+    "reject": "Ablehnen",
+    "enable": "Aktivieren",
+    "disable": "Deaktivieren",
+    "save": "Speichern",
+    "delete": "Löschen"
+  },
+  "settings": {
+    "2fa": "2FA-Authentifizierung",
+    "firstName": "Vorname",
+    "lastName": "Familienname",
+    "userName": "Benutzername",
+    "email": "Email"
+  },
+  "chat": {
+    "searchChats": "Chats suchen..."
+  }
+}

@@ -4,16 +4,10 @@ import { getModalTwoFactor } from "../../elements/ModalTwoFactor";
 import { navigation } from "../../elements/nagivation";
 import { getColorFromUsername } from "../../shared/randomColors";
 import { store } from "../../store/store";
+import { getModalWindowError } from "../../elements";
 
 export function settingsPage(mainWrapper: HTMLDivElement | undefined) {
-  document.body.classList.add(
-    "bg-gradient-to-t",
-    "from-black",
-    "via-black",
-    "to-gray-800",
-    "h-full",
-    "overflow-hidden"
-  );
+  document.body.classList.add("bg-gray-500", "overflow-hidden");
   const color = getColorFromUsername(store.getUser().username);
   const firstLetterOfUser = store.getUser().username.charAt(0).toUpperCase();
   const userPhoto = store.getUser().avatar;
@@ -22,54 +16,56 @@ export function settingsPage(mainWrapper: HTMLDivElement | undefined) {
   let res = `
 				${navigation()}
 				<div class="w-full h-full flex flex-col flex-1 items-center justify-center min-h-screen font-mono my-5">
-  					<div class="px-6 py-3 text-black bg-white rounded-lg text-xl w-4/5 h-4/5 text-center">
-						<h1 class="font-bold text-3xl">Your Profile</h1>
-						<div class="grid grid-cols-10 grid-rows-5 gap-4 w-5/5 h-4/5 my-5 py-2 px-2 text-gray-500">
-    						<div class=" col-start-5 col-span-2 row-start-1 row-span-2">
-								${
-                  userPhoto
-                    ? `<img id="profileImg" class="rounded-full object-cover w-48 h-48" draggable="false" alt="Profile Image">`
-                    : `<div id="profileImg" class="text-5xl text-white font-bold mx-auto flex justify-center items-center object-cover content-center select-none w-48 h-48 ${color} rounded-full cursor-pointer">
-                      ${firstLetterOfUser}
-                    </div>`
-                }
-								
-								
-								 <div id="imgDropdownMenu"
-									class="hidden absolute z-10 w-48 bg-white rounded-lg shadow-lg">
-									<button id="changePhotoBtn" class="block w-full text-left px-4 py-2 hover:bg-gray-100">Change photo</button>
-									<input type="file" accept="image/*" class=" text-xs border-2 border-blue-700 max-w-xs p-1 m-1" id="uploadImgInput" hidden/>
-								</div>
-							</div>
-							<div class=" col-start-2 col-span-4 row-start-3">
-								<h1 >Your first name</h1>
-								<input class="inputUserInfo border-2 border-blue-700 max-w-xs p-2 m-1" name="firstName" autocomplete="first name"> </input>
-							</div>
-							<div class="col-start-6 col-span-4" >
-								<p >Your last name</p>
-								<input class="inputUserInfo border-2 border-blue-700 max-w-xs p-2 m-1" name="lastName" autocomplete="last name"> </input>
-							</div>
-							<div class=" col-start-2 col-span-4">
-								<p >Your username</p>
-								<input class="inputUserInfo border-2 border-blue-700 max-w-xs p-2 m-1" name="userName" autocomplete="username"> </input>
-							</div>
-							<div class=" col-start-6 col-span-4">
-								<p >Your email</p>
-								<input class="inputUserInfo border-2 border-blue-700 max-w-xs p-2 m-1" name="E-mail" autocomplete="email"> </input>
-							</div>
-							<div class="grid col-start-2 col-span-4 m-2 place-items-center max-w-s ">
-								<p>Two-factor Authentication </p>
-								<div class="flex">
-                    				<button class='bg-red-500 p-2 m-1 border rounded text-white' id='disableTwoFactorBtn'>Disable</button>
-                					<button class='bg-green-500 p-2 m-1 border rounded text-white' id='enableTwoFactorBtn'>Enable</button>
-								</div>
-							</div>
-							<div class=" col-start-5 col-span-2"><button class="w-full h-full text-white focus:outline-none bg-blue-300" id="saveChangesSettings"> SAVE CHANGES </button></div>
-						</div>
-  					</div>
-					${getModalTwoFactor()}
-					${getModalInput()}
-					${getModalWindowSuccess()}
-				</div>`;
+  					<div class="px-6 py-3 text-black bg-white rounded-lg text-xl w-1/2 h-2/3 text-center font-sans">
+    					<div class="flex relative justify-between p-10">
+      						<div class="flex flex-col items-center gap-4">
+        						<div class="relative inline-block">
+          							${
+                          userPhoto
+                            ? `<img id="profileImg" class="rounded-full object-cover w-48 h-48 cursor-pointer" draggable="false" alt="Profile Image">`
+                            : `<div id="profileImg" class="text-5xl text-white font-bold flex justify-center items-center w-48 h-48 ${color} rounded-full cursor-pointer select-none">${firstLetterOfUser}</div>`
+                        }
+          							<div id="imgDropdownMenu" class="hidden absolute top-full mt-2 left-1/2 -translate-x-1/2 z-10 w-52 bg-white rounded-lg shadow-lg border border-gray-300">
+            							<button id="changePhotoBtn" class="w-full text-center px-4 py-2 hover:bg-gray-100 text-xs">Change photo</button>
+            							<hr>
+            							<input type="file" accept="image/*" id="uploadImgInput" hidden class="text-xs w-full px-4 py-1 text-gray-700" />
+            							<button id="deletePhotoBtn" class="w-full text-center px-4 py-2 hover:bg-gray-100 text-xs border-t">Delete photo</button>
+          							</div>
+        						</div>
+
+        						<div class="flex flex-col items-center mt-4">
+          						<p data-i18n='settings.2fa' class="text-s">2FA Authentication</p>
+          						<div class="flex gap-2 mt-2">
+            						<button data-i18n='buttons.disable' id="disableTwoFactorBtn" class="bg-red-500 px-4 py-2 rounded text-white hover:bg-red-600">Disable</button>
+            						<button data-i18n='buttons.enable' id="enableTwoFactorBtn"  class="bg-green-500 px-4 py-2 rounded text-white hover:bg-green-600">Enable</button>
+          						</div>
+        					</div>
+      					</div>
+      					<div class="flex flex-col flex-wrap gap-4">
+        					<div>
+          						<p data-i18n='settings.firstName' class="text-left text-sm">First name</p>
+          						<input class="inputUserInfo w-full border-2 border-black  p-2" placeholder="First name" name="firstName" autocomplete="first name" />
+        					</div>
+       						<div>
+          						<p data-i18n='settings.lastName' class="text-left text-sm">Last name</p>
+          						<input class="inputUserInfo border-2 w-full border-black p-2" placeholder="Last name" name="lastName" autocomplete="last name" />
+        					</div>
+        					<div>
+          						<p data-i18n='settings.userName' class="text-left text-sm">Username</p>
+          						<input class="inputUserInfo w-full border-2 border-black p-2" name="username" placeholder="Username" autocomplete="username" />
+        					</div>
+        					<div>
+          						<p data-i18n='settings.email' class="text-left text-sm">Email</p>
+          						<input type="email" readonly class="inputUserInfo w-full text-sm border-2 border-black p-2" name="E-mail" placeholder="Email" autocomplete="email" />
+        					</div>
+      					</div>
+    				</div>
+					<button data-i18n='buttons.save' id="saveChangesSettings" class=" bg-blue-500 w-28 h-10 text-white focus:outline-none  font-medium rounded text-sm px-5 py-2.5 text-center me-2 mb-2">Save</button>
+  				</div>
+  			${getModalWindowError()}
+  			${getModalTwoFactor()}
+  			${getModalInput()}
+  			${getModalWindowSuccess()}
+		</div>`;
   return res;
 }

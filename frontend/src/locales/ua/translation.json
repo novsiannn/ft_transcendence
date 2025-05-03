@@ -1,0 +1,51 @@
+{
+  "language": "Мова",
+  "english": "Англійська",
+  "german": "Німецька",
+  "ukrainian": "Українська",
+  "home": {
+    "description": "Transcendence — це проект 42 школи для вивчення веб-розробки та SPA. Мета — створити веб-додаток для гри в понг та спілкування з іншими користувачами.",
+    "developers": "Розроблено novsiann, kilchenk та ikhristi"
+  },
+  "profile": {
+    "level": "Рівень",
+    "friends": "Друзі",
+    "playedMatches": "Зіграні матчі"
+  },
+  "navigation": {
+    "home": "Додому",
+    "chats": "Чати",
+    "game": "Гра",
+    "profile": "Профіль",
+    "leaderboard": "Таблиця лідерів",
+    "settings": "Налаштування",
+    "friends": "Друзі",
+    "logout": "Вийти"
+  },
+  "friends": {
+    "allUsers": "Усі користувачі",
+    "yourFriends": "Ваші друзі",
+    "noOneIsHere": "Тут ще нікого!",
+    "findFriend": "Знайди друга"
+  },
+  "buttons": {
+    "add": "Додати",
+    "cancel": "Скасувати",
+    "accept": "Прийняти",
+    "reject": "Відхилити",
+    "enable": "Увімкнути",
+    "disable": "Вимкнути",
+    "save": "Зберегти",
+    "delete": "Видалити"
+  },
+  "settings": {
+    "2fa": "Аутентифікація 2FA",
+    "firstName": "Ім'я",
+    "lastName": "Фамілія",
+    "userName": "Нікнейм",
+    "email": "Електронна пошта"
+  },
+  "chat": {
+    "searchChats": "Шукати чати ..."
+  }
+}

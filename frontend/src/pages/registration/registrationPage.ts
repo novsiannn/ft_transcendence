@@ -1,5 +1,6 @@
 import { getModalWindowError } from "../../elements";
 import { navigation } from "../../elements/nagivation";
+import { getEyeShowPassword } from "../../elements/PasswordVisibility";
 
 export function registrationPage() {
   document.body.classList.add(
@@ -26,7 +27,21 @@ export function registrationPage() {
                     <form id="registerForm" class="space-y-4">
                         <input id="usernameRegistration" type="text" placeholder="Username" class="w-full p-2 border rounded">
                         <input id="emailRegistration" type="email" placeholder="Your email" class="w-full p-2 border rounded">
-                        <input id="passwordRegistration" type="password" placeholder="Your password" class="w-full p-2 border rounded">
+                        <div class="relative">
+                            <input
+                                id="passwordRegistration"
+                                type="password"
+                                placeholder="Your password"
+                                class="w-full p-2 pr-10 border rounded"
+                            />
+                            <div
+                                id="togglePasswordReg"
+                                class="absolute inset-y-0 right-3 flex items-center cursor-pointer text-gray-500"
+                            >
+                            ${getEyeShowPassword()}
+                            </div>
+                    </div>
+
                         <button id="submitRegistration" class="w-full bg-green-500 text-white p-2 rounded hover:bg-blue-600 cursor-pointer">Sign Up</button>
                     </form>
                     <p class="text-center select-none mt-4 cursor-default ">Already registered? <a class="text-blue-500 cursor-pointer" id="questionAlreadyRegistr">Sign In</a></p>

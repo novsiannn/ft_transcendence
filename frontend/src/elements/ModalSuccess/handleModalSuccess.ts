@@ -1,5 +1,5 @@
 export const handleModalSuccess = (text?: string) => {
-  const modalWindow = document.querySelector("#modalWindow");
+  const modalWindow = document.querySelector("#modalWindowSucess");
   const modalContent = modalWindow?.querySelector("div");
   const successMessage = document.querySelector("#successMessage");
 

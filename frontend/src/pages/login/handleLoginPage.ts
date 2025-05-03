@@ -1,9 +1,8 @@
 import { getLoader } from "../../elements/Loader";
 import { navigationHandle } from "../../elements/nagivation";
+import { getEyeHidePassword, getEyeShowPassword } from "../../elements/PasswordVisibility";
 import { userDataLogin } from "../../shared";
 import { IUserDataTypeLogin } from "../../shared";
-
-
 import { store } from "../../store/store";
 import { activateWarning, hideWarning } from "./loginPage";
 
@@ -16,7 +15,17 @@ export function handleLogin() {
     "loginPass"
   ) as HTMLInputElement;
   const loginBtn = document.getElementById("loginBtn");
-  
+  const loginSvgEye = document.getElementById("loginSvgEye");
+
+  loginSvgEye!.addEventListener('click', () => {
+    if (loginPassInput.type === 'password') {
+      loginPassInput.type = 'text';
+      loginSvgEye!.innerHTML = getEyeHidePassword();
+    } else {
+      loginPassInput.type = 'password';
+      loginSvgEye!.innerHTML = getEyeShowPassword();
+    }
+  });
 
   const LoginBtns: HTMLInputElement[] = [loginEmailInput, loginPassInput];
 
@@ -28,6 +37,7 @@ export function handleLogin() {
 
   loginBtn!.addEventListener("click", async (e) => {
     e.preventDefault();
+    loginPassInput.type = 'password';
     try {
       LoginBtns.forEach((input) => {
         const key = input.type.toLowerCase() as keyof IUserDataTypeLogin;
@@ -38,8 +48,8 @@ export function handleLogin() {
         }
       });
       loginBtn!.innerHTML = getLoader();
-      const response = await store.login(userDataLogin.email, userDataLogin.password);
-      console.log(response);
+      await store.login(userDataLogin.email, userDataLogin.password);
+      loginBtn!.innerHTML = "Login";
     } catch (error: any) {
       activateWarning('#warningMessage','Incorrect email or password');
       loginBtn!.innerHTML = "Login";

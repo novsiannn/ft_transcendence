@@ -21,6 +21,11 @@ instanceAPI.interceptors.response.use(
   },
   async (error) => {
     const originalRequest = error.config;
+
+    if (!error.response) {
+      return Promise.reject(error);
+    }
+    
     if (
       error.response.status === 401 &&
       error.response.data?.requiresTwoFactor &&
@@ -30,6 +35,11 @@ instanceAPI.interceptors.response.use(
         data: error.response.data,
         status: 401
       });
+    }
+
+    if (error.response?.status === 409) {
+      const message = error.response.data?.message || "This username is already taken";
+      return Promise.reject({ message, status: 409 });
     }
 
     if (
