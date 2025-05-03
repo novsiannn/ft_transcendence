@@ -1247,7 +1247,7 @@ async function routes(fastify, options) {
       }
     },
     preHandler: authMiddleware
-  }, handleFindOrCreateChat);
+  }, chatController.findOrCreateChat);
 
   fastify.get('/chat/messages/:chatId', {
     schema: {
