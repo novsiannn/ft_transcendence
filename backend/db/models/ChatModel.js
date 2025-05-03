@@ -28,10 +28,10 @@ const Chat = sequelize.define('Chat', {
         type: DataTypes.DATE,
         defaultValue: DataTypes.NOW,
     },
-    lastMessage: {
-        type: DataTypes.DATE,
-        allowNull: true,
-    }
+    // lastMessage: {
+    //     type: DataTypes.DATE,
+    //     allowNull: true,
+    // }О
 
 });
 

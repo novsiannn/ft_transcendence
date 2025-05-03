@@ -37,10 +37,10 @@ const Message = sequelize.define('Message', {
         type: DataTypes.TEXT,
         allowNull: false,
     },
-    isRead: {
-        type: DataTypes.BOOLEAN,
-        defaultValue: false,
-    },
+    // isRead: {
+    //     type: DataTypes.BOOLEAN,
+    //     defaultValue: false,
+    // },
     createdAt: {
         type: DataTypes.DATE,
         defaultValue: DataTypes.NOW,

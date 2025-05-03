@@ -25,12 +25,15 @@ Friendship.belongsTo(User, {
 });
 
 // Chat and Message relations
-User.hasMany(Message, {foreignKey: 'senderId', as: 'sentMessages'});
-User.hasMany(Message, {foreignKey: 'receiverId', as: 'receivedMessages'});
-
-User.belongsToMany(Chat, { through: 'UserChats', foreignKey: 'userId', as: 'chats'});
-
+Chat.belongsTo(User, { as: 'User1', foreignKey: 'user_1' });
+Chat.belongsTo(User, { as: 'User2', foreignKey: 'user_2' });
 Chat.hasMany(Message, { foreignKey: 'chatId', as: 'messages' });
-Chat.belongsToMany(User, { through: 'UserChats', foreignKey: 'chatId', as: 'users' });
+
+Message.belongsTo(Chat, { foreignKey: 'chatId' });
+Message.belongsTo(User, { as: 'sender', foreignKey: 'senderId' });
+Message.belongsTo(User, { as: 'receiver', foreignKey: 'receiverId' });
+
+User.hasMany(Message, { foreignKey: 'senderId', as: 'sentMessages' });
+User.hasMany(Message, { foreignKey: 'receiverId', as: 'receivedMessages' });
 
 module.exports = { User, Chat, Message, Friendship };
