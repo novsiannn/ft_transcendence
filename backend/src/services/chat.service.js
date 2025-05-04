@@ -39,12 +39,12 @@ const ChatService = {
                     {
                         model: User,
                         as: 'User1',
-                        attributes: ['id', 'avatar']
+                        attributes: ['id', 'avatar', 'username']  // добавили username
                     },
                     {
                         model: User,
                         as: 'User2',
-                        attributes: ['id', 'avatar']
+                        attributes: ['id', 'avatar', 'username']  // добавили username
                     },
                     {
                         model: Message,
@@ -60,11 +60,12 @@ const ChatService = {
             return chats.map(chat => ({
                 id: chat.id,
                 userId: chat.user_1 === userId ? chat.user_2 : chat.user_1,
+                username: chat.user_1 === userId ? chat.User2.username : chat.User1.username,
                 avatar: chat.user_1 === userId ? chat.User2.avatar : chat.User1.avatar,
                 message: {
                     id: chat.messages.length > 0 ? chat.messages[0].id : null,
                     content: chat.messages.length > 0 ? chat.messages[0].content : null,
-                    createdAt: chat.messages.length > 0 ? chat.messages[0].createdAt : null
+                    createdAt: chat.messages.length > 0 ? chat.messages[0].createdAt : chat.createdAt
                 }
             }));
     
