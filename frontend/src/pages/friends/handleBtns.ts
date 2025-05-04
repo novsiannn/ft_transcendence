@@ -112,6 +112,8 @@ export const rerenderFriendsPage = async (filteredUsers?: IUser[]) => {
       `<h1 data-i18n='friends.yourFriends' class="text-2xl text-white font-black text-center mb-4">Your Friends</h1>
       ${getLoader()}
     `;
+  await store.getAllFriendsRequest();
+  await store.getAllUsersRequest();
 
   const responseAllFriends = store.getAllFriends();
   if (!filteredUsers){

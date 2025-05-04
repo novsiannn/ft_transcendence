@@ -2,7 +2,7 @@ import instanceAPI from "./instanceAxios";
 
 const chatsService = {
   getAllChats: async () => {
-	  return await instanceAPI.get("chat");
+	  return await instanceAPI.get("chats");
   },
   createChat: async (targetUserId: string) => {
 	  return await instanceAPI.post("chat/create", {targetUserId});
