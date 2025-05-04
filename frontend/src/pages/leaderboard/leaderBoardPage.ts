@@ -65,12 +65,12 @@ const headerLeaderBoard = () => {
 
 export function leaderBoardPage(mainWrapper: HTMLDivElement | undefined) {
 	document.body.classList.add("bg-gray-500", "overflow-hidden");
-	mainWrapper!.className = "h-screen w-full flex items-center";
+	mainWrapper!.className = "h-screen w-full flex flex-col items-center";
 
 	let res = `
 		${navigation()}
 
-			<div class="flex items-center justify-center w-full h-full  rounded-2xl text-center mt-24 m-12">
+			<div class="flex items-center justify-center w-full h-full  rounded-2xl text-center">
 				<div class="grid gap-2 h-4/5 w-full bg-white rounded-3xl p-7">
 					<div>
 						<h1 class="text-2xl mt-3">Leaderboard</h1>

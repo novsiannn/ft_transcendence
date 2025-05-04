@@ -12,11 +12,11 @@ export function settingsPage(mainWrapper: HTMLDivElement | undefined) {
   const firstLetterOfUser = store.getUser().username.charAt(0).toUpperCase();
   const userPhoto = store.getUser().avatar;
 
-  mainWrapper!.className = "mx-auto h-screen w-full";
+  mainWrapper!.className = "h-screen w-full flex flex-col items-center";
   let res = `
 				${navigation()}
-				<div class="w-full h-full flex flex-col flex-1 items-center justify-center min-h-screen font-mono my-5">
-  					<div class="px-6 py-3 text-black bg-white rounded-lg text-xl w-1/2 h-2/3 text-center font-sans">
+				<div class="w-full h-full flex flex-col items-center justify-center font-mono">
+  					<div class="px-6  text-black bg-white rounded-lg text-xl w-1/2 h-2/3 text-center font-sans">
     					<div class="flex relative justify-between p-10">
       						<div class="flex flex-col items-center gap-4">
         						<div class="relative inline-block">

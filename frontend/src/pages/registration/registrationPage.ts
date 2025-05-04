@@ -8,11 +8,7 @@ export function registrationPage() {
     "h-screen",
     "flex",
     "flex-col",
-    "bg-gradient-to-t",
-    "from-black",
-    "via-black",
-    "to-gray-800",
-    "overflow-hidden"
+    "bg-gray-500"
   );
 
   return `

@@ -23,8 +23,11 @@ export const getFriendsBlock = (
   if (data.length) {
     console.log('here');
     console.log(data);
-    
+    wrapper!.innerHTML =
+          `<h1 data-i18n='friends.yourFriends' class="text-2xl text-white font-black text-center mb-4">Your Friends</h1>`;
     data.forEach((el) => {
+      
+      
       if (el.id !== myProfileID) {
         div = document.createElement("div");
         div.innerHTML = getFriendsLayout(el.username, el.avatar);
@@ -32,8 +35,7 @@ export const getFriendsBlock = (
           div.querySelector<HTMLButtonElement>("#btnDeleteFriend");
         btnDeleteFriend!.id = `btnDeleteFriend${el.id}`;
 
-        wrapper!.innerHTML =
-          `<h1 data-i18n='friends.yourFriends' class="text-2xl text-white font-black text-center mb-4">Your Friends</h1>`;
+        
         wrapper!.append(div);
         btnDeleteFriend?.addEventListener("click", async (e) => {
           e.stopPropagation();

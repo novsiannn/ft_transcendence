@@ -6,7 +6,7 @@ export function homePage() {
   document.body.classList.add("h-screen", "flex", "flex-col", "bg-gray-500");
   let res = `
         	${navigation()}
-        	<div class="container mx-auto p-6 mt-24">
+        	<div class="container mx-auto p-6">
         	    <div class="flex flex-col md:flex-row items-center justify-between bg-white p-8 rounded-2xl shadow-lg">
         	        <div class="md:w-1/2 select-none p-6">
   						<h1 class="animate-typing overflow-hidden whitespace-nowrap animate-typing border-r-4 border-white pr-5 text-4xl font-bold bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 text-transparent bg-clip-text">
