@@ -11,8 +11,7 @@ import {
   getFriendsLayout,
   getUserLayout,
 } from "./containersLayout";
-import { addBtnsListeners, deleteFriend, rerenderFriendsPage } from "./handleBtns";
-import { SearchBar } from "../../elements/SearchBar";
+import { addBtnsListeners, deleteFriend } from "./handleBtns";
 
 export const getFriendsBlock = (
   data: IFriend[],
@@ -20,8 +19,11 @@ export const getFriendsBlock = (
 ) => {
   let div;
   const myProfileID = store.getState().auth.user.id;
-
+  
   if (data.length) {
+    console.log('here');
+    console.log(data);
+    
     data.forEach((el) => {
       if (el.id !== myProfileID) {
         div = document.createElement("div");

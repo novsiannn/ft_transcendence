@@ -283,7 +283,6 @@ class Store {
     console.log(response);
   }
 
-
   checkAuth = async () => {
     this.setLoading(true);
     const accessToken = localStorage.getItem("token");
