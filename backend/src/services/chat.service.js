@@ -61,11 +61,11 @@ const ChatService = {
                 id: chat.id,
                 userId: chat.user_1 === userId ? chat.user_2 : chat.user_1,
                 avatar: chat.user_1 === userId ? chat.User2.avatar : chat.User1.avatar,
-                message: chat.messages.length > 0 ? {
-                    id: chat.messages[0].id,
-                    content: chat.messages[0].content,
-                    createdAt: chat.messages[0].createdAt
-                } : null
+                message: {
+                    id: chat.messages.length > 0 ? chat.messages[0].id : null,
+                    content: chat.messages.length > 0 ? chat.messages[0].content : null,
+                    createdAt: chat.messages.length > 0 ? chat.messages[0].createdAt : null
+                }
             }));
     
         } catch (error) {
