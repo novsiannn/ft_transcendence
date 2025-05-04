@@ -37,21 +37,37 @@ const ChatService = {
                 },
                 include: [
                     {
+                        model: User,
+                        as: 'User1',
+                        attributes: ['id', 'avatar']
+                    },
+                    {
+                        model: User,
+                        as: 'User2',
+                        attributes: ['id', 'avatar']
+                    },
+                    {
                         model: Message,
                         as: 'messages',
-                        attributes: ['id', 'content', 'senderId', 'createdAt'],
-                        order: [['createdAt', 'DESC']],
+                        attributes: ['id', 'content', 'createdAt'],
                         limit: 1,
-                        include: [{
-                            model: User,
-                            as: 'sender',
-                            attributes: ['id', 'username', 'avatar']
-                        }]
+                        order: [['createdAt', 'DESC']]
                     }
                 ],
                 order: [['createdAt', 'DESC']]
             });
-            return chats;
+    
+            return chats.map(chat => ({
+                id: chat.id,
+                userId: chat.user_1 === userId ? chat.user_2 : chat.user_1,
+                avatar: chat.user_1 === userId ? chat.User2.avatar : chat.User1.avatar,
+                message: chat.messages.length > 0 ? {
+                    id: chat.messages[0].id,
+                    content: chat.messages[0].content,
+                    createdAt: chat.messages[0].createdAt
+                } : null
+            }));
+    
         } catch (error) {
             console.error('Error getting user chats:', error);
             throw error;

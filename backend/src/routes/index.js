@@ -1281,7 +1281,7 @@ async function routes(fastify, options) {
     preHandler: authMiddleware
   }, chatController.getChatMessages);
 
-  fastify.get('/chat', {
+  fastify.get('/chats', {
     schema: {
       description: 'Get user chats',
       tags: ['Chat'],
@@ -1294,27 +1294,14 @@ async function routes(fastify, options) {
             type: 'object',
             properties: {
               id: { type: 'integer' },
-              user_1: { type: 'integer' },
-              user_2: { type: 'integer' },
-              createdAt: { type: 'string', format: 'date-time' },
-              messages: {
-                type: 'array',
-                items: {
-                  type: 'object',
-                  properties: {
-                    id: { type: 'integer' },
-                    content: { type: 'string' },
-                    senderId: { type: 'integer' },
-                    createdAt: { type: 'string', format: 'date-time' },
-                    sender: {
-                      type: 'object',
-                      properties: {
-                        id: { type: 'integer' },
-                        username: { type: 'string' },
-                        avatar: { type: 'string' }
-                      }
-                    }
-                  }
+              userId: { type: 'integer' },
+              avatar: { type: 'string' },
+              message: {
+                type: 'object',
+                properties: {
+                  id: { type: 'integer' },
+                  content: { type: 'string' },
+                  createdAt: { type: 'string', format: 'date-time' }
                 }
               }
             }
