@@ -1,17 +1,33 @@
 import { navigationHandle } from "../../elements/nagivation";
 import { IChatData } from "../../shared";
+import { getColorFromUsername } from "../../shared/randomColors";
 import { store } from "../../store/store";
 import { renderAllChats } from "./allChats";
+import { API_URL } from "../../store/store";
 
-export const getChatContent = (chatID: number) => {
-	return `
+export const getChatContent = (friend: IChatData) => {
+  const color = getColorFromUsername(friend.username);
+  const initials = friend.username.charAt(0).toUpperCase();
+
+  return `
     <header class="flex w-full items-center px-4 py-3 bg-white border-b border-gray-200">
       <div class="flex items-center space-x-3">
-        <div class="h-10 w-10 bg-gray-300 rounded-full flex items-center justify-center text-gray-700 font-medium">
-          Ta
-        </div>
+        ${
+          friend.avatar
+            ? `<img
+                src="${API_URL+ friend.avatar}"
+                alt="Profile"
+                draggable="false"
+                class="w-12 h-12 rounded-full object-cover"
+              />`
+            : `<div
+                class="w-12 h-12 rounded-full flex items-center justify-center ${color} text-white font-bold"
+              >
+                ${initials}
+              </div>`
+        }
         <div class="flex flex-col">
-          <span class="text-gray-900 font-semibold">${chatID}</span>
+          <span class="text-gray-900 font-semibold">${friend.username}</span>
         </div>
       </div>
     </header>
@@ -34,14 +50,14 @@ export const getChatContent = (chatID: number) => {
         </button>
       </div>
     </footer>
-  `;;
-}
+  `;
+};
 
-export const handleOpenChat = async (chatID: number) => {
+export const handleOpenChat = async (friend: IChatData) => {
   const chatContainer =
     document.querySelector<HTMLDivElement>("#chatContainer");
-	chatContainer!.innerHTML = getChatContent(chatID);
-  await store.getMessagesFromChat(chatID);
+  chatContainer!.innerHTML = getChatContent(friend);
+  await store.getMessagesFromChat(friend.id);
 };
 
 export const handleChatsPage = async (mainWrapper?: HTMLDivElement) => {

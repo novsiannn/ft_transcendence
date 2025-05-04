@@ -8,9 +8,10 @@ export const renderAllChats = (allChats: IChatData[]) => {
     document.querySelector<HTMLDivElement>("#allChatsContainer");
   if (!allChatsContainer || !allChats) return;
 
+  allChatsContainer.innerHTML = "";
   allChats.forEach((friend) => {
-    const color = getColorFromUsername("w");
-    const initials = "w".toUpperCase();
+    const color = getColorFromUsername(friend.username);
+    const initials = friend.username.charAt(0).toUpperCase();
 
     const chatBlock = document.createElement("div");
     chatBlock.id = `chatWith${friend.userId}`;
@@ -35,7 +36,7 @@ export const renderAllChats = (allChats: IChatData[]) => {
         }
         <div class="flex flex-col">
           <span class="text-gray-900 font-medium">
-            ${friend.userId}
+            ${friend.username}
           </span>
           <span class="text-gray-500 text-sm truncate max-w-xs">
             ${friend.message.content || "No messages yet"}
@@ -48,7 +49,7 @@ export const renderAllChats = (allChats: IChatData[]) => {
     `;
 
     chatBlock.addEventListener("click", () => {
-      handleOpenChat(friend.id);
+      handleOpenChat(friend);
     });
 
     allChatsContainer.appendChild(chatBlock);

@@ -58,7 +58,7 @@ export default function runSPA() {
   } else {
     navigateTo("/error");
   }
-  if(store.getAuth())
+  if(store.getAuth() && location.pathname !== '/chats')
     mainWrapper.append(getLanguageSelector());
   updateContent();
 }

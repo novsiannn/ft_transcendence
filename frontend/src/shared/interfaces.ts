@@ -45,6 +45,7 @@ export interface IChatData {
   id: number;
   userId: number;
   avatar: string;
+  username: string;
   message: IMessage
 }
 
