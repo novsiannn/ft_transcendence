@@ -9,7 +9,6 @@ export function chatsPage(mainWrapper: HTMLDivElement | undefined) {
   let res = `
     ${navigation()}
     <div class="flex flex-1 w-full overflow-hidden font-sans">
-      <!-- Sidebar -->
       <div class="flex flex-col bg-gray-200 w-1/4 text-left border-r border-gray-300">
         <div class="flex flex-col border-t border-b border-gray-300">
           <p class="ml-4 mt-2 text-lg font-normal">Messages</p>
@@ -17,11 +16,9 @@ export function chatsPage(mainWrapper: HTMLDivElement | undefined) {
           ${Select(1)}
         </div>
         <div id="allChatsContainer" class="flex-1 overflow-auto">
-          <!-- Chat list scrollable area -->
         </div>
       </div>
 
-      <!-- Chat area -->
       <div class="bg-gray-100 flex-1 flex flex-col">
         <div class="flex-1 flex flex-col items-center w-full justify-center border-t border-gray-300" id="chatContainer">
           <div class="text-center max-w-md px-4">
