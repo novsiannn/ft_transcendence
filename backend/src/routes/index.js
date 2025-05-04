@@ -1295,6 +1295,7 @@ async function routes(fastify, options) {
             properties: {
               id: { type: 'integer' },
               userId: { type: 'integer' },
+              username: { type: 'string' },
               avatar: { type: 'string' },
               message: {
                 type: 'object',
