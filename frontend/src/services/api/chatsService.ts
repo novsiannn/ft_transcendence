@@ -1,14 +1,17 @@
+import { IChatData, IChatsResponse, IMessage } from "../../shared";
 import instanceAPI from "./instanceAxios";
 
 const chatsService = {
-  getAllChats: async () => {
-	  return await instanceAPI.get("chats");
+  getAllChats: async (): Promise<IChatData[]> => {
+    const response = await instanceAPI.get<IChatData[]>("chats");
+    return response.data;
   },
-  createChat: async (targetUserId: string) => {
-	  return await instanceAPI.post("chat/create", {targetUserId});
+  createChat: async (targetUserId: number | string) => {
+    return await instanceAPI.post("chat/create", { targetUserId });
   },
   getMessagesFromChat: async (chatId: number) => {
-	  return await instanceAPI.get(`chat/messages/${chatId}`);
+    const response = await instanceAPI.get<IMessage[]>(`chat/messages/${chatId}`);
+    return response.data;
   },
 };
 

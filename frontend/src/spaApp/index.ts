@@ -34,7 +34,7 @@ export default function runSPA() {
     const {route, params} = matched;
     
     mainWrapper.removeAttribute("id");
-    mainWrapper.className = "h-full w-full relative";
+    mainWrapper.className = "h-full w-full relative flex flex-col";
     document.body.className = "font-mono";
     if (
       store.getAuth() &&

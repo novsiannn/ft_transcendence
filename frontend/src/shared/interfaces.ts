@@ -1,4 +1,4 @@
-import { IUser } from './../services/api/models/response/IUser';
+import { IUser } from "./../services/api/models/response/IUser";
 
 export interface IUserDataRegistrationType {
   username: string | null;
@@ -26,15 +26,34 @@ export interface IResponse {
 }
 
 export interface IResponseData {
-  user: IUser
+  user: IUser;
 }
 
-export interface IResponseSetLanguage extends IResponse{ 
-  data: IResponseData
+export interface IResponseSetLanguage extends IResponse {
+  data: IResponseData;
+}
+
+export interface IMessage {
+  id: number;
+  chatId: number;
+  content: string;
+  senderId: number;
+  createdAt: string;
+}
+
+export interface IChatData {
+  id: number;
+  userId: number;
+  avatar: string;
+  message: IMessage
+}
+
+export interface IChatsResponse extends IResponse {
+  data: IChatData[];
 }
 
 export interface IFriendRequestIncoming extends IResponse {
-  data: IFriendshipResponseData
+  data: IFriendshipResponseData;
 }
 
 export interface IAuth {
@@ -50,7 +69,7 @@ export interface IFriendsPage {
 
 export interface IInitialState {
   auth: IAuth;
-  friendsPage: IFriendsPage
+  friendsPage: IFriendsPage;
 }
 
 export interface IFriend {
@@ -79,8 +98,8 @@ export interface IFriendshipResponseData {
 }
 
 export interface IUpdateProfileData {
-  username: string,
-  firstName: string | null,
-  lastName: string | null,
-  phoneNumber: string | null
+  username: string;
+  firstName: string | null;
+  lastName: string | null;
+  phoneNumber: string | null;
 }

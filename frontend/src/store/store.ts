@@ -1,6 +1,9 @@
 import {
+  IChatData,
+  IChatsResponse,
   IFriend,
   IFriendshipResponseData,
+  IMessage,
   IResponse,
   IUpdateProfileData,
 } from "./../shared/interfaces";
@@ -47,8 +50,6 @@ class Store {
   };
 
   getUserLanguage = () => {
-    console.log(this.state.auth.user.language);
-
     return this.state.auth.user.language || "eng";
   };
 
@@ -86,7 +87,7 @@ class Store {
 
   getAllFriendsRequest = async () => {
     const response = await friendsService.getFriends();
-    
+
     this.setAllFriends(response.data.friends);
     return response;
   };
@@ -273,15 +274,22 @@ class Store {
     return response;
   };
 
-  createNewChat = async (targetUserId: string) => {
+  createNewChat = async (targetUserId: number | string) => {
     const response = await chatsService.createChat(targetUserId);
-    console.log(response);
-  }
+    return response;
+  };
 
-  getAllChats = async () => {
-    const response = await chatsService.getAllChats();
+  getAllChats = async (): Promise<IChatData[]> => {
+    const response =  await chatsService.getAllChats();
+    return response;
+  };
+
+  getMessagesFromChat = async (chatID: number): Promise<IMessage[]> => {
+    const response =  await chatsService.getMessagesFromChat(chatID);
     console.log(response);
-  }
+    
+    return response;
+  };
 
   checkAuth = async () => {
     this.setLoading(true);

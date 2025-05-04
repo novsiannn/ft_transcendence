@@ -31,7 +31,7 @@ const getProfileIcon = () => {
 };
 
 const getSignInBtn = () => {
-  return `<div id="signInBtn" alt="Profile" class="w-full select-none text-white font-thin rounded-md p-2 h-8 cursor-pointer bg-gray-500 flex items-center">
+  return `<div id="signInBtn" alt="Profile" class="w-full select-none text-black font-thin rounded-md p-2 h-8 cursor-pointer bg-white flex items-center">
 			<h1>Sign In</h1>
 	</div>`;
 };
@@ -53,7 +53,7 @@ const getAuthBtn = () => {
 
 export function navigation() {
   return `
-		<nav class="top-0 left-0  text-white h-16 w-full fixed flex items-center justify-between px-6 select-none">
+		<nav class="top-0 left-0  text-white h-16 w-full flex items-center justify-between px-6 select-none p-3">
     		<img src="https://img.icons8.com/plasticine/100/ping-pong--v1.png" draggable="false" alt="Logo" class="h-12 w-12 object-cover" id=imgLogoNavi>
 
 			<div class="relative">
