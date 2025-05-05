@@ -1,11 +1,13 @@
 import { getLoader } from "./../Loader/Loader";
 
 import { navigateTo } from "../../routing";
-import { store } from "../../store/store";
+import { API_URL, store } from "../../store/store";
 import { dropMenuRoutes } from "./navigationRoutes";
+import { getColorFromUsername } from "../../shared/randomColors";
+
 
 export function navigationHandle() {
-  const profileBtn = document.querySelector("#profileIcon");
+  let profileBtn = document.querySelector("#profileIcon");
   const signInBtn = document.querySelector("#signInBtn");
   const signUpBtn = document.querySelector("#registBtn");
   const dropdownMenu = document.querySelector("#dropdownMenu");
@@ -80,3 +82,47 @@ export function navigationHandle() {
     }
   });
 }
+export function updateNavigationAvatar(avatarPath: string | null) {
+    const navigationPhoto = document.querySelector("#profileIcon");
+    if (!navigationPhoto) return;
+  
+    if (avatarPath) {
+      const timestamp = new Date().getTime();
+      const avatarUrl = `${API_URL}${avatarPath}?t=${timestamp}`;
+  
+      const newImg = document.createElement("img");
+      newImg.id = "profileIcon";
+      newImg.className = "w-12 h-12 rounded-full object-cover";
+      newImg.src = avatarUrl;
+      newImg.alt = "Profile Icon";
+      newImg.draggable = false;
+  
+      newImg.addEventListener("click", (e) => {
+        e.stopPropagation();
+        const navigationPhotoDropMenu =
+          document.getElementById("dropdownMenu");
+        if (navigationPhotoDropMenu) {
+          navigationPhotoDropMenu.classList.toggle("hidden");
+        }
+      });
+      navigationPhoto.replaceWith(newImg);
+    } else {
+      const username = store.getUser().username;
+      const firstLetter = username.charAt(0).toUpperCase();
+      const color = getColorFromUsername(username);
+  
+      const newDiv = document.createElement("div");
+      newDiv.id = "profileIcon";
+      newDiv.className = `w-12 h-12 flex items-center justify-center rounded-full text-white font-bold ${color}`;
+      newDiv.textContent = firstLetter;
+      newDiv.addEventListener("click", (e) => {
+        e.stopPropagation();
+        const navigationPhotoDropMenu =
+          document.getElementById("dropdownMenu");
+        if (navigationPhotoDropMenu) {
+          navigationPhotoDropMenu.classList.toggle("hidden");
+        }
+      });
+      navigationPhoto.replaceWith(newDiv);
+    }
+  }

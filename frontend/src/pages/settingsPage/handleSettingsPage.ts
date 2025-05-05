@@ -1,6 +1,6 @@
 import { handleModalInput } from "../../elements/ModalInput";
 import { handleModalTwoFactor } from "../../elements/ModalTwoFactor";
-import { navigationHandle } from "../../elements/nagivation";
+import { navigationHandle, updateNavigationAvatar } from "../../elements/nagivation";
 import { API_URL, store } from "../../store/store";
 import instanceAPI from "../../services/api/instanceAxios";
 import { IUserProfile } from "../../services/api/models/response/IUser";
@@ -165,6 +165,8 @@ export function handleSettings() {
         if (response.status == 200) {
           const responseData = response.data as { avatar: string };
           await store.getUserRequest();
+          // Update Avatar icon in navigation
+          updateNavigationAvatar(responseData.avatar);
 
           if (profileImgContainer && responseData.avatar) {
             const timestamp = new Date().getTime();
@@ -190,16 +192,16 @@ export function handleSettings() {
                 }
               });
             } else {
-              // It is already an img
               (profileImgContainer as HTMLImageElement).src = avatarUrl;
               navigationPhoto!.src = avatarUrl;
+              
             }
           }
         }
       } catch (error) {
         handleModalError("Failed to upload avatar. Please try again.");
       } finally {
-        uploadImgInput!.value = ""; // <- Always reset input here
+        uploadImgInput!.value = "";
       }
     }
   });
@@ -246,13 +248,15 @@ export function handleSettings() {
     });
   }
 
-  // --- Now your delete button listener:
-
   deletePhotoBtn?.addEventListener("click", async () => {
     try {
       const response = await instanceAPI.delete("/user/avatar");
       if (response.status === 200) {
         await store.getUserRequest();
+
+        const responseData = response.data as { avatar: string };
+        // Update Avatar icon in navigation
+        updateNavigationAvatar(responseData.avatar);
 
         const color = getColorFromUsername(store.getUser().username);
         const firstLetterOfUser = store
@@ -260,13 +264,12 @@ export function handleSettings() {
           .username.charAt(0)
           .toUpperCase();
 
-        // Handling replacement after deletion
         if (profileImgContainer) {
           if (profileImgContainer.tagName.toLowerCase() === "img") {
             const newDiv = createProfileDivElement(firstLetterOfUser, color);
 
             profileImgContainer.replaceWith(newDiv);
-            profileImgContainer = newDiv; // update the reference!
+            profileImgContainer = newDiv;
 
             attachProfileClickEvent(profileImgContainer);
           }
@@ -276,4 +279,36 @@ export function handleSettings() {
       handleModalError("Failed to delete avatar. Please try again.");
     }
   });
+
+  // Will be used for code clearnes. Not working yet.Will do it later
+  
+  // function updateProfileAvatar(avatarPath: string | null) {
+  //   const profileImgContainer = document.querySelector("#profileImg");
+  //   if (!profileImgContainer) return;
+  
+  //   if (avatarPath) {
+  //     const timestamp = new Date().getTime();
+  //     const avatarUrl = `${API_URL}${avatarPath}?t=${timestamp}`;
+  
+  //     const newImg = document.createElement("img");
+  //     newImg.id = "profileImg";
+  //     newImg.className = "w-48 h-48 rounded-full object-cover";
+  //     newImg.src = avatarUrl;
+  //     newImg.alt = "Profile Avatar";
+  //     newImg.draggable = false;
+  
+  //     profileImgContainer.replaceWith(newImg);
+  //   } else {
+  //     const username = store.getUser().username;
+  //     const firstLetter = username.charAt(0).toUpperCase();
+  //     const color = getColorFromUsername(username);
+  
+  //     const newDiv = document.createElement("div");
+  //     newDiv.id = "profileIcon";
+  //     newDiv.className = `text-5x1 w-12 h-12 flex items-center justify-center rounded-full text-white font-bold ${color}`;
+  //     newDiv.textContent = firstLetter;
+  
+  //     profileImgContainer.replaceWith(newDiv);
+  //   }
+  // }
 }

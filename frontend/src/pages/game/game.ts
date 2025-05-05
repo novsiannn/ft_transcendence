@@ -7,7 +7,10 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
 	const gameBoard = document.getElementById("game-board") as HTMLCanvasElement;
 	const restartBtn = document.querySelector("#restart-btn");
 	// const mainWrapper = document.getElementById('game-container') as HTMLDivElement;
-	let intervalID: ReturnType<typeof setInterval>;;
+	let intervalID: ReturnType<typeof setInterval>;
+	let isGameRunning = false;
+	let isWaitingForStart = false;
+	let gameStartedOnce = false;
 
 	mainWrapper!.id = "game-container";
 	mainWrapper!.classList.add("h-screen", "flex", "flex-col", "gap-2.5", "justify-center", "items-center");
@@ -207,40 +210,63 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
 	}
 
 	function restartGame() {
-		firstPlayerScore = 0;
-		secondPlayerScore = 0;
 		clearInterval(intervalID);
+		isGameRunning = false;
+		isWaitingForStart = false;
+		gameStartedOnce = false;
+	
 		ballSpeed = initialBallSpeed;
 		ball = { ...ballInitial };
-		firstPaddle = { ...firstPaddle };
-		secondPaddle = { ...secondPaddle };
-		initGame();
+		firstPaddle = { ...firstPaddleInitial };
+		secondPaddle = { ...secondPaddleInitial };
+		firstPlayerScore = 0;
+		secondPlayerScore = 0;
+	
+		window.removeEventListener("keydown", movePaddles);
+		setupInitialState();
 	}
-
 	function setupInitialState() {
+		isGameRunning = false;
+		isWaitingForStart = true;
+	
 		drawBoard();
 		drawPaddles();
-		drawBall();
 		updateScore();
 		setBallDirection();
-		window.addEventListener('keydown', startGame, { once: true });
-		restartBtn!.addEventListener('click', restartGame);
-	  }
+		drawBall();
 	
-	function initGame() {
-		
-		window.removeEventListener('keydown', movePaddles);
+		if (!gameStartedOnce) {
+			window.removeEventListener("keyup", startGame);
+			console.log(">>>remove event listener");
+			window.addEventListener("keyup", startGame, { once: true });
+			console.log(">>>add event listener");
+		}
+	}
+	
+	  function initGame() {
+		window.removeEventListener("keydown", movePaddles);
 		clearInterval(intervalID);
-		
+		isGameRunning = false;
 		setupInitialState();
+	
+		// ✅ Повторно назначаем обработчик рестарта
+		restartBtn?.removeEventListener("click", restartGame); // чтобы не дублировался
+		restartBtn?.addEventListener("click", restartGame);
 	}
 
 	function startGame(ev: KeyboardEvent) {
-		if (ev.code === 'Space') {
+		if (ev.code === 'Space' && !isGameRunning && isWaitingForStart) {
+			console.log('>>> GAME STARTED');
+			isGameRunning = true;
+			isWaitingForStart = false;
+			gameStartedOnce = true;
+			console.log("Start game fired"); 
+	
+			window.removeEventListener("keyup", startGame);
 			window.addEventListener("keydown", movePaddles);
+	
 			intervalID = setInterval(updateGame, 20);
-			window.removeEventListener('keydown', startGame);
-		  }
+		}
 	}
 
 	initGame(); // if the game breaks use the line below
