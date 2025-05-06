@@ -53,6 +53,10 @@ const UserController = {
             if (!mimetype.startsWith('image/')) {
                 return res.code(400).send({ error: "Only image files are allowed" });
             }
+            
+            if (mimetype === 'image/svg+xml') {
+                return res.code(400).send({ error: "SVG files are not allowed" });
+            }
 
             const buffer = await data.toBuffer();
             const result = await userService.saveAvatar(userId, buffer, mimetype);
