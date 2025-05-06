@@ -7,8 +7,8 @@ const userTracker = require('./utils/userTracker');
 function setupWebSockets(server) {
     const io = new Server(server, {
         cors: {
-            origin: 'https://localhost:3000', // for testing
-            // origin: 'https://localhost:8888',
+            // origin: 'https://localhost:3000', // for testing
+            origin: 'https://localhost:8888',
             methods: ['GET', 'POST', 'PUT', 'DELETE'],
             credentials: true,
         },
