@@ -1,24 +1,22 @@
-import { store } from "../store/store";
+import { io } from 'socket.io-client';
 
-export const socket = new WebSocket('wss://localhost:3000/');
-
-socket.addEventListener('open', () => {
-  console.log('[WS] Connected');
-  socket.send(JSON.stringify({
-    type: 'init',
-    userId: store.getUser().id,
-  }));
+const socket = io('https://localhost:3000', {
+    withCredentials: true,
+    auth: {
+        token: localStorage.getItem('token') || ''
+    }
 });
 
-socket.addEventListener('message', (event) => {
-  const data = JSON.parse(event.data);
-  console.log('[WS] Message from server:', data);
+socket.on('connect', () => {
+    console.log('Connected to server');
 });
 
-socket.addEventListener('error', (err) => {
-  console.error('[WS] Error:', err);
+socket.on('connect_error', (error) => {
+    console.error('Connection error:', error);
 });
 
-socket.addEventListener('close', () => {
-  console.log('[WS] Connection end');
+socket.on('disconnect', () => {
+    console.log('Disconnected from server');
 });
+
+export default socket;

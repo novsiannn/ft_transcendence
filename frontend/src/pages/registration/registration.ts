@@ -45,8 +45,6 @@ export function handleRegistration() {
             };
             inputsUsers.forEach(input => {
                 let key = input.type.toLowerCase() as keyof IUserDataRegistrationType;
-                console.log(input.value);
-                
                 validateInput(input);
                 if(input.type === 'text'){
                     key = 'username';
