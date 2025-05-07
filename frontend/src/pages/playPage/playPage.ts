@@ -1,4 +1,4 @@
-import { navigation } from "../../elements/nagivation";
+import { navigation } from "../../elements/navigation";
 
 export function playPage() {
     let res = `

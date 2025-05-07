@@ -1,4 +1,4 @@
-import { navigation } from "../../elements/nagivation";
+import { navigation } from "../../elements/navigation";
 
 export function profilePage(mainWrapper: HTMLDivElement | undefined) {
   document.body.classList.add("bg-gray-500");

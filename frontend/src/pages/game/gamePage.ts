@@ -1,4 +1,4 @@
-import { navigation } from "../../elements/nagivation";
+import { navigation } from "../../elements/navigation";
 import { getFirstPlayer } from "./playersHandle";
 export function gamePage() {
     document.body.style.margin = "0";

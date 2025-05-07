@@ -1,5 +1,5 @@
 import { getModalWindowSuccess } from "../../elements/ModalSuccess";
-import { navigation } from "../../elements/nagivation";
+import { navigation } from "../../elements/navigation";
 import { SearchBar } from "../../elements/SearchBar";
 
 export function friendsPage() {

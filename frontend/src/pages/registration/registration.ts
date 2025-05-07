@@ -3,7 +3,7 @@ import { IUserDataRegistrationType } from "../../shared";
 import { validateInput } from "../../shared/validation";
 import { handleModalError } from "../../elements/ModalError/handleModalError";
 import { store } from "../../store/store";
-import { navigationHandle } from "../../elements/nagivation";
+import { navigationHandle } from "../../elements/navigation";
 import { getEyeHidePassword, getEyeShowPassword } from "../../elements/PasswordVisibility";
 
 //changed from novsiann

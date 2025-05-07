@@ -1,6 +1,6 @@
 import { getLanguageSelector } from "../../elements/LanguageSelector";
 import { getModalWindowSuccess } from "../../elements/ModalSuccess";
-import { navigation } from "../../elements/nagivation";
+import { navigation } from "../../elements/navigation";
 
 export function homePage() {
   document.body.classList.add("h-screen", "flex", "flex-col", "bg-gray-500");

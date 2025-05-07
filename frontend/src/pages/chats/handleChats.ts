@@ -1,4 +1,4 @@
-import { navigationHandle } from "../../elements/nagivation";
+import { navigationHandle } from "../../elements/navigation";
 import { IChatData } from "../../shared";
 import { getColorFromUsername } from "../../shared/randomColors";
 import { store } from "../../store/store";
