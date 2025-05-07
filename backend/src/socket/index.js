@@ -29,6 +29,9 @@ function setupWebSockets(server) {
 
         userTracker.addUser(userId, socket);
 
+        //add by novsiann
+        notificationHandler.handleIncomingEvents(socket);
+
         socket.emit('connected', {
             userId: userId,
             username: socket.user.username //may be errors
