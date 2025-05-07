@@ -11,7 +11,7 @@ export function chatsPage(mainWrapper: HTMLDivElement | undefined) {
     <div class="flex flex-1 w-full overflow-hidden font-sans">
       <div class="flex flex-col bg-gray-200 w-1/4 text-left border-r border-gray-300">
         <div class="flex flex-col border-t border-b border-gray-300">
-          <p class="ml-4 mt-2 text-lg font-normal">Messages</p>
+          <p class="ml-4 mt-2 text-xl font-semibold select-none cursor-default" id="allMessagesString">Messages</p>
           ${SearchBar('chat.searchChats', 'searchInputChatsPage')}
           ${Select(1)}
         </div>

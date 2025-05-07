@@ -2,6 +2,7 @@ import { handleOpenChat } from "./handleChats";
 import { API_URL } from "../../store/store";
 import { IChatData } from "../../shared";
 import { getColorFromUsername } from "../../shared/randomColors";
+import { navigateTo } from "../../routing";
 
 export const renderAllChats = (allChats: IChatData[]) => {
   const allChatsContainer =
@@ -49,7 +50,7 @@ export const renderAllChats = (allChats: IChatData[]) => {
     `;
 
     chatBlock.addEventListener("click", () => {
-      handleOpenChat(friend);
+      navigateTo(`/chats/${friend.userId}`);
     });
 
     allChatsContainer.appendChild(chatBlock);

@@ -1,9 +1,10 @@
 import { navigationHandle } from "../../elements/navigation";
-import { IChatData } from "../../shared";
+import { IChatData, IRouteParams } from "../../shared";
 import { getColorFromUsername } from "../../shared/randomColors";
 import { store } from "../../store/store";
 import { renderAllChats } from "./allChats";
 import { API_URL } from "../../store/store";
+import { navigateTo } from "../../routing";
 
 export const getChatContent = (friend: IChatData) => {
   const color = getColorFromUsername(friend.username);
@@ -15,7 +16,7 @@ export const getChatContent = (friend: IChatData) => {
         ${
           friend.avatar
             ? `<img
-                src="${API_URL+ friend.avatar}"
+                src="${API_URL + friend.avatar}"
                 alt="Profile"
                 draggable="false"
                 class="w-12 h-12 rounded-full object-cover"
@@ -53,17 +54,34 @@ export const getChatContent = (friend: IChatData) => {
   `;
 };
 
-export const handleOpenChat = async (friend: IChatData) => {
+export const handleOpenChat = async (friend: IChatData | undefined) => {
   const chatContainer =
     document.querySelector<HTMLDivElement>("#chatContainer");
-  chatContainer!.innerHTML = getChatContent(friend);
-  await store.getMessagesFromChat(friend.id);
+  if (friend) chatContainer!.innerHTML = getChatContent(friend);
+  console.log(friend);
+  
+  await store.getMessagesFromChat(friend!.id);
 };
 
-export const handleChatsPage = async (mainWrapper?: HTMLDivElement) => {
+export const handleChatsPage = async (
+  mainWrapper?: HTMLDivElement,
+  params?: IRouteParams
+) => {
   const startChatSelect = document.querySelectorAll(".startChatSelect");
+  const allMessages = document.querySelector("#allMessagesString");
   let allChats: IChatData[] = await store.getAllChats();
+  
 
+  if (params?.id) {
+    if (allChats.some((chat) => chat.userId == params.id)) {
+      const friendChat: IChatData | undefined = allChats.find((chat) => {
+        if (chat.userId == params.id) return chat;
+      });
+      handleOpenChat(friendChat);
+    } else {
+      navigateTo("/error");
+    }
+  }
   renderAllChats(allChats);
 
   startChatSelect.forEach((select) => {
@@ -74,6 +92,7 @@ export const handleChatsPage = async (mainWrapper?: HTMLDivElement) => {
       renderAllChats(allChats);
     });
   });
+  allMessages!.addEventListener('click', () => navigateTo('/chats'));
 
   navigationHandle();
 };

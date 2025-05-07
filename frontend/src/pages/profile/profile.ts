@@ -6,6 +6,8 @@ import { getUserData } from "./getUserData";
 export function handleProfilePage(mainWrapper?: HTMLDivElement, params?: IRouteParams) {
 	let id;
 	
+	console.log(params);
+	
 	if (params?.id){
 		id = params.id;
 	} else {
