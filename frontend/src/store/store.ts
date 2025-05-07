@@ -102,7 +102,7 @@ class Store {
         this.setUser(response.data.user);
         await this.getUserRequest();
         await this.checkAuth();
-        await initializeSocket();
+        initializeSocket();
         i18next.changeLanguage(this.getUserLanguage());
         navigateTo("/");
         handleModalSuccess("You have successfully logged in!");
@@ -227,7 +227,7 @@ class Store {
 
     if (response.status === 201) {
       handleModalSuccess("You have successfully sent a friend request");
-      socket.emit('notification:friendRequest', {
+      socket?.emit('notification:friendRequest', {
         addresseeId
     });
     }
@@ -291,8 +291,6 @@ class Store {
 
   getMessagesFromChat = async (chatID: number): Promise<IMessage[]> => {
     const response =  await chatsService.getMessagesFromChat(chatID);
-    console.log(response);
-    
     return response;
   };
 

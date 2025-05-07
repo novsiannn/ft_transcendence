@@ -6,7 +6,8 @@ import { initializeSocket } from "./websockets/client";
 
 window.addEventListener("DOMContentLoaded", async () => {
   await store.checkAuth();
-  if (localStorage.getItem("token")) await initializeSocket();
+  if (localStorage.getItem("token"))
+    initializeSocket();
   await initializeI18n();
   runSPA();
 });

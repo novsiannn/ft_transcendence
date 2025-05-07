@@ -1,29 +1,33 @@
 import { io, Socket } from "socket.io-client";
 import { rerenderFriendsPage } from "../pages/friends/handleBtns";
 
-const token = localStorage.getItem("token");;
+export let socket: Socket | null = null;
 
-export const socket = io("https://localhost:3000", {
-  withCredentials: true,
-  auth: { token },
-  transports: ["websocket"],
-  secure: true,
-});
+export function initializeSocket(): Socket | null {
+  const token = localStorage.getItem("token");
 
-export function initializeSocket(): Socket {
-  console.log("Initializing socket connection");
+  if (!token) return null;
+
+  if (socket) return socket;
+
+  socket = io("https://localhost:3000", {
+    withCredentials: true,
+    auth: { token },
+    transports: ["websocket"],
+    secure: true,
+  });
 
   socket.on("connect", () => {
-    console.log("Connected to server");
+    console.log(" Socket connected:", socket?.id);
   });
 
   socket.on("notification", (data) => {
-    document.querySelector('#notificationIndicator')!.classList.remove('invisible');
-    console.log(location.pathname);
-    
-    if(location.pathname === '/friends')
-      rerenderFriendsPage();
-    console.log(data);
+    document
+      .querySelector("#notificationIndicator")
+      ?.classList.remove("invisible");
+
+    if (location.pathname === "/friends") rerenderFriendsPage();
+    console.log("Notification received:", data);
   });
 
   socket.on("connect_error", (error) => {
@@ -37,4 +41,13 @@ export function initializeSocket(): Socket {
   return socket;
 }
 
-export default initializeSocket;
+export function getSocket(): Socket | null {
+  return socket;
+}
+
+export function disconnectSocket() {
+  if (socket) {
+    socket.disconnect();
+    socket = null;
+  }
+}
