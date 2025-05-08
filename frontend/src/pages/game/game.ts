@@ -23,7 +23,6 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
 	const gameBoardWidth = gameBoard.width;
 	const gameBoardHeight = gameBoard.height;
 	
-
 	const moveFirstPaddleKey = {
 		up: "w",
 		down: "s",
@@ -33,6 +32,13 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
 		up: "ArrowUp",
 		down: "ArrowDown"
 	}
+
+	const keys = {
+		[moveFirstPaddleKey.up]: false,
+		[moveFirstPaddleKey.down]: false,
+		[moveSecondPaddleKey.up]: false,
+		[moveSecondPaddleKey.down]: false
+	};
 
 	const paddleSize = {
 		width: 15,
@@ -261,17 +267,31 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
 		ballSpeed = initialBallSpeed;
 	}
 
-	function movePaddles(ev: KeyboardEvent) {
-		const step = paddleSize.height / 2; //Paddle step
+	function handleKeyDown(ev: KeyboardEvent) {
+		if (Object.keys(keys).includes(ev.key)) {
+			keys[ev.key] = true;
+		}
+	}
 	
-		if (ev.key === moveFirstPaddleKey.up && firstPaddle.y > 0) {
+	function handleKeyUp(ev: KeyboardEvent) {
+		if (Object.keys(keys).includes(ev.key)) {
+			keys[ev.key] = false;
+		}
+	}
+
+	function updatePaddlePositions() {
+		const step = paddleSize.height / 2;
+	
+		if (keys[moveFirstPaddleKey.up] && firstPaddle.y > 0) {
 			firstPaddleTargetY = Math.max(0, firstPaddle.y - step);
-		} else if (ev.key === moveFirstPaddleKey.down) {
+		}
+		if (keys[moveFirstPaddleKey.down]) {
 			firstPaddleTargetY = Math.min(gameBoardHeight - paddleSize.height, firstPaddle.y + step);
 		}
-		if (ev.key === moveSecondPaddleKey.up && secondPaddle.y > 0) {
+		if (keys[moveSecondPaddleKey.up] && secondPaddle.y > 0) {
 			secondPaddleTargetY = Math.max(0, secondPaddle.y - step);
-		} else if (ev.key === moveSecondPaddleKey.down) {
+		}
+		if (keys[moveSecondPaddleKey.down]) {
 			secondPaddleTargetY = Math.min(gameBoardHeight - paddleSize.height, secondPaddle.y + step);
 		}
 	}
@@ -281,6 +301,9 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
 	}
 
 	function updateGame() {
+
+		updatePaddlePositions();
+
 		const lerpFactor = 0.15; // Paddle speed
 		firstPaddle.y = lerp(firstPaddle.y, firstPaddleTargetY, lerpFactor);
 		secondPaddle.y = lerp(secondPaddle.y, secondPaddleTargetY, lerpFactor);
@@ -304,7 +327,8 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
 		firstPlayerScore = 0;
 		secondPlayerScore = 0;
 	
-		window.removeEventListener("keydown", movePaddles);
+		window.removeEventListener("keydown", handleKeyDown);
+		window.removeEventListener("keyup", handleKeyUp);
 		setupInitialState();
 	}
 	function setupInitialState() {
@@ -326,13 +350,14 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
 	}
 	
 	  function initGame() {
-		window.removeEventListener("keydown", movePaddles);
+		window.removeEventListener("keydown", handleKeyDown);
+		window.removeEventListener("keyup", handleKeyUp);
 		clearInterval(intervalID);
 		isGameRunning = false;
 		setupInitialState();
 	
 		// ✅ Повторно назначаем обработчик рестарта
-		restartBtn?.removeEventListener("click", restartGame); // чтобы не дублировался
+		restartBtn?.removeEventListener("click", restartGame);
 		restartBtn?.addEventListener("click", restartGame);
 	}
 
@@ -345,7 +370,8 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
 			console.log("Start game fired"); 
 	
 			window.removeEventListener("keyup", startGame);
-			window.addEventListener("keydown", movePaddles);
+			window.addEventListener("keydown", handleKeyDown);
+			window.addEventListener("keyup", handleKeyUp);
 	
 			intervalID = setInterval(updateGame, 16);
 		}
