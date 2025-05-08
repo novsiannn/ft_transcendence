@@ -19,6 +19,7 @@ import { handleModalInput } from "../elements/ModalInput";
 import friendsService from "../services/api/friendsService";
 import i18next from "i18next";
 import chatsService from "../services/api/chatsService";
+import { initializeSocket, socket } from "../websockets";
 
 export const API_URL: string = "https://localhost:3000";
 
@@ -101,6 +102,7 @@ class Store {
         this.setUser(response.data.user);
         await this.getUserRequest();
         await this.checkAuth();
+        await initializeSocket();
         i18next.changeLanguage(this.getUserLanguage());
         navigateTo("/");
         handleModalSuccess("You have successfully logged in!");
@@ -225,6 +227,9 @@ class Store {
 
     if (response.status === 201) {
       handleModalSuccess("You have successfully sent a friend request");
+      socket.emit('notification:friendRequest', {
+        addresseeId
+    });
     }
     return response.status;
   };

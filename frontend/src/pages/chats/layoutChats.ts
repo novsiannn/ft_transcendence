@@ -1,4 +1,4 @@
-import { navigation } from "../../elements/nagivation";
+import { navigation } from "../../elements/navigation";
 import { SearchBar } from "../../elements/SearchBar";
 import { Select } from "../../elements/Select";
 

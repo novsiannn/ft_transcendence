@@ -1,4 +1,4 @@
-import { navigationHandle } from "../../elements/nagivation";
+import { navigationHandle } from "../../elements/navigation";
 import { IUser } from "../../services/api/models/response/IUser";
 import { IFriend, IFriendsResponse } from "../../shared";
 import { store } from "../../store/store";

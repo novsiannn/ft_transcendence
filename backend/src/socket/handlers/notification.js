@@ -35,6 +35,12 @@ const notificationHandler = {
             by: addresseeInfo
         });
     },
+    // add by nikita
+    handleIncomingEvents(socket) {
+        socket.on('notification:friendRequest', async (data) => {
+            console.log('Received friend request notification from frontend:', data);
+        });
+    }
 }
 
 module.exports = notificationHandler;

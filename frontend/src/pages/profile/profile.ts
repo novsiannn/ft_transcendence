@@ -1,4 +1,4 @@
-import { navigationHandle } from "../../elements/nagivation";
+import { navigationHandle } from "../../elements/navigation";
 import { IRouteParams } from "../../shared";
 import { store } from "../../store/store";
 import { getUserData } from "./getUserData";

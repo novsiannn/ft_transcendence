@@ -1,5 +1,5 @@
 import { getModalWindowError } from "../../elements";
-import { navigation } from "../../elements/nagivation";
+import { navigation } from "../../elements/navigation";
 import { getEyeShowPassword } from "../../elements/PasswordVisibility";
 
 export function registrationPage() {

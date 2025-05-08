@@ -57,7 +57,8 @@ export function navigationHandle() {
   notificationMenu?.addEventListener("click", (e) => {
     e.stopPropagation();
     notificationDropDown?.classList.toggle("hidden");
-    dropdownMenu?.classList.add("hidden");
+    dropdownMenu?.classList.add("hidden"); 
+    document.getElementById("notificationIndicator")?.classList.add('invisible')
   });
 
   document.addEventListener("click", (e) => {

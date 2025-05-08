@@ -1,24 +1,40 @@
-import { store } from "../store/store";
+import { io, Socket } from "socket.io-client";
+import { rerenderFriendsPage } from "../pages/friends/handleBtns";
 
-export const socket = new WebSocket('wss://localhost:3000/');
+const token = localStorage.getItem("token");;
 
-socket.addEventListener('open', () => {
-  console.log('[WS] Connected');
-  socket.send(JSON.stringify({
-    type: 'init',
-    userId: store.getUser().id,
-  }));
+export const socket = io("https://localhost:3000", {
+  withCredentials: true,
+  auth: { token },
+  transports: ["websocket"],
+  secure: true,
 });
 
-socket.addEventListener('message', (event) => {
-  const data = JSON.parse(event.data);
-  console.log('[WS] Message from server:', data);
-});
+export function initializeSocket(): Socket {
+  console.log("Initializing socket connection");
 
-socket.addEventListener('error', (err) => {
-  console.error('[WS] Error:', err);
-});
+  socket.on("connect", () => {
+    console.log("Connected to server");
+  });
 
-socket.addEventListener('close', () => {
-  console.log('[WS] Connection end');
-});
+  socket.on("notification", (data) => {
+    document.querySelector('#notificationIndicator')!.classList.remove('invisible');
+    console.log(location.pathname);
+    
+    if(location.pathname === '/friends')
+      rerenderFriendsPage();
+    console.log(data);
+  });
+
+  socket.on("connect_error", (error) => {
+    console.error("Connection error:", error);
+  });
+
+  socket.on("disconnect", () => {
+    console.log("Disconnected from server");
+  });
+
+  return socket;
+}
+
+export default initializeSocket;
