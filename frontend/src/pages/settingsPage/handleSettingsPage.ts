@@ -1,6 +1,6 @@
 import { handleModalInput } from "../../elements/ModalInput";
 import { handleModalTwoFactor } from "../../elements/ModalTwoFactor";
-import { navigationHandle, updateNavigationAvatar } from "../../elements/nagivation";
+import { navigationHandle, updateNavigationAvatar } from "../../elements/navigation";
 import { API_URL, store } from "../../store/store";
 import instanceAPI from "../../services/api/instanceAxios";
 import { IUserProfile } from "../../services/api/models/response/IUser";

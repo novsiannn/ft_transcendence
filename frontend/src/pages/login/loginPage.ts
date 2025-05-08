@@ -1,6 +1,6 @@
 import { getModalWindowError } from "../../elements";
 import { getModalInput } from "../../elements/ModalInput";
-import { navigation } from "../../elements/nagivation";
+import { navigation } from "../../elements/navigation";
 import { getEyeHidePassword, getEyeShowPassword } from "../../elements/PasswordVisibility";
 
 export const activateWarning = (elementID: string, errorValue?: string) => {

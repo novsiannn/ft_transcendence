@@ -7,8 +7,8 @@ const userTracker = require('./utils/userTracker');
 function setupWebSockets(server) {
     const io = new Server(server, {
         cors: {
-            origin: 'https://localhost:3000', // for testing
-            // origin: 'https://localhost:8888',
+            // origin: 'https://localhost:3000', // for testing
+            origin: 'https://localhost:8888',
             methods: ['GET', 'POST', 'PUT', 'DELETE'],
             credentials: true,
         },
@@ -28,6 +28,9 @@ function setupWebSockets(server) {
         console.log(`Socket connected: ${socket.id}, User: ${userId}`);
 
         userTracker.addUser(userId, socket);
+
+        //add by novsiann
+        notificationHandler.handleIncomingEvents(socket);
 
         socket.emit('connected', {
             userId: userId,

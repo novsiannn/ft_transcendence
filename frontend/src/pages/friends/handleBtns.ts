@@ -10,8 +10,6 @@ export const addFriend = async (
   addBtn: HTMLButtonElement | null
 ) => {
   const cancelButton = document.getElementById(`btnCancelFriendRequest${id}`);
-  console.log(cancelButton);
-
   addBtn!.innerHTML = getLoader();
   addBtn!.disabled = true;
 

@@ -1,5 +1,5 @@
 import { getLoader } from "../../elements/Loader";
-import { navigationHandle } from "../../elements/nagivation";
+import { navigationHandle } from "../../elements/navigation";
 import { getEyeHidePassword, getEyeShowPassword } from "../../elements/PasswordVisibility";
 import { userDataLogin } from "../../shared";
 import { IUserDataTypeLogin } from "../../shared";

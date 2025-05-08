@@ -1,7 +1,7 @@
 import { getModalInput } from "../../elements/ModalInput";
 import { getModalWindowSuccess } from "../../elements/ModalSuccess";
 import { getModalTwoFactor } from "../../elements/ModalTwoFactor";
-import { navigation } from "../../elements/nagivation";
+import { navigation } from "../../elements/navigation";
 import { getColorFromUsername } from "../../shared/randomColors";
 import { store } from "../../store/store";
 import { getModalWindowError } from "../../elements";
