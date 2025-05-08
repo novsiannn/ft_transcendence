@@ -11,6 +11,7 @@ module.exports = {
         "bg-gray-300",
         "bg-gray-400",
         "bg-gray-500",
+        "bg-gray-950",
         "bg-red-500",
         "bg-green-500",
         "bg-blue-500",

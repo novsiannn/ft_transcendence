@@ -19,7 +19,6 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
 	const gameBoardColor = window.getComputedStyle(gameBoard).backgroundColor;
 	const firstPaddleColor = "white";
 	const secondPaddleColor = "white";
-	const ballColor = "white";
 
 	const gameBoardWidth = gameBoard.width;
 	const gameBoardHeight = gameBoard.height;
@@ -35,12 +34,12 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
 	}
 
 	const paddleSize = {
-		width: 25,
-		height: 120
+		width: 15,
+		height: 150
 	}
 
-	const ballRadius = 13;
-	const initialBallSpeed = 5;
+	const ballRadius = 8;
+	const initialBallSpeed = 7;
 	let ballSpeed = initialBallSpeed;
 	const paddleSpeed = 40;
 	let firstPlayerScore = 0;
@@ -49,6 +48,13 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
 	const firstPaddleInitial = {
 		x: 0,
 		y: 0
+	}
+
+	const paddleEffects = {
+		glowSize: 15,        // Размер свечения
+		glowIntensity: 3,    // Количество слоев свечения
+		glowColor: 'white',  // Цвет свечения
+		baseColor: 'white'   // Основной цвет платформы
 	}
 
 	const secondPaddleInitial = {
@@ -75,21 +81,99 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
 		context!.fillRect(0, 0, gameBoardWidth, gameBoardHeight);
 	}
 
-	function drawPaddle(paddleX: number, paddleY: number, color: string) {
-		context!.fillStyle = color;
-		context!.fillRect(paddleX, paddleY, paddleSize.width, paddleSize.height);
+	function drawPaddle(paddleX: number, paddleY: number, paddleColor: string) {
+		const { glowSize, glowIntensity } = paddleEffects;
+		const radius = paddleSize.width / 2; // Радиус скругления
+	
+		// Рисуем слои свечения
+		for(let i = 0; i < glowIntensity; i++) {
+			context!.beginPath();
+			context!.shadowColor = paddleColor;
+			context!.shadowBlur = glowSize + (i * 5);
+			context!.shadowOffsetX = 0;
+			context!.shadowOffsetY = 0;
+			context!.fillStyle = 'rgba(255, 255, 255, 0.2)';
+			
+			// Скругленный прямоугольник для свечения
+			roundRect(
+				context!,
+				paddleX - i,
+				paddleY - i,
+				paddleSize.width + (i * 2),
+				paddleSize.height + (i * 2),
+				radius
+			);
+			context!.fill();
+		}
+	
+		// Рисуем основную платформу
+		context!.beginPath();
+		context!.shadowColor = 'transparent';
+		context!.fillStyle = paddleColor;
+		
+		// Скругленный прямоугольник для платформы
+		roundRect(
+			context!,
+			paddleX,
+			paddleY,
+			paddleSize.width,
+			paddleSize.height,
+			radius
+		);
+		context!.fill();
+	
+		// Сброс теней
+		context!.shadowColor = 'transparent';
+		context!.shadowBlur = 0;
 	}
-
+	
+	// Добавьте вспомогательную функцию для рисования скругленного прямоугольника
+	function roundRect(
+		ctx: CanvasRenderingContext2D,
+		x: number,
+		y: number,
+		width: number,
+		height: number,
+		radius: number
+	) {
+		ctx.beginPath();
+		ctx.moveTo(x + radius, y);
+		ctx.arcTo(x + width, y, x + width, y + height, radius);
+		ctx.arcTo(x + width, y + height, x, y + height, radius);
+		ctx.arcTo(x, y + height, x, y, radius);
+		ctx.arcTo(x, y, x + width, y, radius);
+		ctx.closePath();
+	}
 	function drawPaddles() {
 		drawPaddle(firstPaddle.x, firstPaddle.y, firstPaddleColor);
 		drawPaddle(secondPaddle.x, secondPaddle.y, secondPaddleColor);
 	}
 
 	function drawBall() {
+		// Внешнее свечение (несколько слоев для более интенсивного эффекта)
+		for(let i = 0; i < 3; i++) {
+			context!.beginPath();
+			context!.shadowColor = 'white';  // цвет свечения
+			context!.shadowBlur = 20 + (i * 5); // увеличиваем размер свечения с каждым слоем
+			context!.shadowOffsetX = 0;
+			context!.shadowOffsetY = 0;
+			context!.fillStyle = 'rgba(255, 255, 255, 1)'; // красный
+			context!.arc(ball.x, ball.y, ballRadius + i, 0, Math.PI * 2);
+			context!.fill();
+		}
+	
+		// Основной градиент шарика
+		
+		// Основной шарик
 		context!.beginPath();
-		context!.fillStyle = ballColor;
+		context!.shadowColor = 'transparent';  // отключаем тень для основного шарика
 		context!.arc(ball.x, ball.y, ballRadius, 0, Math.PI * 2);
 		context!.fill();
+		
+
+		// Сброс теней
+		context!.shadowColor = 'transparent';
+		context!.shadowBlur = 0;
 	}
 
 	function chooseBallDirection() {
