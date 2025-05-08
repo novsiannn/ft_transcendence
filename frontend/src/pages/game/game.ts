@@ -22,6 +22,7 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
 
 	const gameBoardWidth = gameBoard.width;
 	const gameBoardHeight = gameBoard.height;
+	
 
 	const moveFirstPaddleKey = {
 		up: "w",
@@ -49,21 +50,25 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
 		x: 0,
 		y: 0
 	}
-
-	const paddleEffects = {
-		glowSize: 15,        // Размер свечения
-		glowIntensity: 3,    // Количество слоев свечения
-		glowColor: 'white',  // Цвет свечения
-		baseColor: 'white'   // Основной цвет платформы
-	}
-
+	
 	const secondPaddleInitial = {
 		x: gameBoardWidth - paddleSize.width,
 		y: gameBoardHeight - paddleSize.height,
 	}
-
 	let firstPaddle = { ...firstPaddleInitial };
 	let secondPaddle = { ...secondPaddleInitial };
+
+	let firstPaddleTargetY = firstPaddle.y;
+	let secondPaddleTargetY = secondPaddle.y;
+
+	const paddleEffects = {
+		glowSize: 15,      
+		glowIntensity: 3,    
+		glowColor: 'white',  
+		baseColor: 'white'   
+	}
+
+
 
 	const ballInitial = {
 		x: gameBoardWidth / 2,
@@ -83,9 +88,8 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
 
 	function drawPaddle(paddleX: number, paddleY: number, paddleColor: string) {
 		const { glowSize, glowIntensity } = paddleEffects;
-		const radius = paddleSize.width / 2; // Радиус скругления
+		const radius = paddleSize.width / 2;
 	
-		// Рисуем слои свечения
 		for(let i = 0; i < glowIntensity; i++) {
 			context!.beginPath();
 			context!.shadowColor = paddleColor;
@@ -94,7 +98,6 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
 			context!.shadowOffsetY = 0;
 			context!.fillStyle = 'rgba(255, 255, 255, 0.2)';
 			
-			// Скругленный прямоугольник для свечения
 			roundRect(
 				context!,
 				paddleX - i,
@@ -106,12 +109,10 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
 			context!.fill();
 		}
 	
-		// Рисуем основную платформу
 		context!.beginPath();
 		context!.shadowColor = 'transparent';
 		context!.fillStyle = paddleColor;
 		
-		// Скругленный прямоугольник для платформы
 		roundRect(
 			context!,
 			paddleX,
@@ -127,7 +128,6 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
 		context!.shadowBlur = 0;
 	}
 	
-	// Добавьте вспомогательную функцию для рисования скругленного прямоугольника
 	function roundRect(
 		ctx: CanvasRenderingContext2D,
 		x: number,
@@ -150,7 +150,6 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
 	}
 
 	function drawBall() {
-		// Внешнее свечение (несколько слоев для более интенсивного эффекта)
 		for(let i = 0; i < 3; i++) {
 			context!.beginPath();
 			context!.shadowColor = 'white';  // цвет свечения
@@ -162,11 +161,10 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
 			context!.fill();
 		}
 	
-		// Основной градиент шарика
 		
 		// Основной шарик
 		context!.beginPath();
-		context!.shadowColor = 'transparent';  // отключаем тень для основного шарика
+		context!.shadowColor = 'transparent';
 		context!.arc(ball.x, ball.y, ballRadius, 0, Math.PI * 2);
 		context!.fill();
 		
@@ -264,29 +262,29 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
 	}
 
 	function movePaddles(ev: KeyboardEvent) {
-
-		const firstPaddleGoingUp = ev.key === moveFirstPaddleKey.up;
-		const firstPaddleGoingDown = ev.key === moveFirstPaddleKey.down;
-		const secondPaddleGoingUp = ev.key === moveSecondPaddleKey.up;
-		const secondPaddleGoingDown = ev.key === moveSecondPaddleKey.down;
-
-		const canFirstPaddleMoveUp = firstPaddle.y > 0;
-		const canFirstPaddleMoveDown = firstPaddle.y < gameBoard.height - paddleSize.height;
-		const canSecondPaddleMoveUp = secondPaddle.y > 0;
-		const canSecondPaddleMoveDown = secondPaddle.y < gameBoard.height - paddleSize.height;
-
-		if (firstPaddleGoingUp && canFirstPaddleMoveUp) {
-			firstPaddle.y -= paddleSpeed;
-		} else if (firstPaddleGoingDown && canFirstPaddleMoveDown) {
-			firstPaddle.y += paddleSpeed;
-		} else if (secondPaddleGoingUp && canSecondPaddleMoveUp) {
-			secondPaddle.y -= paddleSpeed;
-		} else if (secondPaddleGoingDown && canSecondPaddleMoveDown) {
-			secondPaddle.y += paddleSpeed;
+		const step = paddleSize.height / 2; //Paddle step
+	
+		if (ev.key === moveFirstPaddleKey.up && firstPaddle.y > 0) {
+			firstPaddleTargetY = Math.max(0, firstPaddle.y - step);
+		} else if (ev.key === moveFirstPaddleKey.down) {
+			firstPaddleTargetY = Math.min(gameBoardHeight - paddleSize.height, firstPaddle.y + step);
+		}
+		if (ev.key === moveSecondPaddleKey.up && secondPaddle.y > 0) {
+			secondPaddleTargetY = Math.max(0, secondPaddle.y - step);
+		} else if (ev.key === moveSecondPaddleKey.down) {
+			secondPaddleTargetY = Math.min(gameBoardHeight - paddleSize.height, secondPaddle.y + step);
 		}
 	}
 
+	function lerp(start: number, end: number, t: number) {
+		return start * (1 - t) + end * t;
+	}
+
 	function updateGame() {
+		const lerpFactor = 0.15; // Paddle speed
+		firstPaddle.y = lerp(firstPaddle.y, firstPaddleTargetY, lerpFactor);
+		secondPaddle.y = lerp(secondPaddle.y, secondPaddleTargetY, lerpFactor);
+	
 		drawBoard();
 		drawPaddles();
 		moveBall();
@@ -349,7 +347,7 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
 			window.removeEventListener("keyup", startGame);
 			window.addEventListener("keydown", movePaddles);
 	
-			intervalID = setInterval(updateGame, 20);
+			intervalID = setInterval(updateGame, 16);
 		}
 	}
 
