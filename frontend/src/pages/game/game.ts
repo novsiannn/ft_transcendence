@@ -25,20 +25,22 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
 	
 	const moveFirstPaddleKey = {
 		up: "w",
-		down: "s",
+		down: "s"
 	}
-
+	
 	const moveSecondPaddleKey = {
-		up: "ArrowUp",
-		down: "ArrowDown"
+		up: "arrowup",
+		down: "arrowdown"
 	}
 
-	const keys = {
-		[moveFirstPaddleKey.up]: false,
-		[moveFirstPaddleKey.down]: false,
-		[moveSecondPaddleKey.up]: false,
-		[moveSecondPaddleKey.down]: false
-	};
+	// const keys = {
+	// 	[moveFirstPaddleKey.up]: false,
+	// 	[moveFirstPaddleKey.down]: false,
+	// 	[moveSecondPaddleKey.up]: false,
+	// 	[moveSecondPaddleKey.down]: false
+	// };
+
+	const keys = new Set<string>();
 
 	const paddleSize = {
 		width: 15,
@@ -268,30 +270,31 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
 	}
 
 	function handleKeyDown(ev: KeyboardEvent) {
-		if (Object.keys(keys).includes(ev.key)) {
-			keys[ev.key] = true;
-		}
+		const key = ev.key.toLowerCase();
+		keys.add(key);
 	}
 	
 	function handleKeyUp(ev: KeyboardEvent) {
-		if (Object.keys(keys).includes(ev.key)) {
-			keys[ev.key] = false;
-		}
+		const key = ev.key.toLowerCase();
+		keys.delete(key);
 	}
 
 	function updatePaddlePositions() {
-		const step = paddleSize.height / 2;
+		const step = paddleSize.height / 4; // Уменьшим шаг для более плавного движения
 	
-		if (keys[moveFirstPaddleKey.up] && firstPaddle.y > 0) {
+		// Первая платформа (w/s)
+		if (keys.has("w") && firstPaddle.y > 0) {
 			firstPaddleTargetY = Math.max(0, firstPaddle.y - step);
 		}
-		if (keys[moveFirstPaddleKey.down]) {
+		if (keys.has("s")) {
 			firstPaddleTargetY = Math.min(gameBoardHeight - paddleSize.height, firstPaddle.y + step);
 		}
-		if (keys[moveSecondPaddleKey.up] && secondPaddle.y > 0) {
+	
+		// Вторая платформа (стрелки)
+		if (keys.has("arrowup") && secondPaddle.y > 0) {
 			secondPaddleTargetY = Math.max(0, secondPaddle.y - step);
 		}
-		if (keys[moveSecondPaddleKey.down]) {
+		if (keys.has("arrowdown")) {
 			secondPaddleTargetY = Math.min(gameBoardHeight - paddleSize.height, secondPaddle.y + step);
 		}
 	}
@@ -301,10 +304,9 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
 	}
 
 	function updateGame() {
-
 		updatePaddlePositions();
-
-		const lerpFactor = 0.15; // Paddle speed
+	
+		const lerpFactor = 0.2; // Увеличим скорость реакции
 		firstPaddle.y = lerp(firstPaddle.y, firstPaddleTargetY, lerpFactor);
 		secondPaddle.y = lerp(secondPaddle.y, secondPaddleTargetY, lerpFactor);
 	
