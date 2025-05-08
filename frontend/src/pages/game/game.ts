@@ -280,9 +280,8 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
 	}
 
 	function updatePaddlePositions() {
-		const step = paddleSize.height / 4; // Уменьшим шаг для более плавного движения
+		const step = paddleSize.height / 4; // Paddle step size
 	
-		// Первая платформа (w/s)
 		if (keys.has("w") && firstPaddle.y > 0) {
 			firstPaddleTargetY = Math.max(0, firstPaddle.y - step);
 		}
@@ -290,7 +289,6 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
 			firstPaddleTargetY = Math.min(gameBoardHeight - paddleSize.height, firstPaddle.y + step);
 		}
 	
-		// Вторая платформа (стрелки)
 		if (keys.has("arrowup") && secondPaddle.y > 0) {
 			secondPaddleTargetY = Math.max(0, secondPaddle.y - step);
 		}
@@ -306,7 +304,7 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
 	function updateGame() {
 		updatePaddlePositions();
 	
-		const lerpFactor = 0.2; // Увеличим скорость реакции
+		const lerpFactor = 0.2; // Paddle movement speed
 		firstPaddle.y = lerp(firstPaddle.y, firstPaddleTargetY, lerpFactor);
 		secondPaddle.y = lerp(secondPaddle.y, secondPaddleTargetY, lerpFactor);
 	
@@ -323,20 +321,32 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
 		gameStartedOnce = false;
 	
 		ballSpeed = initialBallSpeed;
+		firstPlayerScore = 0;
+		secondPlayerScore = 0;
+
 		ball = { ...ballInitial };
 		firstPaddle = { ...firstPaddleInitial };
 		secondPaddle = { ...secondPaddleInitial };
-		firstPlayerScore = 0;
-		secondPlayerScore = 0;
+		
+		firstPaddleTargetY = firstPaddleInitial.y;
+		secondPaddleTargetY = secondPaddleInitial.y;
 	
 		window.removeEventListener("keydown", handleKeyDown);
 		window.removeEventListener("keyup", handleKeyUp);
+
+		(restartBtn as HTMLElement)?.blur();
+		
 		setupInitialState();
 	}
 	function setupInitialState() {
 		isGameRunning = false;
 		isWaitingForStart = true;
 	
+		firstPaddle = { ...firstPaddleInitial };
+		secondPaddle = { ...secondPaddleInitial };
+		firstPaddleTargetY = firstPaddleInitial.y;
+		secondPaddleTargetY = secondPaddleInitial.y;
+
 		drawBoard();
 		drawPaddles();
 		updateScore();
@@ -358,7 +368,6 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
 		isGameRunning = false;
 		setupInitialState();
 	
-		// ✅ Повторно назначаем обработчик рестарта
 		restartBtn?.removeEventListener("click", restartGame);
 		restartBtn?.addEventListener("click", restartGame);
 	}
