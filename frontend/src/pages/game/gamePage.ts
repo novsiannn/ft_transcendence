@@ -45,7 +45,22 @@ export function gamePage() {
             <!-- Заголовок -->
             <h1 id="startText" class="text-4xl text-white mt-6">Press SPACE To START GAME</h1>
             <!-- Игровое поле -->
-            <canvas id="game-board" width="1300" height="500" class="border-8 border-red-500 bg-gray-950 rounded-lg mt-4"></canvas>
+            <canvas 
+                id="game-board" 
+                width="1300" 
+                height="500" 
+                class="border-8 border-black bg-gray-950 rounded-lg mt-4 relative"
+                style="
+                    box-shadow: 
+                        0 0 5px #fff,
+                        0 0 10px #fff,
+                        0 0 15px #fff,
+                        0 0 20px #fff,
+                        0 0 25px #fff,
+                        0 0 30px #fff,
+                        0 0 35px #fff;
+                "
+            ></canvas>
              <div class="absolute inset-0 pointer-events-none" style="box-shadow: 0 0 15px 5px rgba(255,255,255,0.5);"></div>
             </div>
             <!-- Счёт -->
