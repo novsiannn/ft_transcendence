@@ -1,4 +1,4 @@
-import { navigation } from "../../elements/nagivation";
+import { navigation } from "../../elements/navigation";
 import { store, API_URL } from "../../store/store";
 import { getColorFromUsername } from "../../shared/randomColors";
 // import { getFirstPlayer } from "./playersHandle";
