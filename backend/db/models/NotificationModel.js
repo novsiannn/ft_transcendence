@@ -16,10 +16,6 @@ const Notification = sequelize.define("Notification", {
             key: 'id'
         },
     },
-    type: {
-        type: DataTypes.ENUM('friend_request', 'friend_accepted', 'game_invite'),
-        allowNull: false,
-    },
     senderId: {
         type: DataTypes.INTEGER,
         allowNull: false,
@@ -28,6 +24,14 @@ const Notification = sequelize.define("Notification", {
             key: 'id'
         },
     },
+    type: {
+        type: DataTypes.STRING,
+        allowNull: false,
+    },
+    data: {
+        type: DataTypes.JSON,
+        allowNull: true,
+    }
     isRead: {
         type: DataTypes.BOOLEAN,
         defaultValue: false,

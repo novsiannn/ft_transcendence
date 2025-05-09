@@ -2,6 +2,7 @@ const User = require('./UserModel');
 const Chat = require('./ChatModel');
 const Message = require('./MessageModel');
 const Friendship = require('./FriendshipModel');
+const Notification = require('./NotificationModel');
 
 // Friendship relations
 User.hasMany(Friendship, {
@@ -24,6 +25,27 @@ Friendship.belongsTo(User, {
     foreignKey: 'addresseeId',
 });
 
+// Notification relations
+User.hasMany(Notification, {
+    as: 'notifications',
+    foreignKey: 'userId',
+});
+
+User.hasMany(Notification, {
+    as: 'sentNotifications',
+    foreignKey: 'senderId',
+});
+
+Notification.belongsTo(User, {
+    as: 'user',
+    foreignKey: 'userId',
+});
+
+Notification.belongsTo(User, {
+    as: 'sender',
+    foreignKey: 'senderId',
+});
+
 // Chat and Message relations
 Chat.belongsTo(User, { as: 'User1', foreignKey: 'user_1' });
 Chat.belongsTo(User, { as: 'User2', foreignKey: 'user_2' });
@@ -36,4 +58,4 @@ Message.belongsTo(User, { as: 'receiver', foreignKey: 'receiverId' });
 User.hasMany(Message, { foreignKey: 'senderId', as: 'sentMessages' });
 User.hasMany(Message, { foreignKey: 'receiverId', as: 'receivedMessages' });
 
-module.exports = { User, Chat, Message, Friendship };
+module.exports = { User, Chat, Message, Friendship, Notification };
