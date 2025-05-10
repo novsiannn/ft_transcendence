@@ -41,11 +41,15 @@ fastify.register(require('@fastify/static'), {
 
 //for WEBSOCKET test start
 
+//chat
+
 // fastify.register(require('@fastify/static'), {
 //   root: path.join(__dirname, '../test'),
 //   prefix: '/test/',
 //   decorateReply: false
 // });
+
+//friendship UI UX
 
 // fastify.register(require('@fastify/static'), {
 //   root: path.join(__dirname, '..'),
@@ -79,7 +83,7 @@ fastify.register(require('@fastify/cookie'), {
 
 
 fastify.register(fastifyCors, {
-  origin: 'https://localhost:8888',
+  origin: '*',
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']

@@ -24,6 +24,8 @@ const notificationHandler = {
         return false;
     },
 
+//friendship notification and friendship UI
+//friendship notification
     sendFriendRequest(addresseeId, requesterInfo) {
         return this.sendNotification(addresseeId, 'friend_request', {
             from: requesterInfo
@@ -35,6 +37,26 @@ const notificationHandler = {
             by: addresseeInfo
         });
     },
+    
+    // friendship UI
+    friendRejected(requesterId, addresseeInfo) {
+        return this.sendNotification(requesterId, 'friend_rejected', {
+            by: addresseeInfo
+        });
+    },
+
+    friendRequestCancelled(addresseeId, requesterInfo) {
+        return this.sendNotification(addresseeId, 'friend_request_cancelled', {
+            by: requesterInfo
+        });
+    },
+
+    friendRemoved(friendId, userInfo) {
+        return this.sendNotification(friendId, 'friend_removed', {
+            by: userInfo
+        });
+    },
+    
     // add by nikita
     handleIncomingEvents(socket) {
         socket.on('notification:friendRequest', async (data) => {
