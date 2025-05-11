@@ -44,6 +44,9 @@ export function gamePage() {
             </div>
             <!-- Заголовок -->
             <h1 id="startText" class="text-4xl text-white mt-6">Press SPACE To START GAME</h1>
+            <h1 id="countdown" class="text-4xl text-white mt-6 hidden">3</h1>
+            <!-- Счёт -->
+            <p id="score-info" class="text-4xl text-white mt-4">0 : 0</p>
             <!-- Игровое поле -->
             <canvas 
                 id="game-board" 
@@ -63,8 +66,7 @@ export function gamePage() {
             ></canvas>
              <div class="absolute inset-0 pointer-events-none" style="box-shadow: 0 0 15px 5px rgba(255,255,255,0.5);"></div>
             </div>
-            <!-- Счёт -->
-            <p id="score-info" class="text-4xl text-white mt-4">0 : 0</p>
+
             <!-- Кнопка рестарта -->
             <button id="restart-btn" class="mt-2 px-4 py-2 border-8 border-crimson rounded-lg bg-gray-500 text-white text-2xl hover:bg-gray-600 transition"> Restart </button>
         </div>

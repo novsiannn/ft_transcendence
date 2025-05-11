@@ -245,6 +245,19 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
 		handleGoal();
 	}
 
+	function handleGameOver() {
+		if (firstPlayerScore >= 5 || secondPlayerScore >= 5) {
+			clearInterval(intervalID);
+			isGameRunning = false;
+			isWaitingForStart = true;
+			gameStartedOnce = false;	
+		}
+	}
+
+	function handleGameStartMessage() {
+
+	}
+
 	function updateScore() {
 		scoreInfo!.textContent = `${firstPlayerScore} : ${secondPlayerScore}`
 	}
@@ -263,6 +276,7 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
 			secondPlayerScore++;
 		}
 		updateScore();
+		handleGameOver();
 		ball = { ...ballInitial };
 		setBallDirection();
 		drawBall();
@@ -314,6 +328,10 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
 		drawBall();
 	}
 
+	let countdownInterval: ReturnType<typeof setInterval>;
+	const countdownEl = document.getElementById('countdown');
+	const startTextEl = document.getElementById('startText');
+
 	function restartGame() {
 		clearInterval(intervalID);
 		isGameRunning = false;
@@ -330,10 +348,14 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
 		
 		firstPaddleTargetY = firstPaddleInitial.y;
 		secondPaddleTargetY = secondPaddleInitial.y;
+
+		clearInterval(countdownInterval);
+		countdownEl!.classList.add('hidden', 'scale-150', 'opacity-0');
+		startTextEl!.classList.remove('hidden', 'opacity-0');
 	
 		window.removeEventListener("keydown", handleKeyDown);
 		window.removeEventListener("keyup", handleKeyUp);
-
+		//Reset focus on the restart button
 		(restartBtn as HTMLElement)?.blur();
 		
 		setupInitialState();
@@ -352,12 +374,11 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
 		updateScore();
 		setBallDirection();
 		drawBall();
+		scoreInfo!.classList.add('hidden');
 	
 		if (!gameStartedOnce) {
 			window.removeEventListener("keyup", startGame);
-			console.log(">>>remove event listener");
 			window.addEventListener("keyup", startGame, { once: true });
-			console.log(">>>add event listener");
 		}
 	}
 	
@@ -372,19 +393,57 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
 		restartBtn?.addEventListener("click", restartGame);
 	}
 
+	function startActualGame() {
+		isGameRunning = true;
+		gameStartedOnce = true;
+	
+		window.addEventListener("keydown", handleKeyDown);
+		window.addEventListener("keyup", handleKeyUp);
+	
+		setBallDirection();
+		intervalID = setInterval(updateGame, 16);
+	}
+
 	function startGame(ev: KeyboardEvent) {
 		if (ev.code === 'Space' && !isGameRunning && isWaitingForStart) {
-			console.log('>>> GAME STARTED');
-			isGameRunning = true;
 			isWaitingForStart = false;
-			gameStartedOnce = true;
-			console.log("Start game fired"); 
-	
-			window.removeEventListener("keyup", startGame);
-			window.addEventListener("keydown", handleKeyDown);
-			window.addEventListener("keyup", handleKeyUp);
-	
-			intervalID = setInterval(updateGame, 16);
+			
+			// Плавно скрываем текст
+			startTextEl!.classList.add('opacity-0');
+			
+			setTimeout(() => {
+				startTextEl!.classList.add('hidden');
+				countdownEl!.classList.remove('hidden');
+				
+				// Добавляем анимацию для цифр
+				setTimeout(() => {
+					countdownEl!.classList.remove('scale-150', 'opacity-0');
+				}, 50);
+				
+				let count = 3;
+				countdownEl!.textContent = count.toString();
+				
+				countdownInterval = setInterval(() => {
+					count--;
+					
+					if (count > 0) {
+						// Анимация для каждой новой цифры
+						countdownEl!.classList.add('scale-150', 'opacity-0');
+						setTimeout(() => {
+							countdownEl!.textContent = count.toString();
+							countdownEl!.classList.remove('scale-150', 'opacity-0');
+						}, 200);
+					} else {
+						clearInterval(countdownInterval);
+						countdownEl!.classList.add('opacity-0');
+						setTimeout(() => {
+							countdownEl!.classList.add('hidden');
+							startActualGame();
+						}, 500);
+					}
+				}, 1000);
+			}, 500);
+			scoreInfo!.classList.remove('hidden');
 		}
 	}
 
