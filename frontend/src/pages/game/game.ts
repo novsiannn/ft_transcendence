@@ -3,6 +3,7 @@ import { navigationHandle } from "../../elements/navigation";
 
 export function handleGame(mainWrapper: HTMLDivElement | undefined) {
 	navigationHandle();
+	const gameOverText = document.querySelector("#gameOverText");
 	const scoreInfo = document.querySelector("#score-info");
 	const gameBoard = document.getElementById("game-board") as HTMLCanvasElement;
 	const restartBtn = document.querySelector("#restart-btn");
@@ -32,13 +33,6 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
 		up: "arrowup",
 		down: "arrowdown"
 	}
-
-	// const keys = {
-	// 	[moveFirstPaddleKey.up]: false,
-	// 	[moveFirstPaddleKey.down]: false,
-	// 	[moveSecondPaddleKey.up]: false,
-	// 	[moveSecondPaddleKey.down]: false
-	// };
 
 	const keys = new Set<string>();
 
@@ -250,7 +244,9 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
 			clearInterval(intervalID);
 			isGameRunning = false;
 			isWaitingForStart = true;
-			gameStartedOnce = false;	
+			gameStartedOnce = false;
+			scoreInfo!.classList.add('hidden');
+			gameOverText!.classList.remove('hidden');	
 		}
 	}
 
@@ -399,13 +395,17 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
 	
 		window.addEventListener("keydown", handleKeyDown);
 		window.addEventListener("keyup", handleKeyUp);
+
+		scoreInfo!.classList.remove('hidden');
 	
 		setBallDirection();
 		intervalID = setInterval(updateGame, 16);
 	}
 
 	function startGame(ev: KeyboardEvent) {
-		if (ev.code === 'Space' && !isGameRunning && isWaitingForStart) {
+		const preGameModal = document.querySelector("#preGameModal");
+		const isModalHidden = preGameModal?.classList.contains("hidden");
+		if (ev.code === 'Space' && !isGameRunning && isWaitingForStart && isModalHidden) {
 			isWaitingForStart = false;
 			
 			// Плавно скрываем текст
@@ -443,9 +443,25 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
 					}
 				}, 1000);
 			}, 500);
-			scoreInfo!.classList.remove('hidden');
+			
 		}
 	}
+	// RANKED AND TOURNAMENT PART
+	const rankedGameBtn = document.querySelector("#rankedGameBtn");
+	const preGameModal = document.querySelector("#preGameModal");
+	const createTournamentBtn = document.querySelector("#createTournamentBtn");
+	rankedGameBtn?.addEventListener("click", () => {
+		preGameModal?.classList.add("hidden");
+		window.removeEventListener("keyup", startGame);
+    	window.addEventListener("keyup", startGame);
+		
+	});
+	
+	createTournamentBtn?.addEventListener("click", () => {
+		preGameModal?.classList.add("hidden");
+		window.removeEventListener("keyup", startGame);
+    	window.addEventListener("keyup", startGame)
+	});
 
 	initGame(); // if the game breaks use the line below
 	// window.addEventListener("load", initGame);

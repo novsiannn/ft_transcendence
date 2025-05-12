@@ -1,6 +1,7 @@
 import { navigation } from "../../elements/navigation";
 import { store, API_URL } from "../../store/store";
 import { getColorFromUsername } from "../../shared/randomColors";
+import { preGameModal } from "./preGameModal";
 // import { getFirstPlayer } from "./playersHandle";
 export function gamePage() {
     
@@ -21,32 +22,43 @@ export function gamePage() {
 
     return `
         ${navigation()}
-<div id="game-container" class="h-screen flex flex-col justify-center items-center gap-6">
+    <div id="game-container" class="h-screen flex flex-col justify-center items-center gap-6">
+            <!-- Спросить у Никиты про opacity -->
+            <!-- Модальное окно перед началом игры -->
+            ${preGameModal()}
         <div class="flex flex-col items-center w-full">
             <!-- Профили игроков -->
-            <div class="flex justify-between w-full max-w-7xl px-6 mt-4">
-                <div class="flex flex-col items-center">
-                ${
-                    userPhoto
-                      ? `<img id="profileImg" class="rounded-full object-cover w-24 h-24 cursor-pointer" draggable="false" alt="Profile Image">`
-                      : `<div id="profileImg" class="text-3xl text-white font-bold flex justify-center items-center w-24 h-24 ${color} rounded-full cursor-pointer select-none">${firstLetterOfUser}</div>`
-                  }
-                    <span class="mt-2 text-lg text-white">${userNickname}</span>
+            <div class="flex justify-between w-[1300px] px-6 mt-4"> <!-- Изменено с max-w-7xl на w-[1300px] -->
+                <div class="absolute left-16 z-[-1]"> <!-- Добавлено позиционирование -->
+                    <div class="flex flex-col items-center">
+                        ${
+                            userPhoto
+                            ? `<img id="player1Img" class="rounded-full object-cover w-24 h-24" draggable="false" alt="Profile Image">`
+                            : `<div id="player1Img" class="text-3xl text-white font-bold flex justify-center items-center w-24 h-24 ${color} rounded-full select-none">${firstLetterOfUser}</div>`
+                        }
+                        <span class="mt-2 text-lg text-white">${userNickname}</span>
+                    </div>
                 </div>
-                <div class="flex flex-col items-center">
-                ${
-                    userPhoto
-                      ? `<img id="profileImg" class="rounded-full object-cover w-24 h-24 cursor-pointer" draggable="false" alt="Profile Image">`
-                      : `<div id="profileImg" class="text-3xl text-white font-bold flex justify-center items-center w-24 h-24 ${color} rounded-full cursor-pointer select-none">${firstLetterOfUser}</div>`
-                  }
-                    <span class="mt-2 text-lg text-white">Player 2</span>
+                <div class="absolute right-16 z-[-1]"> <!-- Добавлено позиционирование -->
+                    <div class="flex flex-col items-center">
+                        ${
+                            userPhoto
+                            ? `<img id="player2Img" class="rounded-full object-cover w-24 h-24" draggable="false" alt="Profile Image">`
+                            : `<div id="player2Img" class="text-3xl text-white font-bold flex justify-center items-center w-24 h-24 ${color} rounded-full select-none">${firstLetterOfUser}</div>`
+                        }
+                        <span class="mt-2 text-lg text-white">Player 2</span>
+                    </div>
                 </div>
             </div>
             <!-- Заголовок -->
             <h1 id="startText" class="text-4xl text-white mt-6">Press SPACE To START GAME</h1>
+            <h1 id="gameOverText" class="text-4xl text-white mt-6 hidden">Game Over</h1>
+            <!-- Таймер -->
             <h1 id="countdown" class="text-4xl text-white mt-6 hidden">3</h1>
+            <!-- <h1 id="countdown" class="absolute text-8xl font-bold text-white z-10 left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 transition-all duration-500 hidden">3</h1> -->
             <!-- Счёт -->
-            <p id="score-info" class="text-4xl text-white mt-4">0 : 0</p>
+            <p id="score-info" class="text-4xl text-white mt-6">0 : 0</p>
+
             <!-- Игровое поле -->
             <canvas 
                 id="game-board" 
