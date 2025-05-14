@@ -41,11 +41,15 @@ fastify.register(require('@fastify/static'), {
 
 //for WEBSOCKET test start
 
+//chat
+
 // fastify.register(require('@fastify/static'), {
 //   root: path.join(__dirname, '../test'),
 //   prefix: '/test/',
 //   decorateReply: false
 // });
+
+//friendship UI UX
 
 // fastify.register(require('@fastify/static'), {
 //   root: path.join(__dirname, '..'),

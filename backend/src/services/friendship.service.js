@@ -131,14 +131,39 @@ async function cancelFriendRequest(userId, friendshipId) {
                 id: friendshipId,
                 requesterId: userId,
                 status: 'pending'
-            }
+            },
+            include: [
+                {
+                    model: User,
+                    as: 'requester',
+                    attributes: ['id', 'username', 'email', 'avatat']
+                },
+                {
+                    model: User,
+                    as: 'addressee',
+                    attributes: ['id', 'username', 'email', 'avatat']
+                },
+            ]
         });
 
         if (!friendRequest) {
             return { error: "Friend request not found or you don't have permission to cancel it" };
         }
 
+        const addresseeId = friendRequest.addresseeId;
+
+        const requesterInfo = {
+            id: friendRequest.requester.id,
+            username: friendRequest.requester.username,
+            avatar: friendRequest.requester.avatar,
+            friendshipId: friendRequest.id
+        };
+
         await friendRequest.destroy();
+
+        if (io && io.notification) {
+            io.notification.friendRequestCancelled(addresseeId, requesterInfo);
+        }
 
         return { message: "Friend request cancelled successfully" };
     } catch (error) {
@@ -176,7 +201,7 @@ async function respondToFriendRequest(friendshipId, userId, accept) {
         friendship.status = accept ? 'accepted' : 'rejected';
         await friendship.save();
 
-        if (accept && io && io.notification) {
+        if (io && io.notification) {
             const addresseeInfo = {
                 id: friendship.addressee.id,
                 username: friendship.addressee.username,
@@ -184,7 +209,11 @@ async function respondToFriendRequest(friendshipId, userId, accept) {
                 friendshipId: friendship.id
             };
 
-            io.notification.sendFriendAccepted(friendship.requester.id, addresseeInfo);
+            if (accept) {
+                io.notification.sendFriendAccepted(friendship.requester.id, addresseeInfo);
+            } else {
+                io.notification.sendFriendRejected(friendship.requester.id, addresseeInfo);
+            }
         }
 
         return {
@@ -279,7 +308,17 @@ async function removeFriend(userId, friendId) {
             return { error: "Friendship not found" };
         }
 
+        const userInfo = {
+            id: user.id,
+            username: user.username,
+            avatar: user.avatar,
+        }
+
         await friendship.destroy();
+
+        if (io && io.notification) {
+            io.notification.friendRemoved(friendId, userInfo);
+        }
 
         return { message: "Friend removed successfuly" };
 
