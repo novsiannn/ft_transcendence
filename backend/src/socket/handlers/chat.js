@@ -2,6 +2,8 @@ const userTracker = require('../utils/userTracker');
 const chatService = require('../../services/chat.service.js');
 const Message = require('../../../db/models/MessageModel');
 const Chat = require('../../../db/models/ChatModel');
+const { validateMessage, isUserAllowedToSendMessage } = require('../utils/chat.utils');
+
 
 function handleJoin(socket, chatId) {
     socket.join(`chat_${chatId}`);
@@ -14,15 +16,26 @@ async function handleSendMessage(socket, data) {
         const senderId = socket.user.id;
 
         if (!chatId || !receiverId || !content) {
+            socket.emit('chat:error', { error: 'Missing fields' });
             console.error('chat:sendMessage - missing fields');
             return;
         }
+        if (!isUserAllowedToSendMessage(senderId)) {
+            socket.emit('chat:error', { error: 'Please wait before sending another message' });
+            return;
+        }
+        const validatedMessage = validateMessage(content);
+        if (!validatedMessage.isValid) {
+            socket.emit('chat:error', { error: validatedMessage.error });
+            return;
+        }
+
 
         const newMessage = await chatService.saveMessage({
             chatId,
             senderId,
             receiverId,
-            content,
+            content: validatedMessage.sanitizedContent,
         });
 
         const messageData = {

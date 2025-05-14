@@ -61,6 +61,14 @@ const User = sequelize.define("User", {
   language: {
     type: DataTypes.STRING,
     defaultValue: "eng"
+  },
+  elo: {
+    type: DataTypes.INTEGER,
+    defaultValue: 1000,
+  },
+  lvl: {
+    type: DataTypes.INTEGER,
+    defaultValue: 4,
   }
   // isOnline: {
   //   type: DataTypes.BOOLEAN,
