@@ -49,3 +49,5 @@ const PinPong = sequelize.define("PinPong", {
 }, {
     timestamps: true,
 });
+
+module.exports = PinPong;

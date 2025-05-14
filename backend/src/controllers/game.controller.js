@@ -1,1 +1,0 @@
-const PinPong = require('../../db/models/PinPongModel');
