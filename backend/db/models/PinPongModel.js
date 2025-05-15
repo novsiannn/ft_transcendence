@@ -56,7 +56,7 @@ const PinPong = sequelize.define("PinPong", {
         allowNull: false
     },
     gameMode: {
-        type: DataTypes.ENUM('ranked', 'tournament', 'casual'),
+        type: DataTypes.ENUM('ranked', 'casual'),
         defaultValue: 'casual',
         allowNull: false
     },

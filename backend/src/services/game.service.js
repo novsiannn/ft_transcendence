@@ -15,7 +15,7 @@ async function updateElo(userId, eloDifference)  {
     }
 }
 
-async function createDuel(user1Id, user2Id) {
+async function createDuel(user1Id, user2Id) {// TODO chack status of the duel
     try {
         user1Id = await User.findByPk(user1Id);
         user2Id = await User.findByPk(user2Id);
