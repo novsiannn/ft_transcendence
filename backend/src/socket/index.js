@@ -8,7 +8,7 @@ function setupWebSockets(server) {
     const io = new Server(server, {
         cors: {
             // origin: 'https://localhost:3000', // for testing
-            origin: '*',
+            origin: true,
             methods: ['GET', 'POST', 'PUT', 'DELETE'],
             credentials: true,
         },
