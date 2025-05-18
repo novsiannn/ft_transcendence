@@ -1,3 +1,4 @@
+import { socket } from "./../../websockets/client";
 import { navigationHandle } from "../../elements/navigation";
 import { IChatData, IMessage, IRouteParams } from "../../shared";
 import { getColorFromUsername } from "../../shared/randomColors";
@@ -5,22 +6,14 @@ import { store } from "../../store/store";
 import { renderAllChats } from "./allChats";
 import { API_URL } from "../../store/store";
 import { navigateTo } from "../../routing";
-import { socket } from "../../websockets";
 
-export const getChatContent = (
-  friend: IChatData,
-  chatMessages: Array<IMessage>
-) => {
-  const color = getColorFromUsername(friend.username);
-  const initials = friend.username.charAt(0).toUpperCase();
+let currentOutsideClickHandler: ((event: MouseEvent) => void) | null = null;
+
+const messagesForChat = (chatMessages: Array<IMessage>): string => {
   const currentUserId = store.getUser().id;
 
-  const messagesHTML = chatMessages
+  return chatMessages
     .map((msg) => {
-      console.log(msg);
-      console.log(currentUserId);
-      
-      
       const isMyMessage = msg.senderId === currentUserId;
       const time = new Date(msg.createdAt);
       const formattedTime = `${time.getHours()}:${String(
@@ -41,6 +34,16 @@ export const getChatContent = (
     `;
     })
     .join("");
+};
+
+export const getChatContent = (
+  friend: IChatData,
+  chatMessages: Array<IMessage>
+) => {
+  const color = getColorFromUsername(friend.username);
+  const initials = friend.username.charAt(0).toUpperCase();
+
+  const messagesHTML = messagesForChat(chatMessages);
 
   return `
     <header class="flex w-full items-center px-4 py-3 bg-white border-b border-gray-200">
@@ -58,7 +61,7 @@ export const getChatContent = (
       </div>
     </header>
 
-    <main class="w-full flex-1 overflow-y-auto p-4 flex flex-col-reverse space-y-reverse space-y-2 bg-gray-50" id="chatMessages">
+    <main class="w-full flex-1 overflow-y-auto p-4 flex flex-col-reverse space-y-reverse space-y-2 bg-gray-50" id="chatMessagesContainer">
       ${
         chatMessages.length
           ? messagesHTML
@@ -84,26 +87,105 @@ export const getChatContent = (
   `;
 };
 
-export const handleOpenChat = async (friend: IChatData | undefined) => {
+export const refreshMessagesInChat = async (chatId: number) => {
+  const chatMessagesContainer = document.querySelector<HTMLDivElement>(
+    "#chatMessagesContainer"
+  );
+
+  const chatMessages: Array<IMessage> = await store.getMessagesFromChat(chatId);
+
+  if (chatMessagesContainer)
+    chatMessagesContainer.innerHTML = messagesForChat(chatMessages);
+};
+
+const leaveFromChat = () => {
+  document.addEventListener('click' , () => {
+    console.log('leave from chat');
+    
+  });
+}
+
+export const handleOpenChat = async (chat: IChatData | undefined) => {
   const chatContainer =
     document.querySelector<HTMLDivElement>("#chatContainer");
+
   const chatMessages: Array<IMessage> = await store.getMessagesFromChat(
-    friend!.id
+    chat!.id
   );
-  if (friend) {
-    chatContainer!.innerHTML = getChatContent(friend, chatMessages);
-    const messageInputValue = document.querySelector<HTMLInputElement>("#messageInputValue")
+
+  if (currentOutsideClickHandler) {
+    document.removeEventListener("click", currentOutsideClickHandler);
+    currentOutsideClickHandler = null;
+  }
+
+  currentOutsideClickHandler = (event: MouseEvent) => {
+    const target = event.target as Node;
+    const allChatsContainer = document.querySelector<HTMLDivElement>("#allChatsContainer");
+    const chatsPage = document.querySelector<HTMLDivElement>("#chatsPage");
+    const imgLogoNavi = document.querySelector<HTMLDivElement>("#imgLogoNavi");
+    const dropdownMenu = document.querySelector<HTMLDivElement>("#dropdownMenu");
+    const chatContainer = document.querySelector<HTMLDivElement>("#chatContainer");
+    const chatNumber = document.querySelector<HTMLDivElement>(`#chatNumber${chat!.id}`);
+
+    console.log(chat!.id);
+    
+    console.log(chatNumber);
+    
+    
+    if (chatsPage && chatsPage.contains(target)) {
+      if(target == chatNumber || chatContainer?.contains(target)){
+        console.log('oo nooo la polizia');
+        console.log('click chatContainer');
+        return;
+      } else if(target == allChatsContainer){
+        navigateTo('/chats');
+        socket?.emit("chat:leave", chat?.id);
+        console.log('leave from chat');
+        return;
+      }
+      // else if(target == dropdownMenu){
+      //   console.log('click on logo');
+        
+      // }
+        
+        
+      // console.log(target);
+      // console.log(dropdownMenu);
+      
+      // if(target == )
+      // navigateTo('/chats')
+    //   console.log("Клик вне чата — выход");
+
+    //   socket?.emit("chat:leave", chat?.id);
+
+    //   // Удаляем обработчик
+      console.log('removed listener');
+      
+      document.removeEventListener("click", currentOutsideClickHandler!);
+    //   currentOutsideClickHandler = null;
+
+    //   // Очищаем чат (если хочешь визуально убрать)
+    //   chatContainer.innerHTML = "";
+    }
+  };
+
+  document.addEventListener("click", currentOutsideClickHandler);
+
+  if (chat) {
+    chatContainer!.innerHTML = getChatContent(chat, chatMessages);
+    const messageInputValue =
+      document.querySelector<HTMLInputElement>("#messageInputValue");
     document
       .querySelector<HTMLButtonElement>("#sendMessageBtn")!
-      .addEventListener("click", () => {
+      .addEventListener("click", async () => {
         socket!.emit("chat:sendMessage", {
-          chatId: friend.id,
-          receiverId: friend.userId,
+          chatId: chat.id,
+          receiverId: chat.userId,
           content: messageInputValue!.value,
         });
-        messageInputValue!.value = '';
+        messageInputValue!.value = "";
+        handleOpenChat(chat);
       });
-    await store.getMessagesFromChat(friend.id);
   }
 };
 
@@ -118,7 +200,12 @@ export const handleChatsPage = async (
   if (params?.id) {
     if (allChats.some((chat) => chat.userId == params.id)) {
       const friendChat: IChatData | undefined = allChats.find((chat) => {
-        if (chat.userId == params.id) return chat;
+        if (chat.userId == params.id) {
+          socket?.emit("chat:join", chat.id);
+          console.log("here joined chat " + chat.id);
+
+          return chat;
+        }
       });
       handleOpenChat(friendChat);
     } else {

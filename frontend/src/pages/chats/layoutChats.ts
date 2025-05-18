@@ -8,7 +8,7 @@ export function chatsPage(mainWrapper: HTMLDivElement | undefined) {
 
   let res = `
     ${navigation()}
-    <div class="flex flex-1 w-full overflow-hidden font-sans">
+    <div class="flex flex-1 w-full overflow-hidden font-sans" id="chatsPage">
       <div class="flex flex-col bg-gray-200 w-1/4 text-left border-r border-gray-300">
         <div class="flex flex-col border-t border-b border-gray-300">
           <p class="ml-4 mt-2 text-xl font-semibold select-none cursor-default" id="allMessagesString">Messages</p>
@@ -20,7 +20,7 @@ export function chatsPage(mainWrapper: HTMLDivElement | undefined) {
       </div>
 
       <div class="bg-gray-100 flex-1 flex flex-col">
-        <div class="flex-1 flex flex-col items-center w-full justify-center border-t border-gray-300" id="chatContainer">
+        <div class="flex-1 flex flex-col items-center w-full justify-center border-t h-full border-gray-300" id="chatContainer">
           <div class="text-center max-w-md px-4">
             <div class="flex justify-center mb-6">
               <div class="w-24 h-24 rounded-full bg-gray-100 flex items-center justify-center">

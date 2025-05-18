@@ -1,5 +1,6 @@
 import { io, Socket } from "socket.io-client";
 import { rerenderFriendsPage } from "../pages/friends/handleBtns";
+import { refreshMessagesInChat } from "../pages/chats";
 
 export let socket: Socket | null = null;
 
@@ -37,6 +38,12 @@ export function initializeSocket(): Socket | null {
   socket.on("disconnect", () => {
     console.log("Disconnected from server");
   });
+
+  socket?.on("chat:newMessage", (messageData) => {
+      console.log(messageData.chatId);
+      
+      refreshMessagesInChat(messageData.chatId)
+    });
 
   return socket;
 }

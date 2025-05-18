@@ -17,7 +17,7 @@ export const renderAllChats = (allChats: IChatData[]) => {
     const date = new Date(chat.message.createdAt)
 
     const chatBlock = document.createElement("div");
-    chatBlock.id = `chatWith${chat.userId}`;
+    chatBlock.id = `chatNumber${chat.id}`;
     chatBlock.className =
       "relative flex items-center justify-between p-4 hover:bg-gray-100 transition-colors border-b border-gray-300 cursor-pointer";
 
