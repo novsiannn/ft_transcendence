@@ -1,4 +1,5 @@
 const fastify = require('fastify');
+const notificationController = require('../controllers/notification.controller');
 // const { Model } = require('sequelize');
 const userController = require('../controllers/user.controller');
 const authMiddleware = require('../middleware/auth.middleware');
@@ -584,7 +585,7 @@ async function routes(fastify, options) {
         type: 'object',
         required: ['language'],
         properties: {
-          language: { 
+          language: {
             type: 'string'
           }
         }
@@ -1207,7 +1208,159 @@ async function routes(fastify, options) {
     },
     preHandler: authMiddleware
   }, FriendshipController.getUserFriends);
-   // Chat routes
+  // notification routes
+  fastify.get('/notifications', {
+    schema: {
+      description: 'Get user notifications',
+      tags: ['Notifications'],
+      security: [{ bearerAuth: [] }],
+      querystring: {
+        type: 'object',
+        properties: {
+          limit: { type: 'integer', description: 'Maximum number of notifications to return', default: 20 }
+        }
+      },
+      response: {
+        200: {
+          description: 'List of user notifications',
+          type: 'object',
+          properties: {
+            notifications: {
+              type: 'array',
+              items: {
+                type: 'object',
+                properties: {
+                  id: { type: 'integer' },
+                  type: { type: 'string', enum: ['friend_request', 'friend_accepted', 'friend_rejected', 'friend_removed', 'game_invite'] },
+                  senderId: { type: 'integer' },
+                  data: { type: 'object' },
+                  isRead: { type: 'boolean' },
+                  createdAt: { type: 'string', format: 'date-time' },
+                  sender: {
+                    type: 'object',
+                    properties: {
+                      id: { type: 'integer' },
+                      username: { type: 'string' },
+                      avatar: { type: 'string', nullable: true }
+                    }
+                  }
+                }
+              }
+            },
+            hasUnread: { type: 'boolean' }
+          }
+        },
+        401: {
+          description: 'User not found',
+          type: 'object',
+          properties: {
+            error: { type: 'string' }
+          }
+        },
+        500: {
+          description: 'Internal server error',
+          type: 'object',
+          properties: {
+            error: { type: 'string' }
+          }
+        }
+      }
+    },
+    preHandler: authMiddleware
+  }, notificationController.getNotifications);
+
+  fastify.put('/notifications/:notificationId/read', {
+    schema: {
+      description: 'Mark notification as read',
+      tags: ['Notifications'],
+      security: [{ bearerAuth: [] }],
+      params: {
+        type: 'object',
+        required: ['notificationId'],
+        properties: {
+          notificationId: { type: 'integer', description: 'Notification ID to mark as read' }
+        }
+      },
+      response: {
+        200: {
+          description: 'Notification marked as read',
+          type: 'object',
+          properties: {
+            message: { type: 'string' }
+          }
+        },
+        401: {
+          description: 'User not found',
+          type: 'object',
+          properties: {
+            error: { type: 'string' }
+          }
+        },
+        404: {
+          description: 'Notification not found',
+          type: 'object',
+          properties: {
+            error: { type: 'string' }
+          }
+        },
+        500: {
+          description: 'Internal server error',
+          type: 'object',
+          properties: {
+            error: { type: 'string' }
+          }
+        }
+      }
+    },
+    preHandler: authMiddleware
+  }, notificationController.markAsRead);
+
+  fastify.delete('/notifications/:notificationId', {
+    schema: {
+      description: 'Delete a notification',
+      tags: ['Notifications'],
+      security: [{ bearerAuth: [] }],
+      params: {
+        type: 'object',
+        required: ['notificationId'],
+        properties: {
+          notificationId: { type: 'integer', description: 'Notification ID to delete' }
+        }
+      },
+      response: {
+        200: {
+          description: 'Notification deleted successfully',
+          type: 'object',
+          properties: {
+            message: { type: 'string' }
+          }
+        },
+        401: {
+          description: 'User not found',
+          type: 'object',
+          properties: {
+            error: { type: 'string' }
+          }
+        },
+        404: {
+          description: 'Notification not found',
+          type: 'object',
+          properties: {
+            error: { type: 'string' }
+          }
+        },
+        500: {
+          description: 'Internal server error',
+          type: 'object',
+          properties: {
+            error: { type: 'string' }
+          }
+        }
+      }
+    },
+    preHandler: authMiddleware
+  }, notificationController.deleteNotification);
+  // Chat routes
   fastify.post('/chat/create', {
     schema: {
       description: 'Create or find existing chat',

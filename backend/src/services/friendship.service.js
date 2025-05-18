@@ -1,7 +1,9 @@
 const sequelize = require('../../db/database');
-const { User, Friendship } = require('../../db/models')
+const { User, Friendship, Notification } = require('../../db/models')
 const { Op } = require('sequelize');
 const { sendNotification } = require('../socket/handlers/notification');
+const notificationService = require('./notification.service');
+
 
 let io = null;
 
@@ -105,6 +107,17 @@ async function sendFriendRequest(requesterId, addresseeId) {
             };
         });
 
+        if (result.sendNotification) {
+            await notificationService.createNotification(
+                result.notificationInfo.addresseeId,  // кому
+                'friend_request',                     // тип
+                {                                     // данные
+                    from: result.notificationInfo.requesterInfo
+                },
+                result.notificationInfo.requesterInfo.id // от кого
+            );
+        }
+
         if (result.sendNotification && io && io.notification) {
             io.notification.sendFriendRequest(
                 result.notificationInfo.addresseeId,
@@ -193,26 +206,54 @@ async function respondToFriendRequest(friendshipId, userId, accept) {
                 },
             ]
         });
-
+        
         if (!friendship) {
             return { error: "Friend request not found or already in processed" };
         }
 
+        const addresseeInfo = {
+            id: friendship.addressee.id,
+            username: friendship.addressee.username,
+            avatar: friendship.addressee.avatar,
+            friendshipId: friendship.id
+        };
+
         friendship.status = accept ? 'accepted' : 'rejected';
         await friendship.save();
 
+        const notification = await Notification.findOne({
+            where: {
+                userId,
+                type: 'friend_request',
+                data: {
+                    from: {
+                        friendshipId: friendship.id
+                    }
+                }
+            }
+        });
+
+        if (notification) {
+            await notificationService.deleteNotification(notification.id, userId);
+        }
+
+        if (accept) {
+            await notificationService.createNotification(
+                friendship.requester.id,
+                'friend_accepted', 
+                {                      
+                    by: addresseeInfo
+                },
+                friendship.addressee.id 
+            );
+        }
+
         if (io && io.notification) {
-            const addresseeInfo = {
-                id: friendship.addressee.id,
-                username: friendship.addressee.username,
-                avatar: friendship.addressee.avatar,
-                friendshipId: friendship.id
-            };
 
             if (accept) {
                 io.notification.sendFriendAccepted(friendship.requester.id, addresseeInfo);
             } else {
-                io.notification.sendFriendRejected(friendship.requester.id, addresseeInfo);
+                io.notification.friendRejected(friendship.requester.id, addresseeInfo);
             }
         }
 
