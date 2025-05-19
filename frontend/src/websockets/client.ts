@@ -40,9 +40,9 @@ export function initializeSocket(): Socket | null {
   });
 
   socket?.on("chat:newMessage", (messageData) => {
-      console.log(messageData.chatId);
+      console.log(messageData);
       
-      refreshMessagesInChat(messageData.chatId)
+      refreshMessagesInChat(messageData)
     });
 
   return socket;
