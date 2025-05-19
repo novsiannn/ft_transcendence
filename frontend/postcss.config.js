@@ -367,6 +367,8 @@ module.exports = {
         "flex-col-reverse",
         "space-y-reverse",
         "space-y-2",
+        "break-all",
+        "break-words",
 
         // позиционирование
         "inset-0",

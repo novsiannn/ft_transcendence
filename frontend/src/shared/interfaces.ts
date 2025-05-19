@@ -68,9 +68,14 @@ export interface IFriendsPage {
   friends: IFriend[];
 }
 
+interface IChatPage{
+  activeChatID: number | null
+}
+
 export interface IInitialState {
   auth: IAuth;
   friendsPage: IFriendsPage;
+  chatPage: IChatPage
 }
 
 export interface IFriend {
