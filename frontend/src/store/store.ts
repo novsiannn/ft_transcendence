@@ -36,10 +36,21 @@ class Store {
       allUsers: [],
       friends: [],
     },
+    chatPage: {
+      activeChatID: null
+    }
   };
 
   setAuth = (bool: boolean): void => {
     this.state.auth.isAuth = bool;
+  };
+
+  setActiveChatID = (chatId: number | null): void => {
+    this.state.chatPage.activeChatID = chatId;
+  };
+
+  getActiveChatID = () : number | null => {
+    return this.state.chatPage.activeChatID;
   };
 
   setUser = (user: IUser): void => {

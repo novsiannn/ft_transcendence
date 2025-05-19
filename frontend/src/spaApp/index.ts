@@ -3,6 +3,7 @@ import {
   getLanguageSelector,
   updateContent,
 } from "../elements/LanguageSelector";
+import { leaveFromChat } from "../pages/chats";
 import {
   allRoutes,
   navigateTo,
