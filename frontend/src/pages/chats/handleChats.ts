@@ -22,15 +22,19 @@ const messagesForChat = (chatMessages: Array<IMessage>): string => {
 
       return `
       <div class="flex ${isMyMessage ? "justify-end" : "justify-start"}">
-        <div class="max-w-[75%] px-4 py-2 rounded-2xl shadow text-sm ${
+        <div class="max-w-[75%] px-4 py-2 text-wrap rounded-2xl shadow text-sm ${
           isMyMessage
             ? "bg-blue-500 text-white rounded-br-none"
             : "bg-gray-500 text-white rounded-bl-none"
         }">
-          <p>${msg.content}</p>
-          <div class="text-[10px] text-right opacity-60 mt-1">${formattedTime}</div>
-        </div>
+        <p class="break-words text-white leading-relaxed text-[14px]">${
+          msg.content
+        }</p>
+        <div class="text-[10px] ${
+          isMyMessage ? "text-right" : "text-left"
+        } opacity-60 mt-1">${formattedTime}</div>
       </div>
+    </div>
     `;
     })
     .join("");
@@ -61,7 +65,7 @@ export const getChatContent = (
       </div>
     </header>
 
-    <main class="w-full flex-1 overflow-y-auto p-4 flex flex-col-reverse space-y-reverse space-y-2 bg-gray-50" id="chatMessagesContainer">
+    <main class="w-full flex-1 overflow-y-auto overflow-hidden p-4 flex flex-col-reverse space-y-reverse space-y-2 bg-gray-50" id="chatMessagesContainer">
       ${
         chatMessages.length
           ? messagesHTML
@@ -87,23 +91,42 @@ export const getChatContent = (
   `;
 };
 
-export const refreshMessagesInChat = async (chatId: number) => {
+const refreshChatSelector = (chatId: number, createdAt: string, content: string) => {
+  const selectorChatContainer = document.querySelector<HTMLDivElement>(
+    `#chatNumber${chatId}`
+  );
+  
+  const date = new Date(createdAt)
+  const timeContainer = selectorChatContainer?.querySelector('#createdAtContainer');
+  const lastMsgContainer = selectorChatContainer?.querySelector('#lastMessage');
+
+  lastMsgContainer!.textContent = `${content.length > 30? content.slice(0,30)+ `...` : content.slice(0,30) }`;
+  timeContainer!.textContent = `${date.getHours()}:${date.getMinutes().toString().padStart(2, '0')}`;
+}
+
+export const refreshMessagesInChat = async ({chatId, createdAt, content}: {chatId: number, createdAt:string, content: string}) => {
   const chatMessagesContainer = document.querySelector<HTMLDivElement>(
     "#chatMessagesContainer"
   );
 
+  refreshChatSelector(chatId, createdAt, content);
   const chatMessages: Array<IMessage> = await store.getMessagesFromChat(chatId);
 
   if (chatMessagesContainer)
     chatMessagesContainer.innerHTML = messagesForChat(chatMessages);
 };
 
-const leaveFromChat = () => {
-  document.addEventListener('click' , () => {
-    console.log('leave from chat');
-    
-  });
-}
+export const leaveFromChat = () => {
+  const activeChatId = store.getActiveChatID();
+
+  console.log(activeChatId);
+  
+  if (activeChatId) {
+    socket?.emit("chat:leave", activeChatId);
+    console.log("leave from chat and disconnect");
+    store.setActiveChatID(null);
+  }
+};
 
 export const handleOpenChat = async (chat: IChatData | undefined) => {
   const chatContainer =
@@ -120,52 +143,36 @@ export const handleOpenChat = async (chat: IChatData | undefined) => {
 
   currentOutsideClickHandler = (event: MouseEvent) => {
     const target = event.target as Node;
-    const allChatsContainer = document.querySelector<HTMLDivElement>("#allChatsContainer");
+    const allChatsContainer =
+      document.querySelector<HTMLDivElement>("#allChatsContainer");
     const chatsPage = document.querySelector<HTMLDivElement>("#chatsPage");
-    const imgLogoNavi = document.querySelector<HTMLDivElement>("#imgLogoNavi");
-    const dropdownMenu = document.querySelector<HTMLDivElement>("#dropdownMenu");
-    const chatContainer = document.querySelector<HTMLDivElement>("#chatContainer");
-    const chatNumber = document.querySelector<HTMLDivElement>(`#chatNumber${chat!.id}`);
+    const imgLogoNavi =
+      document.querySelector<HTMLDivElement>("#imgLogoWrapper");
+    const dropdownMenu =
+      document.querySelector<HTMLDivElement>("#dropdownMenu");
+    const chatContainer =
+      document.querySelector<HTMLDivElement>("#chatContainer");
+    const chatNumber = document.querySelector<HTMLDivElement>(
+      `#chatNumber${chat!.id}`
+    );
+    const messagesSelectorWrapper = document.querySelector<HTMLDivElement>(
+      "#messagesSelectorWrapper"
+    );
 
-    console.log(chat!.id);
-    
-    console.log(chatNumber);
-    
-    
     if (chatsPage && chatsPage.contains(target)) {
-      if(target == chatNumber || chatContainer?.contains(target)){
-        console.log('oo nooo la polizia');
-        console.log('click chatContainer');
+      if (
+        target == chatNumber ||
+        chatContainer?.contains(target) ||
+        chatNumber?.contains(target) ||
+        target == messagesSelectorWrapper ||
+        messagesSelectorWrapper?.contains(target)
+      ) {
         return;
-      } else if(target == allChatsContainer){
-        navigateTo('/chats');
-        socket?.emit("chat:leave", chat?.id);
-        console.log('leave from chat');
+      } else if (target == allChatsContainer) {
+        navigateTo("/chats");
         return;
       }
-      // else if(target == dropdownMenu){
-      //   console.log('click on logo');
-        
-      // }
-        
-        
-      // console.log(target);
-      // console.log(dropdownMenu);
-      
-      // if(target == )
-      // navigateTo('/chats')
-    //   console.log("Клик вне чата — выход");
-
-    //   socket?.emit("chat:leave", chat?.id);
-
-    //   // Удаляем обработчик
-      console.log('removed listener');
-      
       document.removeEventListener("click", currentOutsideClickHandler!);
-    //   currentOutsideClickHandler = null;
-
-    //   // Очищаем чат (если хочешь визуально убрать)
-    //   chatContainer.innerHTML = "";
     }
   };
 
@@ -183,11 +190,17 @@ export const handleOpenChat = async (chat: IChatData | undefined) => {
           receiverId: chat.userId,
           content: messageInputValue!.value,
         });
+        console.log(store.getUser().id);
+        refreshChatSelector(chat.id, new Date().toISOString() ,messageInputValue!.value)
         messageInputValue!.value = "";
         handleOpenChat(chat);
       });
   }
 };
+
+const filterChats = (data: IChatData[] , userToBeFiltered: string): IChatData[] => {
+  return data.filter((user) => user.username.startsWith(userToBeFiltered));
+}
 
 export const handleChatsPage = async (
   mainWrapper?: HTMLDivElement,
@@ -195,15 +208,18 @@ export const handleChatsPage = async (
 ) => {
   const startChatSelect = document.querySelectorAll(".startChatSelect");
   const allMessages = document.querySelector("#allMessagesString");
+  const searchInputChatsPage = document.querySelector<HTMLInputElement>("#searchInputChatsPage");
+
   let allChats: IChatData[] = await store.getAllChats();
 
+  leaveFromChat();
   if (params?.id) {
     if (allChats.some((chat) => chat.userId == params.id)) {
       const friendChat: IChatData | undefined = allChats.find((chat) => {
         if (chat.userId == params.id) {
           socket?.emit("chat:join", chat.id);
+          store.setActiveChatID(chat.id)
           console.log("here joined chat " + chat.id);
-
           return chat;
         }
       });
@@ -212,6 +228,12 @@ export const handleChatsPage = async (
       navigateTo("/error");
     }
   }
+  searchInputChatsPage?.addEventListener('input', async () => {
+    allChats = await store.getAllChats();
+    allChats = filterChats(allChats, searchInputChatsPage.value);
+    renderAllChats(allChats);
+  });
+  
   renderAllChats(allChats);
 
   startChatSelect.forEach((select) => {
@@ -222,7 +244,10 @@ export const handleChatsPage = async (
       renderAllChats(allChats);
     });
   });
-  allMessages!.addEventListener("click", () => navigateTo("/chats"));
+  allMessages!.addEventListener("click", () => {
+    leaveFromChat();
+    navigateTo("/chats");
+  });
 
   navigationHandle();
 };

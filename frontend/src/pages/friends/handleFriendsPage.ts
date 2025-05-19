@@ -10,7 +10,7 @@ import {
 } from "../../elements/LanguageSelector";
 import { rerenderFriendsPage } from "./handleBtns";
 
-const filterUsers = (data: IUser[], filterString: string) => {
+export const filterUsers = (data: IUser[], filterString: string) => {
   return data.filter((user) => user.username.startsWith(filterString));
 }
 

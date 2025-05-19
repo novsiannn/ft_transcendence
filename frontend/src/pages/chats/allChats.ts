@@ -1,5 +1,4 @@
-import { handleOpenChat } from "./handleChats";
-import { API_URL } from "../../store/store";
+import { API_URL, store } from "../../store/store";
 import { IChatData } from "../../shared";
 import { getColorFromUsername } from "../../shared/randomColors";
 import { navigateTo } from "../../routing";
@@ -17,6 +16,7 @@ export const renderAllChats = (allChats: IChatData[]) => {
     const date = new Date(chat.message.createdAt)
 
     const chatBlock = document.createElement("div");
+    
     chatBlock.id = `chatNumber${chat.id}`;
     chatBlock.className =
       "relative flex items-center justify-between p-4 hover:bg-gray-100 transition-colors border-b border-gray-300 cursor-pointer";
@@ -39,20 +39,23 @@ export const renderAllChats = (allChats: IChatData[]) => {
         }
         <div class="flex flex-col">
           <span class="text-gray-900 font-medium">
-            ${chat.username}
+            ${chat.username.slice(0,30)}
+            ${chat.username.length > 30 ? `...`: ''}
           </span>
-          <span class="text-gray-500 text-sm truncate max-w-xs">
-            ${chat.message.content || "No messages yet"}
+          <span class="text-gray-500 text-sm truncate max-w-xs" id="lastMessage">
+            ${chat.message.content.slice(0,35) || "No messages yet"}
+            ${chat.message.content.length > 35 ? `...`: ''}
           </span>
         </div>
       </div>
-      <div class="absolute top-2 right-4 text-gray-500 text-xs">
+      <div class="absolute top-2 right-4 text-gray-500 text-xs" id="createdAtContainer">
         ${date.getHours()}:${date.getMinutes().toString().padStart(2, '0')}
       </div>
     `;
 
     chatBlock.addEventListener("click", () => {
       socket?.emit("chat:join", chat.id);
+      store.setActiveChatID(chat.id);
       navigateTo(`/chats/${chat.userId}`);
     });
 
