@@ -144,5 +144,18 @@ class GameState {
     pause() {
         this.isRunning = false;
     }
-    //TODO: add restart method
+    restart() {
+        this.ball = {
+            x: this.settings.boardWidth / 2,
+            y: this.settings.boardHeight / 2,
+            speed: this.settings.initialBallSpeed,
+            direction : {
+                x: 0,
+                y: 0,
+            }
+        }
+        paddles[this.player1Id].score = 0;
+        paddles[this.player2Id].score = 0;
+        this.isRunning = false;
+    }
 }
