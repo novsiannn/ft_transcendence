@@ -1,7 +1,8 @@
 import { navigation } from "../../elements/navigation";
 import { store, API_URL } from "../../store/store";
 import { getColorFromUsername } from "../../shared/randomColors";
-import { preGameModal } from "./preGameModal";
+import { preGameModal, tournamentModal } from "./gameModal";
+// import { tournamentModal } from "./gameModal";
 // import { getFirstPlayer } from "./playersHandle";
 export function gamePage() {
     
@@ -26,6 +27,7 @@ export function gamePage() {
             <!-- Спросить у Никиты про opacity -->
             <!-- Модальное окно перед началом игры -->
             ${preGameModal()}
+            ${tournamentModal()}
         <div class="flex flex-col items-center w-full">
             <!-- Профили игроков -->
             <div class="flex justify-between w-[1300px] px-6 mt-4"> <!-- Изменено с max-w-7xl на w-[1300px] -->

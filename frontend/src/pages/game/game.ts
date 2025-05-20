@@ -446,22 +446,40 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
 			
 		}
 	}
-	// RANKED AND TOURNAMENT PART
-	const rankedGameBtn = document.querySelector("#rankedGameBtn");
+		//  TOURNAMENT PART
 	const preGameModal = document.querySelector("#preGameModal");
-	const createTournamentBtn = document.querySelector("#createTournamentBtn");
-	rankedGameBtn?.addEventListener("click", () => {
-		preGameModal?.classList.add("hidden");
-		window.removeEventListener("keyup", startGame);
-    	window.addEventListener("keyup", startGame);
-		
-	});
+	const tournamentDropdownMenu = document.querySelector("#tournamentDropdownMenu");
+	const tournamentDropdownButton = document.querySelector("#tournamentDropdownButton");
+	let nicknames: string[] = [];
 	
-	createTournamentBtn?.addEventListener("click", () => {
-		preGameModal?.classList.add("hidden");
-		window.removeEventListener("keyup", startGame);
-    	window.addEventListener("keyup", startGame)
-	});
+	tournamentDropdownButton?.addEventListener("click", (e) => {
+    e.stopPropagation();
+    tournamentDropdownMenu?.classList.toggle("hidden");
+
+  });
+  const tournamentModal = document.querySelector("#tournamentModal");
+  const fourPlayersGame = document.querySelector("#fourPlayersGame");
+  const submitNicknameBtn = document.querySelector("#submitNicknameBtn");
+  const playerNickname = document.querySelector("#playerNickname") as HTMLInputElement;
+
+submitNicknameBtn?.addEventListener("click", (e) => {
+	e.stopPropagation();
+	nicknames.push(playerNickname.value);
+	console.log(nicknames);
+
+
+});
+
+  fourPlayersGame?.addEventListener("click", (e) => {
+	e.stopPropagation();
+	tournamentDropdownMenu?.classList.toggle("hidden");
+	preGameModal?.classList.add("hidden");
+	tournamentModal?.classList.remove("hidden");
+
+  });
+
+  
+
 
 	initGame(); // if the game breaks use the line below
 	// window.addEventListener("load", initGame);
