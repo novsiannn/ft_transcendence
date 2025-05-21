@@ -17,8 +17,7 @@ function handleJoinGame(socket, gameId) {
                 const socketsInRoom = Array.from(room);
                 gameState = new GameState(socketsInRoom[0], socketsInRoom[1]);
                 games.set(gameId, gameState);
-                socket.to(`game_${gameId}`).emit('game:ready', gameState.getState());
-                // socket.emit('game:ready', gameState.getState());
+                io.to(`game_${gameId}`).emit('game:ready', gameState.getState());
             }
         }
     }
@@ -28,6 +27,48 @@ function handleJoinGame(socket, gameId) {
     }
 }
 
+function handleLeaveGame(socket, gameId){
+    socket.leave(`game_${gameId}`);
+    console.log(`User ${socket.user.id} left game ${gameId}`);
+
+    const game = games.get(gameId)
+    if (game) {
+        io.to(`game_${gameId}`).emit('game:finished', { message: 'Game finished' });
+    }
+}
+
+
+function handleStartGame(socket, gameId) {
+    const game = games.get(gameId);
+    if (game) {
+        game.start();
+        io.to(`game_${gameId}`).emit('game:start', game.getState());
+    } else {
+        socket.emit('game:error', { error: 'Game not found' });
+    }
+}
+
+function handleRestartGame(socket, gameId) {
+    const game = games.get(gameId);
+    if (game) {
+        game.restart();
+        game.start();// не уверен, что это нужно
+        io.to(`game_${gameId}`).emit('game:restart', game.getState());
+    } else {
+        socket.emit('game:error', { error: 'Game not found' });
+    }
+}
+
+function handleMovePaddle(socket, data) {
+    const { gameId, playerId, direction } = data;
+    const game = games.get(gameId);
+    if (game) {
+        game.movePaddle(playerId, direction);
+        io.to(`game_${gameId}`).emit('game:update', game.getState());
+    } else {
+        socket.emit('game:error', { error: 'Game not found' });
+    }
+}
 
 function initialize(io) {
     setInterval(() => {
@@ -44,6 +85,7 @@ function initialize(io) {
         });
     }, 1000 / 60); // 60 FPS
     io.on('connection', function(socket) {
-        // socket.on('game:join', gameId =>
+        socket.on('game:join', gameId => handleJoinGame(socket, gameId));
+        
     });
 }

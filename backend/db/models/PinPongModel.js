@@ -24,14 +24,14 @@ const PinPong = sequelize.define("PinPong", {
             key: 'id',
         }
     },
-    player1Ready: {
-        type: DataTypes.BOOLEAN,
-        defaultValue: false,
-    },
-    player2Ready: {
-        type: DataTypes.BOOLEAN,
-        defaultValue: false,
-    },
+    // player1Ready: {
+    //     type: DataTypes.BOOLEAN,
+    //     defaultValue: false,
+    // },
+    // player2Ready: {
+    //     type: DataTypes.BOOLEAN,
+    //     defaultValue: false,
+    // },
     player1Score: {
         type: DataTypes.INTEGER,
         allowNull: false,
@@ -41,14 +41,6 @@ const PinPong = sequelize.define("PinPong", {
         type: DataTypes.INTEGER,
         allowNull: false,
         defaultValue: 0,
-    },
-    winnerId: {
-        type: DataTypes.INTEGER,
-        allowNull: true,
-        references: {
-            model: User,
-            key: 'id',
-        },
     },
     status: {
         type: DataTypes.ENUM('waiting', 'playing', 'finished', 'abandoned'),
@@ -60,10 +52,10 @@ const PinPong = sequelize.define("PinPong", {
         defaultValue: 'casual',
         allowNull: false
     },
-    isFinished: {
-        type: DataTypes.BOOLEAN,
-        defaultValue: false,
-    }
+    // isFinished: {
+    //     type: DataTypes.BOOLEAN,
+    //     defaultValue: false,
+    // }
 
 }, {
     timestamps: true,

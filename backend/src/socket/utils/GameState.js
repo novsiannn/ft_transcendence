@@ -141,9 +141,9 @@ class GameState {
         this.isRunning = true;
         this.setBallDirection();
     }
-    pause() {
-        this.isRunning = false;
-    }
+    // pause() {
+    //     this.isRunning = false;
+    // }
     restart() {
         this.ball = {
             x: this.settings.boardWidth / 2,
