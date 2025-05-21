@@ -1,3 +1,4 @@
+import { getModalWindowError, handleModalError } from "../../elements";
 import { navigationHandle } from "../../elements/navigation";
 
 
@@ -405,7 +406,8 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
 	function startGame(ev: KeyboardEvent) {
 		const preGameModal = document.querySelector("#preGameModal");
 		const isModalHidden = preGameModal?.classList.contains("hidden");
-		if (ev.code === 'Space' && !isGameRunning && isWaitingForStart && isModalHidden) {
+		const isTournamentModalHidden = tournamentModal?.classList.contains("hidden");
+		if (ev.code === 'Space' && !isGameRunning && isWaitingForStart && isModalHidden && isTournamentModalHidden) {
 			isWaitingForStart = false;
 			
 			// Плавно скрываем текст
@@ -451,6 +453,7 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
 	const tournamentDropdownMenu = document.querySelector("#tournamentDropdownMenu");
 	const tournamentDropdownButton = document.querySelector("#tournamentDropdownButton");
 	let nicknames: string[] = [];
+	let tournamentNet : number[] = [];
 	
 	tournamentDropdownButton?.addEventListener("click", (e) => {
     e.stopPropagation();
@@ -458,25 +461,57 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
 
   });
   const tournamentModal = document.querySelector("#tournamentModal");
-  const fourPlayersGame = document.querySelector("#fourPlayersGame");
+  const fourPlayersGameBtn = document.querySelector("#fourPlayersGameBtn");
   const submitNicknameBtn = document.querySelector("#submitNicknameBtn");
   const playerNickname = document.querySelector("#playerNickname") as HTMLInputElement;
+  
+  submitNicknameBtn?.addEventListener("click", (e) => {
+	  e.stopPropagation();
+	  if (playerNickname.value.includes(" ") || playerNickname.value === "") {
+		  handleModalError("Please enter a nickname");
+		  return;
+		}
+		else	if (playerNickname.value.length > 10) {
+			handleModalError("Nickname is too long");
+			playerNickname.value = "";
+			return;
+		}
+		nicknames.push(playerNickname.value);
+		playerNickname.value = "";
+		
+		console.log(nicknames);
+		if(nicknames.length === 4) {
+			tournamentModal?.classList.add("hidden");
+			createTournamentNet();
+		}
+	});
+	
+	fourPlayersGameBtn?.addEventListener("click", (e) => {
+		e.stopPropagation();
+		tournamentDropdownMenu?.classList.toggle("hidden");
+		preGameModal?.classList.add("hidden");
+		tournamentModal?.classList.remove("hidden");
+		fourPlayersTournament();
+	});
 
-submitNicknameBtn?.addEventListener("click", (e) => {
-	e.stopPropagation();
-	nicknames.push(playerNickname.value);
-	console.log(nicknames);
+	function createTournamentNet() {
+		let num;
+		while(true){
+			num = Math.floor(Math.random() * 4);
+			if (!tournamentNet.includes(num)) {
+				tournamentNet.push(num);
+				if(tournamentNet.length === 4) {
+					break;
+				}
+				continue;
+			}		
+		}
+		console.log(tournamentNet);
+}
 
-
-});
-
-  fourPlayersGame?.addEventListener("click", (e) => {
-	e.stopPropagation();
-	tournamentDropdownMenu?.classList.toggle("hidden");
-	preGameModal?.classList.add("hidden");
-	tournamentModal?.classList.remove("hidden");
-
-  });
+  function fourPlayersTournament(){
+	
+  }
 
   
 

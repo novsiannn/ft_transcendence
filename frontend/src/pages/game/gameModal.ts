@@ -1,3 +1,5 @@
+import { getModalWindowError, handleModalError } from "../../elements";
+
 export function preGameModal() {
   return `
     <div id="preGameModal" style="background-color: rgba(0, 0, 0, 0.7);" class="fixed inset-0 flex items-center justify-center z-50">
@@ -27,10 +29,10 @@ export function preGameModal() {
           <div id="tournamentDropdownMenu" class="z-10 hidden absolute left-0 mt-2 bg-white divide-y divide-gray-100 rounded-lg shadow-sm w-44 dark:bg-gray-700">
             <ul class="py-2 text-sm text-gray-700 dark:text-gray-200" aria-labelledby="tournamentDropdownButton">
               <li>
-                <button id="fourPlayersGame" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">4 Players</button>
+                <button id="fourPlayersGameBtn" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">4 Players</button>
               </li>
               <li>
-                <button id="eightPlayersGame" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">8 Players</button>
+                <button id="eightPlayersGameBtn" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">8 Players</button>
               </li>
             </ul>
           </div>
@@ -49,6 +51,7 @@ export function tournamentModal() {
         <button id="submitNicknameBtn" type="submit" class=" mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">Submit</button>
         <button id="startTournament" class="hidden mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">Start Tournament!</button>
       </div>
+      ${getModalWindowError()}
     </div>
   `;
 }
