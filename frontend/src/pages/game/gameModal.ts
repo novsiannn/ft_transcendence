@@ -1,4 +1,4 @@
-import { getModalWindowError, handleModalError } from "../../elements";
+import { getModalWindowError} from "../../elements";
 
 export function preGameModal() {
   return `
@@ -47,6 +47,27 @@ export function tournamentModal() {
     <div id="tournamentModal" style="background-color: rgba(0, 0, 0, 0.7);" class="fixed inset-0 flex items-center justify-center z-50 hidden">
       <div class="bg-white p-6 rounded-lg shadow-lg text-black space-y-2 w-max h-auto text-center">
         <h2 class="text-lg font-semibold">Tournament Created!</h2>
+        <div class="relative w-full">
+          <button id="avatarSelectBtn" class="w-full flex items-center justify-between border p-2 rounded bg-white">
+            <img id="selectedAvatar" src="../../img/tournamentDefault.png" class="w-8 h-8 rounded-full" alt="avatar" />
+            <span>Выберите аватар</span>
+            <svg class="w-4 h-4 ml-2"></svg>
+          </button>
+          <div id="avatarDropdown" class="absolute left-0 mt-2 w-full bg-white border rounded shadow-lg hidden z-10">
+            <div class="flex flex-col">
+              <button class="flex items-center p-2 hover:bg-gray-100" data-avatar="../../img/granny.jpg">
+                <img src="../../img/granny.jpg" class="w-8 h-8 rounded-full mr-2" alt="avatar1" /> Аватар 1
+              </button>
+              <button class="flex items-center p-2 hover:bg-gray-100" data-avatar="../../img/spichka.jpg">
+                <img src="../../img/spichka.jpg" class="w-8 h-8 rounded-full mr-2" alt="avatar2" /> Аватар 2
+              </button>
+              <button class="flex items-center p-2 hover:bg-gray-100" data-avatar="../../img/tyler.jpg">
+                <img src="../../img/tyler.jpg" class="w-8 h-8 rounded-full mr-2" alt="avatar2" /> Аватар 2
+              </button>
+              <!-- Добавь еще аватары -->
+            </div>
+          </div>
+        </div>
         <input type="text" id="playerNickname" placeholder="Enter Players Nickname" class="mt-2 p-2 border border-gray-300 rounded w-full" />
         <button id="submitNicknameBtn" type="submit" class=" mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">Submit</button>
         <button id="startTournament" class="hidden mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">Start Tournament!</button>

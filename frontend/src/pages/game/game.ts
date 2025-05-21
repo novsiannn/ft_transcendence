@@ -1,6 +1,6 @@
 import { getModalWindowError, handleModalError } from "../../elements";
 import { navigationHandle } from "../../elements/navigation";
-
+import { tournamentPlayerData, tournamentPlayerProfiles } from "./tournamentPlayerProfiles";
 
 export function handleGame(mainWrapper: HTMLDivElement | undefined) {
 	navigationHandle();
@@ -452,8 +452,7 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
 	const preGameModal = document.querySelector("#preGameModal");
 	const tournamentDropdownMenu = document.querySelector("#tournamentDropdownMenu");
 	const tournamentDropdownButton = document.querySelector("#tournamentDropdownButton");
-	let nicknames: string[] = [];
-	let tournamentNet : number[] = [];
+	
 	
 	tournamentDropdownButton?.addEventListener("click", (e) => {
     e.stopPropagation();
@@ -462,12 +461,25 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
   });
   const tournamentModal = document.querySelector("#tournamentModal");
   const fourPlayersGameBtn = document.querySelector("#fourPlayersGameBtn");
-  const submitNicknameBtn = document.querySelector("#submitNicknameBtn");
+  const clickSubmitNicknameBtn = document.querySelector("#submitNicknameBtn");
   const playerNickname = document.querySelector("#playerNickname") as HTMLInputElement;
+  const tournamentProfiles = document.querySelector("#tournamentProfiles");
+  const selectAvatar = document.querySelector("#selectedAvatar");
   
-  submitNicknameBtn?.addEventListener("click", (e) => {
+  clickSubmitNicknameBtn?.addEventListener("click", (e) => {
 	  e.stopPropagation();
-	  if (playerNickname.value.includes(" ") || playerNickname.value === "") {
+	  handleSubmitNickname();
+	});
+
+	playerNickname?.addEventListener("keydown", (e) => {
+	if (e.key === "Enter") {
+		e.preventDefault();
+		handleSubmitNickname();
+	}
+	});
+	
+	function handleSubmitNickname(){
+		if (playerNickname.value.includes(" ") || playerNickname.value === "") {
 		  handleModalError("Please enter a nickname");
 		  return;
 		}
@@ -476,16 +488,17 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
 			playerNickname.value = "";
 			return;
 		}
-		nicknames.push(playerNickname.value);
+		tournamentPlayerData.nicknames.push(playerNickname.value);
+		tournamentPlayerData.avatars.set(playerNickname.value, (selectAvatar as HTMLImageElement)!.src);
+		// console.log(tournamentPlayerData.avatars);
 		playerNickname.value = "";
 		
-		console.log(nicknames);
-		if(nicknames.length === 4) {
+		console.log(tournamentPlayerData.nicknames);
+		if(tournamentPlayerData.nicknames.length === 4) {
 			tournamentModal?.classList.add("hidden");
 			createTournamentNet();
 		}
-	});
-	
+	}
 	fourPlayersGameBtn?.addEventListener("click", (e) => {
 		e.stopPropagation();
 		tournamentDropdownMenu?.classList.toggle("hidden");
@@ -498,21 +511,44 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
 		let num;
 		while(true){
 			num = Math.floor(Math.random() * 4);
-			if (!tournamentNet.includes(num)) {
-				tournamentNet.push(num);
-				if(tournamentNet.length === 4) {
+			if (!tournamentPlayerData.tournamentNet.includes(num)) {
+				tournamentPlayerData.tournamentNet.push(num);
+				if(tournamentPlayerData.tournamentNet.length === 4) {
 					break;
 				}
 				continue;
 			}		
 		}
-		console.log(tournamentNet);
-}
+		if (tournamentProfiles) {
+			tournamentProfiles.innerHTML = tournamentPlayerProfiles();
+		}
+		// console.log(tournamentPlayerData.nicknames);
+		// console.log(tournamentPlayerData.tournamentNet);
+	}
 
   function fourPlayersTournament(){
+
 	
   }
+const avatarSelectBtn = document.querySelector("#avatarSelectBtn");
+const avatarDropdown = document.querySelector("#avatarDropdown");
+const selectedAvatar = document.querySelector("#selectedAvatar");
 
+avatarSelectBtn?.addEventListener('click', () => {
+  avatarDropdown?.classList.toggle('hidden');
+});
+
+avatarDropdown?.addEventListener('click', (e) => {
+  const target = e.target as HTMLElement;
+  const btn = target.closest('button[data-avatar]');
+  if (btn) {
+    const avatar = btn.getAttribute('data-avatar');
+    if (avatar && selectedAvatar) {
+      (selectedAvatar as HTMLImageElement).src = avatar;
+      avatarDropdown.classList.add('hidden');
+    }
+  }
+});
   
 
 

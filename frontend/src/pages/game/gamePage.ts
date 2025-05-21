@@ -2,6 +2,7 @@ import { navigation } from "../../elements/navigation";
 import { store, API_URL } from "../../store/store";
 import { getColorFromUsername } from "../../shared/randomColors";
 import { preGameModal, tournamentModal } from "./gameModal";
+import { tournamentPlayerProfiles } from "./tournamentPlayerProfiles";
 // import { tournamentModal } from "./gameModal";
 // import { getFirstPlayer } from "./playersHandle";
 export function gamePage() {
@@ -31,26 +32,7 @@ export function gamePage() {
         <div class="flex flex-col items-center w-full">
             <!-- Профили игроков -->
             <div class="flex justify-between w-[1300px] px-6 mt-4"> <!-- Изменено с max-w-7xl на w-[1300px] -->
-                <div class="absolute left-16 z-[-1]"> <!-- Добавлено позиционирование -->
-                    <div class="flex flex-col items-center">
-                        ${
-                            userPhoto
-                            ? `<img id="player1Img" class="rounded-full object-cover w-24 h-24" draggable="false" alt="Profile Image">`
-                            : `<div id="player1Img" class="text-3xl text-white font-bold flex justify-center items-center w-24 h-24 ${color} rounded-full select-none">${firstLetterOfUser}</div>`
-                        }
-                        <span class="mt-2 text-lg text-white">${userNickname}</span>
-                    </div>
-                </div>
-                <div class="absolute right-16 z-[-1]"> <!-- Добавлено позиционирование -->
-                    <div class="flex flex-col items-center">
-                        ${
-                            userPhoto
-                            ? `<img id="player2Img" class="rounded-full object-cover w-24 h-24" draggable="false" alt="Profile Image">`
-                            : `<div id="player2Img" class="text-3xl text-white font-bold flex justify-center items-center w-24 h-24 ${color} rounded-full select-none">${firstLetterOfUser}</div>`
-                        }
-                        <span class="mt-2 text-lg text-white">Player 2</span>
-                    </div>
-                </div>
+            ${tournamentPlayerProfiles()}
             </div>
             <!-- Заголовок -->
             <h1 id="startText" class="text-4xl text-white mt-6">Press SPACE To START GAME</h1>
