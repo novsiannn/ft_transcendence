@@ -124,13 +124,6 @@ fastify.get('/', (request, reply) => {
   reply.code(301).redirect('https://localhost:8888');
 });
 
-// fastify.setNotFoundHandler((request, reply) => {
-//   if (request.url.startsWith('/api/') || request.url.startsWith('/docs/')) {
-//     reply.code(404).send({ error: 'Route not found' });
-//   } else {
-//     reply.redirect(301, 'https://localhost:8888');
-//   }
-// });
 
 async function start() {
   try {
@@ -148,7 +141,7 @@ async function start() {
     console.log('Server listening at https://localhost:3000');
 
 
-    await sequelize.sync({ force: false }); //true for cleaning the database
+    await sequelize.sync({ force: true }); //true for cleaning the database
     console.log('Database & tables created!');
 
   } catch (err) {
