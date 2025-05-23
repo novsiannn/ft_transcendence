@@ -54,7 +54,9 @@ const getAuthBtn = () => {
 export function navigation() {
   return `
 		<nav class="top-0 left-0  text-white h-16 w-full flex items-center justify-between px-6 select-none p-3">
+      <div id="imgLogoWrapper">
     		<img src="https://img.icons8.com/plasticine/100/ping-pong--v1.png" draggable="false" alt="Logo" class="h-12 w-12 object-cover" id=imgLogoNavi>
+      </div>
 
 			<div class="relative">
 				${store.getAuth() ? getProfileIcon() : getAuthBtn()}

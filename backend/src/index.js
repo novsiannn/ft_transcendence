@@ -83,7 +83,7 @@ fastify.register(require('@fastify/cookie'), {
 
 
 fastify.register(fastifyCors, {
-  origin: 'https://localhost:8888',
+  origin: true,
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
@@ -119,6 +119,11 @@ fastify.register(require('@fastify/swagger-ui'), {
 });
 
 fastify.register(userRoutes);
+
+fastify.get('/', (request, reply) => {
+  reply.code(301).redirect('https://localhost:8888');
+});
+
 
 async function start() {
   try {

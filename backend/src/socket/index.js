@@ -8,8 +8,8 @@ function setupWebSockets(server) {
     const io = new Server(server, {
         cors: {
             // origin: 'https://localhost:3000', // for testing
-            origin: 'https://localhost:8888',
-            methods: ['GET', 'POST', 'PUT', 'DELETE'],
+            origin: true,
+            methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
             credentials: true,
         },
         secure: true
@@ -53,4 +53,4 @@ function setupWebSockets(server) {
     return io;
 }
 
-module.exports = setupWebSockets;   
+module.exports = setupWebSockets;
