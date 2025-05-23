@@ -12,6 +12,7 @@ const path = require("path");
 const speakeasy = require('speakeasy');//ikhristi
 const QRCode = require('qrcode');//ikhristi
 const { error } = require("console");
+const { Op } = require('sequelize');
 
 // const { logout } = require("../controllers/user.controller");
 
@@ -188,14 +189,29 @@ async function deleteAvatar(userId) {
 async function getUserProfile(userId) {
   try {
     const user = await User.findByPk(userId, {
-      attributes: ['id', 'email', 'username', 'avatar', 'firstName', 'lastName', 'phoneNumber', 'isActivated', 'isTwoFactorEnabled', 'language', 'lvl', 'elo'],
+      attributes: ['id', 'email', 'username', 'avatar', 'firstName', 'lastName', 
+                  'phoneNumber', 'isActivated', 'isTwoFactorEnabled', 'language', 
+                  'lvl', 'elo'],
     });
 
     if (!user) {
       return { error: "User not found" };
     }
 
-    return { user };
+    const winrateStats = await countProcentWinrate(userId);
+    if (winrateStats.error) {
+      return { error: winrateStats.error };
+    }
+
+    return { 
+      user: {
+        ...user.toJSON(),
+        winrate: winrateStats.winrate,
+        totalGames: winrateStats.totalGames,
+        wonGames: winrateStats.wonGames
+      } 
+    };
+
   } catch (error) {
     console.error("Error getting user profile:", error);
     throw error;
@@ -494,43 +510,53 @@ async function countProcentWinrate(userId) {
       return { error: "User not found" };
     }
 
-    const totalGames = await PinPong.count({
-      where: {
-        status: 'finished',
-        [sequelize.Op.or]: [
-          { player1Id: userId },
-          { player2Id: userId }
-        ]
+      const totalGames = await PinPong.count({
+        where: {
+          status: 'finished',
+          [Op.or]: [  
+            { player1Id: userId },
+            { player2Id: userId }
+          ]
+        }
+      });
+
+      if (totalGames === 0) {
+        return { 
+          winrate: 0,
+          totalGames: 0,
+          wonGames: 0
+        };
       }
-    });
 
-    const wonGames = await PinPong.count({
-      where: {
-        status: 'finished',
-        [sequelize.Op.or]: [
-          { 
-            player1Id: userId,
-            player1Score: 5  
-          },
-          { 
-            player2Id: userId,
-            player2Score: 5
-          }
-        ]
-      }
-    });
+      const wonGames = await PinPong.count({
+        where: {
+          status: 'finished',
+          [Op.or]: [  
+            { 
+              player1Id: userId,
+              player1Score: 5  
+            },
+            { 
+              player2Id: userId,
+              player2Score: 5
+            }
+          ]
+        }
+      });
 
-    if (totalGames === 0) {
-      return { winrate: 0 };
-    }
+      console.log('Query results:', {
+        userId,
+        totalGames,
+        wonGames
+      });
 
-    const winrate = Math.round((wonGames / totalGames) * 100);
+      const winrate = Math.round((wonGames / totalGames) * 100);
 
-    return { 
-      winrate,
-      totalGames,
-      wonGames 
-    };
+      return { 
+        winrate,
+        totalGames,
+        wonGames 
+      };
 
   } catch (error) {
     console.error("Error in countProcentWinrate service:", error);
@@ -538,4 +564,4 @@ async function countProcentWinrate(userId) {
   }
 }
 
-module.exports = { deleteAvatar, getAllUsers, refresh, logout, login, activate, registration, updateUser, saveAvatar, getUserProfile, deleteUserAccount, set2FA, verify2FA, verify2FALogin, disable2FA, setLanguage };
+module.exports = { deleteAvatar, getAllUsers, refresh, logout, login, activate, registration, updateUser, saveAvatar, getUserProfile, deleteUserAccount, set2FA, verify2FA, verify2FALogin, disable2FA, setLanguage, countProcentWinrate };
