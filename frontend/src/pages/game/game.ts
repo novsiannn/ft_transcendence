@@ -496,6 +496,7 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
 		console.log(tournamentPlayerData.nicknames);
 		if(tournamentPlayerData.nicknames.length === 4) {
 			tournamentModal?.classList.add("hidden");
+			tournamentModal?.classList.remove("flex");
 			createTournamentNet();
 		}
 	}
@@ -504,6 +505,7 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
 		tournamentDropdownMenu?.classList.toggle("hidden");
 		preGameModal?.classList.add("hidden");
 		tournamentModal?.classList.remove("hidden");
+		tournamentModal?.classList.add("flex");
 		fourPlayersTournament();
 	});
 
