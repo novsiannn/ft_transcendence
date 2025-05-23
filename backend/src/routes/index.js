@@ -1271,18 +1271,11 @@ async function routes(fastify, options) {
     preHandler: authMiddleware
   }, notificationController.getNotifications);
 
-  fastify.put('/notifications/:notificationId/read', {
+  fastify.put('/notifications/read-all', {
     schema: {
-      description: 'Mark notification as read',
+      description: 'Mark all notifications as read',
       tags: ['Notifications'],
       security: [{ bearerAuth: [] }],
-      params: {
-        type: 'object',
-        required: ['notificationId'],
-        properties: {
-          notificationId: { type: 'integer', description: 'Notification ID to mark as read' }
-        }
-      },
       response: {
         200: {
           description: 'Notification marked as read',

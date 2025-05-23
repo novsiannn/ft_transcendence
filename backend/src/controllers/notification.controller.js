@@ -21,20 +21,13 @@ const NotificationController = {
     async markAsRead(req, res) {
         try {
             const userId = req.user.id;
-            const { notificationId } = req.params;
-
+            
             if (!userId) {
                 return res.code(401).send({ error: 'User not found' });
             }
-            if (!notificationId) {
-                return res.code(400).send({ error: 'Notification ID is required' });
-            }
 
-            const success = await notificationService.markAsRead(notificationId, userId);
-            if (!success) {
-                return res.code(404).send({ error: 'Notification not found' });
-            }
-
+            await notificationService.markAsRead(userId);
+            
             return res.code(200).send({ message: 'Notification marked as read' });
         } catch (error) {
             console.error('Error marking notification as read:', error);
