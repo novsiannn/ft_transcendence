@@ -20,7 +20,7 @@ async function createDuel(user1Id, user2Id) {// TODO chack status of the duel
         user1Id = await User.findByPk(user1Id);
         user2Id = await User.findByPk(user2Id);
         if (!user1Id || !user2Id) {
-            throw new Error('One or both users do not exist');
+            return { error: 'User or Users not found' };
         }
 
         const existingGame = await PinPong.findOne({
@@ -44,14 +44,15 @@ async function createDuel(user1Id, user2Id) {// TODO chack status of the duel
         });
 
         if (existingGame) {
-            throw new Error('A duel between these users is already in progress');
+            return { error: 'A duel between these users is already in progress' };
         }
         const duel = await PinPong.create({
             user_1: user1Id.id,
             user_2: user2Id.id,
             user_1_score: null,
             user_2_score: null,
-            status: 'created'
+            status: 'waiting',
+            game_mode: 'casual'
         });
         return duel;
 

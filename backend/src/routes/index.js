@@ -330,7 +330,10 @@ async function routes(fastify, options) {
                 isTwoFactorEnabled: { type: 'boolean' },
                 language: { type: 'string' },
                 lvl: { type: 'integer' },
-                elo: { type: 'integer' }
+                elo: { type: 'integer' },
+                winrate: { type: 'integer' },
+                totalGames: { type: 'integer' },
+                wonGames: { type: 'integer' }
               }
             }
           }
