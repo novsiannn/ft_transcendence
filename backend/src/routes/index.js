@@ -328,7 +328,9 @@ async function routes(fastify, options) {
                 phoneNumber: { type: 'string' },
                 isActivated: { type: 'boolean' },
                 isTwoFactorEnabled: { type: 'boolean' },
-                language: { type: 'string' }
+                language: { type: 'string' },
+                lvl: { type: 'integer' },
+                elo: { type: 'integer' }
               }
             }
           }

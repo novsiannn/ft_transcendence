@@ -9,7 +9,7 @@ function setupWebSockets(server) {
         cors: {
             // origin: 'https://localhost:3000', // for testing
             origin: true,
-            methods: ['GET', 'POST', 'PUT', 'DELETE'],
+            methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
             credentials: true,
         },
         secure: true
@@ -53,4 +53,4 @@ function setupWebSockets(server) {
     return io;
 }
 
-module.exports = setupWebSockets;   
+module.exports = setupWebSockets;
