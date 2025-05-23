@@ -1,4 +1,5 @@
 const User = require("../../db/models/UserModel");
+const PinPong = require("../../db/models/PinPongModel");
 const Token = require("../../db/models/TokenModel");
 const bcrypt = require("bcrypt");
 const uuid = require("uuid");
@@ -483,6 +484,57 @@ async function setLanguage(userId, language)
   catch (error){
     console.error("Error in setLanguage service:", error);
     return { error: "Error setting language" };
+  }
+}
+
+async function countProcentWinrate(userId) {
+  try {
+    const user = await User.findByPk(userId);
+    if (!user) {
+      return { error: "User not found" };
+    }
+
+    const totalGames = await PinPong.count({
+      where: {
+        status: 'finished',
+        [sequelize.Op.or]: [
+          { player1Id: userId },
+          { player2Id: userId }
+        ]
+      }
+    });
+
+    const wonGames = await PinPong.count({
+      where: {
+        status: 'finished',
+        [sequelize.Op.or]: [
+          { 
+            player1Id: userId,
+            player1Score: 5  
+          },
+          { 
+            player2Id: userId,
+            player2Score: 5
+          }
+        ]
+      }
+    });
+
+    if (totalGames === 0) {
+      return { winrate: 0 };
+    }
+
+    const winrate = Math.round((wonGames / totalGames) * 100);
+
+    return { 
+      winrate,
+      totalGames,
+      wonGames 
+    };
+
+  } catch (error) {
+    console.error("Error in countProcentWinrate service:", error);
+    return { error: "Error counting winrate" };
   }
 }
 
