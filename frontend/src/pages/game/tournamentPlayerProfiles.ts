@@ -7,10 +7,12 @@ export const tournamentPlayerData = {
 };
 
 export function tournamentPlayerProfiles() {
-    let firstPlayer = tournamentPlayerData.nicknames[tournamentPlayerData.tournamentNet[0]];
-    let secondPlayer = tournamentPlayerData.nicknames[tournamentPlayerData.tournamentNet[1]];
-    let firstPlayerAvatar = tournamentPlayerData.avatars.get(firstPlayer);
-    let secondPlayerAvatar = tournamentPlayerData.avatars.get(secondPlayer);
+    let defaultAvatar = "../../img/tournamentDefault.png";
+    let defaultNickname = "Player";
+    let firstPlayer = tournamentPlayerData.nicknames[tournamentPlayerData.tournamentNet[0]] || defaultNickname;
+    let secondPlayer = tournamentPlayerData.nicknames[tournamentPlayerData.tournamentNet[1]] || defaultNickname;
+    let firstPlayerAvatar = tournamentPlayerData.avatars.get(firstPlayer) || defaultAvatar;
+    let secondPlayerAvatar = tournamentPlayerData.avatars.get(secondPlayer) || defaultAvatar;
 
     return `
             <div id="tournamentProfiles">

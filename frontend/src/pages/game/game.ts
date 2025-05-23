@@ -1,6 +1,8 @@
 import { getModalWindowError, handleModalError } from "../../elements";
 import { navigationHandle } from "../../elements/navigation";
 import { tournamentPlayerData, tournamentPlayerProfiles } from "./tournamentPlayerProfiles";
+import { API_URL, store } from "../../store/store";
+import { get } from "axios";
 
 export function handleGame(mainWrapper: HTMLDivElement | undefined) {
 	navigationHandle();
@@ -552,7 +554,79 @@ avatarDropdown?.addEventListener('click', (e) => {
   }
 });
   
+					//FRIENDS MATCH PART
 
+	const friendsDropDown = document.querySelector("#friendsDropDown");
+	const friendSelectBtn = document.querySelector("#friendSelectBtn");
+	const selectedFriend = document.querySelector("#selectedFriend");
+	const createFriendsMatchBtn = document.querySelector("#createFriendsMatchBtn");
+	const friendsMatchModal = document.querySelector("#friendsMatchModal");
+	const gameModeDropdownBtn = document.querySelector("#gameModeDropdownBtn");
+	const gameDropdownMenu = document.querySelector("#gameDropdownMenu");
+
+	gameModeDropdownBtn?.addEventListener("click", (e) => {
+		e.stopPropagation();
+		gameDropdownMenu?.classList.toggle("hidden");
+	});
+
+	createFriendsMatchBtn?.addEventListener("click", (e) => {
+		e.stopPropagation();
+		gameDropdownMenu?.classList.toggle("hidden");
+		preGameModal?.classList.add("hidden");
+		friendsMatchModal?.classList.remove("hidden");
+		friendsMatchModal?.classList.add("flex");
+	});
+
+	friendSelectBtn?.addEventListener('click', () => {
+	friendsDropDown?.classList.toggle('hidden');
+	getFriendsList();
+	});
+
+	friendsDropDown?.addEventListener('click', (e) => {
+	const target = e.target as HTMLElement;
+	// const btn = target.closest('button[data-avatar]');
+	// if (btn) {
+	// 	const avatar = btn.getAttribute('data-avatar');
+	// 	if (avatar && selectedAvatar) {
+	// 	(selectedAvatar as HTMLImageElement).src = avatar;
+	// 	friendsDropDown.classList.add('hidden');
+	// 	}
+	// }
+	});
+
+function getFriendsList() {
+    // Получаем список друзей из store
+    const friends = store.getAllFriends(); // [{ username, avatar }, ...]
+    const friendsList = document.querySelector("#friendsDropDown");
+    const selectedFriend = document.querySelector("#selectedFriend");
+	const selectedFriendBtn = document.querySelector("#friendSelectBtn");
+
+    if (friendsList) {
+        friendsList.innerHTML = ""; // Очищаем старый список
+
+        friends.forEach((friend) => {
+            const friendBtn = document.createElement("button");
+            friendBtn.className = "flex items-center p-2 hover:bg-gray-100";
+            friendBtn.setAttribute("data-avatar", friend.avatar);
+            friendBtn.innerHTML = `
+                <img src="${API_URL}${friend.avatar}" class="w-8 h-8 rounded-full mr-2" alt="avatar" /> ${friend.username}
+            `;
+            // При клике на друга — меняем аватар и закрываем дропдаун
+            friendBtn.addEventListener("click", () => {
+                if (selectedFriend) {
+                    (selectedFriend as HTMLImageElement).src = API_URL + friend.avatar;
+					const btn = document.getElementById("friendSelectBtn");
+					const span = btn?.querySelector("span");
+					if (span) {
+					span.textContent = friend.username;
+					}
+				}
+                friendsList.classList.add("hidden");
+            });
+            friendsList.appendChild(friendBtn);
+        });
+    }
+}
 
 	initGame(); // if the game breaks use the line below
 	// window.addEventListener("load", initGame);

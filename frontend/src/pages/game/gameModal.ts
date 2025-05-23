@@ -1,11 +1,12 @@
 import { getModalWindowError} from "../../elements";
+import { store, API_URL} from "../../store/store";
 
 export function preGameModal() {
   return `
     <div id="preGameModal" style="background-color: rgba(0, 0, 0, 0.7);" class="fixed inset-0 flex items-center justify-center z-50">
       <div class="bg-white p-6 rounded-lg shadow-lg text-black space-y-2 w-max h-auto text-center">
         <div class="relative inline-block text-left mb-2">
-          <button id="gameDropdownButton" data-dropdown-toggle="gameDropdownMenu" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800" type="button">
+          <button id="gameModeDropdownBtn" data-dropdown-toggle="gameDropdownMenu" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800" type="button">
             Select Game Mode
             <svg class="w-2.5 h-2.5 ms-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
               <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 4 4 4-4"/>
@@ -14,7 +15,12 @@ export function preGameModal() {
           <div id="gameDropdownMenu" class="z-10 hidden absolute left-0 mt-2 bg-white divide-y divide-gray-100 rounded-lg shadow-sm w-44 dark:bg-gray-700">
             <ul class="py-2 text-sm text-gray-700 dark:text-gray-200" aria-labelledby="gameDropdownButton">
               <li>
-                <a href="#" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Dashboard</a>
+                 <button id="createFriendsMatchBtn" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Friends Match</button>
+              </li>
+            </ul>
+            <ul class="py-2 text-sm text-gray-700 dark:text-gray-200" aria-labelledby="gameDropdownButton">
+              <li>
+                 <button id="findRankedMatchBtn" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Ranked Match</button>
               </li>
             </ul>
           </div>
@@ -76,3 +82,34 @@ export function tournamentModal() {
     </div>
   `;
 }
+
+export function friendsMatchModal(){
+  const userPhoto = store.getUser().avatar
+  ? `${API_URL}${store.getUser().avatar}`
+  : "../../img/tournamentDefault.png";
+  const userName = store.getUser().username;
+  console.log("userPhoto:", userPhoto);
+  return`
+    <div id="friendsMatchModal" style="background-color: rgba(0, 0, 0, 0.7);" class="fixed inset-0 items-center justify-center z-50 hidden">
+      <div class="bg-white p-6 rounded-lg shadow-lg text-black space-y-2 w-60 h-40 text-center">
+        <h2 class="text-lg font-semibold"> </h2>
+        <div class="relative w-full">
+          <button id="friendSelectBtn" class="w-full flex items-center justify-between border p-2 rounded bg-white">
+            <img id="selectedFriend" src="../../img/tournamentDefault.png" class="w-8 h-8 rounded-full" alt="avatar" />
+            <span>Select Friend</span>
+            <svg class="w-4 h-4 ml-2"></svg>
+          </button>
+          <div id="friendsDropDown" class="absolute left-0 mt-2 w-full bg-white border rounded shadow-lg hidden z-10">
+            <div class="flex flex-col">
+              <button class="flex items-center p-2 hover:bg-gray-100" data-avatar="${userPhoto}">
+                <img src="${userPhoto}" class="w-8 h-8 rounded-full mr-2" alt="avatar1" /> ${userName}
+              </button>
+            </div>
+          </div>
+        </div>
+        <button id="sendInviteBtn" type="submit" class=" mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">Submit</button>
+      </div>
+      ${getModalWindowError()}
+    </div>
+  `;
+};

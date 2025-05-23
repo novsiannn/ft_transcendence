@@ -1,10 +1,9 @@
 import { navigation } from "../../elements/navigation";
 import { store, API_URL } from "../../store/store";
 import { getColorFromUsername } from "../../shared/randomColors";
-import { preGameModal, tournamentModal } from "./gameModal";
+import { friendsMatchModal, preGameModal, tournamentModal } from "./gameModal";
 import { tournamentPlayerProfiles } from "./tournamentPlayerProfiles";
-// import { tournamentModal } from "./gameModal";
-// import { getFirstPlayer } from "./playersHandle";
+
 export function gamePage() {
     
     const userPhoto = store.getUser().avatar;
@@ -33,6 +32,7 @@ export function gamePage() {
             <!-- Профили игроков -->
             <div class="flex justify-between w-[1300px] px-6 mt-4"> <!-- Изменено с max-w-7xl на w-[1300px] -->
             ${tournamentPlayerProfiles()}
+            ${friendsMatchModal()}
             </div>
             <!-- Заголовок -->
             <h1 id="startText" class="text-4xl text-white mt-6">Press SPACE To START GAME</h1>
