@@ -45,7 +45,7 @@ class GameState {
         const bottomCollision = this.ball.y >= this.settings.boardHeight - this.settings.ballRadius;
         
         if (topCollision || bottomCollision) {
-            this.ball.directiom.y *= -1;
+            this.ball.direction.y *= -1;
         }
     }
 
@@ -141,9 +141,9 @@ class GameState {
         this.isRunning = true;
         this.setBallDirection();
     }
-    pause() {
-        this.isRunning = false;
-    }
+    // pause() {
+    //     this.isRunning = false;
+    // }
     restart() {
         this.ball = {
             x: this.settings.boardWidth / 2,
@@ -154,8 +154,10 @@ class GameState {
                 y: 0,
             }
         }
-        paddles[this.player1Id].score = 0;
-        paddles[this.player2Id].score = 0;
+        this.paddles[this.player1Id].score = 0;
+        this.paddles[this.player2Id].score = 0;
         this.isRunning = false;
     }
 }
+
+module.exports = GameState;
