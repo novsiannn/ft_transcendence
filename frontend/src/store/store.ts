@@ -4,6 +4,7 @@ import {
   IFriend,
   IFriendshipResponseData,
   IMessage,
+  INotificationResponse,
   IResponse,
   IUpdateProfileData,
 } from "./../shared/interfaces";
@@ -20,6 +21,8 @@ import friendsService from "../services/api/friendsService";
 import i18next from "i18next";
 import chatsService from "../services/api/chatsService";
 import { initializeSocket, socket } from "../websockets";
+import notificationService from "../services/api/notificationServices";
+import { refreshNotifications } from "../elements/navigation";
 
 export const API_URL: string = "https://localhost:3000";
 
@@ -31,14 +34,16 @@ class Store {
       user: {} as IUser,
       isAuth: false,
       isLoading: false,
+      notification: null,
     },
     friendsPage: {
       allUsers: [],
       friends: [],
     },
     chatPage: {
-      activeChatID: null
-    }
+      activeChatID: null,
+      onChatsPage: false,
+    },
   };
 
   setAuth = (bool: boolean): void => {
@@ -49,8 +54,16 @@ class Store {
     this.state.chatPage.activeChatID = chatId;
   };
 
-  getActiveChatID = () : number | null => {
+  getActiveChatID = (): number | null => {
     return this.state.chatPage.activeChatID;
+  };
+
+  setChatsPageActive = (value: boolean): void => {
+    this.state.chatPage.onChatsPage = value;
+  };
+
+  getChatsPageActive = (): boolean => {
+    return this.state.chatPage.onChatsPage;
   };
 
   setUser = (user: IUser): void => {
@@ -238,9 +251,9 @@ class Store {
 
     if (response.status === 201) {
       handleModalSuccess("You have successfully sent a friend request");
-      socket?.emit('notification:friendRequest', {
-        addresseeId
-    });
+      socket?.emit("notification:friendRequest", {
+        addresseeId,
+      });
     }
     return response.status;
   };
@@ -296,13 +309,38 @@ class Store {
   };
 
   getAllChats = async (): Promise<IChatData[]> => {
-    const response =  await chatsService.getAllChats();
+    const response = await chatsService.getAllChats();
     return response;
   };
 
   getMessagesFromChat = async (chatID: number): Promise<IMessage[]> => {
-    const response =  await chatsService.getMessagesFromChat(chatID);
+    const response = await chatsService.getMessagesFromChat(chatID);
     return response;
+  };
+
+  setNotification = (data: INotificationResponse | null): void => {
+    this.state.auth.notification = data;
+  };
+
+  getNotification = (): INotificationResponse | null => {
+    return this.state.auth.notification;
+  };
+
+  getAllNotifications = async () => {
+    const response = await notificationService.getNotifications();
+    this.setNotification(response.data);
+    return response;
+  };
+
+  deleteNotification = async (notificationID: string): Promise<number>  => {
+    const response = await notificationService.deleteNotifications(notificationID);
+  
+    console.log(response);
+    
+    if(response.status === 204){
+      refreshNotifications();
+    }
+    return response.status;
   };
 
   checkAuth = async () => {
@@ -314,6 +352,7 @@ class Store {
       await this.getUserRequest();
       await this.getAllUsersRequest();
       await this.getAllFriendsRequest();
+      await this.getAllNotifications();
       this.setLoading(false);
       return;
     }
