@@ -1,3 +1,7 @@
+import { BtnAccept } from "../../elements/BtnAccept";
+import { BtnAdd } from "../../elements/BtnAdd";
+import { BtnCancel } from "../../elements/BtnCancel";
+import { BtnReject } from "../../elements/BtnReject";
 import { getColorFromUsername } from "../../shared/randomColors";
 import { API_URL } from "../../store/store";
 
@@ -58,17 +62,10 @@ export const getUserLayout = (username: string, avatar: string) => {
 	  </div>
 	</div>
 	<div class="flex gap-2 items-center ml-2">
-		  <button 
-  			data-i18n='buttons.cancel'
-  			id="btnCancelFriendRequest"
-  			type="button"
-  			class="hidden text-center h-8 px-4 text-white bg-red-700 hover:bg-red-800 focus:outline-none focus:ring-4 focus:ring-red-300 font-medium rounded-full text-sm dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-900"
-			>
-  			Cancel
-			</button>
-		  <button data-i18n='buttons.add' id="btnAddFriend" type="button" class=" p-1 hidden  px-4 h-8 text-white bg-blue-700 hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 font-medium rounded-full text-sm  text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Add</button>
-		  <button data-i18n='buttons.accept' id="btnAcceptFriend" type="button" class="hidden  px-4 h-8 text-white bg-sky-500 hover:bg-sky-700 focus:outline-none focus:ring-4 focus:ring-sky-300 font-medium rounded-full text-sm text-center dark:bg-blue-200 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Accept</button>
-		  <button data-i18n='buttons.reject' id="btnRejectFriend" type="button" class="hidden  px-4 h-8 text-white bg-red-700 hover:bg-red-800 focus:outline-none focus:ring-4 focus:ring-red-300 font-medium rounded-full text-sm text-center  dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-900">Reject</button>
+		  ${BtnCancel()}
+		  ${BtnAdd()}
+		  ${BtnAccept()}
+		  ${BtnReject()}
 	</div>
   </div>
   `;
