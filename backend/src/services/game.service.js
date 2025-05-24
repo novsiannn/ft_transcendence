@@ -20,7 +20,7 @@ async function createDuel(user1Id, user2Id) {// TODO chack status of the duel
         user1Id = await User.findByPk(user1Id);
         user2Id = await User.findByPk(user2Id);
         if (!user1Id || !user2Id) {
-            throw new Error('One or both users do not exist');
+            return { error: 'User or Users not found' };
         }
 
         const existingGame = await PinPong.findOne({
@@ -44,15 +44,15 @@ async function createDuel(user1Id, user2Id) {// TODO chack status of the duel
         });
 
         if (existingGame) {
-            throw new Error('A duel between these users is already in progress');
+            return { error: 'A duel between these users is already in progress' };
         }
         const duel = await PinPong.create({
             user_1: user1Id.id,
             user_2: user2Id.id,
-            winner: null,
             user_1_score: null,
             user_2_score: null,
-            status: 'created'
+            status: 'waiting',
+            game_mode: 'casual'
         });
         return duel;
 
@@ -62,7 +62,7 @@ async function createDuel(user1Id, user2Id) {// TODO chack status of the duel
     }
 }
 
-async function finishDuel(duelId, winnerId, user1Score, user2Score) {
+async function finishDuel(duelId, user1Score, user2Score) {
     try {
         const duel = await PinPong.findByPk(duelId);
         if (!duel) {
@@ -71,12 +71,7 @@ async function finishDuel(duelId, winnerId, user1Score, user2Score) {
         if (duel.status !== 'created') {
             throw new Error('Duel already finished');
         }
-        const winner = await User.findByPk(winnerId);
-        if (!winner) {
-            throw new Error('Winner not found');
-        }
         await duel.update({
-            winner: winner.id,
             user_1_score: user1Score,
             user_2_score: user2Score,
             status: 'finished'
@@ -87,5 +82,70 @@ async function finishDuel(duelId, winnerId, user1Score, user2Score) {
         throw error;
     }
     
+}
+
+// async function setPlayerAsReady(userId, duelId) {
+//     try {
+//         const duel = await PinPong.findByPk(duelId);
+//         if (!duel) {
+//             throw new Error('Duel not found');
+//         }
+//         if (duel.status !== 'created') {
+//             throw new Error('Duel already finished');
+//         }
+//         if (userId === duel.user_1) {
+//             await duel.update({ user_1_ready: true });
+//         } else if (userId === duel.user_2) {
+//             await duel.update({ user_2_ready: true });
+//         } else {
+//             throw new Error('User is not part of this duel');
+//         }
+//     } catch (error) {
+//         console.error('Error setting player as ready:', error);
+//         throw error;
+//     }
+// }
+// async function leaveGame(userId, duelId) {
+//     try {
+//         const duel = await PinPong.findByPk(duelId);
+//         if (!duel) {
+//             throw new Error('Duel not found');
+//         }
+//         if (userId === duel.user_1) {
+//             await duel.update({ user_1: null, user_1_ready: false });
+//         } else if (userId === duel.user_2) {
+//             await duel.update({ user_2: null, user_2_ready: false });
+//         } else {
+//             throw new Error('User is not part of this duel');
+//         }
+//     } catch (error) {
+//         console.error('Error leaving game:', error);
+//         throw error;
+//     }
+    
+// }
+
+async function defineWinner(duelId) {
+    try {
+        const duel = await PinPong.findByPk(duelId);
+        if (!duel) {
+            throw new Error('Duel not found');
+        }
+        if (duel.status !== 'finished') {
+            throw new Error('Duel not finished');
+        }
+        let winnerId;
+        if (duel.user_1_score > duel.user_2_score) {
+            winnerId = duel.user_1;
+        } else if (duel.user_2_score > duel.user_1_score) {
+            winnerId = duel.user_2;
+        } else {
+            throw new Error('Duel is a draw');
+        }
+        return winnerId;
+    } catch (error) {
+        console.error('Error defining winner:', error);
+        throw error;
+    }
 }
 

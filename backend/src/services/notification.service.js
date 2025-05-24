@@ -66,19 +66,19 @@ async function getNotifications(userId, maxCount = 20) {
     }
 }
 
-async function markAsRead(notificationId, userId) {
+async function markAsRead(userId) {
     try {
         const [updated] = await Notification.update(
             { isRead: true },
             {
                 where: {
-                    id: notificationId,
                     userId,
+                    isRead: false
                 }
             }
         );
 
-        return updated > 0;
+        return updated;
     } catch (error) {
         console.error('Error marking notification as read:', error);
         throw error;
