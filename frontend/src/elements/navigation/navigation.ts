@@ -4,7 +4,31 @@ import { navigateTo } from "../../routing";
 import { API_URL, store } from "../../store/store";
 import { dropMenuRoutes } from "./navigationRoutes";
 import { getColorFromUsername } from "../../shared/randomColors";
+import { refreshNotifications } from "./createNavigation";
 
+export const attachNotificationListeners = () => {
+  document.querySelectorAll(".notificationBlock")?.forEach((el) => {
+    el.addEventListener("click", () => {
+      const userId = el.getAttribute("data-user-id");
+      navigateTo(`/profile/${userId}`);
+    });
+  });
+
+  document.querySelectorAll(".deleteNotificationBtn")?.forEach((btn) => {
+    btn.addEventListener("click", async (e) => {
+      e.stopPropagation();
+      const notificationEl = btn.closest(".notificationBlock");
+      const notificationID = btn.getAttribute("data-notification-id");
+
+      if (notificationEl && notificationID) {
+        const res = await store.deleteNotification(notificationID);
+        if (res === 204) {
+          await refreshNotifications();
+        }
+      }
+    });
+  });
+};
 
 export function navigationHandle() {
   let profileBtn = document.querySelector("#profileIcon");
@@ -18,6 +42,8 @@ export function navigationHandle() {
   const notificationDropDown = document.getElementById(
     "dropdownMenuNotification"
   );
+
+  attachNotificationListeners();
 
   imgLogo!.addEventListener("click", () => {
     navigateTo("/");
@@ -57,8 +83,10 @@ export function navigationHandle() {
   notificationMenu?.addEventListener("click", (e) => {
     e.stopPropagation();
     notificationDropDown?.classList.toggle("hidden");
-    dropdownMenu?.classList.add("hidden"); 
-    document.getElementById("notificationIndicator")?.classList.add('invisible')
+    dropdownMenu?.classList.add("hidden");
+    document
+      .getElementById("notificationIndicator")
+      ?.classList.add("invisible");
   });
 
   document.addEventListener("click", (e) => {
@@ -84,46 +112,44 @@ export function navigationHandle() {
   });
 }
 export function updateNavigationAvatar(avatarPath: string | null) {
-    const navigationPhoto = document.querySelector("#profileIcon");
-    if (!navigationPhoto) return;
-  
-    if (avatarPath) {
-      const timestamp = new Date().getTime();
-      const avatarUrl = `${API_URL}${avatarPath}?t=${timestamp}`;
-  
-      const newImg = document.createElement("img");
-      newImg.id = "profileIcon";
-      newImg.className = "w-12 h-12 rounded-full object-cover";
-      newImg.src = avatarUrl;
-      newImg.alt = "Profile Icon";
-      newImg.draggable = false;
-  
-      newImg.addEventListener("click", (e) => {
-        e.stopPropagation();
-        const navigationPhotoDropMenu =
-          document.getElementById("dropdownMenu");
-        if (navigationPhotoDropMenu) {
-          navigationPhotoDropMenu.classList.toggle("hidden");
-        }
-      });
-      navigationPhoto.replaceWith(newImg);
-    } else {
-      const username = store.getUser().username;
-      const firstLetter = username.charAt(0).toUpperCase();
-      const color = getColorFromUsername(username);
-  
-      const newDiv = document.createElement("div");
-      newDiv.id = "profileIcon";
-      newDiv.className = `w-12 h-12 flex items-center justify-center rounded-full text-white font-bold ${color}`;
-      newDiv.textContent = firstLetter;
-      newDiv.addEventListener("click", (e) => {
-        e.stopPropagation();
-        const navigationPhotoDropMenu =
-          document.getElementById("dropdownMenu");
-        if (navigationPhotoDropMenu) {
-          navigationPhotoDropMenu.classList.toggle("hidden");
-        }
-      });
-      navigationPhoto.replaceWith(newDiv);
-    }
+  const navigationPhoto = document.querySelector("#profileIcon");
+  if (!navigationPhoto) return;
+
+  if (avatarPath) {
+    const timestamp = new Date().getTime();
+    const avatarUrl = `${API_URL}${avatarPath}?t=${timestamp}`;
+
+    const newImg = document.createElement("img");
+    newImg.id = "profileIcon";
+    newImg.className = "w-12 h-12 rounded-full object-cover";
+    newImg.src = avatarUrl;
+    newImg.alt = "Profile Icon";
+    newImg.draggable = false;
+
+    newImg.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const navigationPhotoDropMenu = document.getElementById("dropdownMenu");
+      if (navigationPhotoDropMenu) {
+        navigationPhotoDropMenu.classList.toggle("hidden");
+      }
+    });
+    navigationPhoto.replaceWith(newImg);
+  } else {
+    const username = store.getUser().username;
+    const firstLetter = username.charAt(0).toUpperCase();
+    const color = getColorFromUsername(username);
+
+    const newDiv = document.createElement("div");
+    newDiv.id = "profileIcon";
+    newDiv.className = `w-12 h-12 flex items-center justify-center rounded-full text-white font-bold ${color}`;
+    newDiv.textContent = firstLetter;
+    newDiv.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const navigationPhotoDropMenu = document.getElementById("dropdownMenu");
+      if (navigationPhotoDropMenu) {
+        navigationPhotoDropMenu.classList.toggle("hidden");
+      }
+    });
+    navigationPhoto.replaceWith(newDiv);
   }
+}
