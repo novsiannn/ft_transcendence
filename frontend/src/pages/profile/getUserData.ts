@@ -2,11 +2,13 @@ import { API_URL } from "./../../store/store";
 import { navigateTo } from "../../routing";
 import { store } from "../../store/store";
 import { getColorFromUsername } from "../../shared/randomColors";
+import { BtnAccept } from "../../elements/BtnAccept";
 
 export const getUserData = (id?: number) => {
   const userNameElement = document.querySelector("#userNameProfile");
   const avatarImg = document.querySelector<HTMLImageElement>("#profileImg");
   const emptyPhoto = document.querySelector<HTMLDivElement>("#profileImgEmpty");
+  const profileDataContainer = document.querySelector<HTMLDivElement>("#profileDataContainer");
 
   if (id === store.getUser().id) {
     const username = store.getUser().username;
@@ -21,9 +23,10 @@ export const getUserData = (id?: number) => {
       avatarImg?.classList.toggle("hidden", !hasAvatar);
       avatarImg!.src = API_URL + store.getUser().avatar;
     } else {
-      emptyPhoto?.classList.toggle("hidden", hasAvatar);
+      emptyPhoto!.classList.toggle("hidden", hasAvatar);
       avatarImg?.classList.toggle("hidden", !hasAvatar);
-      emptyPhoto?.classList.add(color);
+      emptyPhoto!.classList.add(color);
+
       emptyPhoto!.innerHTML = `<p>${firstLetterOfUser}</p>`;
     }
     return;
@@ -47,6 +50,11 @@ export const getUserData = (id?: number) => {
         emptyPhoto?.classList.add(color);
         emptyPhoto!.innerHTML = `<p>${firstLetterOfUser}</p>`;
       }
+      const buttonsContainer = document.createElement('div');
+      buttonsContainer.className = "flex w-full h-10 border border-black"
+      buttonsContainer.innerHTML = BtnAccept();
+      profileDataContainer?.append(buttonsContainer);
+      console.log(profileDataContainer);
       return true;
     }
     return false;
