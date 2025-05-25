@@ -82,6 +82,14 @@ class Store {
     this.state.auth.user.language = lng;
   };
 
+  setNotification = (data: INotificationResponse | null): void => {
+    this.state.auth.notification = data;
+  };
+
+  getNotification = (): INotificationResponse | null => {
+    return this.state.auth.notification;
+  };
+
   setLoading = (bool: boolean): void => {
     this.state.auth.isLoading = bool;
   };
@@ -272,6 +280,8 @@ class Store {
     const response = await friendsService.cancelPendingFriendRequest(
       idFriendship
     );
+    console.log(response);
+    
     if (response.status === 204) {
       handleModalSuccess("You have successfully cancelled a friend request");
     }
@@ -318,29 +328,28 @@ class Store {
     return response;
   };
 
-  setNotification = (data: INotificationResponse | null): void => {
-    this.state.auth.notification = data;
-  };
-
-  getNotification = (): INotificationResponse | null => {
-    return this.state.auth.notification;
-  };
-
   getAllNotifications = async () => {
     const response = await notificationService.getNotifications();
-    this.setNotification(response.data);
+    this.setNotification(response.data); 
     return response;
   };
 
-  deleteNotification = async (notificationID: string): Promise<number>  => {
-    const response = await notificationService.deleteNotifications(notificationID);
-  
-    console.log(response);
-    
-    if(response.status === 204){
+  deleteNotification = async (notificationID: string): Promise<number> => {
+    const response = await notificationService.deleteNotifications(
+      notificationID
+    );
+
+    if (response.status === 204) {
       refreshNotifications();
     }
     return response.status;
+  };
+
+  readNotification = async () => {
+    const response = await notificationService.readNotification();
+    if(response.status === 200){
+      await this.getAllNotifications();
+    }
   };
 
   checkAuth = async () => {

@@ -8,8 +8,8 @@ const notificationService = {
   deleteNotifications: async (notificationID: string) => {
 	  return await instanceAPI.delete(`notifications/${notificationID}`);
   },
-  readNotification: async (friendshipId: number) => {
-    return await instanceAPI.put(`friendship/${friendshipId}/accept`);
+  readNotification: async () => {
+    return await instanceAPI.put(`notifications/read-all`);
   },
 };
 

@@ -12,6 +12,8 @@ const friendsService = {
     return await instanceAPI.get("friendship/sent-pending");
   },
   cancelPendingFriendRequest: async (friendshipId: number) => {
+    console.log(friendshipId);
+    
     return await instanceAPI.delete(`friendship/outgoing/${friendshipId}`);
   },
   deleteFriend: async (id: number) => {

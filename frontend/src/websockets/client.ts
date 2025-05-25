@@ -28,7 +28,7 @@ export function initializeSocket(): Socket | null {
   });
 
   socket.on("notification", (data) => {
-    if (data.type !== "friend_removed") {
+    if (data.type !== "friend_removed" && data.type !== "friend_rejected") {
       document
         .querySelector("#notificationIndicator")
         ?.classList.remove("invisible");

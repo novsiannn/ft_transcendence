@@ -37,7 +37,7 @@ export default function runSPA() {
 
     mainWrapper.removeAttribute("id");
     mainWrapper.className = "h-full w-full relative flex flex-col";
-    document.body.className = "font-mono";
+    document.body.className = "font-sans";
     if (store.getAuth() && Object.keys(privateRoutes).includes(route)) {
       mainWrapper.innerHTML = privateRoutes[route].layoutCreate(
         mainWrapper,
