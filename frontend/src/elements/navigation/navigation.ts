@@ -80,13 +80,18 @@ export function navigationHandle() {
     notificationDropDown?.classList.add("hidden");
   });
 
-  notificationMenu?.addEventListener("click", (e) => {
+  notificationMenu?.addEventListener("click", async (e) => {
     e.stopPropagation();
+
+    await store.readNotification();
+    if (!notificationDropDown?.classList.contains("hidden")) {
+      refreshNotifications();
+    }
     notificationDropDown?.classList.toggle("hidden");
     dropdownMenu?.classList.add("hidden");
     document
-      .getElementById("notificationIndicator")
-      ?.classList.add("invisible");
+      .getElementById("notificationIndicator")!
+      .classList.add("invisible");
   });
 
   document.addEventListener("click", (e) => {
@@ -101,6 +106,7 @@ export function navigationHandle() {
       !notificationMenu?.contains(target)
     ) {
       notificationDropDown?.classList.add("hidden");
+      refreshNotifications();
     }
   });
 
