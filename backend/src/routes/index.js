@@ -7,6 +7,7 @@ const Token = require('../../db/models/TokenModel');
 const chatController = require('../controllers/chat.controller');
 const FriendshipController = require('../controllers/friendship.controller');
 const { schema } = require('../../db/models/UserModel');
+const GameController = require('../controllers/game.controller');
 
 const handle2FAEnable = (req, res) => {
   if (req._handled) return;
@@ -1482,6 +1483,43 @@ async function routes(fastify, options) {
     },
     preHandler: authMiddleware
   }, chatController.getUserChats);
+  //GAME ROUTES
+  fastify.post('/game/matchmaking', {
+    schema: {
+        description: 'Join matchmaking queue',
+        tags: ['Game'],
+        security: [{ bearerAuth: [] }],
+        response: {
+            200: {
+                description: 'Added to queue',
+                type: 'object',
+                properties: {
+                    message: { type: 'string' }
+                }
+            },
+            201: {
+                description: 'Game created',
+                type: 'object',
+                properties: {
+                    message: { type: 'string' },
+                    game: {
+                        type: 'object',
+                        properties: {
+                            id: { type: 'integer' },
+                            player1Id: { type: 'integer' },
+                            player2Id: { type: 'integer' },
+                            status: { type: 'string' },
+                            gameMode: { type: 'string' }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    preHandler: authMiddleware
+ }, GameController.BeInAQueue);
+
+
 }
 
 module.exports = routes;

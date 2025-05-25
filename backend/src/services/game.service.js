@@ -2,6 +2,8 @@ const { Op } = require('sequelize');
 const User = require('../../db/models/UserModel');
 const PinPong = require('../../db/models/PinPongModel');
 
+const mmQueue = new Set();
+
 async function updateElo(userId, eloDifference)  {
     try {
         const user = await User.findByPk(userId);
@@ -62,6 +64,7 @@ async function createDuel(user1Id, user2Id) {// TODO chack status of the duel
     }
 }
 
+
 async function finishDuel(duelId, user1Score, user2Score) {
     try {
         const duel = await PinPong.findByPk(duelId);
@@ -84,6 +87,51 @@ async function finishDuel(duelId, user1Score, user2Score) {
     
 }
 
+async function joinMatchmaking(userId) {
+    try {
+        if (!userId) {
+        return { error: 'User ID is required' };
+        }
+        const user = await User.findByPk(userId);
+        if (!user) {
+            return { error: 'User not found' };
+        }   
+
+        if(mmQueue.has(userId)) {
+            return { message: 'Already in matchmaking queue' };
+        }
+        mmQueue.add(userId);
+        console.log(`User ${userId} added to matchmaking queue`);
+        for(const oponentId of mmQueue) {
+            if(oponentId !== userId) {
+                mmQueue.delete(userId);
+                mmQueue.delete(oponentId);
+                const game = await PinPong.create({
+                    player1Id: userId,
+                    player2Id: oponentId,
+                    status: 'waiting',
+                    gameMode: 'ranked'
+                });
+                console.log(`Matchmaking successful: ${userId} vs ${oponentId}`);
+                return { game: game };
+            }
+        }
+        console.log(`User ${userId} is waiting for an opponent`);
+        return { message: 'Waiting for an opponent' };
+    } catch (error) {
+        console.error('Error in joinMatchmaking:', error);
+        if (mmQueue.has(userId)) {
+            mmQueue.delete(userId);
+        }
+    }
+}
+
+async function leaveMatchmaking(userId) {
+    if (mmQueue.has(userId)) {
+        mmQueue.delete(userId);
+    }
+    return { message: 'Left matchmaking queue' };
+}
 // async function setPlayerAsReady(userId, duelId) {
 //     try {
 //         const duel = await PinPong.findByPk(duelId);
@@ -149,3 +197,4 @@ async function defineWinner(duelId) {
     }
 }
 
+module.exports = { createDuel, finishDuel, joinMatchmaking, leaveMatchmaking, defineWinner };
