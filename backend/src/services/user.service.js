@@ -351,7 +351,16 @@ async function refresh(refreshToken) {
 async function getAllUsers() {
   try {
     const users = await User.findAll();
-    return users;
+    const usersWithStats = await Promise.all(users.map(async (user) => {
+            const winrateStats = await countProcentWinrate(user.id);
+            return {
+                ...user.toJSON(),
+                winrate: winrateStats.winrate,
+                totalGames: winrateStats.totalGames,
+                wonGames: winrateStats.wonGames
+            };
+        }));
+    return usersWithStats;
   } catch (error) {
     console.error("Error during getAllUsers process:", error);
     throw error;

@@ -444,7 +444,12 @@ async function routes(fastify, options) {
               isActivated: { type: 'boolean' },
               avatar: { type: 'string' },
               createdAt: { type: 'string', format: 'date-time' },
-              updatedAt: { type: 'string', format: 'date-time' }
+              updatedAt: { type: 'string', format: 'date-time' },
+              lvl: { type: 'integer' },
+              elo: { type: 'integer' },
+              winrate: { type: 'integer' },
+              totalGames: { type: 'integer' },
+              wonGames: { type: 'integer' }
             }
           }
         },
