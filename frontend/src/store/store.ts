@@ -257,6 +257,8 @@ class Store {
   sendFriendRequest = async (addresseeId: number) => {
     const response = await friendsService.sendFriendRequest(addresseeId);
 
+    console.log(response);
+    
     if (response.status === 201) {
       handleModalSuccess("You have successfully sent a friend request");
       socket?.emit("notification:friendRequest", {
@@ -280,7 +282,6 @@ class Store {
     const response = await friendsService.cancelPendingFriendRequest(
       idFriendship
     );
-    console.log(response);
     
     if (response.status === 204) {
       handleModalSuccess("You have successfully cancelled a friend request");

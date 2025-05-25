@@ -106,7 +106,8 @@ export function navigationHandle() {
       !notificationMenu?.contains(target)
     ) {
       notificationDropDown?.classList.add("hidden");
-      refreshNotifications();
+      if(store.getAuth())
+        refreshNotifications();
     }
   });
 

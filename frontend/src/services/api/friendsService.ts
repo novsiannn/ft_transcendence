@@ -6,14 +6,14 @@ const friendsService = {
     return await instanceAPI.get<IFriendsResponse>("friendship");
   },
   sendFriendRequest: async (addresseeId: number) => {
+    console.log(addresseeId);
+    
     return await instanceAPI.post<IFriend[]>("friendship", { addresseeId });
   },
   getPendingFriendsRequests: async () => {
     return await instanceAPI.get("friendship/sent-pending");
   },
   cancelPendingFriendRequest: async (friendshipId: number) => {
-    console.log(friendshipId);
-    
     return await instanceAPI.delete(`friendship/outgoing/${friendshipId}`);
   },
   deleteFriend: async (id: number) => {
