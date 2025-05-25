@@ -6,6 +6,9 @@ import {
   refreshMessagesInChat,
 } from "../pages/chats";
 import { refreshNotifications } from "../elements/navigation";
+import { store } from "../store/store";
+import { refreshProfileBtnsBlock } from "../pages/profile/getUserData";
+import { findUser } from "../shared";
 
 export let socket: Socket | null = null;
 
@@ -27,13 +30,23 @@ export function initializeSocket(): Socket | null {
     console.log(" Socket connected:", socket?.id);
   });
 
-  socket.on("notification", (data) => {
+  socket.on("notification", async (data) => {
     if (data.type !== "friend_removed" && data.type !== "friend_rejected") {
       document
         .querySelector("#notificationIndicator")
         ?.classList.remove("invisible");
       refreshNotifications();
     }
+
+     if (location.pathname.slice(0, 8) === "/profile"){
+      console.log(data);
+      const response = data.data.from ? data.data.from.id : data.data.by.id;
+      console.log(response);
+      
+      const user = findUser(response);
+      if(user)
+        refreshProfileBtnsBlock(user);
+     }
 
     if (location.pathname === "/friends") rerenderFriendsPage();
     console.log("Notification received:", data);
