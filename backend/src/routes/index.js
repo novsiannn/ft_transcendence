@@ -1513,13 +1513,105 @@ async function routes(fastify, options) {
                         }
                     }
                 }
+            },
+            400: {
+                description: 'Bad request',
+                type: 'object',
+                properties: {
+                    error: { type: 'string' }
+                }
+            },
+            500: {
+                description: 'Internal server error', 
+                type: 'object',
+                properties: {
+                    error: { type: 'string' }
+                }
             }
         }
     },
     preHandler: authMiddleware
- }, GameController.BeInAQueue);
+  }, GameController.BeInAQueue);
 
+ fastify.delete('/game/matchmaking', {
+    schema: {
+        description: 'Leave matchmaking queue',
+        tags: ['Game'],
+        security: [{ bearerAuth: [] }],
+        response: {
+            200: {
+                description: 'Successfully left queue',
+                type: 'object',
+                properties: {
+                    message: { type: 'string' }
+                }
+            },
+            400: {
+                description: 'Bad request',
+                type: 'object',
+                properties: {
+                    error: { type: 'string' }
+                }
+            },
+            500: {
+                description: 'Internal server error',
+                type: 'object',
+                properties: {
+                    error: { type: 'string' }
+                }
+            }
+        }
+    },
+    preHandler: authMiddleware
+}, GameController.leaveMatchmaking);
 
+fastify.post('/game/casual', {
+    schema: {
+        description: 'Create a casual game with a friend',
+        tags: ['Game'],
+        security: [{ bearerAuth: [] }],
+        body: {
+            type: 'object',
+            required: ['friendId'],
+            properties: {
+                friendId: { type: 'integer' }
+            }
+        },
+        response: {
+            201: {
+                description: 'Game created successfully',
+                type: 'object',
+                properties: {
+                    game: {
+                        type: 'object',
+                        properties: {
+                            id: { type: 'integer' },
+                            player1Id: { type: 'integer' },
+                            player2Id: { type: 'integer' },
+                            status: { type: 'string' },
+                            gameMode: { type: 'string' }
+                        }
+                    }
+                }
+            },
+            400: {
+                description: 'Bad request',
+                type: 'object',
+                properties: {
+                    error: { type: 'string' }
+                }
+            },
+            500: {
+                description: 'Internal server error',
+                type: 'object',
+                properties: {
+                    error: { type: 'string' }
+                }
+            }
+        }
+    },
+    preHandler: authMiddleware
+}, GameController.createCasualGame);
 }
 
 module.exports = routes;
