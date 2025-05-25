@@ -19,15 +19,11 @@ export const getFriendsBlock = (
 ) => {
   let div;
   const myProfileID = store.getState().auth.user.id;
-  
+
   if (data.length) {
-    console.log('here');
-    console.log(data);
-    wrapper!.innerHTML =
-          `<h1 data-i18n='friends.yourFriends' class="text-2xl text-white font-black text-center mb-4">Your Friends</h1>`;
+    if (wrapper)
+      wrapper.innerHTML = `<h1 data-i18n='friends.yourFriends' class="text-2xl text-white font-black text-center mb-4">Your Friends</h1>`;
     data.forEach((el) => {
-      
-      
       if (el.id !== myProfileID) {
         div = document.createElement("div");
         div.innerHTML = getFriendsLayout(el.username, el.avatar);
@@ -35,8 +31,7 @@ export const getFriendsBlock = (
           div.querySelector<HTMLButtonElement>("#btnDeleteFriend");
         btnDeleteFriend!.id = `btnDeleteFriend${el.id}`;
 
-        
-        wrapper!.append(div);
+        wrapper?.append(div);
         btnDeleteFriend?.addEventListener("click", async (e) => {
           e.stopPropagation();
           await deleteFriend(el.id, btnDeleteFriend);
@@ -48,10 +43,10 @@ export const getFriendsBlock = (
       }
     });
   }
-  const checkIfUserExist = wrapper!.querySelector(".friendBlock");
+  const checkIfUserExist = wrapper?.querySelector(".friendBlock");
   if (!checkIfUserExist) {
-    wrapper!.innerHTML =
-      `<h1 data-i18n='friends.yourFriends' class="text-2xl text-white font-black text-center mb-4">Your Friends</h1>`;
+    if (wrapper)
+      wrapper.innerHTML = `<h1 data-i18n='friends.yourFriends' class="text-2xl text-white font-black text-center mb-4">Your Friends</h1>`;
 
     div = document.createElement("div");
     div.innerHTML = getEmptyBlock();
@@ -68,8 +63,9 @@ export const getUsersBlock = (
 ) => {
   let div;
   const myProfileID = store.getState().auth.user.id;
-  wrapper!.innerHTML =``;
-  
+  if(wrapper)
+    wrapper.innerHTML = ``;
+
   if (users.length) {
     users.forEach((el) => {
       if (el.id !== myProfileID) {
@@ -91,9 +87,10 @@ export const getUsersBlock = (
       }
     });
   }
-  const checkIfUserExist = wrapper!.querySelector(".userBlock");
+  const checkIfUserExist = wrapper?.querySelector(".userBlock");
   if (!checkIfUserExist) {
-    wrapper!.innerHTML = ``;
+    if(wrapper)
+      wrapper.innerHTML = ``;
     div = document.createElement("div");
     div.innerHTML = getEmptyBlock();
     wrapper?.append(div);
