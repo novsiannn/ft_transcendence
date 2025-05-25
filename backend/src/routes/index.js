@@ -333,7 +333,8 @@ async function routes(fastify, options) {
                 elo: { type: 'integer' },
                 winrate: { type: 'integer' },
                 totalGames: { type: 'integer' },
-                wonGames: { type: 'integer' }
+                wonGames: { type: 'integer' },
+                friendsCount: { type: 'integer' },
               }
             }
           }
@@ -449,7 +450,8 @@ async function routes(fastify, options) {
               elo: { type: 'integer' },
               winrate: { type: 'integer' },
               totalGames: { type: 'integer' },
-              wonGames: { type: 'integer' }
+              wonGames: { type: 'integer' },
+              friendsCount: { type: 'integer' },
             }
           }
         },
@@ -1331,7 +1333,7 @@ async function routes(fastify, options) {
         }
       },
       response: {
-        200: {
+        204: {
           description: 'Notification deleted successfully',
           type: 'object',
           properties: {

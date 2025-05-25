@@ -149,12 +149,12 @@ async function cancelFriendRequest(userId, friendshipId) {
                 {
                     model: User,
                     as: 'requester',
-                    attributes: ['id', 'username', 'email', 'avatat']
+                    attributes: ['id', 'username', 'email', 'avatar']
                 },
                 {
                     model: User,
                     as: 'addressee',
-                    attributes: ['id', 'username', 'email', 'avatat']
+                    attributes: ['id', 'username', 'email', 'avatar']
                 },
             ]
         });
@@ -232,10 +232,6 @@ async function respondToFriendRequest(friendshipId, userId, accept) {
                 }
             }
         });
-
-        if (notification) {
-            await notificationService.deleteNotification(notification.id, userId);
-        }
 
         if (accept) {
             await notificationService.createNotification(
@@ -490,6 +486,25 @@ async function getPendingStatus(userId) {
     }
 }
 
+async function countUserFriends(userId) {
+    try {
+        const count = await Friendship.count({
+            where: {
+                status: 'accepted',
+                [Op.or]: [
+                    { requesterId: userId },
+                    { addresseeId: userId }
+                ]
+            }
+        });
+
+        return count;
+    } catch (error) {
+        console.error("Error counting user friends:", error);
+        throw error;
+    }
+}
+
 async function getUserFriends(userId) {
     try {
         const friendships = await Friendship.findAll({
@@ -534,4 +549,4 @@ async function getUserFriends(userId) {
     }
 }
 
-module.exports = { setIo, getPendingStatus, sendFriendRequest, cancelFriendRequest, respondToFriendRequest, getIncomingRequests, getOutgoingRequests, removeFriend, blockUser, unblockUser, getUserFriends };
+module.exports = { countUserFriends, setIo, getPendingStatus, sendFriendRequest, cancelFriendRequest, respondToFriendRequest, getIncomingRequests, getOutgoingRequests, removeFriend, blockUser, unblockUser, getUserFriends };

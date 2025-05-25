@@ -4,6 +4,7 @@ const Token = require("../../db/models/TokenModel");
 const bcrypt = require("bcrypt");
 const uuid = require("uuid");
 const { sendActivationMail } = require("./mail.service");
+const friendshipService = require('./friendship.service');
 const tokenService = require("./token.service");
 const UserDto = require("../dtos/user.dto");
 const sequelize = require("../../db/database");
@@ -189,27 +190,30 @@ async function deleteAvatar(userId) {
 async function getUserProfile(userId) {
   try {
     const user = await User.findByPk(userId, {
-      attributes: ['id', 'email', 'username', 'avatar', 'firstName', 'lastName', 
-                  'phoneNumber', 'isActivated', 'isTwoFactorEnabled', 'language', 
-                  'lvl', 'elo'],
+      attributes: ['id', 'email', 'username', 'avatar', 'firstName', 'lastName',
+        'phoneNumber', 'isActivated', 'isTwoFactorEnabled', 'language',
+        'lvl', 'elo'],
     });
 
     if (!user) {
       return { error: "User not found" };
     }
 
+    const friendsCount = await friendshipService.countUserFriends(userId);
+
     const winrateStats = await countProcentWinrate(userId);
     if (winrateStats.error) {
       return { error: winrateStats.error };
     }
 
-    return { 
+    return {
       user: {
         ...user.toJSON(),
         winrate: winrateStats.winrate,
         totalGames: winrateStats.totalGames,
-        wonGames: winrateStats.wonGames
-      } 
+        wonGames: winrateStats.wonGames,
+        friendsCount: friendsCount
+      }
     };
 
   } catch (error) {
@@ -352,14 +356,16 @@ async function getAllUsers() {
   try {
     const users = await User.findAll();
     const usersWithStats = await Promise.all(users.map(async (user) => {
-            const winrateStats = await countProcentWinrate(user.id);
-            return {
-                ...user.toJSON(),
-                winrate: winrateStats.winrate,
-                totalGames: winrateStats.totalGames,
-                wonGames: winrateStats.wonGames
-            };
-        }));
+      const winrateStats = await countProcentWinrate(user.id);
+      const friendsCount = await friendshipService.countUserFriends(user.id);
+      return {
+        ...user.toJSON(),
+        winrate: winrateStats.winrate,
+        totalGames: winrateStats.totalGames,
+        wonGames: winrateStats.wonGames,
+        friendsCount: friendsCount
+      };
+    }));
     return usersWithStats;
   } catch (error) {
     console.error("Error during getAllUsers process:", error);
@@ -492,21 +498,20 @@ async function disable2FA(userId, token) {
   }
 }
 
-async function setLanguage(userId, language)
-{
-  try{
-    
+async function setLanguage(userId, language) {
+  try {
+
     if (!language) {
       return { error: "Language is required" };
     }
     const user = await User.findByPk(userId);
-    if(!user)
+    if (!user)
       return { error: "User not found" };
     user.language = language;
     await user.save();
     return { message: "Language update successfully" };
   }
-  catch (error){
+  catch (error) {
     console.error("Error in setLanguage service:", error);
     return { error: "Error setting language" };
   }
@@ -519,53 +524,53 @@ async function countProcentWinrate(userId) {
       return { error: "User not found" };
     }
 
-      const totalGames = await PinPong.count({
-        where: {
-          status: 'finished',
-          [Op.or]: [  
-            { player1Id: userId },
-            { player2Id: userId }
-          ]
-        }
-      });
-
-      if (totalGames === 0) {
-        return { 
-          winrate: 0,
-          totalGames: 0,
-          wonGames: 0
-        };
+    const totalGames = await PinPong.count({
+      where: {
+        status: 'finished',
+        [Op.or]: [
+          { player1Id: userId },
+          { player2Id: userId }
+        ]
       }
+    });
 
-      const wonGames = await PinPong.count({
-        where: {
-          status: 'finished',
-          [Op.or]: [  
-            { 
-              player1Id: userId,
-              player1Score: 5  
-            },
-            { 
-              player2Id: userId,
-              player2Score: 5
-            }
-          ]
-        }
-      });
-
-      console.log('Query results:', {
-        userId,
-        totalGames,
-        wonGames
-      });
-
-      const winrate = Math.round((wonGames / totalGames) * 100);
-
-      return { 
-        winrate,
-        totalGames,
-        wonGames 
+    if (totalGames === 0) {
+      return {
+        winrate: 0,
+        totalGames: 0,
+        wonGames: 0
       };
+    }
+
+    const wonGames = await PinPong.count({
+      where: {
+        status: 'finished',
+        [Op.or]: [
+          {
+            player1Id: userId,
+            player1Score: 5
+          },
+          {
+            player2Id: userId,
+            player2Score: 5
+          }
+        ]
+      }
+    });
+
+    console.log('Query results:', {
+      userId,
+      totalGames,
+      wonGames
+    });
+
+    const winrate = Math.round((wonGames / totalGames) * 100);
+
+    return {
+      winrate,
+      totalGames,
+      wonGames
+    };
 
   } catch (error) {
     console.error("Error in countProcentWinrate service:", error);
