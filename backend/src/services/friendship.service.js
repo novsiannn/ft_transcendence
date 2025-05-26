@@ -206,7 +206,7 @@ async function respondToFriendRequest(friendshipId, userId, accept) {
                 },
             ]
         });
-        
+
         if (!friendship) {
             return { error: "Friend request not found or already in processed" };
         }
@@ -236,11 +236,11 @@ async function respondToFriendRequest(friendshipId, userId, accept) {
         if (accept) {
             await notificationService.createNotification(
                 friendship.requester.id,
-                'friend_accepted', 
-                {                      
+                'friend_accepted',
+                {
                     by: addresseeInfo
                 },
-                friendship.addressee.id 
+                friendship.addressee.id
             );
         }
 

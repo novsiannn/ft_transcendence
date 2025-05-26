@@ -12,6 +12,8 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm install
 
+COPY certs ./certs
+
 # Copy app files (as root)
 COPY . .
 

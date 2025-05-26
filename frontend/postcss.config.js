@@ -31,6 +31,24 @@ module.exports = {
         "text-indigo-500",
         "text-purple-500",
         "text-pink-500",
+        "text-green-600",
+        "text-orange-500",
+
+        "text-[2px]",
+        "text-[3px]",
+        "text-[4px]",
+        "text-[5px]",
+        "text-[6px]",
+        "text-[7px]",
+        "text-[8px]",
+        "text-[9px]",
+        "text-[10px]",
+        "text-[11px]",
+        "text-[12px]",
+        "text-[13px]",
+        "text-[14px]",
+        "text-[15px]",
+        "text-[16px]",
 
         "animate-none",
         "animate-spin",
@@ -69,6 +87,27 @@ module.exports = {
         "border-r-indigo-500",
         "border-r-purple-500",
         "border-r-pink-500",
+        "bg-green-200",
+        "bg-green-300",
+        "hover:text-red-500",
+        "text-gray-400",
+        "hover:bg-white/10",
+        "rounded-full",
+        "transition",
+        "text-xs",
+        "hover:bg-gray-700",
+        "opacity-70",
+        "w-4",
+        "h-4",
+        "w-6",
+        "h-6",
+        "flex",
+        "items-center",
+        "justify-center",
+        "ml-auto",
+        "relative",
+        "cursor-pointer",
+        "z-10",
 
         // border-left colors
         "border-l-white",
@@ -370,6 +409,8 @@ module.exports = {
         "space-y-2",
         "break-all",
         "break-words",
+        "cursor-not-allowed",
+        "ease-in-out",
 
         // позиционирование
         "inset-0",
@@ -385,6 +426,55 @@ module.exports = {
         "inset-y-4",
         "inset-y-8",
         "inset-y-16",
+        "absolute",
+        "relative",
+        "inset-0",
+        "inset-y-1",
+        "inset-y-2",
+        "top-0",
+        "left-0",
+        "right-0",
+        "bottom-0",
+        "z-0",
+        "z-10",
+        "z-20",
+
+        // Size
+        "w-full",
+        "h-full",
+
+        // Overflow & pointer events
+        "pointer-events-none",
+        "overflow-hidden",
+
+        // Background & gradient
+        "bg-gradient-to-r",
+        "from-transparent",
+        "via-yellow-400/30",
+        "to-transparent",
+
+        // Animation
+        "animate-typing",
+        "animate-scrollLeft",
+        "animate-shimmer",
+
+        // Custom shimmer class
+        "chat-shimmer",
+
+        // Display
+        "block",
+        "hidden",
+
+        // Others (if used)
+        "rounded",
+        "rounded-md",
+        "rounded-lg",
+        "opacity-0",
+        "opacity-50",
+        "opacity-100",
+        "transition-opacity",
+        "duration-1000",
+        "ease-out",
 
         "top-0",
         "top-1",

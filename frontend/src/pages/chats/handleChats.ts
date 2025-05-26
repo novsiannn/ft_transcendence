@@ -81,7 +81,7 @@ export const getChatContent = (
           class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
           id="messageInputValue"
         />
-        <button class="p-2 bg-blue-500 hover:bg-blue-600 rounded-lg text-white" id="sendMessageBtn">
+        <button class="p-2 bg-blue-500 hover:bg-blue-600 rounded-lg text-white transition-colors duration-300 ease-in-out" id="sendMessageBtn">
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
             <path stroke-linecap="round" stroke-linejoin="round" d="M6 12 3.269 3.125A59.769 59.769 0 0 1 21.485 12 59.768 59.768 0 0 1 3.27 20.875L5.999 12Zm0 0h7.5" />
           </svg>
@@ -91,20 +91,41 @@ export const getChatContent = (
   `;
 };
 
-const refreshChatSelector = (chatId: number, createdAt: string, content: string) => {
+export const refreshChatSelector = (
+  chatId: number,
+  createdAt: string,
+  content: string
+) => {
   const selectorChatContainer = document.querySelector<HTMLDivElement>(
     `#chatNumber${chatId}`
   );
-  
-  const date = new Date(createdAt)
-  const timeContainer = selectorChatContainer?.querySelector('#createdAtContainer');
-  const lastMsgContainer = selectorChatContainer?.querySelector('#lastMessage');
 
-  lastMsgContainer!.textContent = `${content.length > 30? content.slice(0,30)+ `...` : content.slice(0,30) }`;
-  timeContainer!.textContent = `${date.getHours()}:${date.getMinutes().toString().padStart(2, '0')}`;
-}
+  const date = new Date(createdAt);
+  const timeContainer = selectorChatContainer?.querySelector(
+    "#createdAtContainer"
+  );
+  const lastMsgContainer = selectorChatContainer?.querySelector("#lastMessage");
 
-export const refreshMessagesInChat = async ({chatId, createdAt, content}: {chatId: number, createdAt:string, content: string}) => {
+  lastMsgContainer!.textContent = `${
+    content.trim().length > 35
+      ? content.trim().slice(0, 35) + `...`
+      : content.trim().slice(0, 35)
+  }`;
+  timeContainer!.textContent = `${date.getHours()}:${date
+    .getMinutes()
+    .toString()
+    .padStart(2, "0")}`;
+};
+
+export const refreshMessagesInChat = async ({
+  chatId,
+  createdAt,
+  content,
+}: {
+  chatId: number;
+  createdAt: string;
+  content: string;
+}) => {
   const chatMessagesContainer = document.querySelector<HTMLDivElement>(
     "#chatMessagesContainer"
   );
@@ -114,18 +135,6 @@ export const refreshMessagesInChat = async ({chatId, createdAt, content}: {chatI
 
   if (chatMessagesContainer)
     chatMessagesContainer.innerHTML = messagesForChat(chatMessages);
-};
-
-export const leaveFromChat = () => {
-  const activeChatId = store.getActiveChatID();
-
-  console.log(activeChatId);
-  
-  if (activeChatId) {
-    socket?.emit("chat:leave", activeChatId);
-    console.log("leave from chat and disconnect");
-    store.setActiveChatID(null);
-  }
 };
 
 export const handleOpenChat = async (chat: IChatData | undefined) => {
@@ -182,25 +191,64 @@ export const handleOpenChat = async (chat: IChatData | undefined) => {
     chatContainer!.innerHTML = getChatContent(chat, chatMessages);
     const messageInputValue =
       document.querySelector<HTMLInputElement>("#messageInputValue");
-    document
-      .querySelector<HTMLButtonElement>("#sendMessageBtn")!
-      .addEventListener("click", async () => {
-        socket!.emit("chat:sendMessage", {
+    const sendMessageBtn =
+      document.querySelector<HTMLButtonElement>("#sendMessageBtn");
+
+    sendMessageBtn?.addEventListener("click", async () => {
+      socket!.emit("chat:sendMessage", {
+        chatId: chat.id,
+        receiverId: chat.userId,
+        content: messageInputValue!.value,
+      });
+      sendMessageBtn.disabled = true;
+      sendMessageBtn.classList.remove("bg-blue-600", "hover:bg-blue-600");
+      sendMessageBtn.classList.add("bg-gray-400", "cursor-not-allowed");
+      setTimeout(() => {
+        sendMessageBtn.disabled = false;
+        sendMessageBtn.classList.remove("bg-gray-400", "cursor-not-allowed");
+        sendMessageBtn.classList.add("bg-blue-600", "hover:bg-blue-600");
+        console.log("btn active");
+      }, 1000);
+      if (messageInputValue!.value.trim().length > 0) {
+        refreshMessagesInChat({
           chatId: chat.id,
-          receiverId: chat.userId,
+          createdAt: new Date().toISOString(),
           content: messageInputValue!.value,
         });
-        console.log(store.getUser().id);
-        refreshChatSelector(chat.id, new Date().toISOString() ,messageInputValue!.value)
-        messageInputValue!.value = "";
-        handleOpenChat(chat);
-      });
+      }
+      messageInputValue!.value = "";
+    });
   }
 };
 
-const filterChats = (data: IChatData[] , userToBeFiltered: string): IChatData[] => {
+export const notifyUserNewMessage = (chatID: number) => {
+  const chatBlock = document.querySelector<HTMLDivElement>(`#chatNumber${chatID}`);
+  
+  if (chatBlock) {
+    chatBlock.classList.add('bg-green-200');
+
+    setTimeout(() => {
+      chatBlock.classList.remove('bg-green-200');
+    }, 1500);
+  }
+};
+
+const filterChats = (
+  data: IChatData[],
+  userToBeFiltered: string
+): IChatData[] => {
   return data.filter((user) => user.username.startsWith(userToBeFiltered));
-}
+};
+
+export const leaveFromChat = () => {
+  const activeChatId = store.getActiveChatID();
+
+  if (activeChatId) {
+    socket?.emit("chat:leave", activeChatId);
+    console.log(`leave from chat ${activeChatId} and disconnect`);
+    store.setActiveChatID(null);
+  }
+};
 
 export const handleChatsPage = async (
   mainWrapper?: HTMLDivElement,
@@ -208,17 +256,24 @@ export const handleChatsPage = async (
 ) => {
   const startChatSelect = document.querySelectorAll(".startChatSelect");
   const allMessages = document.querySelector("#allMessagesString");
-  const searchInputChatsPage = document.querySelector<HTMLInputElement>("#searchInputChatsPage");
+  const searchInputChatsPage = document.querySelector<HTMLInputElement>(
+    "#searchInputChatsPage"
+  );
+
+  if(!store.getChatsPageActive()){
+    socket?.emit("chat:openChats");
+    console.log('chats are open');
+    store.setChatsPageActive(true);
+  }
 
   let allChats: IChatData[] = await store.getAllChats();
 
-  leaveFromChat();
   if (params?.id) {
     if (allChats.some((chat) => chat.userId == params.id)) {
       const friendChat: IChatData | undefined = allChats.find((chat) => {
         if (chat.userId == params.id) {
           socket?.emit("chat:join", chat.id);
-          store.setActiveChatID(chat.id)
+          store.setActiveChatID(chat.id);
           console.log("here joined chat " + chat.id);
           return chat;
         }
@@ -228,19 +283,19 @@ export const handleChatsPage = async (
       navigateTo("/error");
     }
   }
-  searchInputChatsPage?.addEventListener('input', async () => {
+  searchInputChatsPage?.addEventListener("input", async () => {
     allChats = await store.getAllChats();
     allChats = filterChats(allChats, searchInputChatsPage.value);
     renderAllChats(allChats);
   });
-  
+
   renderAllChats(allChats);
 
   startChatSelect.forEach((select) => {
     const target = select as HTMLSelectElement;
     select.addEventListener("change", async () => {
       await store.createNewChat(target.value);
-      allChats = await store.getAllChats();
+      allChats = await store.getAllChats();      
       renderAllChats(allChats);
     });
   });
