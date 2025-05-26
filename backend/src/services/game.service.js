@@ -2,6 +2,8 @@ const { Op } = require('sequelize');
 const User = require('../../db/models/UserModel');
 const PinPong = require('../../db/models/PinPongModel');
 
+const mmQueue = new Set();
+
 async function updateElo(userId, eloDifference)  {
     try {
         const user = await User.findByPk(userId);
@@ -15,75 +17,129 @@ async function updateElo(userId, eloDifference)  {
     }
 }
 
-async function createDuel(user1Id, user2Id) {// TODO chack status of the duel
+async function createDuel(initiatorId, opponentId) {
     try {
-        user1Id = await User.findByPk(user1Id);
-        user2Id = await User.findByPk(user2Id);
-        if (!user1Id || !user2Id) {
-            return { error: 'User or Users not found' };
+        const [initiator, opponent] = await Promise.all([
+            User.findByPk(initiatorId),
+            User.findByPk(opponentId)
+        ]);
+
+        if (!initiator || !opponent) {
+            return { error: 'One or both users not found' };
+        }
+
+        if (initiator.id === opponent.id) {
+            return { error: 'Cannot create duel with yourself' };
         }
 
         const existingGame = await PinPong.findOne({
             where: {
-                status: 'created',
+                status: {
+                    [Op.not]: 'finished' 
+                },
                 [Op.or]: [
                     {
-                        [Op.and]: [
-                            { user_1: user1Id.id },
-                            { user_2: user2Id.id }
-                        ]
+                        player1Id: initiator.id,
+                        player2Id: opponent.id
                     },
                     {
-                        [Op.and]: [
-                            { user_1: user2Id.id },
-                            { user_2: user1Id.id }
-                        ]
+                        player1Id: opponent.id,
+                        player2Id: initiator.id
                     }
                 ]
             }
         });
 
         if (existingGame) {
-            return { error: 'A duel between these users is already in progress' };
+            return { error: 'An active game already exists between these players' };
         }
-        const duel = await PinPong.create({
-            user_1: user1Id.id,
-            user_2: user2Id.id,
-            user_1_score: null,
-            user_2_score: null,
+
+        const game = await PinPong.create({
+            player1Id: initiator.id,
+            player2Id: opponent.id,
+            player1Score: 0,
+            player2Score: 0,
             status: 'waiting',
-            game_mode: 'casual'
+            gameMode: 'casual'
         });
-        return duel;
+
+        return { game };
 
     } catch (error) {
         console.error('Error creating duel:', error);
-        throw error;
+        return { error: 'Failed to create duel' };
     }
 }
+
 
 async function finishDuel(duelId, user1Score, user2Score) {
     try {
         const duel = await PinPong.findByPk(duelId);
         if (!duel) {
-            throw new Error('Duel not found');
+            return { error: 'Duel not found' };
         }
-        if (duel.status !== 'created') {
-            throw new Error('Duel already finished');
+        if (duel.status === 'finished') {
+            return { error: 'Duel already finished' };
         }
         await duel.update({
-            user_1_score: user1Score,
-            user_2_score: user2Score,
+            player1Score: user1Score,  
+            player2Score: user2Score,  
             status: 'finished'
         });
-        return duel;
+        return { game: duel };
     } catch (error) {
         console.error('Error finishing duel:', error);
-        throw error;
+        return { error: 'Failed to finish duel' };
     }
-    
 }
 
+async function joinMatchmaking(userId) {
+    try {
+        if (!userId) {
+        return { error: 'User ID is required' };
+        }
+        const user = await User.findByPk(userId);
+        if (!user) {
+            return { error: 'User not found' };
+        }   
+
+        if(mmQueue.has(userId)) {
+            return { error: 'Already in matchmaking queue' };
+        }
+        mmQueue.add(userId);
+        console.log(`User ${userId} added to matchmaking queue`);
+        for(const oponentId of mmQueue) {
+            if(oponentId !== userId) {
+                mmQueue.delete(userId);
+                mmQueue.delete(oponentId);
+                const game = await PinPong.create({
+                    player1Id: userId,
+                    player2Id: oponentId,
+                    status: 'waiting',
+                    gameMode: 'ranked'
+                });
+                console.log(`Matchmaking successful: ${userId} vs ${oponentId}`);
+                return { game: game };
+            }
+        }
+        console.log(`User ${userId} is waiting for an opponent`);
+        return { message: 'Waiting for an opponent' };
+    } catch (error) {
+        console.error('Error in joinMatchmaking:', error);
+        if (mmQueue.has(userId)) {
+            mmQueue.delete(userId);
+        }
+        return { error: 'Failed to process queue' };
+    }
+}
+
+async function leaveMatchmaking(userId) {
+    if (mmQueue.has(userId)) {
+        mmQueue.delete(userId);
+        return { message: 'Left matchmaking queue' };
+    }
+    return { error: 'User not in matchmaking queue' };
+}
 // async function setPlayerAsReady(userId, duelId) {
 //     try {
 //         const duel = await PinPong.findByPk(duelId);
@@ -149,3 +205,4 @@ async function defineWinner(duelId) {
     }
 }
 
+module.exports = { createDuel, finishDuel, joinMatchmaking, leaveMatchmaking, defineWinner };
