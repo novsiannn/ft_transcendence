@@ -558,7 +558,6 @@ avatarDropdown?.addEventListener('click', (e) => {
 
 	const friendsDropDown = document.querySelector("#friendsDropDown");
 	const friendSelectBtn = document.querySelector("#friendSelectBtn");
-	const selectedFriend = document.querySelector("#selectedFriend");
 	const createFriendsMatchBtn = document.querySelector("#createFriendsMatchBtn");
 	const friendsMatchModal = document.querySelector("#friendsMatchModal");
 	const gameModeDropdownBtn = document.querySelector("#gameModeDropdownBtn");
@@ -582,8 +581,8 @@ avatarDropdown?.addEventListener('click', (e) => {
 	getFriendsList();
 	});
 
-	friendsDropDown?.addEventListener('click', (e) => {
-	const target = e.target as HTMLElement;
+	// friendsDropDown?.addEventListener('click', (e) => {
+	// const target = e.target as HTMLElement;
 	// const btn = target.closest('button[data-avatar]');
 	// if (btn) {
 	// 	const avatar = btn.getAttribute('data-avatar');
@@ -592,41 +591,54 @@ avatarDropdown?.addEventListener('click', (e) => {
 	// 	friendsDropDown.classList.add('hidden');
 	// 	}
 	// }
-	});
+	// });
 
-function getFriendsList() {
-    // Получаем список друзей из store
-    const friends = store.getAllFriends(); // [{ username, avatar }, ...]
-    const friendsList = document.querySelector("#friendsDropDown");
-    const selectedFriend = document.querySelector("#selectedFriend");
-	const selectedFriendBtn = document.querySelector("#friendSelectBtn");
+	function getFriendsList() {
+		// Получаем список друзей из store
+		const friends = store.getAllFriends(); // [{ username, avatar }, ...]
+		const friendsList = document.querySelector("#friendsDropDown");
+		const selectedFriend = document.querySelector("#selectedFriend");
+		const selectedFriendBtn = document.querySelector("#friendSelectBtn");
 
-    if (friendsList) {
-        friendsList.innerHTML = ""; // Очищаем старый список
+		if (friendsList) {
+			friendsList.innerHTML = ""; // Очищаем старый список
 
-        friends.forEach((friend) => {
-            const friendBtn = document.createElement("button");
-            friendBtn.className = "flex items-center p-2 hover:bg-gray-100";
-            friendBtn.setAttribute("data-avatar", friend.avatar);
-            friendBtn.innerHTML = `
-                <img src="${API_URL}${friend.avatar}" class="w-8 h-8 rounded-full mr-2" alt="avatar" /> ${friend.username}
-            `;
-            // При клике на друга — меняем аватар и закрываем дропдаун
-            friendBtn.addEventListener("click", () => {
-                if (selectedFriend) {
-                    (selectedFriend as HTMLImageElement).src = API_URL + friend.avatar;
-					const btn = document.getElementById("friendSelectBtn");
-					const span = btn?.querySelector("span");
-					if (span) {
-					span.textContent = friend.username;
+			friends.forEach((friend) => {
+				const friendBtn = document.createElement("button");
+				friendBtn.className = "flex items-center p-2 hover:bg-gray-100";
+				friendBtn.setAttribute("data-avatar", friend.avatar);
+				friendBtn.innerHTML = `
+					<img src="${API_URL}${friend.avatar}" class="w-8 h-8 rounded-full mr-2" alt="avatar" /> ${friend.username}
+				`;
+				// При клике на друга — меняем аватар и закрываем дропдаун
+				friendBtn.addEventListener("click", () => {
+					if (selectedFriend) {
+						(selectedFriend as HTMLImageElement).src = API_URL + friend.avatar;
+						const btn = document.getElementById("friendSelectBtn");
+						const span = btn?.querySelector("span");
+						if (span) {
+						span.textContent = friend.username;
+						}
 					}
-				}
-                friendsList.classList.add("hidden");
-            });
-            friendsList.appendChild(friendBtn);
-        });
-    }
-}
+					friendsList.classList.add("hidden");
+				});
+				friendsList.appendChild(friendBtn);
+			});
+		}
+	}
+
+	//RANKED GAME PART
+	const findRankedMatchBtn = document.querySelector("#findRankedMatchBtn");
+	const rankedGameModal = document.querySelector("#rankedGameModal");
+	const rankedGameBtn = document.querySelector("#rankedGameBtn");
+	const startRankedMatchBtn = document.querySelector("#startRankedMatchBtn");
+
+	findRankedMatchBtn?.addEventListener("click", (e) => {
+		e.stopPropagation();
+		preGameModal?.classList.add("hidden");
+		rankedGameModal?.classList.remove("hidden");
+		rankedGameModal?.classList.add("flex");
+	});
 
 	initGame(); // if the game breaks use the line below
 	// window.addEventListener("load", initGame);

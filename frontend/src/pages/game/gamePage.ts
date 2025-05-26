@@ -1,7 +1,7 @@
 import { navigation } from "../../elements/navigation";
 import { store, API_URL } from "../../store/store";
 import { getColorFromUsername } from "../../shared/randomColors";
-import { friendsMatchModal, preGameModal, tournamentModal } from "./gameModal";
+import { friendsMatchModal, preGameModal, rankedGameModal, tournamentModal } from "./gameModal";
 import { tournamentPlayerProfiles } from "./tournamentPlayerProfiles";
 
 export function gamePage() {
@@ -28,11 +28,13 @@ export function gamePage() {
             <!-- Модальное окно перед началом игры -->
             ${preGameModal()}
             ${tournamentModal()}
+            ${friendsMatchModal()}
+            ${rankedGameModal()}
+            
         <div class="flex flex-col items-center w-full">
             <!-- Профили игроков -->
             <div class="flex justify-between w-[1300px] px-6 mt-4"> <!-- Изменено с max-w-7xl на w-[1300px] -->
             ${tournamentPlayerProfiles()}
-            ${friendsMatchModal()}
             </div>
             <!-- Заголовок -->
             <h1 id="startText" class="text-4xl text-white mt-6">Press SPACE To START GAME</h1>
