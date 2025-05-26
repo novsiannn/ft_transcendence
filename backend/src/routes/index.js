@@ -330,7 +330,11 @@ async function routes(fastify, options) {
                 isTwoFactorEnabled: { type: 'boolean' },
                 language: { type: 'string' },
                 lvl: { type: 'integer' },
-                elo: { type: 'integer' }
+                elo: { type: 'integer' },
+                winrate: { type: 'integer' },
+                totalGames: { type: 'integer' },
+                wonGames: { type: 'integer' },
+                friendsCount: { type: 'integer' },
               }
             }
           }
@@ -441,7 +445,13 @@ async function routes(fastify, options) {
               isActivated: { type: 'boolean' },
               avatar: { type: 'string' },
               createdAt: { type: 'string', format: 'date-time' },
-              updatedAt: { type: 'string', format: 'date-time' }
+              updatedAt: { type: 'string', format: 'date-time' },
+              lvl: { type: 'integer' },
+              elo: { type: 'integer' },
+              winrate: { type: 'integer' },
+              totalGames: { type: 'integer' },
+              wonGames: { type: 'integer' },
+              friendsCount: { type: 'integer' },
             }
           }
         },
@@ -1271,18 +1281,11 @@ async function routes(fastify, options) {
     preHandler: authMiddleware
   }, notificationController.getNotifications);
 
-  fastify.put('/notifications/:notificationId/read', {
+  fastify.put('/notifications/read-all', {
     schema: {
-      description: 'Mark notification as read',
+      description: 'Mark all notifications as read',
       tags: ['Notifications'],
       security: [{ bearerAuth: [] }],
-      params: {
-        type: 'object',
-        required: ['notificationId'],
-        properties: {
-          notificationId: { type: 'integer', description: 'Notification ID to mark as read' }
-        }
-      },
       response: {
         200: {
           description: 'Notification marked as read',
@@ -1330,7 +1333,7 @@ async function routes(fastify, options) {
         }
       },
       response: {
-        200: {
+        204: {
           description: 'Notification deleted successfully',
           type: 'object',
           properties: {
