@@ -1,9 +1,9 @@
-import { getModalWindowError, handleModalError } from "../../elements";
+import { handleModalError } from "../../elements";
 import { navigationHandle } from "../../elements/navigation";
-import { tournamentPlayerData, tournamentPlayerProfiles } from "./playersProfiles";
+import { tournamentPlayerData, rankedPlayerData, tournamentPlayerProfiles, rankedPlayerProfiles } from "./playersProfiles";
 import { API_URL, store } from "../../store/store";
-import { get } from "axios";
 import instanceAPI from "../../services/api/instanceAxios";
+import { getColorFromUsername } from "../../shared/randomColors";
 
 export function handleGame(mainWrapper: HTMLDivElement | undefined) {
 	navigationHandle();
@@ -509,6 +509,7 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
 		preGameModal?.classList.add("hidden");
 		tournamentModal?.classList.remove("hidden");
 		tournamentModal?.classList.add("flex");
+		tournamentProfiles?.classList.remove("hidden");
 		fourPlayersTournament();
 	});
 
@@ -582,18 +583,6 @@ avatarDropdown?.addEventListener('click', (e) => {
 	getFriendsList();
 	});
 
-	// friendsDropDown?.addEventListener('click', (e) => {
-	// const target = e.target as HTMLElement;
-	// const btn = target.closest('button[data-avatar]');
-	// if (btn) {
-	// 	const avatar = btn.getAttribute('data-avatar');
-	// 	if (avatar && selectedAvatar) {
-	// 	(selectedAvatar as HTMLImageElement).src = avatar;
-	// 	friendsDropDown.classList.add('hidden');
-	// 	}
-	// }
-	// });
-
 	function getFriendsList() {
 		// Получаем список друзей из store
 		const friends = store.getAllFriends(); // [{ username, avatar }, ...]
@@ -636,6 +625,7 @@ avatarDropdown?.addEventListener('click', (e) => {
 	const cancelRankedMatchBtn = document.querySelector("#cancelRankedMatchBtn");
 	const rankedTimer = document.querySelector("#rankedTimer");
 	const timerDiv = document.querySelector("#timerDiv");
+	const rankedProfiles = document.querySelector("#rankedProfiles");
 
 	let rankedTimerInterval: ReturnType<typeof setInterval> | null = null;
 	let rankedTimerValue = 0;
@@ -657,20 +647,49 @@ avatarDropdown?.addEventListener('click', (e) => {
 
 	startRankedMatchBtn?.addEventListener("click", async (e) => {
 		e.stopPropagation();
-			try {
+		// rankedProfiles?.classList.remove("hidden");
+		try {
+			const allUsers = store.getAllUsers();
 			const response = await instanceAPI.post("/game/matchmaking", {
 				body: { },
 			});
 			
 			if(response.status === 200) {
 				console.log("In queue", response.status);
+				console.log("Response data:", response.data);
 				timerDiv?.classList.remove("invisible");
 				timer();
 				startRankedMatchBtn?.classList.add("hidden");
 				cancelRankedMatchBtn?.classList.remove("hidden");
 			}
 			if(response.status === 201)
-			{
+				{
+					const userResponseData = response.data as {
+						message: string,
+						game: {
+															id: number,
+															player1Id: number,
+															player2Id: number,
+															status: string,
+															gameMode: string
+														}
+														};
+					console.log("Match Created", userResponseData.message);
+				allUsers.forEach((user) => {
+					if(userResponseData.game.player1Id === user.id) {
+						rankedPlayerData.firstPlayer = user.username;
+						rankedPlayerData.firstPlayerAvatar = API_URL + user.avatar;
+						rankedPlayerData.firstPlayerLetter = user.username.charAt(0).toUpperCase();
+						rankedPlayerData.firstPlayerColor = getColorFromUsername(user.username);
+					}else if(userResponseData.game.player2Id === user.id) {
+						rankedPlayerData.secondPlayer = user.username;
+						rankedPlayerData.secondPlayerAvatar = API_URL + user.avatar;
+						rankedPlayerData.secondPlayerLetter = user.username.charAt(0).toUpperCase();
+						rankedPlayerData.secondPlayerColor = getColorFromUsername(user.username);
+					}
+					rankedGameModal?.classList.add("hidden");
+					rankedProfiles!.innerHTML = rankedPlayerProfiles();
+				});
 
 			}
 
