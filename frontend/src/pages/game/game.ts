@@ -387,6 +387,7 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
 		window.removeEventListener("keyup", handleKeyUp);
 		clearInterval(intervalID);
 		isGameRunning = false;
+		rankedGameStatus();
 		setupInitialState();
 	
 		restartBtn?.removeEventListener("click", restartGame);
@@ -655,8 +656,6 @@ avatarDropdown?.addEventListener('click', (e) => {
 			});
 			
 			if(response.status === 200) {
-				console.log("In queue", response.status);
-				console.log("Response data:", response.data);
 				timerDiv?.classList.remove("invisible");
 				timer();
 				startRankedMatchBtn?.classList.add("hidden");
@@ -674,7 +673,6 @@ avatarDropdown?.addEventListener('click', (e) => {
 															gameMode: string
 														}
 														};
-					console.log("Match Created", userResponseData.message);
 				allUsers.forEach((user) => {
 					if(userResponseData.game.player1Id === user.id) {
 						rankedPlayerData.firstPlayer = user.username;
@@ -726,6 +724,30 @@ avatarDropdown?.addEventListener('click', (e) => {
 				}, 1000);
 	}
 
+	async function rankedGameStatus()
+	{
+		try{
+			const response = await instanceAPI.get("/game/matchmaking/status");
+			let responseData = response.data as {inQueue: true}
+			console.log("RANKED GAME STATUS", responseData);
+			if(responseData.inQueue) {
+			preGameModal?.classList.add("hidden");
+			rankedGameModal?.classList.remove("hidden");
+			rankedGameModal?.classList.add("flex");
+			startRankedMatchBtn?.classList.add("hidden");
+			timerDiv?.classList.remove("invisible");
+			cancelRankedMatchBtn?.classList.remove("hidden");
+			console.log("In queue DATA", responseData);
+			}else
+			{
+				preGameModal?.classList.remove("hidden");
+				preGameModal?.classList.add("flex");
+			}
+
+		}catch (error) {
+
+		}
+	}
 	initGame(); // if the game breaks use the line below
 	// window.addEventListener("load", initGame);
 }
