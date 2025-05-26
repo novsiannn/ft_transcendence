@@ -31,22 +31,31 @@ export function initializeSocket(): Socket | null {
   });
 
   socket.on("notification", async (data) => {
-    if (data.type !== "friend_removed" && data.type !== "friend_rejected") {
+    if (
+      data.type !== "friend_removed" &&
+      data.type !== "friend_rejected" &&
+      data.type !== "friend_request_cancelled"
+    ) {
+      if (data.type === "friend_accepted") {
+        await store.getAllFriendsRequest();
+      }
       document
         .querySelector("#notificationIndicator")
         ?.classList.remove("invisible");
       refreshNotifications();
     }
 
-     if (location.pathname.slice(0, 8) === "/profile"){
-      console.log(data);
+    if (location.pathname.slice(0, 8) === "/profile") {
       const response = data.data.from ? data.data.from.id : data.data.by.id;
-      console.log(response);
-      
+
+      if (data.type === "friend_removed" || data.type === "friend_accepted") {
+        await store.getAllUsersRequest();
+        await store.getAllFriendsRequest();
+      }
+
       const user = findUser(response);
-      if(user)
-        refreshProfileBtnsBlock(user);
-     }
+      if (user) refreshProfileBtnsBlock(user);
+    }
 
     if (location.pathname === "/friends") rerenderFriendsPage();
     console.log("Notification received:", data);
