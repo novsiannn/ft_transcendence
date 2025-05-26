@@ -20,7 +20,7 @@ export function preGameModal() {
             </ul>
             <ul class="py-2 text-sm text-gray-700 dark:text-gray-200" aria-labelledby="gameDropdownButton">
               <li>
-                 <button id="findRankedMatchBtn" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Ranked Match</button>
+                 <button id="rankedMatchBtn" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Ranked Match</button>
               </li>
             </ul>
           </div>
@@ -118,10 +118,25 @@ export function rankedGameModal() {
   return `
     <div id="rankedGameModal" style="background-color: rgba(0, 0, 0, 0.7);" class="fixed inset-0 items-center justify-center z-50 hidden">
       <div class="bg-white p-6 rounded-lg shadow-lg text-black space-y-2 w-max h-auto text-center">
-        <h2 class="text-lg font-semibold">Ranked Match Created!</h2>
+        <h2 class="text-lg font-semibold">Searching for an opponent</h2>
+            <div id="timerDiv"class="invisible mt-2 text-xl text-blue-700">
+            In queue: <span id="rankedTimer">0:00</span>
+            </div>
         <button id="startRankedMatchBtn" class=" mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">Start Ranked Match!</button>
+        <button id="cancelRankedMatchBtn" class="hidden mt-4 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600">Cancel Ranked Match!</button>
       </div>
       ${getModalWindowError()}
     </div>
   `;
 }
+
+// export function rankedWaitingModal() {
+//   return `
+//       <div id="rankedWaitingModal" style="background-color: rgba(0, 0, 0, 0.7);" class="fixed inset-0 items-center justify-center z-50 hidden">
+//       <div class="bg-white p-6 rounded-lg shadow-lg text-black space-y-2 w-max h-auto text-center">
+//         <h2 class="text-lg font-semibold">Ranked Match Created!</h2>
+//         <button id="startRankedMatchBtn" class=" mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">Start Ranked Match!</button>
+//       </div>
+//     </div>
+//   `;
+// }

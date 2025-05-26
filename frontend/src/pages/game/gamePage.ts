@@ -2,7 +2,7 @@ import { navigation } from "../../elements/navigation";
 import { store, API_URL } from "../../store/store";
 import { getColorFromUsername } from "../../shared/randomColors";
 import { friendsMatchModal, preGameModal, rankedGameModal, tournamentModal } from "./gameModal";
-import { tournamentPlayerProfiles } from "./tournamentPlayerProfiles";
+import { tournamentPlayerProfiles } from "./playersProfiles";
 
 export function gamePage() {
     

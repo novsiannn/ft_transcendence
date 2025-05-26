@@ -1,8 +1,9 @@
 import { getModalWindowError, handleModalError } from "../../elements";
 import { navigationHandle } from "../../elements/navigation";
-import { tournamentPlayerData, tournamentPlayerProfiles } from "./tournamentPlayerProfiles";
+import { tournamentPlayerData, tournamentPlayerProfiles } from "./playersProfiles";
 import { API_URL, store } from "../../store/store";
 import { get } from "axios";
+import instanceAPI from "../../services/api/instanceAxios";
 
 export function handleGame(mainWrapper: HTMLDivElement | undefined) {
 	navigationHandle();
@@ -628,17 +629,83 @@ avatarDropdown?.addEventListener('click', (e) => {
 	}
 
 	//RANKED GAME PART
-	const findRankedMatchBtn = document.querySelector("#findRankedMatchBtn");
+	const rankedMatchBtn = document.querySelector("#rankedMatchBtn");
 	const rankedGameModal = document.querySelector("#rankedGameModal");
 	const rankedGameBtn = document.querySelector("#rankedGameBtn");
 	const startRankedMatchBtn = document.querySelector("#startRankedMatchBtn");
+	const cancelRankedMatchBtn = document.querySelector("#cancelRankedMatchBtn");
+	const rankedTimer = document.querySelector("#rankedTimer");
+	const timerDiv = document.querySelector("#timerDiv");
 
-	findRankedMatchBtn?.addEventListener("click", (e) => {
+	let rankedTimerInterval: ReturnType<typeof setInterval> | null = null;
+	let rankedTimerValue = 0;
+
+	rankedMatchBtn?.addEventListener("click",async (e) => {
 		e.stopPropagation();
 		preGameModal?.classList.add("hidden");
 		rankedGameModal?.classList.remove("hidden");
 		rankedGameModal?.classList.add("flex");
+		
 	});
+
+	function formatTimer(seconds: number): string {
+		const min = Math.floor(seconds / 60);
+		const sec = seconds % 60;
+
+		return `${min}:${sec.toString().padStart(2, "0")}`;
+	}
+
+	startRankedMatchBtn?.addEventListener("click", async (e) => {
+		e.stopPropagation();
+			try {
+			const response = await instanceAPI.post("/game/matchmaking", {
+				body: { },
+			});
+			
+			if(response.status === 200) {
+				console.log("In queue", response.status);
+				timerDiv?.classList.remove("invisible");
+				timer();
+				startRankedMatchBtn?.classList.add("hidden");
+				cancelRankedMatchBtn?.classList.remove("hidden");
+			}
+			if(response.status === 201)
+			{
+
+			}
+
+		}catch (error) {
+
+		}
+	});
+
+	cancelRankedMatchBtn?.addEventListener("click", async (e) => {
+		e.stopPropagation();
+		try {
+			const response = await instanceAPI.delete("/game/matchmaking");
+			if(response.status === 200) {
+				if (rankedTimerInterval) clearInterval(rankedTimerInterval);
+				timerDiv?.classList.add("invisible");
+				console.log("Match Canceled", response.status);
+				cancelRankedMatchBtn?.classList.add("hidden");
+				startRankedMatchBtn?.classList.remove("hidden");
+			}
+		}catch (error) {
+
+		}
+	});
+
+	function timer()
+	{
+						  rankedTimerValue = 0;
+				if (rankedTimer) rankedTimer.textContent = formatTimer(rankedTimerValue);
+				if (rankedTimerInterval) clearInterval(rankedTimerInterval);
+
+				rankedTimerInterval = setInterval(() => {
+					rankedTimerValue++;
+					if (rankedTimer) rankedTimer.textContent = formatTimer(rankedTimerValue);
+				}, 1000);
+	}
 
 	initGame(); // if the game breaks use the line below
 	// window.addEventListener("load", initGame);
