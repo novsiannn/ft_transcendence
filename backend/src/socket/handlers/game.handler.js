@@ -9,9 +9,7 @@ function handleJoinGame(socket, gameId) {
         console.log(`User ${socket.user.id} joined game ${gameId}`);
         const room = socket.adapter.rooms.get(`game_${gameId}`);
         const roomSize = room?.size || 0;
-
         if (roomSize == 2) {
-            socket.emit('game:error', { error: 'Game is ready' });
             let gameState = games.get(gameId);
             if (!gameState) {
                 const socketsInRoom = Array.from(room);
@@ -19,6 +17,13 @@ function handleJoinGame(socket, gameId) {
                 games.set(gameId, gameState);
                 io.to(`game_${gameId}`).emit('game:ready', gameState.getState());
             }
+        }
+        else if (roomSize > 2) {
+            socket.emit('game:error', { error: 'Game is full' });
+            socket.leave(`game_${gameId}`);
+            console.log(`User ${socket.user.id} left game ${gameId} due to full room`);
+        } else {
+            socket.emit('game:waiting', { message: 'Waiting for another player to join' });
         }
     }
     catch (error) {

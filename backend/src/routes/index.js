@@ -1607,6 +1607,30 @@ fastify.post('/game/casual', {
     },
     preHandler: authMiddleware
 }, GameController.createCasualGame);
+fastify.get('/game/matchmaking/status', {
+    schema: {
+        description: 'Check if user is in matchmaking queue',
+        tags: ['Game'],
+        security: [{ bearerAuth: [] }],
+        response: {
+            200: {
+                description: 'Queue status retrieved successfully',
+                type: 'object',
+                properties: {
+                    inQueue: { type: 'boolean' }
+                }
+            },
+            500: {
+                description: 'Internal server error',
+                type: 'object',
+                properties: {
+                    error: { type: 'string' }
+                }
+            }
+        }
+    },
+    preHandler: authMiddleware
+}, GameController.checkUserInQueue);
 }
 
 module.exports = routes;

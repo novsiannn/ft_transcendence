@@ -52,6 +52,16 @@ const GameController = {
             return res.code(500).send({ error: 'Failed to process queue' });
         }
     },
+    async checkUserInQueue(req, res) {
+        try {
+            const userId = req.user.id;
+            const isInQueue = await gameService.isUserInQueue(userId);
+            return res.code(200).send({ inQueue: isInQueue });
+        } catch (error) {
+            console.error('Error checking user in queue:', error);
+            return res.code(500).send({ error: 'Failed to check queue status' });
+        }
+    },
     async leaveMatchmaking(req, res) {
         try {
             const userId = req.user.id;
@@ -64,7 +74,43 @@ const GameController = {
             console.error('Error leaving matchmaking:', error);
             return res.code(500).send({ error: 'Failed to leave matchmaking queue' });
         }
-    }
+    },
+    // async updateGameStatus(req, res) {
+    //     try {
+    //         const { gameId } = req.params;
+    //         const { status } = req.body;
+            
+    //         if (!gameId) {
+    //             return res.code(400).send({ error: 'Game ID is required' });
+    //         }
+            
+    //         if (!status) {
+    //             return res.code(400).send({ error: 'Status is required' });
+    //         }
+
+    //         const result = await gameService.updateDuelStatus(gameId, status);
+            
+    //         if (result.error) {
+    //             return res.code(400).send({ error: result.error });
+    //         }
+            
+    //         return res.code(200).send({ 
+    //             message: 'Game status updated successfully',
+    //             game: {
+    //                 id: result.game.id,
+    //                 player1Id: result.game.player1Id,
+    //                 player2Id: result.game.player2Id,
+    //                 status: result.game.status,
+    //                 gameMode: result.game.gameMode
+    //             }
+    //         });
+            
+    //     } catch (error) {
+    //         console.error('Error updating game status:', error);
+    //         return res.code(500).send({ error: 'Failed to update game status' });
+    //     }
+    // }
+
 }
 
 
