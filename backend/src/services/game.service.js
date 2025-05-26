@@ -71,6 +71,26 @@ async function createDuel(initiatorId, opponentId) {
     }
 }
 
+async function updateDuelStatus(duelId, status) {
+    try {
+        const duel = await PinPong.findByPk(duelId);
+        if (!duel) {
+            return { error: 'Duel not found' };
+        }
+        if (duel.status === 'finished') {
+            return { error: 'Duel already finished' };
+        }
+        if (!['waiting', 'in_progress', 'finished'].includes(status)) {
+            return { error: 'Invalid status' };
+        }
+        await duel.update({ status });
+        return { game: duel };
+    } catch (error) {
+        console.error('Error updating duel status:', error);
+        return { error: 'Failed to update duel status' };
+    }
+}
+
 
 async function finishDuel(duelId, user1Score, user2Score) {
     try {
@@ -140,46 +160,10 @@ async function leaveMatchmaking(userId) {
     }
     return { error: 'User not in matchmaking queue' };
 }
-// async function setPlayerAsReady(userId, duelId) {
-//     try {
-//         const duel = await PinPong.findByPk(duelId);
-//         if (!duel) {
-//             throw new Error('Duel not found');
-//         }
-//         if (duel.status !== 'created') {
-//             throw new Error('Duel already finished');
-//         }
-//         if (userId === duel.user_1) {
-//             await duel.update({ user_1_ready: true });
-//         } else if (userId === duel.user_2) {
-//             await duel.update({ user_2_ready: true });
-//         } else {
-//             throw new Error('User is not part of this duel');
-//         }
-//     } catch (error) {
-//         console.error('Error setting player as ready:', error);
-//         throw error;
-//     }
-// }
-// async function leaveGame(userId, duelId) {
-//     try {
-//         const duel = await PinPong.findByPk(duelId);
-//         if (!duel) {
-//             throw new Error('Duel not found');
-//         }
-//         if (userId === duel.user_1) {
-//             await duel.update({ user_1: null, user_1_ready: false });
-//         } else if (userId === duel.user_2) {
-//             await duel.update({ user_2: null, user_2_ready: false });
-//         } else {
-//             throw new Error('User is not part of this duel');
-//         }
-//     } catch (error) {
-//         console.error('Error leaving game:', error);
-//         throw error;
-//     }
-    
-// }
+
+async function isUserInQueue(userId) {
+    return mmQueue.has(userId);
+}
 
 async function defineWinner(duelId) {
     try {
@@ -205,4 +189,4 @@ async function defineWinner(duelId) {
     }
 }
 
-module.exports = { createDuel, finishDuel, joinMatchmaking, leaveMatchmaking, defineWinner };
+module.exports = { createDuel, finishDuel, joinMatchmaking, leaveMatchmaking, defineWinner, updateElo, updateDuelStatus, mmQueue, isUserInQueue };
