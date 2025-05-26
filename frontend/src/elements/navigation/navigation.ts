@@ -42,6 +42,8 @@ export function navigationHandle() {
   const notificationDropDown = document.getElementById(
     "dropdownMenuNotification"
   );
+  const notificationIndicator = document.getElementById("notificationIndicator");
+  
 
   attachNotificationListeners();
 
@@ -84,9 +86,11 @@ export function navigationHandle() {
     e.stopPropagation();
 
     await store.readNotification();
+    console.log('click on notification menu');
     if (!notificationDropDown?.classList.contains("hidden")) {
       refreshNotifications();
     }
+    notificationIndicator?.classList.add('invisible')
     notificationDropDown?.classList.toggle("hidden");
     dropdownMenu?.classList.add("hidden");
     document
@@ -105,9 +109,9 @@ export function navigationHandle() {
       !notificationDropDown?.contains(target) &&
       !notificationMenu?.contains(target)
     ) {
-      notificationDropDown?.classList.add("hidden");
-      if(store.getAuth())
+      if(store.getAuth() && !notificationDropDown?.classList.contains('hidden'))
         refreshNotifications();
+      notificationDropDown?.classList.add("hidden");
     }
   });
 
