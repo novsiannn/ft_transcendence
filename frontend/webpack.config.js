@@ -33,15 +33,15 @@ module.exports = {
     publicPath: "/", // Путь для правильной работы с сервером
   },
   devServer: {
+    host: '0.0.0.0',
+    port: 8888, // Запуск на порте 8888
     static: {
       directory: path.join(__dirname, "dist"), // Отдаем файлы из папки dist
     },
-    compress: true, // added by kilchenk
-    historyApiFallback: true, // Поддержка SPA
-    port: 8888, // Запуск на порте 8888
     hot: true,
+    // compress: true, // added by kilchenk
+    historyApiFallback: true, // Поддержка SPA
     open: true, // Автоматически откроется браузер
-
     //added by kilchenk from
     server: isHttps
       ? {
@@ -51,7 +51,7 @@ module.exports = {
             cert: fs.readFileSync(certPath),
           },
         }
-      : "http",
+      : undefined,
     //added by kilchenk to
   },
   plugins: [

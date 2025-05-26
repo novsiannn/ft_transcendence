@@ -25,7 +25,8 @@ const httpsOptions = {
 
 const fastify = require('fastify')({
   logger: true,
-  ...httpsOptions
+  ...httpsOptions,
+  host: '0.0.0.0',
 });
 
 fastify.register(require('@fastify/multipart'), {
