@@ -678,12 +678,12 @@ avatarDropdown?.addEventListener('click', (e) => {
 				allUsers.forEach((user) => {
 					if(userResponseData.game.player1Id === user.id) {
 						rankedPlayerData.firstPlayer = user.username;
-						rankedPlayerData.firstPlayerAvatar = API_URL + user.avatar;
+						rankedPlayerData.firstPlayerAvatar = user.avatar;
 						rankedPlayerData.firstPlayerLetter = user.username.charAt(0).toUpperCase();
 						rankedPlayerData.firstPlayerColor = getColorFromUsername(user.username);
 					}else if(userResponseData.game.player2Id === user.id) {
 						rankedPlayerData.secondPlayer = user.username;
-						rankedPlayerData.secondPlayerAvatar = API_URL + user.avatar;
+						rankedPlayerData.secondPlayerAvatar = user.avatar;
 						rankedPlayerData.secondPlayerLetter = user.username.charAt(0).toUpperCase();
 						rankedPlayerData.secondPlayerColor = getColorFromUsername(user.username);
 					}
