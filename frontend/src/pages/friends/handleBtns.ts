@@ -1,6 +1,7 @@
 import { getLoader } from "../../elements/Loader";
 import { IUser } from "../../services/api/models/response/IUser";
 import {
+  findUser,
   IFriend,
   IFriendshipResponse,
   IFriendshipResponseData,
@@ -70,6 +71,8 @@ export const deleteFriend = async (
     await store.getAllUsersRequest();
     await store.getAllFriendsRequest();
 
+    user = findUser(user!.id);
+
     if (location.pathname === "/friends") rerenderFriendsPage();
     if (location.pathname.slice(0, 8) === "/profile" && user) {
       refreshProfileBtnsBlock(user);
@@ -79,22 +82,34 @@ export const deleteFriend = async (
 
 export const acceptFriend = async (
   requestFriendshipReceived: IFriendshipResponse,
-  acceptFriendBtn: HTMLButtonElement | null
+  acceptFriendBtn: HTMLButtonElement | null,
+  user?: IUser
 ) => {
   acceptFriendBtn!.innerHTML = getLoader();
   acceptFriendBtn!.disabled = true;
   const res = await store.acceptFriendship(requestFriendshipReceived.id);
 
   if (res.status === 200) {
-    rerenderFriendsPage();
+    if (location.pathname === "/friends") rerenderFriendsPage();
+
     acceptFriendBtn!.innerHTML = "Accept";
     acceptFriendBtn!.disabled = false;
+
+    await store.getAllUsersRequest();
+    await store.getAllFriendsRequest();
+
+    user = findUser(user!.id);
+
+    if (location.pathname.slice(0, 8) === "/profile" && user) {
+      refreshProfileBtnsBlock(user);
+    }
   }
 };
 
 export const rejectFriend = async (
   requestFriendshipReceived: IFriendshipResponse,
-  rejectFriendBtn: HTMLButtonElement | null
+  rejectFriendBtn: HTMLButtonElement | null,
+  user?: IUser
 ) => {
   rejectFriendBtn!.innerHTML = getLoader();
   rejectFriendBtn!.disabled = true;
@@ -104,6 +119,9 @@ export const rejectFriend = async (
     rejectFriendBtn!.innerHTML = "Reject";
     rejectFriendBtn!.disabled = false;
     rerenderFriendsPage();
+    if (location.pathname.slice(0, 8) === "/profile" && user) {
+      refreshProfileBtnsBlock(user);
+    }
   }
 };
 
@@ -172,9 +190,8 @@ export const addBtnsListeners = (
     "#btnCancelFriendRequest"
   );
 
-  if(btnAdd)
-    btnAdd.id = `btnAddFriend${el.id}`;
-  if(cancelFriendRequest)
+  if (btnAdd) btnAdd.id = `btnAddFriend${el.id}`;
+  if (cancelFriendRequest)
     cancelFriendRequest.id = `btnCancelFriendRequest${el.id}`;
 
   if (isFriend && btnDelete) {
@@ -185,9 +202,6 @@ export const addBtnsListeners = (
   } else if (ifSentFriendship) {
     cancelFriendRequest!.classList.remove("hidden");
   } else {
-    console.log('here');
-    console.log(btnAdd);
-    
     btnAdd?.classList.remove("hidden");
   }
   wrapper?.append(div);
@@ -198,12 +212,12 @@ export const addBtnsListeners = (
   btnAccept?.addEventListener("click", async (e) => {
     e.stopPropagation();
     if (requestFriendshipReceived)
-      await acceptFriend(requestFriendshipReceived, btnAccept);
+      await acceptFriend(requestFriendshipReceived, btnAccept, el);
   });
   btnReject?.addEventListener("click", async (e) => {
     e.stopPropagation();
     if (requestFriendshipReceived)
-      await rejectFriend(requestFriendshipReceived, btnReject);
+      await rejectFriend(requestFriendshipReceived, btnReject, el);
   });
   cancelFriendRequest?.addEventListener("click", async (e) => {
     e.stopPropagation();

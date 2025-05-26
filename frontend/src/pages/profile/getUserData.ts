@@ -24,7 +24,7 @@ const setProfileInfo = (user: IUser): void => {
   elo!.innerHTML += `${user.elo} ELO`;
   elo!.classList.add("text-gray-500", "font-bold", "text-md");
   lvl!.innerHTML = `${user.lvl}`;
-  // profileFriendsCount!.innerHTML = user.; add here count of friends
+  profileFriendsCount!.innerHTML = `${user.friendsCount}`;
   totalGames!.innerHTML = `${user.totalGames}`;
   profileMatchesWin!.innerHTML = `${user.wonGames}`;
   profileMatchesLost!.innerHTML = `${user.totalGames - user.wonGames}`;
@@ -37,6 +37,7 @@ export const refreshProfileBtnsBlock = async (el: IUser) => {
   const emptyPhoto = document.querySelector<HTMLDivElement>("#profileImgEmpty");
   const responseFriendshipSent = await store.getPendingFriendsRequests();
   const responseFriendshipReceived = await store.getIncomingFriendRequest();
+  const friendsCount = document.querySelector("#profileFriends");
 
   const firstLetterOfUser = el.username.charAt(0).toUpperCase();
   const color = getColorFromUsername(el.username);
@@ -44,6 +45,12 @@ export const refreshProfileBtnsBlock = async (el: IUser) => {
   const profileBtnsContainer = document.querySelector<HTMLDivElement>(
     "#profileButtonsContainer"
   );
+
+  console.log(store.getUser().friendsCount);
+  
+  console.log('im here');
+  
+  friendsCount!.innerHTML = `${store.getUser().friendsCount}`
 
   profileBtnsContainer!.innerHTML = BtnAccept() + BtnAdd() + BtnCancel() + BtnReject() + BtnDelete();
 

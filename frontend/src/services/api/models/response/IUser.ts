@@ -14,6 +14,7 @@ export interface IUser {
   winrate: number;
   totalGames: number;
   wonGames: number;
+  friendsCount: number;
 }
 
 export interface IUserProfile {
