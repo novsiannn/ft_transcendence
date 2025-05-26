@@ -71,7 +71,8 @@ export const deleteFriend = async (
     await store.getAllUsersRequest();
     await store.getAllFriendsRequest();
 
-    user = findUser(user!.id);
+    if(user)
+      user = findUser(user.id);
 
     if (location.pathname === "/friends") rerenderFriendsPage();
     if (location.pathname.slice(0, 8) === "/profile" && user) {
