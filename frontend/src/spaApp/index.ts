@@ -3,7 +3,6 @@ import {
   getLanguageSelector,
   updateContent,
 } from "../elements/LanguageSelector";
-import { leaveFromChat } from "../pages/chats";
 import {
   allRoutes,
   navigateTo,
@@ -38,7 +37,7 @@ export default function runSPA() {
 
     mainWrapper.removeAttribute("id");
     mainWrapper.className = "h-full w-full relative flex flex-col";
-    document.body.className = "font-mono";
+    document.body.className = "font-sans";
     if (store.getAuth() && Object.keys(privateRoutes).includes(route)) {
       mainWrapper.innerHTML = privateRoutes[route].layoutCreate(
         mainWrapper,
@@ -59,12 +58,11 @@ export default function runSPA() {
   } else {
     navigateTo("/error");
   }
-  if (store.getAuth() && matched!.route !== "/chats")
+  if (store.getAuth() && matched?.route !== "/chats")
     mainWrapper.append(getLanguageSelector());
   updateContent();
 }
 
-// Forward-Back arrows working properly
 window.addEventListener("popstate", () => {
   runSPA();
 });

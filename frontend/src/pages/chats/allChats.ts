@@ -3,6 +3,7 @@ import { IChatData } from "../../shared";
 import { getColorFromUsername } from "../../shared/randomColors";
 import { navigateTo } from "../../routing";
 import { socket } from "../../websockets";
+import { leaveFromChat } from ".";
 
 export const renderAllChats = (allChats: IChatData[]) => {
   const allChatsContainer =
@@ -22,7 +23,7 @@ export const renderAllChats = (allChats: IChatData[]) => {
       "relative flex items-center justify-between p-4 hover:bg-gray-100 transition-colors border-b border-gray-300 cursor-pointer";
 
     chatBlock.innerHTML = `
-      <div class="flex items-center space-x-4">
+      <div class="flex items-center space-x-4 transition-colors duration-700 ease-in-out">
         ${
           chat.avatar
             ? `<img
@@ -43,8 +44,8 @@ export const renderAllChats = (allChats: IChatData[]) => {
             ${chat.username.length > 30 ? `...`: ''}
           </span>
           <span class="text-gray-500 text-sm truncate max-w-xs" id="lastMessage">
-            ${chat.message.content.slice(0,35) || "No messages yet"}
-            ${chat.message.content.length > 35 ? `...`: ''}
+            ${chat.message.content.trim().slice(0,35) || "No messages yet"}
+            ${chat.message.content.trim().length > 35 ? `...`: ''}
           </span>
         </div>
       </div>
@@ -55,6 +56,7 @@ export const renderAllChats = (allChats: IChatData[]) => {
 
     chatBlock.addEventListener("click", () => {
       socket?.emit("chat:join", chat.id);
+      leaveFromChat();
       store.setActiveChatID(chat.id);
       navigateTo(`/chats/${chat.userId}`);
     });

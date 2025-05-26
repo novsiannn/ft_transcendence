@@ -49,6 +49,26 @@ export interface IChatData {
   message: IMessage
 }
 
+export interface ISender {
+  id: number,
+  username: string,
+  avatar: string,
+}
+
+export interface INotificationData {
+  id: number;
+  type: string;
+  senderId: number;
+  isRead: boolean;
+  createdAt:string;
+  sender: ISender
+}
+
+export interface INotificationResponse extends IResponse {
+  notifications: INotificationData[];
+  hasUnread: boolean
+}
+
 export interface IChatsResponse extends IResponse {
   data: IChatData[];
 }
@@ -61,6 +81,7 @@ export interface IAuth {
   user: IUser;
   isAuth: boolean;
   isLoading: boolean;
+  notification: INotificationResponse | null
 }
 
 export interface IFriendsPage {
@@ -70,6 +91,7 @@ export interface IFriendsPage {
 
 interface IChatPage{
   activeChatID: number | null
+  onChatsPage: boolean
 }
 
 export interface IInitialState {

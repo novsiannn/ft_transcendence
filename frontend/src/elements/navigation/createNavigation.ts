@@ -1,10 +1,111 @@
 import { getColorFromUsername } from "../../shared/randomColors";
 import { store, API_URL } from "../../store/store";
+import { attachNotificationListeners } from "./navigation";
 
-const getProfileIcon = () => {
+export const refreshNotifications = async () => {
+  const dropdownMenuNotification = document.querySelector(
+    "#dropdownMenuNotification"
+  );
+  await store.getAllNotifications();
+
+  if (dropdownMenuNotification) {
+    dropdownMenuNotification.innerHTML = `<div class="p-3 font-bold border-b border-gray-500">
+                <p>Notifications</p>
+              </div>`;
+    dropdownMenuNotification.innerHTML += getNotificationLayout();
+    attachNotificationListeners();
+  }
+};
+
+const getNotificationLayout = (): string => {
+  const notificationsData = store.getNotification();
+  if (!notificationsData?.notifications.length) {
+    return `<ul class="text-white"><li><a class="block px-4 py-2 hover:bg-gray-700 text-xs">Don't worry if you don't have any new notifications, we're all in this together!</a></li></ul>`;
+  }
+
+  let allNotifications: string = "";
+
+  notificationsData.notifications.forEach((n) => {
+    const time = new Date(n.createdAt).toLocaleString();
+    const color = getColorFromUsername(n.sender.username);
+    const firstLetterOfUser = n.sender.username.charAt(0).toUpperCase();
+
+    let notificationContent = "";
+
+    switch (n.type) {
+      case "friend_accepted":
+        notificationContent = " has accepted the friendship invite.";
+        break;
+      case "friend_request":
+        notificationContent = " sent you a friend request.";
+        break;
+
+      default:
+        notificationContent = " unknown event";
+        break;
+    }
+
+    allNotifications += `
+  <div class="relative">
+
+    <div data-user-id="${n.sender.id}" 
+         class="flex notificationBlock items-start gap-3 px-4 py-3 pl-5 hover:bg-gray-700 transition cursor-pointer ${
+           n.isRead ? "opacity-50" : "opacity-100"
+         }">
+
+      <div class="relative">
+        ${
+          n.sender.avatar
+            ? `<img id="profileIcon" draggable="false" src="${
+                API_URL + n.sender.avatar
+              }" alt="Profile" class="w-12 h-12 mr-4 rounded-full cursor-pointer object-cover">`
+            : `<div alt="Profile" class="flex mr-4 text-white font-bold text-s justify-center items-center content-center w-12 h-12 ${color} rounded-full cursor-pointer">${firstLetterOfUser}</div>`
+        }
+      </div>
+
+      <div class="flex-1 text-xs">
+        <div><span class="font-semibold">${
+          n.sender.username
+        }</span>${notificationContent}</div>
+        <div class="text-[10px] text-gray-400 mt-1">${time}</div>
+      </div>
+
+      <div class="flex items-center gap-2 relative">
+        <button
+          class="deleteNotificationBtn z-10 h-6 w-6 flex items-center justify-center text-gray-400 hover:text-red-500 hover:bg-white/10 rounded-full transition"
+          title="Delete"
+          data-notification-id="${n.id}"
+        >
+        <svg
+        xmlns="http://www.w3.org/2000/svg"
+        class="w-4 h-4"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke="currentColor"
+      >
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+    </button>
+  
+      ${
+        !n.isRead
+          ? `<span class="w-2 h-2 bg-blue-500 rounded-full"></span>`
+          : ""
+      }
+    </div>
+
+    </div>
+  </div>
+`;
+  });
+  return allNotifications;
+};
+
+const getProfileIcon = (): string => {
   const userPhoto = store.getUser().avatar;
   const color = getColorFromUsername(store.getUser().username);
   const firstLetterOfUser = store.getUser().username.charAt(0).toUpperCase();
+  const notificastions = store.getNotification();
 
   return `
     <div class="flex items-center relative">
@@ -12,14 +113,17 @@ const getProfileIcon = () => {
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 text-white">
           <path stroke-linecap="round" stroke-linejoin="round"
             d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0M3.124 7.5A8.969 8.969 0 0 1 5.292 3m13.416 0a8.969 8.969 0 0 1 2.168 4.5" />
-          </svg>
-     <span id="notificationIndicator" class="invisible animate-bounce absolute top-1 right-2 translate-x-1/2 -translate-y-1/2 w-2.5 h-2.5 bg-red-500 rounded-full"></span>
-     <div id="dropdownMenuNotification" class="hidden top-full mt-1 right-0 absolute w-60 bg-gray-800 border border-gray-200 rounded-lg shadow-lg z-50">
-      <ul class="text-white">
-        <li><a class="block px-4 py-2 hover:bg-gray-700 text-xs">Notification will come soon!!!</a></li>
-      </ul>
-    </div>
-    </div>
+        </svg>
+        <span id="notificationIndicator" class="${
+          notificastions?.hasUnread ? "" : "invisible"
+        } animate-bounce absolute top-1 right-2 translate-x-1/2 -translate-y-1/2 w-2.5 h-2.5 bg-red-500 rounded-full"></span>
+        <div id="dropdownMenuNotification" class="hidden p-1 top-full mt-1 right-0 absolute w-80 bg-gray-800 border border-gray-200 rounded-lg shadow-lg z-50">
+              <div class="p-3 font-bold border-b border-gray-500">
+                <p>Notifications</p>
+              </div>
+              ${getNotificationLayout()}
+        </div>
+      </div>
     ${
       userPhoto
         ? `<img id="profileIcon" draggable="false" src="${
@@ -54,9 +158,9 @@ const getAuthBtn = () => {
 export function navigation() {
   return `
 		<nav class="top-0 left-0  text-white h-16 w-full flex items-center justify-between px-6 select-none p-3">
-      <div id="imgLogoWrapper">
-    		<img src="https://img.icons8.com/plasticine/100/ping-pong--v1.png" draggable="false" alt="Logo" class="h-12 w-12 object-cover" id=imgLogoNavi>
-      </div>
+      
+    	<img src="https://img.icons8.com/plasticine/100/ping-pong--v1.png" draggable="false" alt="Logo" class="h-12 w-12 object-cover" id=imgLogoNavi>
+      
 
 			<div class="relative">
 				${store.getAuth() ? getProfileIcon() : getAuthBtn()}

@@ -1,16 +1,20 @@
 export interface IUser {
   avatar: string;
-  createdAt: string;
   email: string;
   firstName: string;
   id: number;
   isActivated: boolean;
   lastName: string;
   phoneNumber: string;
-  updatedAt: string;
   username: string;
   isTwoFactorEnabled: boolean;
   language: string;
+  lvl: number;
+  elo: number;
+  winrate: number;
+  totalGames: number;
+  wonGames: number;
+  friendsCount: number;
 }
 
 export interface IUserProfile {
@@ -25,4 +29,3 @@ export interface IUserProfile {
   isTwoFactorEnabled: boolean;
   language: string;
 }
-

@@ -1,6 +1,6 @@
 import { navigationHandle } from "../../elements/navigation";
 import { IUser } from "../../services/api/models/response/IUser";
-import { IFriend, IFriendsResponse } from "../../shared";
+import { IFriend } from "../../shared";
 import { store } from "../../store/store";
 import { getFriendsBlock, getUsersBlock } from "./utils";
 import { getLoader } from "../../elements/Loader";
@@ -51,8 +51,6 @@ export const handleFriendsPage = async (
     users = store.getAllUsers();
     users = filterUsers(users, usersSelector!.value);
     usersSelector!.readOnly = true;
-    console.log("here123");
-
     await rerenderFriendsPage(users);
     usersSelector!.readOnly = false;
   });

@@ -1,7 +1,13 @@
 import { getLoader } from "../../elements/Loader";
 import { IUser } from "../../services/api/models/response/IUser";
-import { IFriend, IFriendshipResponse, IFriendshipResponseData, IFriendsResponse } from "../../shared";
+import {
+  findUser,
+  IFriend,
+  IFriendshipResponse,
+  IFriendshipResponseData,
+} from "../../shared";
 import { store } from "../../store/store";
+import { refreshProfileBtnsBlock } from "../profile/getUserData";
 import { getEmptyBlock } from "./containersLayout";
 import { getFriendsBlock, getUsersBlock } from "./utils";
 
@@ -52,37 +58,58 @@ export const cancelFriendshipRequest = async (
 export const deleteFriend = async (
   id: number,
   deleteFriendBtn: HTMLButtonElement | null,
+  user?: IUser
 ) => {
   deleteFriendBtn!.innerHTML = getLoader();
   deleteFriendBtn!.disabled = true;
   const res = await store.deleteFriend(id);
-  
 
   if (res.status === 204) {
     deleteFriendBtn!.innerHTML = "Delete";
     deleteFriendBtn!.disabled = false;
-    rerenderFriendsPage();
+
+    await store.getAllUsersRequest();
+    await store.getAllFriendsRequest();
+
+    user = findUser(user!.id);
+
+    if (location.pathname === "/friends") rerenderFriendsPage();
+    if (location.pathname.slice(0, 8) === "/profile" && user) {
+      refreshProfileBtnsBlock(user);
+    }
   }
 };
 
 export const acceptFriend = async (
   requestFriendshipReceived: IFriendshipResponse,
   acceptFriendBtn: HTMLButtonElement | null,
+  user?: IUser
 ) => {
   acceptFriendBtn!.innerHTML = getLoader();
   acceptFriendBtn!.disabled = true;
   const res = await store.acceptFriendship(requestFriendshipReceived.id);
 
   if (res.status === 200) {
-    rerenderFriendsPage();
+    if (location.pathname === "/friends") rerenderFriendsPage();
+
     acceptFriendBtn!.innerHTML = "Accept";
     acceptFriendBtn!.disabled = false;
+
+    await store.getAllUsersRequest();
+    await store.getAllFriendsRequest();
+
+    user = findUser(user!.id);
+
+    if (location.pathname.slice(0, 8) === "/profile" && user) {
+      refreshProfileBtnsBlock(user);
+    }
   }
 };
 
 export const rejectFriend = async (
   requestFriendshipReceived: IFriendshipResponse,
-  rejectFriendBtn: HTMLButtonElement | null
+  rejectFriendBtn: HTMLButtonElement | null,
+  user?: IUser
 ) => {
   rejectFriendBtn!.innerHTML = getLoader();
   rejectFriendBtn!.disabled = true;
@@ -92,6 +119,9 @@ export const rejectFriend = async (
     rejectFriendBtn!.innerHTML = "Reject";
     rejectFriendBtn!.disabled = false;
     rerenderFriendsPage();
+    if (location.pathname.slice(0, 8) === "/profile" && user) {
+      refreshProfileBtnsBlock(user);
+    }
   }
 };
 
@@ -102,19 +132,19 @@ export const rerenderFriendsPage = async (filteredUsers?: IUser[]) => {
     document.querySelector<HTMLDivElement>("#allUsersContainer");
   let responseAllUsers;
 
-  allUsersContainer!.innerHTML =
-    `<h1 data-i18n='friends.allUsers' class="text-2xl text-white font-black text-center mb-4">All Users</h1>
+  if (allUsersContainer)
+    allUsersContainer.innerHTML = `<h1 data-i18n='friends.allUsers' class="text-2xl text-white font-black text-center mb-4">All Users</h1>
       ${getLoader()}
     `;
-  friendsContainer!.innerHTML =
-      `<h1 data-i18n='friends.yourFriends' class="text-2xl text-white font-black text-center mb-4">Your Friends</h1>
+  if (friendsContainer)
+    friendsContainer.innerHTML = `<h1 data-i18n='friends.yourFriends' class="text-2xl text-white font-black text-center mb-4">Your Friends</h1>
       ${getLoader()}
     `;
   await store.getAllFriendsRequest();
   await store.getAllUsersRequest();
 
   const responseAllFriends = store.getAllFriends();
-  if (!filteredUsers){
+  if (!filteredUsers) {
     responseAllUsers = store.getAllUsers();
   } else {
     responseAllUsers = filteredUsers;
@@ -130,7 +160,6 @@ export const rerenderFriendsPage = async (filteredUsers?: IUser[]) => {
     responseFriendshipSent,
     responseFriendshipReceived
   );
-  
 };
 
 export const addBtnsListeners = (
@@ -151,23 +180,29 @@ export const addBtnsListeners = (
     );
   }
 
+  const isFriend = store.getAllFriends().some((user) => user.id === el.id);
+
   const btnAdd = div.querySelector<HTMLButtonElement>("#btnAddFriend");
-  const btnRejectFriend =
-    div.querySelector<HTMLButtonElement>("#btnRejectFriend");
+  const btnReject = div.querySelector<HTMLButtonElement>("#btnRejectFriend");
   const btnAccept = div.querySelector<HTMLButtonElement>("#btnAcceptFriend");
+  const btnDelete = div.querySelector<HTMLButtonElement>("#btnDeleteFriend");
   const cancelFriendRequest = div.querySelector<HTMLButtonElement>(
     "#btnCancelFriendRequest"
   );
-  btnAdd!.id = `btnAddFriend${el.id}`;
-  cancelFriendRequest!.id = `btnCancelFriendRequest${el.id}`;
 
-  if (requestFriendshipReceived) {
-    btnAccept!.classList.remove("hidden");
-    btnRejectFriend!.classList.remove("hidden");
+  if (btnAdd) btnAdd.id = `btnAddFriend${el.id}`;
+  if (cancelFriendRequest)
+    cancelFriendRequest.id = `btnCancelFriendRequest${el.id}`;
+
+  if (isFriend && btnDelete) {
+    btnDelete?.classList.remove("hidden");
+  } else if (requestFriendshipReceived) {
+    btnAccept?.classList.remove("hidden");
+    btnReject?.classList.remove("hidden");
   } else if (ifSentFriendship) {
     cancelFriendRequest!.classList.remove("hidden");
   } else {
-    btnAdd!.classList.remove("hidden");
+    btnAdd?.classList.remove("hidden");
   }
   wrapper?.append(div);
   btnAdd?.addEventListener("click", async (e) => {
@@ -177,12 +212,12 @@ export const addBtnsListeners = (
   btnAccept?.addEventListener("click", async (e) => {
     e.stopPropagation();
     if (requestFriendshipReceived)
-      await acceptFriend(requestFriendshipReceived, btnAccept);
+      await acceptFriend(requestFriendshipReceived, btnAccept, el);
   });
-  btnRejectFriend?.addEventListener("click", async (e) => {
+  btnReject?.addEventListener("click", async (e) => {
     e.stopPropagation();
     if (requestFriendshipReceived)
-      await rejectFriend(requestFriendshipReceived, btnRejectFriend);
+      await rejectFriend(requestFriendshipReceived, btnReject, el);
   });
   cancelFriendRequest?.addEventListener("click", async (e) => {
     e.stopPropagation();
@@ -192,10 +227,16 @@ export const addBtnsListeners = (
       responseFriendshipSentUserId.requests
     );
   });
-  const checkIfUserExist = wrapper!.querySelector("div");
-    if (!checkIfUserExist) {
-      div = document.createElement("div");
-      div.innerHTML = getEmptyBlock();
-      wrapper?.append(div);
+  btnDelete?.addEventListener("click", async (e) => {
+    e.stopPropagation();
+    if (isFriend) {
+      await deleteFriend(el.id, btnDelete, el);
     }
+  });
+  const checkIfUserExist = wrapper?.querySelector("div");
+  if (!checkIfUserExist) {
+    div = document.createElement("div");
+    div.innerHTML = getEmptyBlock();
+    wrapper?.append(div);
+  }
 };
