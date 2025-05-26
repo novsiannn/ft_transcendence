@@ -93,11 +93,11 @@ async function deleteNotification(notificationId, userId) {
                 userId
             }
         });
-        
+
         return deleted > 0;
     } catch (error) {
         console.error('Error deleting notification:', error);
-        throw error;  
+        throw error;
     }
 }
 
