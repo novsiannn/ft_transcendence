@@ -10,6 +10,8 @@ import { BtnAdd } from "../../elements/BtnAdd";
 import { BtnCancel } from "../../elements/BtnCancel";
 import { BtnReject } from "../../elements/BtnReject";
 import { BtnDelete } from "../../elements/BtnDelete";
+import { BtnUnblock } from "../../elements/BtnUnblock";
+import { BtnBlock } from "../../elements/BtnBlock";
 
 const setProfileInfo = (user: IUser): void => {
   const elo = document.querySelector("#profileLvlContainer");
@@ -31,6 +33,17 @@ const setProfileInfo = (user: IUser): void => {
   profileWinrate!.innerHTML = `${user.winrate}%`;
 };
 
+const handleBlockBtns = () => {
+  const isBlocked = true;
+
+  console.log(document.querySelector('#btnBlockUser'));
+  
+  if(isBlocked)
+    document.querySelector('#btnBlockUser')?.classList.remove('hidden');
+  else
+    document.querySelector('#btnUnblockUser')?.classList.remove('hidden');
+}
+
 export const refreshProfileBtnsBlock = async (el: IUser) => {
   const userNameElement = document.querySelector("#userNameProfile");
   const avatarImg = document.querySelector<HTMLImageElement>("#profileImg");
@@ -45,14 +58,9 @@ export const refreshProfileBtnsBlock = async (el: IUser) => {
   const profileBtnsContainer = document.querySelector<HTMLDivElement>(
     "#profileButtonsContainer"
   );
-
-  console.log(store.getUser().friendsCount);
-  
-  console.log('im here');
-  
   friendsCount!.innerHTML = `${store.getUser().friendsCount}`
 
-  profileBtnsContainer!.innerHTML = BtnAccept() + BtnAdd() + BtnCancel() + BtnReject() + BtnDelete();
+  profileBtnsContainer!.innerHTML = BtnAccept() + BtnAdd() + BtnCancel() + BtnReject() + BtnDelete() + BtnBlock() + BtnUnblock();
 
   el.username
     ? (userNameElement!.textContent = el.username)
@@ -76,6 +84,7 @@ export const refreshProfileBtnsBlock = async (el: IUser) => {
       responseFriendshipSent,
       null
     );
+    handleBlockBtns();
 };
 
 export const getUserData = async (id?: number) => {

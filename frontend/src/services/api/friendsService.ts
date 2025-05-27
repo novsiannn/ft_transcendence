@@ -28,6 +28,12 @@ const friendsService = {
   rejectFriendship: async (friendshipId: number) => {
     return await instanceAPI.put(`friendship/${friendshipId}/reject`);
   },
+  blockUser: async (blockedUserId: number) => {
+    return await instanceAPI.post(`friendship/${blockedUserId}/block`);
+  },
+  unblockUser: async (blockedUserId: number) => {
+    return await instanceAPI.delete(`friendship/${blockedUserId}/block`);
+  },
 };
 
 export default friendsService;

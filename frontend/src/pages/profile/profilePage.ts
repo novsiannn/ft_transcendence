@@ -1,8 +1,10 @@
 import { BtnAccept } from "../../elements/BtnAccept";
 import { BtnAdd } from "../../elements/BtnAdd";
+import { BtnBlock } from "../../elements/BtnBlock";
 import { BtnCancel } from "../../elements/BtnCancel";
 import { BtnDelete } from "../../elements/BtnDelete";
 import { BtnReject } from "../../elements/BtnReject";
+import { BtnUnblock } from "../../elements/BtnUnblock";
 import { getModalWindowSuccess } from "../../elements/ModalSuccess";
 import { navigation } from "../../elements/navigation";
 
@@ -27,6 +29,8 @@ export function profilePage(mainWrapper: HTMLDivElement | undefined) {
                       ${BtnAccept()}
                       ${BtnReject()}
                       ${BtnDelete()}
+                      ${BtnBlock()}
+                      ${BtnUnblock()}
             </div>
         </div>
         
