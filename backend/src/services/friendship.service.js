@@ -505,6 +505,42 @@ async function countUserFriends(userId) {
     }
 }
 
+async function getBlockedUsers(userId) {
+    try {
+        const blockedList = await Friendship.findAll({
+            where: {
+                requesterId: userId,
+                status: 'blocked'
+            },
+            include: [{
+                model: User,
+                as: 'addressee',
+                attributes: ['id']
+            }]
+        });
+
+        const blockedByList = await Friendship.findAll({
+            where: {
+                addresseeId: userId,
+                status: 'blocked'
+            },
+            include: [{
+                model: User,
+                as: 'requester',
+                attributes: ['id']
+            }]
+        });
+
+        const blockedUserIds = blockedList.map(friendship => friendship.addresseeId);
+        const blockedByUserIds = blockedByList.map(friendship => friendship.requesterId);
+
+        return { blockedUserIds, blockedByUserIds };
+    } catch (error) {
+        console.error("Error getting blocked users:", error);
+        throw error;
+    }
+};
+
 async function getUserFriends(userId) {
     try {
         const friendships = await Friendship.findAll({
@@ -549,4 +585,4 @@ async function getUserFriends(userId) {
     }
 }
 
-module.exports = { countUserFriends, setIo, getPendingStatus, sendFriendRequest, cancelFriendRequest, respondToFriendRequest, getIncomingRequests, getOutgoingRequests, removeFriend, blockUser, unblockUser, getUserFriends };
+module.exports = { countUserFriends, setIo, getPendingStatus, sendFriendRequest, cancelFriendRequest, respondToFriendRequest, getIncomingRequests, getOutgoingRequests, removeFriend, blockUser, unblockUser, getUserFriends, getBlockedUsers };
