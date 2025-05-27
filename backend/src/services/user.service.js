@@ -200,6 +200,7 @@ async function getUserProfile(userId) {
     }
 
     const friendsCount = await friendshipService.countUserFriends(userId);
+    const blokedUsersList = await friendshipService.getBlockedUsers(userId);
 
     const winrateStats = await countProcentWinrate(userId);
     if (winrateStats.error) {
@@ -212,7 +213,9 @@ async function getUserProfile(userId) {
         winrate: winrateStats.winrate,
         totalGames: winrateStats.totalGames,
         wonGames: winrateStats.wonGames,
-        friendsCount: friendsCount
+        blockedUserIds: blokedUsersList.blockedUserIds,
+        blockedByUserIds: blokedUsersList.blockedByUserIds,
+        friendsCount: friendsCount,
       }
     };
 
@@ -358,12 +361,15 @@ async function getAllUsers() {
     const usersWithStats = await Promise.all(users.map(async (user) => {
       const winrateStats = await countProcentWinrate(user.id);
       const friendsCount = await friendshipService.countUserFriends(user.id);
+      const blockedUsersList = await friendshipService.getBlockedUsers(user.id);
       return {
         ...user.toJSON(),
         winrate: winrateStats.winrate,
         totalGames: winrateStats.totalGames,
         wonGames: winrateStats.wonGames,
-        friendsCount: friendsCount
+        blockedUserIds: blockedUsersList.blockedUserIds,
+        blockedByUserIds: blockedUsersList.blockedByUserIds,
+        friendsCount: friendsCount,
       };
     }));
     return usersWithStats;
