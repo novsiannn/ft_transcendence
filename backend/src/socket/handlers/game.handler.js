@@ -3,7 +3,7 @@ const gameService = require('../../services/game.service');
 
 const games = new Map();
 
-function handleJoinGame(socket, gameId) {
+async function handleJoinGame(socket, gameId) {
     try {
         socket.join(`game_${gameId}`);
         console.log(`User ${socket.user.id} joined game ${gameId}`);
@@ -32,7 +32,7 @@ function handleJoinGame(socket, gameId) {
     }
 }
 
-function handleLeaveGame(socket, gameId){
+async function handleLeaveGame(socket, gameId){
     socket.leave(`game_${gameId}`);
     console.log(`User ${socket.user.id} left game ${gameId}`);
 
@@ -53,7 +53,7 @@ function handleStartGame(socket, gameId) {
     }
 }
 
-function handleRestartGame(socket, gameId) {
+async function handleRestartGame(socket, gameId) {
     const game = games.get(gameId);
     if (game) {
         game.restart();
@@ -64,7 +64,7 @@ function handleRestartGame(socket, gameId) {
     }
 }
 
-function handleMovePaddle(socket, data) {
+async function handleMovePaddle(socket, data) {
     const { gameId, playerId, direction } = data;
     const game = games.get(gameId);
     if (game) {
@@ -75,7 +75,17 @@ function handleMovePaddle(socket, data) {
     }
 }
 
-function initialize(io) {
+async function handleLeaveQueue(socket, gameId) {
+    console.log(`User ${socket.user.id} left matchmaking queue for game ${gameId}`);
+    gameService.leaveMatchmaking(socket.user.id);
+    const duel = await gameService.getDuelInfo(gameId);
+    if(duel)
+        socket.emit("game:info", { duel });
+    else
+        socket.emit("game:error", { error: 'Duel not found' });
+}
+
+async function initialize(io) {
     setInterval(() => {
         games.forEach((game, gameId) => {
             if (game.isRunning) {
@@ -88,9 +98,12 @@ function initialize(io) {
                 }
             }
         });
-    }, 1000 / 60); // 60 FPS
+    }, 1000 / 60); 
     io.on('connection', function(socket) {
         socket.on('game:join', gameId => handleJoinGame(socket, gameId));
+        socket.on('mm:leave', gameId => handleLeaveQueue(socket, gameId));
         
     });
 }
+
+module.exports = { initialize };
