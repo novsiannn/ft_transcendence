@@ -24,7 +24,6 @@ export function gamePage() {
     return `
         ${navigation()}
     <div id="game-container" class="h-screen flex flex-col justify-center items-center gap-6">
-            <!-- Спросить у Никиты про opacity -->
             <!-- Модальное окно перед началом игры -->
             ${preGameModal()}
             ${tournamentModal()}

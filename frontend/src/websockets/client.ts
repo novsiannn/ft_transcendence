@@ -12,6 +12,21 @@ import { findUser } from "../shared";
 
 export let socket: Socket | null = null;
 
+interface GameState {
+  ball: { x: number; y: number };
+  paddles: Record<string, { x: number; y: number; score: number }>;
+  isRunning: boolean;
+  winner?: number;
+}
+
+let gameCallbacks: {
+  onGameReady?: (gameState: GameState) => void;
+  onGameUpdate?: (gameState: GameState) => void;
+  onGameStart?: (gameState: GameState) => void;
+  onGameFinished?: (data: any) => void;
+  onGameError?: (error: any) => void;
+} = {};
+
 export function initializeSocket(): Socket | null {
   const token = localStorage.getItem("token");
 
@@ -89,8 +104,93 @@ export function initializeSocket(): Socket | null {
       messageData.content
     );
   });
+  //GAME HANDLERS
+    socket.on("game:ready", (gameState: GameState) => {
+    console.log("Game is ready!", gameState);
+    if (gameCallbacks.onGameReady) {
+      gameCallbacks.onGameReady(gameState);
+    }
+  });
+
+  socket.on("game:update", (gameState: GameState) => {
+    if (gameCallbacks.onGameUpdate) {
+      gameCallbacks.onGameUpdate(gameState);
+    }
+  });
+
+  socket.on("game:start", (gameState: GameState) => {
+    console.log("Game started!", gameState);
+    if (gameCallbacks.onGameStart) {
+      gameCallbacks.onGameStart(gameState);
+    }
+  });
+
+  socket.on("game:finished", (data: any) => {
+    console.log("Game finished!", data);
+    if (gameCallbacks.onGameFinished) {
+      gameCallbacks.onGameFinished(data);
+    }
+  });
+
+  socket.on("game:error", (error: any) => {
+    console.error("Game error:", error);
+    if (gameCallbacks.onGameError) {
+      gameCallbacks.onGameError(error);
+    }
+  });
 
   return socket;
+}
+
+export function joinGame(gameId: string): void {
+  if (!socket) return;
+  socket.emit('game:join', gameId);
+  console.log(`Joining game: ${gameId}`);
+}
+
+export function movePaddle(gameId: string, direction: 'up' | 'down'): void {
+  if (!socket) return;
+  
+  const userId = store.getUser().id;
+  socket.emit('game:move', {
+    gameId: gameId,
+    playerId: userId,
+    direction: direction
+  });
+}
+//GAME CALLBACKS
+export function startGame(gameId: string): void {
+  if (!socket) return;
+  socket.emit('game:start', gameId);
+}
+
+export function leaveGame(gameId: string): void {
+  if (!socket) return;
+  socket.emit('game:leave', gameId);
+}
+
+export function onGameReady(callback: (gameState: GameState) => void): void {
+  gameCallbacks.onGameReady = callback;
+}
+
+export function onGameUpdate(callback: (gameState: GameState) => void): void {
+  gameCallbacks.onGameUpdate = callback;
+}
+
+export function onGameStart(callback: (gameState: GameState) => void): void {
+  gameCallbacks.onGameStart = callback;
+}
+
+export function onGameFinished(callback: (data: any) => void): void {
+  gameCallbacks.onGameFinished = callback;
+}
+
+export function onGameError(callback: (error: any) => void): void {
+  gameCallbacks.onGameError = callback;
+}
+//CLEAR CALLBACKS
+export function clearGameCallbacks(): void {
+  gameCallbacks = {};
 }
 
 export function getSocket(): Socket | null {
