@@ -8,6 +8,10 @@ async function handleJoinQueue(socket) {
     socket.join(`mm_${socket.user.id}`);
     console.log(`User ${socket.user.id} joined matchmaking queue`);
 }
+async function handleLeaveFromQueue(socket){
+    socket.leave(`mm_${socket.user.id}`);
+    console.log(`User ${socket.user.id} left matchmaking queue`);
+}
 
 async function handleJoinGame(socket, gameId) {
     try {
@@ -88,6 +92,7 @@ async function handleLeaveQueue(socket, gameId) {
     console.log(`User ${opponentId} left matchmaking queue for game ${gameId}`);
     if(duel)
         io.to(`mm_${opponentId}`).emit('mm:ready', game.getState());
+
     else
         socket.emit("game:error", { error: 'Duel not found' });
 }
@@ -110,6 +115,7 @@ async function initialize(io) {
         socket.on('game:join', gameId => handleJoinGame(socket, gameId));
         socket.on('mm:leave', gameId => handleLeaveQueue(socket, gameId));
         socket.on('game:joinQueue', () => handleJoinQueue(socket));
+        socket.on('game:leaveQueue', () => handleLeaveFromQueue(socket));
     });
 }
 
