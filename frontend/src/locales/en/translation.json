@@ -10,7 +10,11 @@
   "profile": {
     "level": "Level",
     "friends": "Friends",
-    "playedMatches": "Matches played"
+    "matchesPlayed": "Matches played",
+    "gameStatistics": "Game Statistics",
+    "wins": "Wins",
+    "losses": "Losses",
+    "winRate": "Win Rate"
   },
   "navigation": {
     "home": "Home",
@@ -36,7 +40,11 @@
     "enable": "Enable",
     "disable": "Disable",
     "save": "Save",
-    "delete": "Delete"
+    "delete": "Delete",
+    "block": "Block",
+    "unBlock": "Unblock",
+    "userBlocked": "User has blocked you",
+    "inviteInGame": "Invite Friend in Game"
   },
   "settings": {
     "2fa": "2FA-Authentication",
@@ -46,6 +54,18 @@
     "email": "Email"
   },
   "chat": {
-    "searchChats": "Search chats..."
+    "searchChats": "Search chats...",
+    "startNewChat": "Start a new chat",
+    "noMessagesYet": " No messages yet",
+    "startChat": "Start a chat",
+    "selectExistingChat": "Select an existing chat from the list on the left or start a new conversation with a friend.",
+    "noMessagesStartConversation": "No messages yet. Start a conversation!",
+    "typeMessage": "Type your message...",
+    "messages": "Messages"
+  },
+  "notification": {
+    "notifications": "Notifications",
+    "sentYouFriendRequest": " sent you friend request.",
+    "hasAcceptedFriendShip": " has accepted the friendship invite."
   }
 }

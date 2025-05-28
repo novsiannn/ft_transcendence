@@ -12,6 +12,7 @@ import { BtnReject } from "../../elements/BtnReject";
 import { BtnDelete } from "../../elements/BtnDelete";
 import { BtnUnblock } from "../../elements/BtnUnblock";
 import { BtnBlock } from "../../elements/BtnBlock";
+import { BtnUserBlockedYou } from "../../elements/BtnUserBlockedYou";
 
 const setProfileInfo = (user: IUser): void => {
   const elo = document.querySelector("#profileLvlContainer");
@@ -33,16 +34,41 @@ const setProfileInfo = (user: IUser): void => {
   profileWinrate!.innerHTML = `${user.winrate}%`;
 };
 
-const handleBlockBtns = () => {
-  const isBlocked = true;
+const handleBlockBtns = (userID: number): boolean => {
+  const blockedUserIds = store.getUser().blockedUserIds;
+  const blockedByUserIds = store.getUser().blockedByUserIds;
+  const btnBlockUser = document.querySelector("#btnBlockUser");
+  const btnUnblockUser = document.querySelector("#btnUnblockUser");
+  const btnUserBlockedYou = document.querySelector("#btnUserBlockedYou");
 
-  console.log(document.querySelector('#btnBlockUser'));
-  
-  if(isBlocked)
-    document.querySelector('#btnBlockUser')?.classList.remove('hidden');
-  else
-    document.querySelector('#btnUnblockUser')?.classList.remove('hidden');
-}
+  const myBlockedUsers = blockedUserIds.some((el) => el === userID);
+  const usersBlockedMe = blockedByUserIds.some((el) => el === userID);
+
+  if (usersBlockedMe) {
+    btnUserBlockedYou?.classList.remove("hidden");
+    return true;
+  }
+
+  console.log(blockedUserIds);
+  console.log(blockedByUserIds);
+
+  console.log(myBlockedUsers);
+  console.log(usersBlockedMe);
+
+  if (myBlockedUsers) {
+    btnUnblockUser?.classList.remove("hidden");
+    btnUnblockUser?.addEventListener("click", () => {
+      store.unblockUser(userID);
+    });
+    return true;
+  } else {
+    btnBlockUser?.classList.remove("hidden");
+    btnBlockUser?.addEventListener("click", () => {
+      store.blockUser(userID);
+    });
+    return false;
+  }
+};
 
 export const refreshProfileBtnsBlock = async (el: IUser) => {
   const userNameElement = document.querySelector("#userNameProfile");
@@ -58,13 +84,7 @@ export const refreshProfileBtnsBlock = async (el: IUser) => {
   const profileBtnsContainer = document.querySelector<HTMLDivElement>(
     "#profileButtonsContainer"
   );
-  friendsCount!.innerHTML = `${store.getUser().friendsCount}`
 
-  profileBtnsContainer!.innerHTML = BtnAccept() + BtnAdd() + BtnCancel() + BtnReject() + BtnDelete() + BtnBlock() + BtnUnblock();
-
-  el.username
-    ? (userNameElement!.textContent = el.username)
-    : (userNameElement!.textContent = "Username");
   if (hasAvatar) {
     avatarImg!.src = API_URL + el.avatar;
     emptyPhoto?.classList.toggle("hidden", hasAvatar);
@@ -75,6 +95,27 @@ export const refreshProfileBtnsBlock = async (el: IUser) => {
     emptyPhoto?.classList.add(color);
     emptyPhoto!.innerHTML = `<p>${firstLetterOfUser}</p>`;
   }
+
+  el.username
+    ? (userNameElement!.textContent = el.username)
+    : (userNameElement!.textContent = "Username");
+
+  profileBtnsContainer!.innerHTML =
+    BtnAccept() +
+    BtnAdd() +
+    BtnCancel() +
+    BtnReject() +
+    BtnDelete() +
+    BtnBlock() +
+    BtnUnblock() +
+    BtnUserBlockedYou();
+
+  const isBlocked = handleBlockBtns(el.id);
+
+  if (isBlocked) return;
+
+  friendsCount!.innerHTML = `${store.getUser().friendsCount}`;
+
   setProfileInfo(el);
   if (profileBtnsContainer)
     addBtnsListeners(
@@ -84,7 +125,6 @@ export const refreshProfileBtnsBlock = async (el: IUser) => {
       responseFriendshipSent,
       null
     );
-    handleBlockBtns();
 };
 
 export const getUserData = async (id?: number) => {

@@ -1,6 +1,6 @@
 import { store } from "../../store/store";
 
-export const Select = (id: number) => {
+export const Select = (id: number, placeholder?: string) => {
   const friends = store.getAllFriends();
 
   return `
@@ -9,7 +9,7 @@ export const Select = (id: number) => {
         id=${id}
         class="startChatSelect w-full appearance-none bg-white text-sm text-gray-400 px-4 py-2 rounded-md focus:outline-none cursor-pointer"
       >
-        <option disabled selected>Start a new chat</option>
+        <option disabled selected data-i18n="chat.startChat"></option>
           ${friends.map((friend) => `<option value="${friend.id}">${friend.username}</option>`)
                     .join("")}
       </select>

@@ -5,12 +5,16 @@
   "ukrainian": "Ukrainisch",
   "home": {
     "description": "Transcendence ist ein 42 Schulprojekt, um etwas über Webentwicklung und SPA zu lernen. Das Ziel ist es, eine Web-App zu erstellen, um Pong zu spielen und sich mit anderen Nutzern auszutauschen.",
-    "Entwickler": "Entwickelt von novsiann, kilchenk und ikhristi"
+    "developers": "Entwickelt von novsiann, kilchenk und ikhristi"
   },
   "profile": {
     "level": "Level",
     "friends": "Freunde",
-    "playedMatches": "Gespielte Spiele"
+    "matchesPlayed": "Gespielte Spiele",
+    "gameStatistics": "Spielstatistik",
+    "wins": "Siege",
+    "losses": "Niederlagen",
+    "winRate": "Gewinnrate"
   },
   "navigation": {
     "home": "Startseite",
@@ -36,7 +40,11 @@
     "enable": "Aktivieren",
     "disable": "Deaktivieren",
     "save": "Speichern",
-    "delete": "Löschen"
+    "delete": "Löschen",
+    "block": "Blockieren",
+    "unBlock": "Entsperren",
+    "userBlocked": "Benutzer hat dich blockiert",
+    "inviteInGame": "Freund ins Spiel einladen"
   },
   "settings": {
     "2fa": "2FA-Authentifizierung",
@@ -46,6 +54,18 @@
     "email": "Email"
   },
   "chat": {
-    "searchChats": "Chats suchen..."
+    "searchChats": "Chats suchen...",
+    "startNewChat": "Neuen Chat starten",
+    "noMessagesYet": "Noch keine Nachrichten",
+    "startChat": "Chat starten",
+    "selectExistingChat": "Wähle einen bestehenden Chat aus der Liste links aus oder starte eine neue Unterhaltung mit einem Freund.",
+    "noMessagesStartConversation": "Noch keine Nachrichten. Starte eine Unterhaltung!",
+    "typeMessage": "Geben Sie Ihre Nachricht ein …",
+    "messages": "Nachrichten"
+  },
+  "notification": {
+    "notifications": "Benachrichtigungen",
+    "sentYouFriendRequest": " hat dir eine Freundschaftsanfrage gesendet.",
+    "hasAcceptedFriendShip": " hat die Freundschaftseinladung angenommen."
   }
 }
