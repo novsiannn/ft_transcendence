@@ -15,6 +15,8 @@ export interface IUser {
   totalGames: number;
   wonGames: number;
   friendsCount: number;
+  blockedUserIds: number[];
+  blockedByUserIds: number[];
 }
 
 export interface IUserProfile {
