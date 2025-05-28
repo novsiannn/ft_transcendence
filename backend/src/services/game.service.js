@@ -32,6 +32,38 @@ async function createDuel(initiatorId, opponentId) {
             return { error: 'Cannot create duel with yourself' };
         }
 
+        const activeGame = await PinPong.findOne({
+            where: {
+                status: {
+                    [Op.not]: 'finished' 
+                },
+                [Op.or]: [
+                    { player1Id: initiatorId },
+                    { player2Id: initiatorId }
+                ]
+            }
+        });
+
+        if (activeGame) {
+            return { error: 'Cannot join matchmaking while in an active game' };
+        }
+
+        activeGame = await PinPong.findOne({
+            where: {
+                status: {
+                    [Op.not]: 'finished'  
+                },
+                [Op.or]: [
+                    { player1Id: opponentId },
+                    { player2Id: opponentId }
+                ]
+            }
+        });
+
+        if (activeGame) {
+            return { error: 'Cannot join matchmaking while in an active game' };
+        }
+
         const existingGame = await PinPong.findOne({
             where: {
                 status: {
@@ -122,7 +154,21 @@ async function joinMatchmaking(userId) {
         if (!user) {
             return { error: 'User not found' };
         }   
+        const activeGame = await PinPong.findOne({
+            where: {
+                status: {
+                    [Op.not]: 'finished'  // Любой статус кроме 'finished'
+                },
+                [Op.or]: [
+                    { player1Id: userId },
+                    { player2Id: userId }
+                ]
+            }
+        });
 
+        if (activeGame) {
+            return { error: 'Cannot join matchmaking while in an active game' };
+        }
         if(mmQueue.has(userId)) {
             return { error: 'Already in matchmaking queue' };
         }

@@ -75,6 +75,11 @@ function handleMovePaddle(socket, data) {
     }
 }
 
+function handleLeaveQueue(socket) {
+    console.log(`User ${socket.user.id} left matchmaking queue for game ${gameId}`);
+    gameService.leaveMatchmaking(socket.user.id);
+}
+
 function initialize(io) {
     setInterval(() => {
         games.forEach((game, gameId) => {
@@ -91,6 +96,7 @@ function initialize(io) {
     }, 1000 / 60); // 60 FPS
     io.on('connection', function(socket) {
         socket.on('game:join', gameId => handleJoinGame(socket, gameId));
+        socket.on('mm:leave', gameId => handleLeaveQueue(socket, gameId));
         
     });
 }

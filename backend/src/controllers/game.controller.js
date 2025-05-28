@@ -75,6 +75,19 @@ const GameController = {
             return res.code(500).send({ error: 'Failed to leave matchmaking queue' });
         }
     },
+    // async leaveMatchmakingById(req, res) {
+    //     try {
+    //         const { userId } = req.params;
+    //         const result = await gameService.leaveMatchmaking(userId);
+    //         if (result.error) {
+    //             return res.code(400).send({ error: result.error });
+    //         }
+    //         return res.code(200).send({ message: result.message });
+    //     } catch (error) {
+    //         console.error('Error leaving matchmaking:', error);
+    //         return res.code(500).send({ error: 'Failed to leave matchmaking queue' });
+    //     }
+    // },
     // async updateGameStatus(req, res) {
     //     try {
     //         const { gameId } = req.params;
