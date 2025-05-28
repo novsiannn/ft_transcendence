@@ -235,4 +235,26 @@ async function defineWinner(duelId) {
     }
 }
 
-module.exports = { createDuel, finishDuel, joinMatchmaking, leaveMatchmaking, defineWinner, updateElo, updateDuelStatus, mmQueue, isUserInQueue };
+async function getDuelInfo(duelId) {
+    try {
+        const duel = await PinPong.findByPk(duelId);
+        if (!duel) {
+            return { error: 'Duel not found' };
+        }
+        
+        return { 
+            game: {
+                id: duel.id,
+                player1Id: duel.player1Id,
+                player2Id: duel.player2Id,
+                status: duel.status,
+                gameMode: duel.gameMode,
+            }
+        };
+    } catch (error) {
+        console.error('Error getting duel info:', error);
+        return { error: 'Failed to get duel info' };
+    }
+}
+
+module.exports = { createDuel, finishDuel, joinMatchmaking, leaveMatchmaking, defineWinner, updateElo, updateDuelStatus, mmQueue, isUserInQueue, getDuelInfo };

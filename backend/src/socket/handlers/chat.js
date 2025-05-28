@@ -4,19 +4,19 @@ const Message = require('../../../db/models/MessageModel');
 const Chat = require('../../../db/models/ChatModel');
 const { validateMessage, isUserAllowedToSendMessage } = require('../utils/chat.utils');
 
-function handleOpenChats(socket) {
+async function handleOpenChats(socket) {
     const userId = socket.user.id;
     socket.join('user_chats_' + userId);
     console.log(`User ${userId} joined user_chats_${userId}`);
 }
-function handleCloseChats(socket) {
+async function handleCloseChats(socket) {
     const userId = socket.user.id;
     socket.leave('user_chats_' + userId);
     console.log(`User ${userId} left user_chats_${userId}`);
 }
 
 
-function handleJoin(socket, chatId) {
+async function handleJoin(socket, chatId) {
     socket.join(`chat_${chatId}`);
     console.log(`User ${socket.user.id} joined chat ${chatId}`);
 }
@@ -67,12 +67,12 @@ async function handleSendMessage(socket, data) {
     }
 }
 
-function handleLeave(socket, chatId) {
+async function handleLeave(socket, chatId) {
     socket.leave(`chat_${chatId}`);
     console.log(`User ${socket.user.id} left chat ${chatId}`);
 }
 
-function initialize(io) {
+async function initialize(io) {
     io.on('connection', function (socket) {
         socket.on('chat:openChats', () => handleOpenChats(socket));
         socket.on('chat:closeChats', () => handleCloseChats(socket));
