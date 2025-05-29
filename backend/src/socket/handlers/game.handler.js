@@ -87,12 +87,13 @@ async function handleMovePaddle(socket, data) {
 
 async function handleLeaveQueue(socket, gameId) {
     const duel = await gameService.getDuelInfo(gameId);
+    userId = socket.user.id;
     const opponentId = duel.player1Id === userId ? duel.player2Id : duel.player1Id;
     gameService.leaveMatchmaking(opponentId);
     console.log(`User ${opponentId} left matchmaking queue for game ${gameId}`);
+    const game = games.get(gameId);
     if(duel)
         io.to(`mm_${opponentId}`).emit('mm:ready', game.getState());
-
     else
         socket.emit("game:error", { error: 'Duel not found' });
 }
