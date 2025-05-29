@@ -2,7 +2,7 @@ const { Server } = require('socket.io');
 const authMiddleware = require('./middleware/auth');
 const notificationHandler = require('./handlers/notification');
 const chatHandler = require('./handlers/chat');
-const gameHandler = requere('./handlers/game');
+const gameHandler = require('./handlers/game.handler');
 const userTracker = require('./utils/userTracker');
 
 function setupWebSockets(server) {
