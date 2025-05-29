@@ -2,7 +2,6 @@ const GameState = require('../utils/GameState');
 const gameService = require('../../services/game.service');
 
 const games = new Map();
-let io = null; 
 
 async function handleJoinQueue(socket) {
     socket.join(`mm_${socket.user.id}`);
