@@ -61,7 +61,10 @@
     "selectExistingChat": "Виберіть існуючий чат зі списку ліворуч або почніть нову розмову з другом.",
     "noMessagesStartConversation": "Поки що немає повідомлень. Почніть розмову!",
     "typeMessage": "Введіть своє повідомлення...",
-    "messages": "Повідомлення"
+    "messages": "Повідомлення",
+    "userBlockedYou": "Користувач заблокував вас",
+    "youBlockedUser": "Ви заблокували користувача",
+    "youAreNotFriends": "Ви більше не друзі!"
   },
   "notification": {
     "notifications": "Сповіщення",

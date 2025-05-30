@@ -61,7 +61,10 @@
     "selectExistingChat": "Wähle einen bestehenden Chat aus der Liste links aus oder starte eine neue Unterhaltung mit einem Freund.",
     "noMessagesStartConversation": "Noch keine Nachrichten. Starte eine Unterhaltung!",
     "typeMessage": "Geben Sie Ihre Nachricht ein …",
-    "messages": "Nachrichten"
+    "messages": "Nachrichten",
+    "userBlockedYou": "Der Benutzer hat dich blockiert",
+    "youBlockedUser": "Du hast den Benutzer blockiert",
+    "youAreNotFriends": "Ihr seid keine Freunde mehr!"
   },
   "notification": {
     "notifications": "Benachrichtigungen",
