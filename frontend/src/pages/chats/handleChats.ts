@@ -45,7 +45,10 @@ const messagesForChat = (chatMessages: Array<IMessage>): string => {
 
 export const getChatContent = (
   friend: IChatData,
-  chatMessages: Array<IMessage>
+  chatMessages: Array<IMessage>,
+  myBlockedUser: boolean,
+  userBlockedMe: boolean,
+  isFriend: boolean
 ) => {
   const color = getColorFromUsername(friend.username);
   const initials = friend.username.charAt(0).toUpperCase();
@@ -75,12 +78,22 @@ export const getChatContent = (
 
     <main class="w-full flex-1 overflow-y-auto overflow-hidden p-4 flex flex-col-reverse space-y-reverse space-y-2 bg-gray-50" id="chatMessagesContainer">
       ${
+        myBlockedUser
+          ? `<p class="text-center text-red-500 ">${i18next.t("chat.youBlockedUser")}</p>`
+          : userBlockedMe
+          ? `<p class="text-center text-red-500 ">${i18next.t("chat.userBlockedYou")}</p>`
+          : !isFriend
+          ? `<p class="text-center text-red-500 ">${i18next.t("chat.youAreNotFriends")}</p>`
+          : ""
+      }
+      ${
         chatMessages.length
           ? messagesHTML
           : `<div class="text-center text-gray-400">
                 ${i18next.t("chat.noMessagesYet")}
             </div>`
       }
+      
     </main>
 
     <footer class="px-4 py-3 w-full bg-white border-t border-gray-200">
@@ -150,6 +163,15 @@ export const refreshMessagesInChat = async ({
 export const handleOpenChat = async (chat: IChatData | undefined) => {
   const chatContainer =
     document.querySelector<HTMLDivElement>("#chatContainer");
+  const blockedUserIds = store.getUser().blockedUserIds;
+  const blockedByUserIds = store.getUser().blockedByUserIds;
+
+  const isFriend = store
+    .getAllFriends()
+    .some((user) => user.id === chat?.userId);
+
+  const myBlockedUsers = blockedUserIds.some((id) => id === chat!.userId);
+  const usersBlockedMe = blockedByUserIds.some((id) => id === chat!.userId);
 
   const chatMessages: Array<IMessage> = await store.getMessagesFromChat(
     chat!.id
@@ -195,7 +217,13 @@ export const handleOpenChat = async (chat: IChatData | undefined) => {
   document.addEventListener("click", currentOutsideClickHandler);
 
   if (chat) {
-    chatContainer!.innerHTML = getChatContent(chat, chatMessages);
+    chatContainer!.innerHTML = getChatContent(
+      chat,
+      chatMessages,
+      myBlockedUsers,
+      usersBlockedMe,
+      isFriend
+    );
     const messageInputValue =
       document.querySelector<HTMLInputElement>("#messageInputValue");
     const sendMessageBtn =
@@ -210,7 +238,8 @@ export const handleOpenChat = async (chat: IChatData | undefined) => {
       document.querySelector<HTMLButtonElement>(`#btnInviteUserInGame`);
 
     btnInviteUserInGame?.addEventListener("click", () => {
-      handleModalSuccess(`You invited ${chat.username} to play a Pong`);
+      if (!myBlockedUsers && !usersBlockedMe)
+        handleModalSuccess(`You invited ${chat.username} to play a Pong`);
     });
 
     profileUsernameInHeader?.addEventListener("click", () => {
@@ -221,7 +250,18 @@ export const handleOpenChat = async (chat: IChatData | undefined) => {
       navigateTo(`/profile/${chat.userId}`);
     });
 
+    if (myBlockedUsers || usersBlockedMe || !isFriend) {
+      console.log("here");
+      sendMessageBtn!.disabled = true;
+      sendMessageBtn!.classList.remove("bg-blue-600", "hover:bg-blue-600");
+      sendMessageBtn!.classList.add("bg-gray-400", "cursor-not-allowed");
+      return;
+    }
+
     sendMessageBtn?.addEventListener("click", async () => {
+      if (!messageInputValue!.value.trim()) {
+        return;
+      }
       socket!.emit("chat:sendMessage", {
         chatId: chat.id,
         receiverId: chat.userId,
@@ -291,7 +331,6 @@ export const handleChatsPage = async (
 
   if (!store.getChatsPageActive()) {
     socket?.emit("chat:openChats");
-    console.log("chats are open");
     store.setChatsPageActive(true);
   }
 

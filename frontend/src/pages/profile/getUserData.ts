@@ -13,6 +13,7 @@ import { BtnDelete } from "../../elements/BtnDelete";
 import { BtnUnblock } from "../../elements/BtnUnblock";
 import { BtnBlock } from "../../elements/BtnBlock";
 import { BtnUserBlockedYou } from "../../elements/BtnUserBlockedYou";
+import { socket } from "./../../websockets/client";
 
 const setProfileInfo = (user: IUser): void => {
   const elo = document.querySelector("#profileLvlContainer");
@@ -49,26 +50,38 @@ const handleBlockBtns = (userID: number): boolean => {
     return true;
   }
 
-  console.log(blockedUserIds);
-  console.log(blockedByUserIds);
-
-  console.log(myBlockedUsers);
-  console.log(usersBlockedMe);
-
   if (myBlockedUsers) {
     btnUnblockUser?.classList.remove("hidden");
     btnUnblockUser?.addEventListener("click", () => {
-      store.unblockUser(userID);
+      socket!.emit("user:unblock", { blockedUserId: userID });
     });
     return true;
   } else {
     btnBlockUser?.classList.remove("hidden");
     btnBlockUser?.addEventListener("click", () => {
-      store.blockUser(userID);
+      socket!.emit("user:block", { blockedUserId: userID });
     });
     return false;
   }
 };
+
+const hideInfo = () => {
+  const elo = document.querySelector("#profileLvlContainer");
+  const lvl = document.querySelector("#profileLvl");
+  const profileFriendsCount = document.querySelector("#profileFriends");
+  const totalGames = document.querySelector("#profileMatchesPlayed");
+  const profileMatchesWin = document.querySelector("#profileMatchesWin");
+  const profileMatchesLost = document.querySelector("#profileMatchesLost");
+  const profileWinrate = document.querySelector("#profileWinrate");
+
+  elo!.innerHTML = ``;
+  lvl!.innerHTML = ``;
+  profileFriendsCount!.innerHTML = ``;
+  totalGames!.innerHTML = ``;
+  profileMatchesWin!.innerHTML = ``;
+  profileMatchesLost!.innerHTML = ``;
+  profileWinrate!.innerHTML = ``;
+}
 
 export const refreshProfileBtnsBlock = async (el: IUser) => {
   const userNameElement = document.querySelector("#userNameProfile");
@@ -112,7 +125,10 @@ export const refreshProfileBtnsBlock = async (el: IUser) => {
 
   const isBlocked = handleBlockBtns(el.id);
 
-  if (isBlocked) return;
+  if (isBlocked) {
+    hideInfo();
+    return;
+  }
 
   friendsCount!.innerHTML = `${store.getUser().friendsCount}`;
 

@@ -7,6 +7,7 @@ import {
   IFriendshipResponseData,
 } from "../../shared";
 import { store } from "../../store/store";
+import { socket } from "../../websockets";
 import { refreshProfileBtnsBlock } from "../profile/getUserData";
 import { getEmptyBlock } from "./containersLayout";
 import { getFriendsBlock, getUsersBlock } from "./utils";
@@ -35,7 +36,8 @@ export const addFriend = async (
 export const cancelFriendshipRequest = async (
   id: number,
   cancelBtn: HTMLButtonElement | null,
-  requests: IFriendshipResponse[]
+  requests: IFriendshipResponse[],
+  user?: IUser
 ) => {
   const addBtn = document.getElementById(`btnAddFriend${id}`);
   cancelBtn!.innerHTML = getLoader();
@@ -49,6 +51,9 @@ export const cancelFriendshipRequest = async (
     addBtn!.classList.remove("hidden");
     cancelBtn!.innerHTML = "Cancel";
     store.getPendingFriendsRequests();
+    if (location.pathname.slice(0, 8) === "/profile" && user) {
+      refreshProfileBtnsBlock(user);
+    }
   } else if (result === 400) {
     console.log("some error occurred");
   }
@@ -71,8 +76,7 @@ export const deleteFriend = async (
     await store.getAllUsersRequest();
     await store.getAllFriendsRequest();
 
-    if(user)
-      user = findUser(user.id);
+    if (user) user = findUser(user.id);
 
     if (location.pathname === "/friends") rerenderFriendsPage();
     if (location.pathname.slice(0, 8) === "/profile" && user) {
@@ -143,6 +147,7 @@ export const rerenderFriendsPage = async (filteredUsers?: IUser[]) => {
     `;
   await store.getAllFriendsRequest();
   await store.getAllUsersRequest();
+  await store.getUserRequest();
 
   const responseAllFriends = store.getAllFriends();
   if (!filteredUsers) {
@@ -187,15 +192,29 @@ export const addBtnsListeners = (
   const btnReject = div.querySelector<HTMLButtonElement>("#btnRejectFriend");
   const btnAccept = div.querySelector<HTMLButtonElement>("#btnAcceptFriend");
   const btnDelete = div.querySelector<HTMLButtonElement>("#btnDeleteFriend");
+  const btnUserBlockedYou =
+    div.querySelector<HTMLButtonElement>("#btnUserBlockedYou");
+  const btnUnblockUser =
+    div.querySelector<HTMLButtonElement>("#btnUnblockUser");
+
   const cancelFriendRequest = div.querySelector<HTMLButtonElement>(
     "#btnCancelFriendRequest"
   );
+  const blockedUserIds = store.getUser().blockedUserIds;
+  const blockedByUserIds = store.getUser().blockedByUserIds;
+
+  const myBlockedUsers = blockedUserIds.some((id) => id === el.id);
+  const usersBlockedMe = blockedByUserIds.some((id) => id === el.id);
 
   if (btnAdd) btnAdd.id = `btnAddFriend${el.id}`;
   if (cancelFriendRequest)
     cancelFriendRequest.id = `btnCancelFriendRequest${el.id}`;
 
-  if (isFriend && btnDelete) {
+  if (myBlockedUsers) {
+    btnUnblockUser?.classList.remove("hidden");
+  } else if (usersBlockedMe) {
+    btnUserBlockedYou?.classList.remove("hidden");
+  } else if (isFriend && btnDelete) {
     btnDelete?.classList.remove("hidden");
   } else if (requestFriendshipReceived) {
     btnAccept?.classList.remove("hidden");
@@ -225,8 +244,13 @@ export const addBtnsListeners = (
     responseFriendshipSentUserId = await cancelFriendshipRequest(
       el.id,
       cancelFriendRequest,
-      responseFriendshipSentUserId.requests
+      responseFriendshipSentUserId.requests,
+      el
     );
+  });
+  btnUnblockUser?.addEventListener("click", async (e) => {
+    e.stopPropagation();
+    socket!.emit("user:unblock", { blockedUserId: el.id });
   });
   btnDelete?.addEventListener("click", async (e) => {
     e.stopPropagation();
