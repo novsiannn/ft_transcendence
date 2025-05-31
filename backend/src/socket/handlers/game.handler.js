@@ -3,7 +3,16 @@ const gameService = require('../../services/game.service');
 
 const games = new Map();
 
-function handleJoinGame(socket, gameId) {
+async function handleJoinQueue(socket) {
+    socket.join(`mm_${socket.user.id}`);
+    console.log(`User ${socket.user.id} joined matchmaking queue`);
+}
+// async function handleLeaveFromQueue(socket){
+//     socket.leave(`mm_${socket.user.id}`);
+//     console.log(`User ${socket.user.id} left matchmaking queue`);
+// }
+
+async function handleJoinGame(io, socket, gameId) {
     try {
         socket.join(`game_${gameId}`);
         console.log(`User ${socket.user.id} joined game ${gameId}`);
@@ -32,7 +41,7 @@ function handleJoinGame(socket, gameId) {
     }
 }
 
-function handleLeaveGame(socket, gameId){
+async function handleLeaveGame(socket, gameId){
     socket.leave(`game_${gameId}`);
     console.log(`User ${socket.user.id} left game ${gameId}`);
 
@@ -53,7 +62,7 @@ function handleStartGame(socket, gameId) {
     }
 }
 
-function handleRestartGame(socket, gameId) {
+async function handleRestartGame(socket, gameId) {
     const game = games.get(gameId);
     if (game) {
         game.restart();
@@ -64,7 +73,7 @@ function handleRestartGame(socket, gameId) {
     }
 }
 
-function handleMovePaddle(socket, data) {
+async function handleMovePaddle(socket, data) {
     const { gameId, playerId, direction } = data;
     const game = games.get(gameId);
     if (game) {
@@ -75,7 +84,19 @@ function handleMovePaddle(socket, data) {
     }
 }
 
-function initialize(io) {
+async function handleLeaveQueue(io, socket, gameId) {
+    const duel = gameService.getGameById(gameId);
+    if (!duel) {
+        socket.emit("game:error", { error: 'Game not found' });
+        return;
+    }
+    const opponentId = duel.player1Id === socket.user.id ? duel.player2Id : duel.player1Id;
+    gameService.leaveMatchmaking(opponentId);
+    console.log(`User ${opponentId} left matchmaking queue for game ${gameId}`);
+    io.to(`mm_${opponentId}`).emit('mm:ready', duel.getState());
+}
+
+async function initialize(io) {
     setInterval(() => {
         games.forEach((game, gameId) => {
             if (game.isRunning) {
@@ -88,9 +109,13 @@ function initialize(io) {
                 }
             }
         });
-    }, 1000 / 60); // 60 FPS
+    }, 1000 / 60); 
     io.on('connection', function(socket) {
-        socket.on('game:join', gameId => handleJoinGame(socket, gameId));
-        
+        socket.on('game:join', gameId => handleJoinGame(io, socket, gameId));
+        socket.on('mm:leave', gameId => handleLeaveQueue(io, socket, gameId));
+        socket.on('game:joinQueue', () => handleJoinQueue(socket));
+        socket.on('game:leaveQueue', () => handleLeaveFromQueue(socket));
     });
 }
+
+module.exports = { initialize };

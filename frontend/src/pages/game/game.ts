@@ -778,10 +778,12 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
             const response = await instanceAPI.post("/game/matchmaking", {
                 body: { },
             });
+			console.log(response);
             
             if(response.status === 200) {
                 timerDiv?.classList.remove("invisible");
                 timer();
+				socket?.emit('game:joinQueue');
                 startRankedMatchBtn?.classList.add("hidden");
                 cancelRankedMatchBtn?.classList.remove("hidden");
             }
@@ -800,6 +802,7 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
 
                 // Инициализируем мультиплеерную игру
                 const gameId = userResponseData.game.id.toString();
+
                 initMultiplayerGame(gameId);
 
                 allUsers.forEach((user) => {
