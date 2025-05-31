@@ -258,7 +258,7 @@ class Store {
     const response = await friendsService.sendFriendRequest(addresseeId);
 
     console.log(response);
-    
+
     if (response.status === 201) {
       handleModalSuccess("You have successfully sent a friend request");
       socket?.emit("notification:friendRequest", {
@@ -282,7 +282,7 @@ class Store {
     const response = await friendsService.cancelPendingFriendRequest(
       idFriendship
     );
-    
+
     if (response.status === 204) {
       handleModalSuccess("You have successfully cancelled a friend request");
     }
@@ -331,7 +331,7 @@ class Store {
 
   getAllNotifications = async () => {
     const response = await notificationService.getNotifications();
-    this.setNotification(response.data); 
+    this.setNotification(response.data);
     return response;
   };
 
@@ -348,9 +348,19 @@ class Store {
 
   readNotification = async () => {
     const response = await notificationService.readNotification();
-    if(response.status === 200){
+    if (response.status === 200) {
       await this.getAllNotifications();
     }
+  };
+
+  blockUser = async (userId: number) => {
+    const response = await friendsService.blockUser(userId);
+    console.log(response);
+  };
+
+  unblockUser = async (userId: number) => {
+    const response = await friendsService.unblockUser(userId);
+    console.log(response);
   };
 
   checkAuth = async () => {

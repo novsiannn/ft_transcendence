@@ -9,10 +9,8 @@ export const refreshNotifications = async () => {
   await store.getAllNotifications();
 
   if (dropdownMenuNotification) {
-    dropdownMenuNotification.innerHTML = `<div class="p-3 font-bold border-b border-gray-500">
-                <p>Notifications</p>
-              </div>`;
-    dropdownMenuNotification.innerHTML += getNotificationLayout();
+    // dropdownMenuNotification.innerHTML = ``;
+    dropdownMenuNotification!.innerHTML = getNotificationLayout();
     attachNotificationListeners();
   }
 };
@@ -20,10 +18,14 @@ export const refreshNotifications = async () => {
 const getNotificationLayout = (): string => {
   const notificationsData = store.getNotification();
   if (!notificationsData?.notifications.length) {
-    return `<ul class="text-white"><li><a class="block px-4 py-2 hover:bg-gray-700 text-xs">Don't worry if you don't have any new notifications, we're all in this together!</a></li></ul>`;
+    return `<div class="p-3 font-bold border-b border-gray-500">
+                <p sentYouFriendRequest data-i18n="notification.notifications">Notifications</p>
+              </div><ul class="text-white"><li><a class="block px-4 py-2 hover:bg-gray-700 text-xs">Don't worry if you don't have any new notifications, we're all in this together!</a></li></ul>`;
   }
 
-  let allNotifications: string = "";
+  let allNotifications: string = `<div class="p-3 font-bold border-b border-gray-500">
+                <p sentYouFriendRequest data-i18n="notification.notifications">Notifications</p>
+              </div>`;
 
   notificationsData.notifications.forEach((n) => {
     const time = new Date(n.createdAt).toLocaleString();
@@ -34,10 +36,10 @@ const getNotificationLayout = (): string => {
 
     switch (n.type) {
       case "friend_accepted":
-        notificationContent = " has accepted the friendship invite.";
+        notificationContent = `<p data-i18n='notification.hasAcceptedFriendShip' ></p>`;
         break;
       case "friend_request":
-        notificationContent = " sent you a friend request.";
+        notificationContent = `<p data-i18n='notification.sentYouFriendRequest' ></p>`;
         break;
 
       default:
@@ -118,9 +120,7 @@ const getProfileIcon = (): string => {
           notificastions?.hasUnread ? "" : "invisible"
         } animate-bounce absolute top-1 right-2 translate-x-1/2 -translate-y-1/2 w-2.5 h-2.5 bg-red-500 rounded-full"></span>
         <div id="dropdownMenuNotification" class="hidden p-1 top-full mt-1 right-0 absolute w-80 bg-gray-800 border border-gray-200 rounded-lg shadow-lg z-50">
-              <div class="p-3 font-bold border-b border-gray-500">
-                <p>Notifications</p>
-              </div>
+              
               ${getNotificationLayout()}
         </div>
       </div>

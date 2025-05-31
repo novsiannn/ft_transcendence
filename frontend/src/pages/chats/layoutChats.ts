@@ -1,3 +1,5 @@
+import i18next from "i18next";
+import { getModalWindowSuccess } from "../../elements/ModalSuccess";
 import { navigation } from "../../elements/navigation";
 import { SearchBar } from "../../elements/SearchBar";
 import { Select } from "../../elements/Select";
@@ -10,7 +12,7 @@ export function chatsPage(mainWrapper: HTMLDivElement | undefined) {
     ${navigation()}
     <div class="flex flex-1 w-full overflow-hidden font-sans" id="chatsPage">
       <div class="flex flex-col bg-gray-200 w-1/4 text-left border-r border-gray-300">
-        <p class="ml-4 mt-2 text-xl font-semibold select-none cursor-default" id="allMessagesString">Messages</p>
+        <p class="ml-4 mt-2 text-xl font-semibold select-none cursor-default" id="allMessagesString">${i18next.t("chat.messages")}</p>
         <div class="flex flex-col border-b border-gray-300" id="messagesSelectorWrapper" >
           ${SearchBar('chat.searchChats', 'searchInputChatsPage')}
           ${Select(1)}
@@ -31,16 +33,15 @@ export function chatsPage(mainWrapper: HTMLDivElement | undefined) {
                 </svg>
               </div>
             </div>
-            <h2 class="text-xl font-semibold text-gray-800 mb-2">Start a chat</h2>
-            <p class="text-gray-500 mb-6">
-              Select an existing chat from the list on the left or<br />
-              start a new conversation with a friend.
+            <h2 class="text-xl font-semibold text-gray-800 mb-2" data-i18n="chat.startChat" ></h2>
+            <p class="text-gray-500 mb-6" data-i18n="chat.selectExistingChat"> 
             </p>
-            ${Select(2)}
+            ${Select(2, 'chat.startChat')}
           </div>
         </div>
       </div>
-    </div>`;
+    </div>
+    ${getModalWindowSuccess()}`;
 
   return res;
 }

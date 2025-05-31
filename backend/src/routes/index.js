@@ -335,6 +335,14 @@ async function routes(fastify, options) {
                 winrate: { type: 'integer' },
                 totalGames: { type: 'integer' },
                 wonGames: { type: 'integer' },
+                blockedUserIds: { 
+                  type: 'array',
+                  items: { type: 'integer' }
+                },
+                blockedByUserIds: { 
+                  type: 'array',
+                  items: { type: 'integer' }
+                },
                 friendsCount: { type: 'integer' },
               }
             }
@@ -452,6 +460,14 @@ async function routes(fastify, options) {
               winrate: { type: 'integer' },
               totalGames: { type: 'integer' },
               wonGames: { type: 'integer' },
+              blockedUserIds: { 
+                type: 'array',
+                items: { type: 'integer' }
+              },
+              blockedByUserIds: { 
+                type: 'array',
+                items: { type: 'integer' }
+              },
               friendsCount: { type: 'integer' },
             }
           }

@@ -4,6 +4,7 @@ import { getColorFromUsername } from "../../shared/randomColors";
 import { navigateTo } from "../../routing";
 import { socket } from "../../websockets";
 import { leaveFromChat } from ".";
+import i18next from "i18next";
 
 export const renderAllChats = (allChats: IChatData[]) => {
   const allChatsContainer =
@@ -44,7 +45,7 @@ export const renderAllChats = (allChats: IChatData[]) => {
             ${chat.username.length > 30 ? `...`: ''}
           </span>
           <span class="text-gray-500 text-sm truncate max-w-xs" id="lastMessage">
-            ${chat.message.content.trim().slice(0,35) || "No messages yet"}
+            ${chat.message.content.trim().slice(0,35) || i18next.t("chat.noMessagesYet")}
             ${chat.message.content.trim().length > 35 ? `...`: ''}
           </span>
         </div>

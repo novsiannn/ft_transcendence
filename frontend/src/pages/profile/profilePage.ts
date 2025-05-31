@@ -1,8 +1,10 @@
 import { BtnAccept } from "../../elements/BtnAccept";
 import { BtnAdd } from "../../elements/BtnAdd";
+import { BtnBlock } from "../../elements/BtnBlock";
 import { BtnCancel } from "../../elements/BtnCancel";
 import { BtnDelete } from "../../elements/BtnDelete";
 import { BtnReject } from "../../elements/BtnReject";
+import { BtnUnblock } from "../../elements/BtnUnblock";
 import { getModalWindowSuccess } from "../../elements/ModalSuccess";
 import { navigation } from "../../elements/navigation";
 
@@ -22,11 +24,7 @@ export function profilePage(mainWrapper: HTMLDivElement | undefined) {
                 <p class="text-gray-500 font-bold text-md" id="profileElo"></p>
             </div>
             <div class="flex gap-2 items-center ml-2" id="profileButtonsContainer">
-                      ${BtnCancel()}
-                      ${BtnAdd()}
-                      ${BtnAccept()}
-                      ${BtnReject()}
-                      ${BtnDelete()}
+                      
             </div>
         </div>
         
@@ -43,15 +41,15 @@ export function profilePage(mainWrapper: HTMLDivElement | undefined) {
         <div class=" mx-auto flex justify-between items-stretch mt-6 text-gray-700 font-semibold">
             <div class="flex-1 text-center h-full">
                 <p class="text-2xl" id="profileLvl"></p>
-                <p class="text-sm">Level</p>
+                <p class="text-sm" data-i18n='profile.level'></p>
             </div>
             <div class="flex-1 text-center h-full">
-                <p class="text-2xl" id="profileFriends">0</p>
-                <p class="text-sm">Friends</p>
+                <p class="text-2xl" id="profileFriends"></p>
+                <p class="text-sm" data-i18n='profile.friends'></p>
             </div>
             <div class="flex-1 text-center h-full">
                 <p class="text-2xl" id="profileMatchesPlayed"></p>
-                <p class="text-sm">Matches played</p>
+                <p class="text-sm" data-i18n='profile.matchesPlayed'></p>
             </div>
         </div>
       </div>
@@ -61,17 +59,17 @@ export function profilePage(mainWrapper: HTMLDivElement | undefined) {
         <div class="w-full mx-auto flex gap-4 justify-between text-center text-gray-700 font-semibold">
           <div class="bg-gray-100 w-full rounded-xl py-3">
             <p class="text-green-500 text-2xl" id="profileMatchesWin"></p>
-            <p class="text-sm text-gray-500">Wins</p>
+            <p class="text-sm text-gray-500" data-i18n='profile.wins'></p>
           </div>
           <div class="bg-gray-100 w-full rounded-xl py-3">
             <p class="text-red-600 text-2xl" id="profileMatchesLost"></p>
-            <p class="text-sm text-gray-500">Losses</p>
+            <p class="text-sm text-gray-500" data-i18n='profile.losses'></p>
           </div>
         </div>
 
         <div class="mt-4 text-center w-full bg-gray-100 py-3 rounded-xl">
           <p class="text-black font-bold text-md" id="profileWinrate"></p>
-          <p class="text-sm text-gray-500">Win Rate</p>
+          <p class="text-sm text-gray-500" data-i18n='profile.winRate'></p>
         </div>
       </div>
     </div>

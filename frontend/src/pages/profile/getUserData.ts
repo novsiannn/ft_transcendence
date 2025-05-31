@@ -10,6 +10,10 @@ import { BtnAdd } from "../../elements/BtnAdd";
 import { BtnCancel } from "../../elements/BtnCancel";
 import { BtnReject } from "../../elements/BtnReject";
 import { BtnDelete } from "../../elements/BtnDelete";
+import { BtnUnblock } from "../../elements/BtnUnblock";
+import { BtnBlock } from "../../elements/BtnBlock";
+import { BtnUserBlockedYou } from "../../elements/BtnUserBlockedYou";
+import { socket } from "./../../websockets/client";
 
 const setProfileInfo = (user: IUser): void => {
   const elo = document.querySelector("#profileLvlContainer");
@@ -31,6 +35,54 @@ const setProfileInfo = (user: IUser): void => {
   profileWinrate!.innerHTML = `${user.winrate}%`;
 };
 
+const handleBlockBtns = (userID: number): boolean => {
+  const blockedUserIds = store.getUser().blockedUserIds;
+  const blockedByUserIds = store.getUser().blockedByUserIds;
+  const btnBlockUser = document.querySelector("#btnBlockUser");
+  const btnUnblockUser = document.querySelector("#btnUnblockUser");
+  const btnUserBlockedYou = document.querySelector("#btnUserBlockedYou");
+
+  const myBlockedUsers = blockedUserIds.some((el) => el === userID);
+  const usersBlockedMe = blockedByUserIds.some((el) => el === userID);
+
+  if (usersBlockedMe) {
+    btnUserBlockedYou?.classList.remove("hidden");
+    return true;
+  }
+
+  if (myBlockedUsers) {
+    btnUnblockUser?.classList.remove("hidden");
+    btnUnblockUser?.addEventListener("click", () => {
+      socket!.emit("user:unblock", { blockedUserId: userID });
+    });
+    return true;
+  } else {
+    btnBlockUser?.classList.remove("hidden");
+    btnBlockUser?.addEventListener("click", () => {
+      socket!.emit("user:block", { blockedUserId: userID });
+    });
+    return false;
+  }
+};
+
+const hideInfo = () => {
+  const elo = document.querySelector("#profileLvlContainer");
+  const lvl = document.querySelector("#profileLvl");
+  const profileFriendsCount = document.querySelector("#profileFriends");
+  const totalGames = document.querySelector("#profileMatchesPlayed");
+  const profileMatchesWin = document.querySelector("#profileMatchesWin");
+  const profileMatchesLost = document.querySelector("#profileMatchesLost");
+  const profileWinrate = document.querySelector("#profileWinrate");
+
+  elo!.innerHTML = ``;
+  lvl!.innerHTML = ``;
+  profileFriendsCount!.innerHTML = ``;
+  totalGames!.innerHTML = ``;
+  profileMatchesWin!.innerHTML = ``;
+  profileMatchesLost!.innerHTML = ``;
+  profileWinrate!.innerHTML = ``;
+}
+
 export const refreshProfileBtnsBlock = async (el: IUser) => {
   const userNameElement = document.querySelector("#userNameProfile");
   const avatarImg = document.querySelector<HTMLImageElement>("#profileImg");
@@ -46,17 +98,6 @@ export const refreshProfileBtnsBlock = async (el: IUser) => {
     "#profileButtonsContainer"
   );
 
-  console.log(store.getUser().friendsCount);
-  
-  console.log('im here');
-  
-  friendsCount!.innerHTML = `${store.getUser().friendsCount}`
-
-  profileBtnsContainer!.innerHTML = BtnAccept() + BtnAdd() + BtnCancel() + BtnReject() + BtnDelete();
-
-  el.username
-    ? (userNameElement!.textContent = el.username)
-    : (userNameElement!.textContent = "Username");
   if (hasAvatar) {
     avatarImg!.src = API_URL + el.avatar;
     emptyPhoto?.classList.toggle("hidden", hasAvatar);
@@ -67,6 +108,30 @@ export const refreshProfileBtnsBlock = async (el: IUser) => {
     emptyPhoto?.classList.add(color);
     emptyPhoto!.innerHTML = `<p>${firstLetterOfUser}</p>`;
   }
+
+  el.username
+    ? (userNameElement!.textContent = el.username)
+    : (userNameElement!.textContent = "Username");
+
+  profileBtnsContainer!.innerHTML =
+    BtnAccept() +
+    BtnAdd() +
+    BtnCancel() +
+    BtnReject() +
+    BtnDelete() +
+    BtnBlock() +
+    BtnUnblock() +
+    BtnUserBlockedYou();
+
+  const isBlocked = handleBlockBtns(el.id);
+
+  if (isBlocked) {
+    hideInfo();
+    return;
+  }
+
+  friendsCount!.innerHTML = `${store.getUser().friendsCount}`;
+
   setProfileInfo(el);
   if (profileBtnsContainer)
     addBtnsListeners(

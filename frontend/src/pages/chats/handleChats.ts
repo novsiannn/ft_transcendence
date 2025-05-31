@@ -6,6 +6,9 @@ import { store } from "../../store/store";
 import { renderAllChats } from "./allChats";
 import { API_URL } from "../../store/store";
 import { navigateTo } from "../../routing";
+import { BtnInviteInGame } from "../../elements/BtnInviteInGame";
+import { handleModalSuccess } from "../../elements/ModalSuccess";
+import i18next from "i18next";
 
 let currentOutsideClickHandler: ((event: MouseEvent) => void) | null = null;
 
@@ -42,7 +45,10 @@ const messagesForChat = (chatMessages: Array<IMessage>): string => {
 
 export const getChatContent = (
   friend: IChatData,
-  chatMessages: Array<IMessage>
+  chatMessages: Array<IMessage>,
+  myBlockedUser: boolean,
+  userBlockedMe: boolean,
+  isFriend: boolean
 ) => {
   const color = getColorFromUsername(friend.username);
   const initials = friend.username.charAt(0).toUpperCase();
@@ -50,34 +56,51 @@ export const getChatContent = (
   const messagesHTML = messagesForChat(chatMessages);
 
   return `
-    <header class="flex w-full items-center px-4 py-3 bg-white border-b border-gray-200">
+    <header class="flex w-full justify-between items-center px-4 py-3 bg-white border-b border-gray-200">
       <div class="flex items-center space-x-3">
         ${
           friend.avatar
-            ? `<img src="${
+            ? `<img id="profilePhotoInHeader${friend.userId}" src="${
                 API_URL + friend.avatar
               }" alt="Profile" class="w-12 h-12 rounded-full object-cover" />`
-            : `<div class="w-12 h-12 rounded-full flex items-center justify-center ${color} text-white font-bold">${initials}</div>`
+            : `<div id="profilePhotoInHeader${friend.userId}" class="w-12 h-12 cursor-pointer rounded-full flex items-center justify-center ${color} text-white font-bold">${initials}</div>`
         }
         <div class="flex flex-col">
-          <span class="text-gray-900 font-semibold">${friend.username}</span>
+          <span  id="profileUsername${
+            friend.userId
+          }" class="text-gray-900 font-semibold cursor-pointer">${
+    friend.username
+  }</span>
         </div>
       </div>
+      ${BtnInviteInGame()}
     </header>
 
     <main class="w-full flex-1 overflow-y-auto overflow-hidden p-4 flex flex-col-reverse space-y-reverse space-y-2 bg-gray-50" id="chatMessagesContainer">
       ${
+        myBlockedUser
+          ? `<p class="text-center text-red-500 ">${i18next.t("chat.youBlockedUser")}</p>`
+          : userBlockedMe
+          ? `<p class="text-center text-red-500 ">${i18next.t("chat.userBlockedYou")}</p>`
+          : !isFriend
+          ? `<p class="text-center text-red-500 ">${i18next.t("chat.youAreNotFriends")}</p>`
+          : ""
+      }
+      ${
         chatMessages.length
           ? messagesHTML
-          : `<div class="text-center text-gray-400">No messages yet. Start a conversation!</div>`
+          : `<div class="text-center text-gray-400">
+                ${i18next.t("chat.noMessagesYet")}
+            </div>`
       }
+      
     </main>
 
     <footer class="px-4 py-3 w-full bg-white border-t border-gray-200">
       <div class="flex items-center space-x-2">
         <input
           type="text"
-          placeholder="Type your message..."
+          placeholder='${i18next.t("chat.typeMessage")}'
           class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
           id="messageInputValue"
         />
@@ -140,6 +163,15 @@ export const refreshMessagesInChat = async ({
 export const handleOpenChat = async (chat: IChatData | undefined) => {
   const chatContainer =
     document.querySelector<HTMLDivElement>("#chatContainer");
+  const blockedUserIds = store.getUser().blockedUserIds;
+  const blockedByUserIds = store.getUser().blockedByUserIds;
+
+  const isFriend = store
+    .getAllFriends()
+    .some((user) => user.id === chat?.userId);
+
+  const myBlockedUsers = blockedUserIds.some((id) => id === chat!.userId);
+  const usersBlockedMe = blockedByUserIds.some((id) => id === chat!.userId);
 
   const chatMessages: Array<IMessage> = await store.getMessagesFromChat(
     chat!.id
@@ -155,10 +187,7 @@ export const handleOpenChat = async (chat: IChatData | undefined) => {
     const allChatsContainer =
       document.querySelector<HTMLDivElement>("#allChatsContainer");
     const chatsPage = document.querySelector<HTMLDivElement>("#chatsPage");
-    const imgLogoNavi =
-      document.querySelector<HTMLDivElement>("#imgLogoWrapper");
-    const dropdownMenu =
-      document.querySelector<HTMLDivElement>("#dropdownMenu");
+
     const chatContainer =
       document.querySelector<HTMLDivElement>("#chatContainer");
     const chatNumber = document.querySelector<HTMLDivElement>(
@@ -188,13 +217,51 @@ export const handleOpenChat = async (chat: IChatData | undefined) => {
   document.addEventListener("click", currentOutsideClickHandler);
 
   if (chat) {
-    chatContainer!.innerHTML = getChatContent(chat, chatMessages);
+    chatContainer!.innerHTML = getChatContent(
+      chat,
+      chatMessages,
+      myBlockedUsers,
+      usersBlockedMe,
+      isFriend
+    );
     const messageInputValue =
       document.querySelector<HTMLInputElement>("#messageInputValue");
     const sendMessageBtn =
       document.querySelector<HTMLButtonElement>("#sendMessageBtn");
+    const profileUsernameInHeader = document.querySelector<HTMLButtonElement>(
+      `#profileUsername${chat.userId}`
+    );
+    const profilePhotoInHeader = document.querySelector<HTMLButtonElement>(
+      `#profilePhotoInHeader${chat.userId}`
+    );
+    const btnInviteUserInGame =
+      document.querySelector<HTMLButtonElement>(`#btnInviteUserInGame`);
+
+    btnInviteUserInGame?.addEventListener("click", () => {
+      if (!myBlockedUsers && !usersBlockedMe)
+        handleModalSuccess(`You invited ${chat.username} to play a Pong`);
+    });
+
+    profileUsernameInHeader?.addEventListener("click", () => {
+      navigateTo(`/profile/${chat.userId}`);
+    });
+
+    profilePhotoInHeader?.addEventListener("click", () => {
+      navigateTo(`/profile/${chat.userId}`);
+    });
+
+    if (myBlockedUsers || usersBlockedMe || !isFriend) {
+      console.log("here");
+      sendMessageBtn!.disabled = true;
+      sendMessageBtn!.classList.remove("bg-blue-600", "hover:bg-blue-600");
+      sendMessageBtn!.classList.add("bg-gray-400", "cursor-not-allowed");
+      return;
+    }
 
     sendMessageBtn?.addEventListener("click", async () => {
+      if (!messageInputValue!.value.trim()) {
+        return;
+      }
       socket!.emit("chat:sendMessage", {
         chatId: chat.id,
         receiverId: chat.userId,
@@ -222,13 +289,15 @@ export const handleOpenChat = async (chat: IChatData | undefined) => {
 };
 
 export const notifyUserNewMessage = (chatID: number) => {
-  const chatBlock = document.querySelector<HTMLDivElement>(`#chatNumber${chatID}`);
-  
+  const chatBlock = document.querySelector<HTMLDivElement>(
+    `#chatNumber${chatID}`
+  );
+
   if (chatBlock) {
-    chatBlock.classList.add('bg-green-200');
+    chatBlock.classList.add("bg-green-200");
 
     setTimeout(() => {
-      chatBlock.classList.remove('bg-green-200');
+      chatBlock.classList.remove("bg-green-200");
     }, 1500);
   }
 };
@@ -260,9 +329,8 @@ export const handleChatsPage = async (
     "#searchInputChatsPage"
   );
 
-  if(!store.getChatsPageActive()){
+  if (!store.getChatsPageActive()) {
     socket?.emit("chat:openChats");
-    console.log('chats are open');
     store.setChatsPageActive(true);
   }
 
@@ -295,7 +363,7 @@ export const handleChatsPage = async (
     const target = select as HTMLSelectElement;
     select.addEventListener("change", async () => {
       await store.createNewChat(target.value);
-      allChats = await store.getAllChats();      
+      allChats = await store.getAllChats();
       renderAllChats(allChats);
     });
   });

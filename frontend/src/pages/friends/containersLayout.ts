@@ -2,6 +2,8 @@ import { BtnAccept } from "../../elements/BtnAccept";
 import { BtnAdd } from "../../elements/BtnAdd";
 import { BtnCancel } from "../../elements/BtnCancel";
 import { BtnReject } from "../../elements/BtnReject";
+import { BtnUnblock } from "../../elements/BtnUnblock";
+import { BtnUserBlockedYou } from "../../elements/BtnUserBlockedYou";
 import { getColorFromUsername } from "../../shared/randomColors";
 import { API_URL } from "../../store/store";
 
@@ -66,6 +68,8 @@ export const getUserLayout = (username: string, avatar: string) => {
 		  ${BtnAdd()}
 		  ${BtnAccept()}
 		  ${BtnReject()}
+		  ${BtnUnblock()}
+		  ${BtnUserBlockedYou()}
 	</div>
   </div>
   `;
