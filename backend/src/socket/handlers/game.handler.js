@@ -7,10 +7,10 @@ async function handleJoinQueue(socket) {
     socket.join(`mm_${socket.user.id}`);
     console.log(`User ${socket.user.id} joined matchmaking queue`);
 }
-// async function handleLeaveFromQueue(socket){
-//     socket.leave(`mm_${socket.user.id}`);
-//     console.log(`User ${socket.user.id} left matchmaking queue`);
-// }
+async function handleLeaveFromQueue(socket){
+    socket.leave(`mm_${socket.user.id}`);
+    console.log(`User ${socket.user.id} left matchmaking queue`);
+}
 
 async function handleJoinGame(io, socket, gameId) {
     try {
@@ -85,15 +85,16 @@ async function handleMovePaddle(socket, data) {
 }
 
 async function handleLeaveQueue(io, socket, gameId) {
-    const duel = gameService.getGameById(gameId);
+    const duel = await gameService.getDuelInfo(gameId);
     if (!duel) {
         socket.emit("game:error", { error: 'Game not found' });
         return;
     }
-    const opponentId = duel.player1Id === socket.user.id ? duel.player2Id : duel.player1Id;
-    gameService.leaveMatchmaking(opponentId);
+    // const opponentId = duel.player1Id === socket.user.id ? duel.player2Id : duel.player1Id;
+    const opponentId = duel.game.player1Id === socket.user.id ? duel.game.player2Id : duel.game.player1Id;
+    await gameService.leaveMatchmaking(opponentId);
     console.log(`User ${opponentId} left matchmaking queue for game ${gameId}`);
-    io.to(`mm_${opponentId}`).emit('mm:ready', duel.getState());
+    io.to(`mm_${opponentId}`).emit('mm:ready', duel);
 }
 
 async function initialize(io) {
