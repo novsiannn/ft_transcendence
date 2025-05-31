@@ -1,12 +1,30 @@
 import { handleModalError } from "../../elements";
 import { navigationHandle } from "../../elements/navigation";
 import { tournamentPlayerData, rankedPlayerData, tournamentPlayerProfiles, rankedPlayerProfiles } from "./playersProfiles";
-import { API_URL, store } from "../../store/store";
+import { API_URL, store} from "../../store/store";
 import instanceAPI from "../../services/api/instanceAxios";
 import { getColorFromUsername } from "../../shared/randomColors";
-import { GameHandlerI, GameStateI } from './gameModeI';
-import { LocalGameHandler } from './localGameHandler';
-import { MultiplayerGameHandler } from './multiplayerGameHandler';
+import { 
+    socket, 
+    joinGame, 
+    movePaddle, 
+    startGame as startWebSocketGame, 
+    leaveGame,
+    onGameReady,
+    onGameUpdate,
+    onGameStart,
+    onGameFinished,
+    onGameError,
+    clearGameCallbacks
+} from "../../websockets/client";
+
+// Local interface for game state
+interface GameState {
+    ball: { x: number; y: number };
+    paddles: { [key: string]: { x: number; y: number; score: number } };
+    isRunning: boolean;
+    winner?: string | number;
+}
 
 export function handleGame(mainWrapper: HTMLDivElement | undefined) {
     navigationHandle();
@@ -21,7 +39,6 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
     let gameStartedOnce = false;
 
     // Игровые переменные для режимов
-    let currentGameHandler: GameHandlerI | null = null;
     let gameMode: 'local' | 'multiplayer' | null = null;
     let currentGameId: string | null = null;
 
@@ -94,7 +111,7 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
     }
 
     // УНИФИЦИРОВАННЫЕ ФУНКЦИИ ОТРИСОВКИ
-    function renderGame(gameState: GameStateI) {
+    function renderGame(gameState: GameState) {
         // Обновляем локальные переменные из gameState
         ball.x = gameState.ball.x;
         ball.y = gameState.ball.y;
@@ -222,23 +239,11 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
         gameMode = 'local';
         cleanupCurrentGame();
         
-        currentGameHandler = new LocalGameHandler();
-        
-        currentGameHandler.onGameUpdate((gameState: GameStateI) => {
-            renderGame(gameState);
-        });
-        
-        currentGameHandler.onGameEnd((result: any) => {
-            console.log('Tournament game ended:', result);
-            handleGameOver();
-        });
-        
-        currentGameHandler.initGame();
         scoreInfo!.classList.remove('hidden');
         
-        // Запускаем игру сразу для турнира
+        // Start local tournament game directly
         setTimeout(() => {
-            currentGameHandler?.startGame();
+            startActualGame();
         }, 1000);
     }
 
@@ -248,26 +253,53 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
         currentGameId = gameId;
         cleanupCurrentGame();
         
-        currentGameHandler = new MultiplayerGameHandler();
-        
-        currentGameHandler.onGameUpdate((gameState: GameStateI) => {
-            renderGame(gameState);
+        // Setup WebSocket listeners directly
+        socket?.emit('game:join', gameId);
+        socket?.emit('mm:leave', gameId);
+
+        onGameReady((gameState) => {
+            console.log('Multiplayer game ready:', gameState);
+            renderGame({
+                ...gameState,
+                winner: gameState.winner !== undefined ? gameState.winner.toString() : undefined
+            });
         });
         
-        currentGameHandler.onGameEnd((result: any) => {
+        onGameUpdate((gameState) => {
+            renderGame({
+                ...gameState,
+                winner: gameState.winner !== undefined ? gameState.winner.toString() : undefined
+            });
+        });
+        
+        onGameStart((gameState) => {
+            console.log('Game started', gameState);
+            renderGame({
+                ...gameState,
+                winner: gameState.winner !== undefined ? gameState.winner.toString() : undefined
+            });
+        });
+        
+        onGameFinished((result: any) => {
             console.log('Multiplayer game ended:', result);
             handleGameOver();
         });
+
+        onGameError((error) => {
+            console.error('Game error', error);
+        });
         
-        currentGameHandler.initGame({ gameId });
+        // Join the game
+        joinGame(gameId);
         scoreInfo!.classList.remove('hidden');
     }
 
     function cleanupCurrentGame() {
-        if (currentGameHandler) {
-            currentGameHandler.cleanup();
-            currentGameHandler = null;
+        if (currentGameId) {
+            leaveGame(currentGameId);
         }
+        clearGameCallbacks();
+        currentGameId = null;
         
         clearInterval(intervalID);
         window.removeEventListener("keydown", handleKeyDown);
@@ -380,6 +412,15 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
     function handleKeyDown(ev: KeyboardEvent) {
         const key = ev.key.toLowerCase();
         keys.add(key);
+        
+        // Send paddle movement for multiplayer games
+        if (gameMode === 'multiplayer' && currentGameId) {
+            if (key === 'w' || key === 'arrowup') {
+                movePaddle(currentGameId, 'up');
+            } else if (key === 's' || key === 'arrowdown') {
+                movePaddle(currentGameId, 'down');
+            }
+        }
     }
     
     function handleKeyUp(ev: KeyboardEvent) {
@@ -793,6 +834,7 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
             if(response.status === 200) {
                 if (rankedTimerInterval) clearInterval(rankedTimerInterval);
                 timerDiv?.classList.add("invisible");
+				socket?.emit('game:leaveQueue');
                 console.log("Match Canceled", response.status);
                 cancelRankedMatchBtn?.classList.add("hidden");
                 startRankedMatchBtn?.classList.remove("hidden");

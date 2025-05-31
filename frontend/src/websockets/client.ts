@@ -25,6 +25,7 @@ let gameCallbacks: {
   onGameStart?: (gameState: GameState) => void;
   onGameFinished?: (data: any) => void;
   onGameError?: (error: any) => void;
+  onMatchFound?: (data: any) => void;
 } = {};
 
 export function initializeSocket(): Socket | null {
@@ -105,12 +106,6 @@ export function initializeSocket(): Socket | null {
     );
   });
   //GAME HANDLERS
-    socket.on("game:ready", (gameState: GameState) => {
-    console.log("Game is ready!", gameState);
-    if (gameCallbacks.onGameReady) {
-      gameCallbacks.onGameReady(gameState);
-    }
-  });
 
   socket.on("game:update", (gameState: GameState) => {
     if (gameCallbacks.onGameUpdate) {
