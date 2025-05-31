@@ -107,6 +107,13 @@ export function initializeSocket(): Socket | null {
   });
   //GAME HANDLERS
 
+  socket.on("mm:ready", (gameState: GameState) => {
+    console.log("Game ready!", gameState);
+    if (gameCallbacks.onGameReady) {
+      gameCallbacks.onGameReady(gameState);
+    }
+  });
+
   socket.on("game:update", (gameState: GameState) => {
     if (gameCallbacks.onGameUpdate) {
       gameCallbacks.onGameUpdate(gameState);
