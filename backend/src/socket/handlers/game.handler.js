@@ -24,6 +24,7 @@ async function handleJoinGame(io, socket, gameId) {
                 const socketsInRoom = Array.from(room);
                 gameState = new GameState(socketsInRoom[0], socketsInRoom[1]);
                 games.set(gameId, gameState);
+                setTimer(io, gameId);
                 io.to(`game_${gameId}`).emit('game:ready', gameState.getState());
             }
         }
@@ -41,46 +42,57 @@ async function handleJoinGame(io, socket, gameId) {
     }
 }
 
-async function handleLeaveGame(socket, gameId){
-    socket.leave(`game_${gameId}`);
-    console.log(`User ${socket.user.id} left game ${gameId}`);
-
-    const game = games.get(gameId)
-    if (game) {
-        io.to(`game_${gameId}`).emit('game:finished', { message: 'Game finished' });
+async function setTimer(io, gameId)
+{
+    const seconds = 10; 
+    while(seconds > 0) {
+        io.to(`game_${gameId}`).emit('game:timer', { seconds });
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        seconds--;
     }
 }
 
+// async function handleLeaveGame(io, socket, gameId){
+//     socket.leave(`game_${gameId}`);
+//     console.log(`User ${socket.user.id} left game ${gameId}`);
 
-function handleStartGame(socket, gameId) {
-    const game = games.get(gameId);
-    if (game) {
-        game.start();
-        io.to(`game_${gameId}`).emit('game:start', game.getState());
-    } else {
-        socket.emit('game:error', { error: 'Game not found' });
-    }
-}
+//     const game = games.get(gameId)
+//     if (game) {
+//         io.to(`game_${gameId}`).emit('game:finished', { message: 'Game finished' });
+//     }
+// }
 
-async function handleRestartGame(socket, gameId) {
-    const game = games.get(gameId);
-    if (game) {
-        game.restart();
-        game.start();// не уверен, что это нужно
-        io.to(`game_${gameId}`).emit('game:restart', game.getState());
-    } else {
-        socket.emit('game:error', { error: 'Game not found' });
-    }
-}
 
-async function handleMovePaddle(socket, data) {
+// function handleStartGame(io, socket, gameId) {
+//     const game = games.get(gameId);
+//     if (game) {
+//         game.start();
+//         io.to(`game_${gameId}`).emit('game:start', game.getState());
+//     } else {
+//         socket.emit('game:error', { error: 'Game not found' });
+//     }
+// }
+
+// async function handleRestartGame(io,socket, gameId) {
+//     const game = games.get(gameId);
+//     if (game) {
+//         game.restart();
+//         game.start();
+//         io.to(`game_${gameId}`).emit('game:restart', game.getState());
+//     } else {
+//         socket.emit('game:error', { error: 'Game not found' });
+//     }
+// }
+
+async function handleMovePaddle(data) {
     const { gameId, playerId, direction } = data;
-    const game = games.get(gameId);
+    let game = games.get(gameId);
     if (game) {
         game.movePaddle(playerId, direction);
-        io.to(`game_${gameId}`).emit('game:update', game.getState());
+        // io.to(`game_${gameId}`).emit('game:update', game.getState());
     } else {
-        socket.emit('game:error', { error: 'Game not found' });
+        io.to(`game_${gameId}`).emit('game:error', { error: 'Game not found' });
+        console.error(`Game ${gameId} not found for player ${playerId}`);
     }
 }
 
@@ -105,7 +117,13 @@ async function initialize(io) {
                 io.to(`game_${gameId}`).emit('game:update', game.getState());
 
                 if (game.winner) {
-                    gameService.finishGame(gameId, game.winner, game.getScore());
+                    gameService.finishDuel(gameId, game.paddles[game.player1Id].score, game.paddles[game.player2Id].score)
+                        .then(() => {
+                            io.to(`game_${gameId}`).emit('game:finished', { winner: game.winner });
+                        })
+                        .catch(error => {
+                            console.error('Error finishing duel:', error);
+                        });
                     games.delete(gameId);
                 }
             }
@@ -116,6 +134,7 @@ async function initialize(io) {
         socket.on('mm:leave', gameId => handleLeaveQueue(io, socket, gameId));
         socket.on('game:joinQueue', () => handleJoinQueue(socket));
         socket.on('game:leaveQueue', () => handleLeaveFromQueue(socket));
+        socket.on('game:movePaddle', data => handleMovePaddle(data));
     });
 }
 

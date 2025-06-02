@@ -1,3 +1,5 @@
+const gameService = require('../../services/game.service');
+
 class GameState {
     constructor(player1Id, player2Id) {
         this.settings = {
@@ -9,6 +11,7 @@ class GameState {
             initialBallSpeed: 5,
             paddleSpeed: 40,
             speedIncrease: 1.07,
+            maxScore: 5, 
         };
         this.ball = {
             x: this.settings.boardWidth / 2,
@@ -99,8 +102,8 @@ class GameState {
             this.ball.speed = this.settings.initialBallSpeed;
             this.setBallDirection();
 
-            if(this.paddles[this.player1Id].score >= 5 || this.paddles[this.player2Id].score >= 5) {
-                this.winner = this.paddles[this.player1Id].score >= 5 ? this.player1Id : this.player2Id;
+            if(this.paddles[this.player1Id].score >= this.maxScore || this.paddles[this.player2Id].score >= this.maxScore) {
+                this.winner = this.paddles[this.player1Id].score >= this.maxScore ? this.player1Id : this.player2Id;
                 this.isRunning = false;
             }
         }
@@ -112,6 +115,11 @@ class GameState {
         this.handleBorderCollision();
         this.handlePaddleCollision();
         this.handleGoal();
+        if(!this.isRunning){
+            this.restart();
+            this.start();
+        }
+
     }
 
     movePaddle(playerId, direction) {
@@ -154,9 +162,9 @@ class GameState {
                 y: 0,
             }
         }
-        this.paddles[this.player1Id].score = 0;
-        this.paddles[this.player2Id].score = 0;
-        this.isRunning = false;
+        // this.paddles[this.player1Id].score = 0;
+        // this.paddles[this.player2Id].score = 0;
+        // this.isRunning = false;
     }
 }
 
