@@ -3,6 +3,7 @@ const authMiddleware = require('./middleware/auth');
 const notificationHandler = require('./handlers/notification');
 const chatHandler = require('./handlers/chat');
 const userTracker = require('./utils/userTracker');
+const onlineHandler = require('./handlers/online.handler');
 
 function setupWebSockets(server) {
     const io = new Server(server, {
@@ -45,8 +46,10 @@ function setupWebSockets(server) {
 
     notificationHandler.initialize(io);
     chatHandler.initialize(io);
+    onlineHandler.initialize(io);
 
     io.notification = notificationHandler;
+    io.online = onlineHandler;
 
     console.log('WebSocket server initialized');
 

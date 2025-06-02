@@ -69,11 +69,11 @@ const User = sequelize.define("User", {
   lvl: {
     type: DataTypes.INTEGER,
     defaultValue: 4,
-  }
-  // isOnline: {
-  //   type: DataTypes.BOOLEAN,
-  //   defaultValue: false,
-  // },
+  },
+  isOnline: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: false,
+  },
 });
 
 // User.beforeCreate(async (user) => {
