@@ -1,3 +1,4 @@
+import i18next from "i18next";
 import { getColorFromUsername } from "../../shared/randomColors";
 import { store, API_URL } from "../../store/store";
 import { attachNotificationListeners } from "./navigation";
@@ -17,14 +18,15 @@ export const refreshNotifications = async () => {
 
 const getNotificationLayout = (): string => {
   const notificationsData = store.getNotification();
+
   if (!notificationsData?.notifications.length) {
     return `<div class="p-3 font-bold border-b border-gray-500">
-                <p sentYouFriendRequest data-i18n="notification.notifications">Notifications</p>
+                <p sentYouFriendRequest data-i18n="notification.notifications">${i18next.t("notification.notifications")}</p>
               </div><ul class="text-white"><li><a class="block px-4 py-2 hover:bg-gray-700 text-xs">Don't worry if you don't have any new notifications, we're all in this together!</a></li></ul>`;
   }
 
   let allNotifications: string = `<div class="p-3 font-bold border-b border-gray-500">
-                <p sentYouFriendRequest data-i18n="notification.notifications">Notifications</p>
+                <p sentYouFriendRequest data-i18n="notification.notifications">${i18next.t("notification.notifications")}</p>
               </div>`;
 
   notificationsData.notifications.forEach((n) => {
@@ -36,10 +38,10 @@ const getNotificationLayout = (): string => {
 
     switch (n.type) {
       case "friend_accepted":
-        notificationContent = `<p data-i18n='notification.hasAcceptedFriendShip' ></p>`;
+        notificationContent = `<p data-i18n="notification.hasAcceptedFriendShip">${i18next.t("notification.hasAcceptedFriendShip")}</p>`;
         break;
       case "friend_request":
-        notificationContent = `<p data-i18n='notification.sentYouFriendRequest' ></p>`;
+        notificationContent = `<p data-i18n="notification.sentYouFriendRequest">${i18next.t("notification.sentYouFriendRequest")}</p>`;
         break;
 
       default:
