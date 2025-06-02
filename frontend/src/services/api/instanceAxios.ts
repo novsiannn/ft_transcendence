@@ -1,7 +1,8 @@
 import axios from "axios";
 import { IAuthResponse } from "./models/response/AuthResponse";
 
-const API_URL: string = "https://localhost:3000/";
+// const API_URL: string = "https://localhost:3000/";
+const API_URL: string = `https://${window.location.hostname}:3000/`;
 
 const instanceAPI = axios.create({
   baseURL: API_URL,
