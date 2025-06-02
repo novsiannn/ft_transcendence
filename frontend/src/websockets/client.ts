@@ -14,21 +14,39 @@ import { navigateTo } from "../routing";
 
 export let socket: Socket | null = null;
 
-interface GameState {
-  ball: { x: number; y: number };
-  paddles: Record<string, { x: number; y: number; score: number }>;
+export interface IGameState {
+  ball: {
+    x: number;
+    y: number;
+    speed: number;
+    direction: {
+      x: number;
+      y: number;
+    };
+  };
+  paddles: {
+    [playerId: string]: {
+      x: number;
+      y: number;
+      score: number;
+    };
+  };
   isRunning: boolean;
-  winner?: number;
+  player1Id: string;
+  player2Id: string;
+  winner: string | number | null;
 }
 
 let gameCallbacks: {
-  onGameReady?: (gameState: GameState) => void;
-  onGameUpdate?: (gameState: GameState) => void;
-  onGameStart?: (gameState: GameState) => void;
+  onGameReady?: (gameState: IGameState) => void;
+  onGameUpdate?: (gameState: IGameState) => void;
+  onGameStart?: (gameState: IGameState) => void;
   onGameFinished?: (data: any) => void;
   onGameError?: (error: any) => void;
   onMatchFound?: (data: any) => void;
 } = {};
+
+export let gameState: IGameState | null = null;
 
 export function initializeSocket(): Socket | null {
   const token = localStorage.getItem("token");
@@ -195,8 +213,12 @@ export function initializeSocket(): Socket | null {
 
   socket.on("mm:ready", (data: any) => {
     socket?.emit("game:leaveQueue");
-    //Draw ACCEPT MATCH button
     socket?.emit("game:join", data.game.id);
+    const rankedGameModal = document.querySelector("#rankedGameModal");
+    rankedGameModal?.classList.add("hidden");
+    // gameState = data;
+    // console.log("!!!GameState data!!!: ", gameState);
+    //Draw ACCEPT MATCH button
     //Draw FULL GAME
 
 
@@ -205,14 +227,19 @@ export function initializeSocket(): Socket | null {
     }
   });
 
-  socket.on("game:update", (gameState: GameState) => {
+  socket.on("game:update", (newGameState: IGameState) => {
+    gameState = newGameState
+    console.log("!!!GameState data!!!: ", gameState);
     if (gameCallbacks.onGameUpdate) {
       gameCallbacks.onGameUpdate(gameState);
     }
   });
 
-  socket.on("game:start", (gameState: GameState) => {
+  socket.on("game:start", (newGameState: IGameState) => {
     console.log("Game started!", gameState);
+    console.log("!!!GameState data!!!: ", gameState);
+    gameState = newGameState;
+
     if (gameCallbacks.onGameStart) {
       gameCallbacks.onGameStart(gameState);
     }
@@ -220,6 +247,8 @@ export function initializeSocket(): Socket | null {
 
   socket.on("game:finished", (data: any) => {
     console.log("Game finished!", data);
+
+    gameState = null;
     if (gameCallbacks.onGameFinished) {
       gameCallbacks.onGameFinished(data);
     }
@@ -262,15 +291,15 @@ export function leaveGame(gameId: string): void {
   socket.emit('game:leave', gameId);
 }
 
-export function onGameReady(callback: (gameState: GameState) => void): void {
+export function onGameReady(callback: (gameState: IGameState) => void): void {
   gameCallbacks.onGameReady = callback;
 }
 
-export function onGameUpdate(callback: (gameState: GameState) => void): void {
+export function onGameUpdate(callback: (gameState: IGameState) => void): void {
   gameCallbacks.onGameUpdate = callback;
 }
 
-export function onGameStart(callback: (gameState: GameState) => void): void {
+export function onGameStart(callback: (gameState: IGameState) => void): void {
   gameCallbacks.onGameStart = callback;
 }
 
@@ -284,6 +313,15 @@ export function onGameError(callback: (error: any) => void): void {
 //CLEAR CALLBACKS
 export function clearGameCallbacks(): void {
   gameCallbacks = {};
+}
+
+export function getCurrentGameState(): IGameState | null {
+  return gameState;
+}
+
+// Функция для очистки состояния игры
+export function clearGameState(): void {
+  gameState = null;
 }
 
 export function getSocket(): Socket | null {

@@ -4,7 +4,10 @@ import { tournamentPlayerData, rankedPlayerData, tournamentPlayerProfiles, ranke
 import { API_URL, store} from "../../store/store";
 import instanceAPI from "../../services/api/instanceAxios";
 import { getColorFromUsername } from "../../shared/randomColors";
-import { 
+import {
+    IGameState,
+    getCurrentGameState,
+    gameState,
     socket, 
     joinGame, 
     movePaddle, 
@@ -17,14 +20,6 @@ import {
     onGameError,
     clearGameCallbacks
 } from "../../websockets/client";
-
-// Local interface for game state
-interface GameState {
-    ball: { x: number; y: number };
-    paddles: { [key: string]: { x: number; y: number; score: number } };
-    isRunning: boolean;
-    winner?: string | number;
-}
 
 export function handleGame(mainWrapper: HTMLDivElement | undefined) {
     navigationHandle();
@@ -71,9 +66,9 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
     }
 
     const ballRadius = 8;
-    const initialBallSpeed = 7;
-    let ballSpeed = initialBallSpeed;
-    const paddleSpeed = 40;
+    // const initialBallSpeed = 7;
+    // let ballSpeed = initialBallSpeed;
+    // const paddleSpeed = 40;
     let firstPlayerScore = 0;
     let secondPlayerScore = 0;
 
@@ -111,7 +106,7 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
     }
 
     // УНИФИЦИРОВАННЫЕ ФУНКЦИИ ОТРИСОВКИ
-    function renderGame(gameState: GameState) {
+    function renderGame(gameState: IGameState) {
         // Обновляем локальные переменные из gameState
         ball.x = gameState.ball.x;
         ball.y = gameState.ball.y;
@@ -259,25 +254,16 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
 
         onGameReady((gameState) => {
             console.log('Multiplayer game ready:', gameState);
-            renderGame({
-                ...gameState,
-                winner: gameState.winner !== undefined ? gameState.winner.toString() : undefined
-            });
+            renderGame(gameState);
         });
         
         onGameUpdate((gameState) => {
-            renderGame({
-                ...gameState,
-                winner: gameState.winner !== undefined ? gameState.winner.toString() : undefined
-            });
+            renderGame(gameState);
         });
         
         onGameStart((gameState) => {
             console.log('Game started', gameState);
-            renderGame({
-                ...gameState,
-                winner: gameState.winner !== undefined ? gameState.winner.toString() : undefined
-            });
+            renderGame(gameState);
         });
         
         onGameFinished((result: any) => {
@@ -349,30 +335,30 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
         return xCollision && yCollision;
     }
 
-    function handlePaddleCollision() {
-        const firstPaddleCollision = checkFirstPaddleCollision();
-        const secondPaddleCollision = checkSecondPaddleCollision();
+    // function handlePaddleCollision() {
+    //     const firstPaddleCollision = checkFirstPaddleCollision();
+    //     const secondPaddleCollision = checkSecondPaddleCollision();
 
-        if (firstPaddleCollision || secondPaddleCollision) {
-            ballSpeed *= 1.07;
-            ballDirection.x *= -1;
-        } else {
-            return;
-        }
-        if (firstPaddleCollision) {
-            ball.x = firstPaddle.x + paddleSize.width + ballRadius;
-        } else if (secondPaddleCollision) {
-            ball.x = secondPaddle.x - ballRadius;
-        }
-    }
+    //     if (firstPaddleCollision || secondPaddleCollision) {
+    //         ballSpeed *= 1.07;
+    //         ballDirection.x *= -1;
+    //     } else {
+    //         return;
+    //     }
+    //     if (firstPaddleCollision) {
+    //         ball.x = firstPaddle.x + paddleSize.width + ballRadius;
+    //     } else if (secondPaddleCollision) {
+    //         ball.x = secondPaddle.x - ballRadius;
+    //     }
+    // }
 
-    function moveBall() {
-        ball.x += ballSpeed * ballDirection.x;
-        ball.y += ballSpeed * ballDirection.y;
-        handleBorderCollision();
-        handlePaddleCollision();
-        handleGoal();
-    }
+    // function moveBall() {
+    //     ball.x += ballSpeed * ballDirection.x;
+    //     ball.y += ballSpeed * ballDirection.y;
+    //     handleBorderCollision();
+    //     handlePaddleCollision();
+    //     handleGoal();
+    // }
 
     function handleGameOver() {
         if (firstPlayerScore >= 5 || secondPlayerScore >= 5) {
@@ -388,26 +374,26 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
         }
     }
 
-    function handleGoal() {
-        const firstUserGoal = ball.x > gameBoardWidth;
-        const secondUserGoal = ball.x < 0;
+    // function handleGoal() {
+    //     const firstUserGoal = ball.x > gameBoardWidth;
+    //     const secondUserGoal = ball.x < 0;
 
-        if (!firstUserGoal && !secondUserGoal) {
-            return;
-        }
-        if (firstUserGoal) {
-            firstPlayerScore++;
-        }
-        if (secondUserGoal) {
-            secondPlayerScore++;
-        }
-        updateScore();
-        handleGameOver();
-        ball = { ...ballInitial };
-        setBallDirection();
-        drawBall();
-        ballSpeed = initialBallSpeed;
-    }
+    //     if (!firstUserGoal && !secondUserGoal) {
+    //         return;
+    //     }
+    //     if (firstUserGoal) {
+    //         firstPlayerScore++;
+    //     }
+    //     if (secondUserGoal) {
+    //         secondPlayerScore++;
+    //     }
+    //     updateScore();
+    //     handleGameOver();
+    //     ball = { ...ballInitial };
+    //     setBallDirection();
+    //     drawBall();
+    //     ballSpeed = initialBallSpeed;
+    // }
 
     function handleKeyDown(ev: KeyboardEvent) {
         const key = ev.key.toLowerCase();
@@ -459,7 +445,7 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
     
         drawBoard();
         drawPaddles();
-        moveBall();
+        // moveBall();
         drawBall();
     }
 
@@ -473,7 +459,7 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
         isWaitingForStart = false;
         gameStartedOnce = false;
     
-        ballSpeed = initialBallSpeed;
+        // ballSpeed = initialBallSpeed;
         firstPlayerScore = 0;
         secondPlayerScore = 0;
 
@@ -484,7 +470,7 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
         firstPaddleTargetY = firstPaddleInitial.y;
         secondPaddleTargetY = secondPaddleInitial.y;
 
-        clearInterval(countdownInterval);
+        // clearInterval(countdownInterval);
         countdownEl!.classList.add('hidden', 'scale-150', 'opacity-0');
         startTextEl!.classList.remove('hidden', 'opacity-0');
     
@@ -548,36 +534,36 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
             
             startTextEl!.classList.add('opacity-0');
             
-            setTimeout(() => {
-                startTextEl!.classList.add('hidden');
-                countdownEl!.classList.remove('hidden');
+            // setTimeout(() => {
+            //     startTextEl!.classList.add('hidden');
+            //     countdownEl!.classList.remove('hidden');
                 
-                setTimeout(() => {
-                    countdownEl!.classList.remove('scale-150', 'opacity-0');
-                }, 50);
+            //     setTimeout(() => {
+            //         countdownEl!.classList.remove('scale-150', 'opacity-0');
+            //     }, 50);
                 
-                let count = 3;
-                countdownEl!.textContent = count.toString();
+            //     let count = 3;
+            //     countdownEl!.textContent = count.toString();
                 
-                countdownInterval = setInterval(() => {
-                    count--;
+            //     countdownInterval = setInterval(() => {
+            //         count--;
                     
-                    if (count > 0) {
-                        countdownEl!.classList.add('scale-150', 'opacity-0');
-                        setTimeout(() => {
-                            countdownEl!.textContent = count.toString();
-                            countdownEl!.classList.remove('scale-150', 'opacity-0');
-                        }, 200);
-                    } else {
-                        clearInterval(countdownInterval);
-                        countdownEl!.classList.add('opacity-0');
-                        setTimeout(() => {
-                            countdownEl!.classList.add('hidden');
-                            startActualGame();
-                        }, 500);
-                    }
-                }, 1000);
-            }, 500);
+            //         if (count > 0) {
+            //             countdownEl!.classList.add('scale-150', 'opacity-0');
+            //             setTimeout(() => {
+            //                 countdownEl!.textContent = count.toString();
+            //                 countdownEl!.classList.remove('scale-150', 'opacity-0');
+            //             }, 200);
+            //         } else {
+            //             clearInterval(countdownInterval);
+            //             countdownEl!.classList.add('opacity-0');
+            //             setTimeout(() => {
+            //                 countdownEl!.classList.add('hidden');
+            //                 startActualGame();
+            //             }, 500);
+            //         }
+            //     }, 1000);
+            // }, 500);
         }
     }
 
@@ -747,7 +733,7 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
     // RANKED GAME PART
     const rankedMatchBtn = document.querySelector("#rankedMatchBtn");
     const rankedGameModal = document.querySelector("#rankedGameModal");
-    const rankedGameBtn = document.querySelector("#rankedGameBtn");
+    // const rankedGameBtn = document.querySelector("#rankedGameBtn");
     const startRankedMatchBtn = document.querySelector("#startRankedMatchBtn");
     const cancelRankedMatchBtn = document.querySelector("#cancelRankedMatchBtn");
     const rankedTimer = document.querySelector("#rankedTimer");
