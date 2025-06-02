@@ -193,10 +193,15 @@ export function initializeSocket(): Socket | null {
   });
   //GAME HANDLERS
 
-  socket.on("mm:ready", (gameState: GameState) => {
-    console.log("Game ready!", gameState);
+  socket.on("mm:ready", (data: any) => {
+    socket?.emit("game:leaveQueue");
+    //Draw ACCEPT MATCH button
+    socket?.emit("game:join", data.game.id);
+    //Draw FULL GAME
+
+
     if (gameCallbacks.onGameReady) {
-      gameCallbacks.onGameReady(gameState);
+      gameCallbacks.onGameReady(data);
     }
   });
 
