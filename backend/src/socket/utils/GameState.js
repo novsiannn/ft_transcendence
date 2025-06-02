@@ -142,7 +142,8 @@ class GameState {
             ball: this.ball,
             paddles: this.paddles,
             isRunning: this.isRunning,
-            winner: this.winner
+            winner: this.winner,
+            settings: this.settings
         }
     }
     start() {
