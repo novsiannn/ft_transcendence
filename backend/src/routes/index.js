@@ -1647,6 +1647,60 @@ fastify.get('/game/matchmaking/status', {
     },
     preHandler: authMiddleware
 }, GameController.checkUserInQueue);
+
+//kilchenk
+fastify.delete('/game/:gameId', {
+  schema: {
+      description: 'Delete a game',
+      tags: ['Game'],
+      security: [{ bearerAuth: [] }],
+      params: {
+          type: 'object',
+          required: ['gameId'],
+          properties: {
+              gameId: { type: 'integer' }
+          }
+      },
+      response: {
+          200: {
+              description: 'Game deleted successfully',
+              type: 'object',
+              properties: {
+                  message: { type: 'string' }
+              }
+          },
+          400: {
+              description: 'Bad request',
+              type: 'object',
+              properties: {
+                  error: { type: 'string' }
+              }
+          },
+          403: {
+              description: 'Forbidden - not authorized to delete this game',
+              type: 'object',
+              properties: {
+                  error: { type: 'string' }
+              }
+          },
+          404: {
+              description: 'Game not found',
+              type: 'object',
+              properties: {
+                  error: { type: 'string' }
+              }
+          },
+          500: {
+              description: 'Internal server error',
+              type: 'object',
+              properties: {
+                  error: { type: 'string' }
+              }
+          }
+      }
+  },
+  preHandler: authMiddleware
+}, GameController.deleteGame);
 }
 
 module.exports = routes;

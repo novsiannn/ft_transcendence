@@ -124,6 +124,37 @@ const GameController = {
     //     }
     // }
 
+
+    //kilchenk
+    async deleteGame(req, res) {
+        try {
+            const { gameId } = req.params;
+            const userId = req.user.id;
+
+            if (!gameId) {
+                return res.code(400).send({ error: 'Game ID is required' });
+            }
+
+            const result = await gameService.deleteGame(gameId, userId);
+            
+            if (result.error) {
+                if (result.error === 'Game not found') {
+                    return res.code(404).send({ error: result.error });
+                }
+                if (result.error === 'You are not authorized to delete this game') {
+                    return res.code(403).send({ error: result.error });
+                }
+                return res.code(400).send({ error: result.error });
+            }
+
+            return res.code(200).send({ 
+                message: result.message 
+            });
+        } catch (error) {
+            console.error('Error deleting game:', error);
+            return res.code(500).send({ error: 'Failed to delete game' });
+        }
+    }
 }
 
 
