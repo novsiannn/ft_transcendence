@@ -424,35 +424,35 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
     // }
 
     // let countdownInterval: ReturnType<typeof setInterval>;
-    const countdownEl = document.getElementById('countdown');
+    // const countdownEl = document.getElementById('countdown');
     const startTextEl = document.getElementById('startText');
 
-    function restartGame(gameState: IGameState) {
-        // clearInterval(intervalID);
-        isGameRunning = false;
-        isWaitingForStart = false;
-        gameStartedOnce = false;
+    // function restartGame(gameState: IGameState) {
+    //     // clearInterval(intervalID);
+    //     isGameRunning = false;
+    //     isWaitingForStart = false;
+    //     gameStartedOnce = false;
     
-        // ballSpeed = initialBallSpeed;
-        firstPlayerScore = 0;
-        secondPlayerScore = 0;
+    //     // ballSpeed = initialBallSpeed;
+    //     firstPlayerScore = 0;
+    //     secondPlayerScore = 0;
 
-        // ball = { ...ballInitial };
-        firstPaddle = { ...firstPaddleInitial };
-        secondPaddle = { ...secondPaddleInitial };
+    //     // ball = { ...ballInitial };
+    //     firstPaddle = { ...firstPaddleInitial };
+    //     secondPaddle = { ...secondPaddleInitial };
         
-        firstPaddleTargetY = firstPaddleInitial.y;
-        secondPaddleTargetY = secondPaddleInitial.y;
+    //     firstPaddleTargetY = firstPaddleInitial.y;
+    //     secondPaddleTargetY = secondPaddleInitial.y;
 
-        // clearInterval(countdownInterval);
-        countdownEl!.classList.add('hidden', 'scale-150', 'opacity-0');
-        startTextEl!.classList.remove('hidden', 'opacity-0');
+    //     // clearInterval(countdownInterval);
+    //     countdownEl!.classList.add('hidden', 'scale-150', 'opacity-0');
+    //     startTextEl!.classList.remove('hidden', 'opacity-0');
     
-        cleanupCurrentGame();
-        (restartBtn as HTMLElement)?.blur();
+    //     cleanupCurrentGame();
+    //     (restartBtn as HTMLElement)?.blur();
         
-        setupInitialState(gameState);
-    }
+    //     setupInitialState(gameState);
+    // }
 
     function setupInitialState(gameState: IGameState) {
         isGameRunning = false;
@@ -476,14 +476,14 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
         }
     }
     
-    function initGame() {
-        cleanupCurrentGame();
-        rankedGameStatus();
-        // setupInitialState();
+    // function initGame() {
+    //     cleanupCurrentGame();
+    //     rankedGameStatus();
+    //     setupInitialState();
     
-        // restartBtn?.removeEventListener("click", restartGame);
-        // restartBtn?.addEventListener("click", restartGame);
-    }
+    //     restartBtn?.removeEventListener("click", restartGame);
+    //     restartBtn?.addEventListener("click", restartGame);
+    // }
 
     // function startActualGame() {
     //     isGameRunning = true;
@@ -708,14 +708,12 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
         try {
 
             setupRankedListeners();
-            const allUsers = store.getAllUsers();
             const response = await instanceAPI.post("/game/matchmaking", {
                 body: { },
             });
 			console.log(response);
             
             if(response.status === 200) {
-                // renderGame(currentGameState);
                 timerDiv?.classList.remove("invisible");
                 timer();
 				socket?.emit('game:joinQueue');
@@ -741,21 +739,7 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
                 initMultiplayerGame(gameId);
                 
                 updatePlayerProfiles(userResponseData);
-                // allUsers.forEach((user) => {
-                //     if(userResponseData.game.player1Id === user.id) {
-                //         rankedPlayerData.firstPlayer = user.username;
-                //         rankedPlayerData.firstPlayerAvatar = user.avatar;
-                //         rankedPlayerData.firstPlayerLetter = user.username.charAt(0).toUpperCase();
-                //         rankedPlayerData.firstPlayerColor = getColorFromUsername(user.username);
-                //     }else if(userResponseData.game.player2Id === user.id) {
-                //         rankedPlayerData.secondPlayer = user.username;
-                //         rankedPlayerData.secondPlayerAvatar = user.avatar;
-                //         rankedPlayerData.secondPlayerLetter = user.username.charAt(0).toUpperCase();
-                //         rankedPlayerData.secondPlayerColor = getColorFromUsername(user.username);
-                //     }
-                // });
                 
-
                 rankedGameModal?.classList.add("hidden");
                 rankedProfiles!.innerHTML = rankedPlayerProfiles();
                 
