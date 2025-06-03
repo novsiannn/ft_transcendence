@@ -54,10 +54,11 @@ export function rankedPlayerProfiles()
                     <div class="flex flex-col items-center">
                         ${
                           rankedPlayerData.firstPlayerAvatar
-                            ? `<img id="profileImg2" src="${API_URL}${rankedPlayerData.firstPlayerAvatar}" class="rounded-full object-cover w-24 h-24 " draggable="false" alt="Profile Image">`
-                            : `<div id="profileImg2" class="text-5xl text-white font-bold flex justify-center items-center w-24 h-24 ${rankedPlayerData.firstPlayerColor} rounded-full cursor-pointer select-none">${rankedPlayerData.firstPlayerLetter}</div>`
+                            ? `<img id="profileImg1" src="${API_URL}${rankedPlayerData.firstPlayerAvatar}" class="rounded-full object-cover w-24 h-24 " draggable="false" alt="Profile Image">`
+                            : `<div id="profileImg1" class="text-3xl text-white font-bold flex justify-center items-center w-24 h-24 ${rankedPlayerData.firstPlayerColor} rounded-full cursor-pointer select-none">${rankedPlayerData.firstPlayerLetter}</div>`
                         }
                         <span class="mt-2 text-lg text-white">${rankedPlayerData.firstPlayer}</span>
+                        <button id="playerOneReadyBtn" class="mt-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">Ready to Play!</button>
                     </div>
                 </div>
                 <div class="absolute right-16 z-[-1]"> <!-- Добавлено позиционирование -->
@@ -65,9 +66,10 @@ export function rankedPlayerProfiles()
                         ${
                           rankedPlayerData.secondPlayerAvatar
                             ? `<img id="profileImg2" src="${API_URL}${rankedPlayerData.secondPlayerAvatar}" class="rounded-full object-cover w-24 h-24 " draggable="false" alt="Profile Image">`
-                            : `<div id="profileImg2" class="text-5xl text-white font-bold flex justify-center items-center w-24 h-24 ${rankedPlayerData.secondPlayerColor} rounded-full cursor-pointer select-none">${rankedPlayerData.secondPlayerLetter}</div>`
+                            : `<div id="profileImg2" class="text-3xl text-white font-bold flex justify-center items-center w-24 h-24 ${rankedPlayerData.secondPlayerColor} rounded-full cursor-pointer select-none">${rankedPlayerData.secondPlayerLetter}</div>`
                         }
                         <span class="mt-2 text-lg text-white">${rankedPlayerData.secondPlayer}</span>
+                        <button id="playerTwoReadyBtn" class="mt-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">Ready to Play!</button>
                     </div>
                 </div>
             </div>

@@ -9,10 +9,11 @@ import {
     getCurrentGameState,
     gameState,
     socket, 
-    joinGame, 
+    // joinGame, 
     movePaddle, 
     startGame as startWebSocketGame, 
     leaveGame,
+    onMatchFound,
     onGameReady,
     onGameUpdate,
     onGameStart,
@@ -20,6 +21,7 @@ import {
     onGameError,
     clearGameCallbacks
 } from "../../websockets/client";
+import { findUser } from "../../shared";
 
 export function handleGame(mainWrapper: HTMLDivElement | undefined) {
     navigationHandle();
@@ -47,6 +49,9 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
 
     const gameBoardWidth = gameBoard.width;
     const gameBoardHeight = gameBoard.height;
+
+
+    let currentGameState = getCurrentGameState();
     
     const moveFirstPaddleKey = {
         up: "w",
@@ -61,26 +66,27 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
     const keys = new Set<string>();
 
     const paddleSize = {
-        width: 15,
-        height: 150
+        width: currentGameState.settings.paddleWidth,
+        height: currentGameState.settings.paddleHeight,
     }
 
-    const ballRadius = 8;
+    const ballRadius = currentGameState.settings.ballRadius;
     // const initialBallSpeed = 7;
     // let ballSpeed = initialBallSpeed;
     // const paddleSpeed = 40;
-    let firstPlayerScore = 0;
-    let secondPlayerScore = 0;
+    let firstPlayerScore = currentGameState.paddles['1'].score;
+    let secondPlayerScore = currentGameState.paddles['2'].score || 0;
 
     const firstPaddleInitial = {
-        x: 0,
-        y: 0
+        x: currentGameState.paddles['1'].x,
+        y: currentGameState.paddles['1'].y,
     }
     
     const secondPaddleInitial = {
-        x: gameBoardWidth - paddleSize.width,
-        y: gameBoardHeight - paddleSize.height,
+        x: currentGameState.paddles['2'].x,
+        y: currentGameState.paddles['2'].y,
     }
+
     let firstPaddle = { ...firstPaddleInitial };
     let secondPaddle = { ...secondPaddleInitial };
 
@@ -94,55 +100,61 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
         baseColor: 'white'   
     }
 
-    const ballInitial = {
-        x: gameBoardWidth / 2,
-        y: gameBoardHeight / 2,
-    }
+    // const ballInitial = {
+    //     x: gameBoardWidth / 2,
+    //     y: gameBoardHeight / 2,
+    // }
+    
+    
+    let ball = currentGameState.ball;
 
-    let ball = { ...ballInitial };
     const ballDirection = {
-        x: 0,
-        y: 0,
+        x: currentGameState.ball.direction.x,
+        y: currentGameState.ball?.direction.y,
     }
 
-    // УНИФИЦИРОВАННЫЕ ФУНКЦИИ ОТРИСОВКИ
     function renderGame(gameState: IGameState) {
-        // Обновляем локальные переменные из gameState
-        ball.x = gameState.ball.x;
-        ball.y = gameState.ball.y;
+    
+    // Получаем ID игроков динамически
+    const playerIds = Object.keys(gameState.paddles);
+    
+    if (playerIds.length >= 2) {
+        // Обновляем локальные переменные (если нужны для других функций)
+        firstPaddle.x = gameState.paddles[playerIds[0]].x;
+        firstPaddle.y = gameState.paddles[playerIds[0]].y;
+        firstPlayerScore = gameState.paddles[playerIds[0]].score;
 
-        if (gameState.paddles['1']) {
-            firstPaddle.x = gameState.paddles['1'].x;
-            firstPaddle.y = gameState.paddles['1'].y;
-            firstPlayerScore = gameState.paddles['1'].score;
-        }
-
-        if (gameState.paddles['2']) {
-            secondPaddle.x = gameState.paddles['2'].x;
-            secondPaddle.y = gameState.paddles['2'].y;
-            secondPlayerScore = gameState.paddles['2'].score;
-        }
-
-        // Отрисовываем
-        drawBoard();
-        drawPaddles();
-        drawBall();
-        updateScore();
-
-        // Проверяем победителя
-        if (gameState.winner) {
-            handleGameOver();
-        }
+        secondPaddle.x = gameState.paddles[playerIds[1]].x;
+        secondPaddle.y = gameState.paddles[playerIds[1]].y;
+        secondPlayerScore = gameState.paddles[playerIds[1]].score;
     }
 
-    function drawBoard() {
+    // Обновляем мяч
+    ball.x = gameState.ball.x;
+    ball.y = gameState.ball.y;
+
+    // Отрисовываем (очищаем canvas перед отрисовкой)
+    context!.clearRect(0, 0, gameState.settings.boardWidth, gameState.settings.boardHeight);
+    
+    drawBoard(gameState);
+    drawPaddles(gameState);
+    drawBall(gameState);
+    updateScore(gameState);
+
+    // Проверяем победителя
+    if (gameState.winner) {
+        handleGameOver();
+    }
+}
+
+    function drawBoard(gameState: IGameState) {
         context!.fillStyle = gameBoardColor;
-        context!.fillRect(0, 0, gameBoardWidth, gameBoardHeight);
+        context!.fillRect(0, 0,gameState.settings.boardWidth,gameState.settings.boardHeight);
     }
 
-    function drawPaddle(paddleX: number, paddleY: number, paddleColor: string) {
+    function drawPaddle(paddleX: number, paddleY: number, paddleColor: string, gameState: IGameState) {
         const { glowSize, glowIntensity } = paddleEffects;
-        const radius = paddleSize.width / 2;
+        const radius = gameState.settings.paddleWidth / 2;
     
         for(let i = 0; i < glowIntensity; i++) {
             context!.beginPath();
@@ -156,8 +168,8 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
                 context!,
                 paddleX - i,
                 paddleY - i,
-                paddleSize.width + (i * 2),
-                paddleSize.height + (i * 2),
+                gameState.settings.paddleWidth + (i * 2),
+                gameState.settings.paddleHeight + (i * 2),
                 radius
             );
             context!.fill();
@@ -171,8 +183,8 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
             context!,
             paddleX,
             paddleY,
-            paddleSize.width,
-            paddleSize.height,
+            gameState.settings.paddleWidth,
+            gameState.settings.paddleHeight,
             radius
         );
         context!.fill();
@@ -198,12 +210,13 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
         ctx.closePath();
     }
 
-    function drawPaddles() {
-        drawPaddle(firstPaddle.x, firstPaddle.y, firstPaddleColor);
-        drawPaddle(secondPaddle.x, secondPaddle.y, secondPaddleColor);
+    function drawPaddles(gameState: IGameState) {
+        
+        drawPaddle(firstPaddle.x,firstPaddle.y, firstPaddleColor, gameState);
+        drawPaddle(secondPaddle.x,secondPaddle.y, secondPaddleColor, gameState);
     }
 
-    function drawBall() {
+    function drawBall(gameState: IGameState) {
         for(let i = 0; i < 3; i++) {
             context!.beginPath();
             context!.shadowColor = 'white';
@@ -211,26 +224,26 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
             context!.shadowOffsetX = 0;
             context!.shadowOffsetY = 0;
             context!.fillStyle = 'rgba(255, 255, 255, 1)';
-            context!.arc(ball.x, ball.y, ballRadius + i, 0, Math.PI * 2);
+            context!.arc(gameState.ball.x,gameState.ball.y, gameState.settings.ballRadius + i, 0, Math.PI * 2);
             context!.fill();
         }
         
         context!.beginPath();
         context!.shadowColor = 'transparent';
-        context!.arc(ball.x, ball.y, ballRadius, 0, Math.PI * 2);
+        context!.arc(gameState.ball.x, gameState.ball.y, gameState.settings.ballRadius, 0, Math.PI * 2);
         context!.fill();
         
         context!.shadowColor = 'transparent';
         context!.shadowBlur = 0;
     }
 
-    function updateScore() {
-        scoreInfo!.textContent = `${firstPlayerScore} : ${secondPlayerScore}`
+    function updateScore(gameState: IGameState) {
+
+        scoreInfo!.textContent = `${gameState.paddles["1"].score} : ${gameState.paddles["2"].score}`;
     }
 
     // РЕЖИМЫ ИГРЫ
     function initTournamentGame() {
-        console.log("Initializing tournament game (local mode)");
         gameMode = 'local';
         cleanupCurrentGame();
         
@@ -238,8 +251,57 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
         
         // Start local tournament game directly
         setTimeout(() => {
-            startActualGame();
+            // startActualGame();
         }, 1000);
+    }
+
+    function setupRankedListeners() {
+        onMatchFound((data: any) => {
+            rankedGameModal?.classList.add("hidden");
+            const gameId = data.game.id.toString();
+            initMultiplayerGame(gameId);
+
+            updatePlayerProfiles(data);
+
+            rankedProfiles!.innerHTML = rankedPlayerProfiles();
+
+            resetMatchmakingButtons();
+        });
+    }
+
+    function resetMatchmakingButtons() {
+        cancelRankedMatchBtn?.classList.add("hidden");
+        startRankedMatchBtn?.classList.remove("hidden");
+    }
+
+    function updatePlayerProfiles(gameData: any) {
+
+        let game;
+        if (gameData.game) {
+            game = gameData.game; // Для второго игрока
+        } else {
+            game = gameData; // Для первого игрока (если данные приходят напрямую)
+        }
+
+        let user1 = findUser(game.player1Id);
+        let user2 = findUser(game.player2Id);
+        console.log("Updating player profiles with game data:", game);
+                if(user1){
+                    const user1 = findUser(game.player1Id);
+                    rankedPlayerData.firstPlayer = user1!.username;
+                    rankedPlayerData.firstPlayerAvatar = user1!.avatar;
+                    rankedPlayerData.firstPlayerLetter = user1!.username.charAt(0).toUpperCase();
+                    rankedPlayerData.firstPlayerColor = getColorFromUsername(user1!.username);
+                }
+        console.log("PLAYER 1", rankedPlayerData.firstPlayer, rankedPlayerData.firstPlayerAvatar, rankedPlayerData.firstPlayerLetter, rankedPlayerData.firstPlayerColor);
+                if(user2){
+                    const user2 = findUser(game.player2Id);
+                    rankedPlayerData.secondPlayer = user2!.username;
+                    rankedPlayerData.secondPlayerAvatar = user2!.avatar;
+                    rankedPlayerData.secondPlayerLetter = user2!.username.charAt(0).toUpperCase();
+                    rankedPlayerData.secondPlayerColor = getColorFromUsername(user2!.username);
+                }
+                console.log("PLAYER 2", rankedPlayerData.secondPlayer, rankedPlayerData.secondPlayerAvatar, rankedPlayerData.secondPlayerLetter, rankedPlayerData.secondPlayerColor);
     }
 
     function initMultiplayerGame(gameId: string) {
@@ -247,36 +309,14 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
         gameMode = 'multiplayer';
         currentGameId = gameId;
         cleanupCurrentGame();
-        
+        currentGameState = getCurrentGameState();
         // Setup WebSocket listeners directly
         socket?.emit('game:join', gameId);
         socket?.emit('mm:leave', gameId);
-
-        onGameReady((gameState) => {
-            console.log('Multiplayer game ready:', gameState);
-            renderGame(gameState);
-        });
-        
-        onGameUpdate((gameState) => {
-            renderGame(gameState);
-        });
-        
-        onGameStart((gameState) => {
-            console.log('Game started', gameState);
-            renderGame(gameState);
-        });
-        
-        onGameFinished((result: any) => {
-            console.log('Multiplayer game ended:', result);
-            handleGameOver();
-        });
-
-        onGameError((error) => {
-            console.error('Game error', error);
-        });
+        renderGame(currentGameState);
         
         // Join the game
-        joinGame(gameId);
+        // joinGame(gameId);
         scoreInfo!.classList.remove('hidden');
     }
 
@@ -287,10 +327,10 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
         clearGameCallbacks();
         currentGameId = null;
         
-        clearInterval(intervalID);
+        // clearInterval(intervalID);
         window.removeEventListener("keydown", handleKeyDown);
         window.removeEventListener("keyup", handleKeyUp);
-        window.removeEventListener("keyup", startGame);
+        // window.removeEventListener("keyup", startGame);
         
         gameMode = null;
         isGameRunning = false;
@@ -315,54 +355,9 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
         }
     }
 
-    function handleBorderCollision() {
-        const topBallRadius = ball.y <= ballRadius;
-        const bottomBallRadius = ball.y >= gameBoardHeight - ballRadius;
-        if (topBallRadius || bottomBallRadius) {
-            ballDirection.y *= -1;
-        }
-    }
-
-    function checkFirstPaddleCollision() {
-        const xCollision = ball.x <= firstPaddle.x + ballRadius + paddleSize.width;
-        const yCollision = ball.y >= firstPaddle.y && ball.y <= firstPaddle.y + paddleSize.height;
-        return xCollision && yCollision;
-    }
-
-    function checkSecondPaddleCollision() {
-        const xCollision = ball.x >= secondPaddle.x - ballRadius;
-        const yCollision = ball.y >= secondPaddle.y && ball.y <= secondPaddle.y + paddleSize.height;
-        return xCollision && yCollision;
-    }
-
-    // function handlePaddleCollision() {
-    //     const firstPaddleCollision = checkFirstPaddleCollision();
-    //     const secondPaddleCollision = checkSecondPaddleCollision();
-
-    //     if (firstPaddleCollision || secondPaddleCollision) {
-    //         ballSpeed *= 1.07;
-    //         ballDirection.x *= -1;
-    //     } else {
-    //         return;
-    //     }
-    //     if (firstPaddleCollision) {
-    //         ball.x = firstPaddle.x + paddleSize.width + ballRadius;
-    //     } else if (secondPaddleCollision) {
-    //         ball.x = secondPaddle.x - ballRadius;
-    //     }
-    // }
-
-    // function moveBall() {
-    //     ball.x += ballSpeed * ballDirection.x;
-    //     ball.y += ballSpeed * ballDirection.y;
-    //     handleBorderCollision();
-    //     handlePaddleCollision();
-    //     handleGoal();
-    // }
-
     function handleGameOver() {
         if (firstPlayerScore >= 5 || secondPlayerScore >= 5) {
-            clearInterval(intervalID);
+            // clearInterval(intervalID);
             isGameRunning = false;
             isWaitingForStart = true;
             gameStartedOnce = false;
@@ -373,27 +368,6 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
             cleanupCurrentGame();
         }
     }
-
-    // function handleGoal() {
-    //     const firstUserGoal = ball.x > gameBoardWidth;
-    //     const secondUserGoal = ball.x < 0;
-
-    //     if (!firstUserGoal && !secondUserGoal) {
-    //         return;
-    //     }
-    //     if (firstUserGoal) {
-    //         firstPlayerScore++;
-    //     }
-    //     if (secondUserGoal) {
-    //         secondPlayerScore++;
-    //     }
-    //     updateScore();
-    //     handleGameOver();
-    //     ball = { ...ballInitial };
-    //     setBallDirection();
-    //     drawBall();
-    //     ballSpeed = initialBallSpeed;
-    // }
 
     function handleKeyDown(ev: KeyboardEvent) {
         const key = ev.key.toLowerCase();
@@ -414,47 +388,47 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
         keys.delete(key);
     }
 
-    function updatePaddlePositions() {
-        const step = paddleSize.height / 4;
+    // function updatePaddlePositions() {
+    //     const step = paddleSize.height / 4;
     
-        if (keys.has("w") && firstPaddle.y > 0) {
-            firstPaddleTargetY = Math.max(0, firstPaddle.y - step);
-        }
-        if (keys.has("s")) {
-            firstPaddleTargetY = Math.min(gameBoardHeight - paddleSize.height, firstPaddle.y + step);
-        }
+    //     if (keys.has("w") && firstPaddle.y > 0) {
+    //         firstPaddleTargetY = Math.max(0, firstPaddle.y - step);
+    //     }
+    //     if (keys.has("s")) {
+    //         firstPaddleTargetY = Math.min(gameBoardHeight - paddleSize.height, firstPaddle.y + step);
+    //     }
     
-        if (keys.has("arrowup") && secondPaddle.y > 0) {
-            secondPaddleTargetY = Math.max(0, secondPaddle.y - step);
-        }
-        if (keys.has("arrowdown")) {
-            secondPaddleTargetY = Math.min(gameBoardHeight - paddleSize.height, secondPaddle.y + step);
-        }
-    }
+    //     if (keys.has("arrowup") && secondPaddle.y > 0) {
+    //         secondPaddleTargetY = Math.max(0, secondPaddle.y - step);
+    //     }
+    //     if (keys.has("arrowdown")) {
+    //         secondPaddleTargetY = Math.min(gameBoardHeight - paddleSize.height, secondPaddle.y + step);
+    //     }
+    // }
 
-    function lerp(start: number, end: number, t: number) {
-        return start * (1 - t) + end * t;
-    }
+    // function lerp(start: number, end: number, t: number) {
+    //     return start * (1 - t) + end * t;
+    // }
 
-    function updateGame() {
-        updatePaddlePositions();
+    // function updateGame(gameState: IGameState) {
+    //     // updatePaddlePositions();
     
-        const lerpFactor = 0.2;
-        firstPaddle.y = lerp(firstPaddle.y, firstPaddleTargetY, lerpFactor);
-        secondPaddle.y = lerp(secondPaddle.y, secondPaddleTargetY, lerpFactor);
+    //     const lerpFactor = 0.2;
+    //     firstPaddle.y = lerp(firstPaddle.y, firstPaddleTargetY, lerpFactor);
+    //     secondPaddle.y = lerp(secondPaddle.y, secondPaddleTargetY, lerpFactor);
     
-        drawBoard();
-        drawPaddles();
-        // moveBall();
-        drawBall();
-    }
+    //     drawBoard(gameState);
+    //     drawPaddles(gameState);
+    //     // moveBall();
+    //     drawBall(gameState);
+    // }
 
-    let countdownInterval: ReturnType<typeof setInterval>;
+    // let countdownInterval: ReturnType<typeof setInterval>;
     const countdownEl = document.getElementById('countdown');
     const startTextEl = document.getElementById('startText');
 
-    function restartGame() {
-        clearInterval(intervalID);
+    function restartGame(gameState: IGameState) {
+        // clearInterval(intervalID);
         isGameRunning = false;
         isWaitingForStart = false;
         gameStartedOnce = false;
@@ -463,7 +437,7 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
         firstPlayerScore = 0;
         secondPlayerScore = 0;
 
-        ball = { ...ballInitial };
+        // ball = { ...ballInitial };
         firstPaddle = { ...firstPaddleInitial };
         secondPaddle = { ...secondPaddleInitial };
         
@@ -477,10 +451,10 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
         cleanupCurrentGame();
         (restartBtn as HTMLElement)?.blur();
         
-        setupInitialState();
+        setupInitialState(gameState);
     }
 
-    function setupInitialState() {
+    function setupInitialState(gameState: IGameState) {
         isGameRunning = false;
         isWaitingForStart = true;
     
@@ -489,11 +463,11 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
         firstPaddleTargetY = firstPaddleInitial.y;
         secondPaddleTargetY = secondPaddleInitial.y;
 
-        drawBoard();
-        drawPaddles();
-        updateScore();
+        drawBoard(gameState);
+        drawPaddles(gameState);
+        updateScore(gameState);
         setBallDirection();
-        drawBall();
+        drawBall(gameState);
         scoreInfo!.classList.add('hidden');
     
         if (!gameStartedOnce && gameMode !== 'local' && gameMode !== 'multiplayer') {
@@ -505,24 +479,24 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
     function initGame() {
         cleanupCurrentGame();
         rankedGameStatus();
-        setupInitialState();
+        // setupInitialState();
     
-        restartBtn?.removeEventListener("click", restartGame);
-        restartBtn?.addEventListener("click", restartGame);
+        // restartBtn?.removeEventListener("click", restartGame);
+        // restartBtn?.addEventListener("click", restartGame);
     }
 
-    function startActualGame() {
-        isGameRunning = true;
-        gameStartedOnce = true;
+    // function startActualGame() {
+    //     isGameRunning = true;
+    //     gameStartedOnce = true;
     
-        window.addEventListener("keydown", handleKeyDown);
-        window.addEventListener("keyup", handleKeyUp);
+    //     window.addEventListener("keydown", handleKeyDown);
+    //     window.addEventListener("keyup", handleKeyUp);
 
-        scoreInfo!.classList.remove('hidden');
+    //     scoreInfo!.classList.remove('hidden');
     
-        setBallDirection();
-        intervalID = setInterval(updateGame, 16);
-    }
+    //     setBallDirection();
+    //     // intervalID = setInterval(updateGame, 16);
+    // }
 
     function startGame(ev: KeyboardEvent) {
         const preGameModal = document.querySelector("#preGameModal");
@@ -534,38 +508,9 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
             
             startTextEl!.classList.add('opacity-0');
             
-            // setTimeout(() => {
-            //     startTextEl!.classList.add('hidden');
-            //     countdownEl!.classList.remove('hidden');
-                
-            //     setTimeout(() => {
-            //         countdownEl!.classList.remove('scale-150', 'opacity-0');
-            //     }, 50);
-                
-            //     let count = 3;
-            //     countdownEl!.textContent = count.toString();
-                
-            //     countdownInterval = setInterval(() => {
-            //         count--;
-                    
-            //         if (count > 0) {
-            //             countdownEl!.classList.add('scale-150', 'opacity-0');
-            //             setTimeout(() => {
-            //                 countdownEl!.textContent = count.toString();
-            //                 countdownEl!.classList.remove('scale-150', 'opacity-0');
-            //             }, 200);
-            //         } else {
-            //             clearInterval(countdownInterval);
-            //             countdownEl!.classList.add('opacity-0');
-            //             setTimeout(() => {
-            //                 countdownEl!.classList.add('hidden');
-            //                 startActualGame();
-            //             }, 500);
-            //         }
-            //     }, 1000);
-            // }, 500);
         }
     }
+    renderGame(currentGameState);
 
     // TOURNAMENT PART
     const preGameModal = document.querySelector("#preGameModal");
@@ -748,6 +693,7 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
         preGameModal?.classList.add("hidden");
         rankedGameModal?.classList.remove("hidden");
         rankedGameModal?.classList.add("flex");
+        
     });
 
     function formatTimer(seconds: number): string {
@@ -760,6 +706,8 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
         e.stopPropagation();
         
         try {
+
+            setupRankedListeners();
             const allUsers = store.getAllUsers();
             const response = await instanceAPI.post("/game/matchmaking", {
                 body: { },
@@ -767,6 +715,7 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
 			console.log(response);
             
             if(response.status === 200) {
+                // renderGame(currentGameState);
                 timerDiv?.classList.remove("invisible");
                 timer();
 				socket?.emit('game:joinQueue');
@@ -790,20 +739,22 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
                 const gameId = userResponseData.game.id.toString();
 
                 initMultiplayerGame(gameId);
-
-                allUsers.forEach((user) => {
-                    if(userResponseData.game.player1Id === user.id) {
-                        rankedPlayerData.firstPlayer = user.username;
-                        rankedPlayerData.firstPlayerAvatar = user.avatar;
-                        rankedPlayerData.firstPlayerLetter = user.username.charAt(0).toUpperCase();
-                        rankedPlayerData.firstPlayerColor = getColorFromUsername(user.username);
-                    }else if(userResponseData.game.player2Id === user.id) {
-                        rankedPlayerData.secondPlayer = user.username;
-                        rankedPlayerData.secondPlayerAvatar = user.avatar;
-                        rankedPlayerData.secondPlayerLetter = user.username.charAt(0).toUpperCase();
-                        rankedPlayerData.secondPlayerColor = getColorFromUsername(user.username);
-                    }
-                });
+                
+                updatePlayerProfiles(userResponseData);
+                // allUsers.forEach((user) => {
+                //     if(userResponseData.game.player1Id === user.id) {
+                //         rankedPlayerData.firstPlayer = user.username;
+                //         rankedPlayerData.firstPlayerAvatar = user.avatar;
+                //         rankedPlayerData.firstPlayerLetter = user.username.charAt(0).toUpperCase();
+                //         rankedPlayerData.firstPlayerColor = getColorFromUsername(user.username);
+                //     }else if(userResponseData.game.player2Id === user.id) {
+                //         rankedPlayerData.secondPlayer = user.username;
+                //         rankedPlayerData.secondPlayerAvatar = user.avatar;
+                //         rankedPlayerData.secondPlayerLetter = user.username.charAt(0).toUpperCase();
+                //         rankedPlayerData.secondPlayerColor = getColorFromUsername(user.username);
+                //     }
+                // });
+                
 
                 rankedGameModal?.classList.add("hidden");
                 rankedProfiles!.innerHTML = rankedPlayerProfiles();
@@ -856,7 +807,6 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
                 startRankedMatchBtn?.classList.add("hidden");
                 timerDiv?.classList.remove("invisible");
                 cancelRankedMatchBtn?.classList.remove("hidden");
-                console.log("In queue DATA", responseData);
             } else {
                 preGameModal?.classList.remove("hidden");
                 preGameModal?.classList.add("flex");
@@ -866,5 +816,5 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
         }
     }
 
-    initGame();
+    // initGame();
 }
