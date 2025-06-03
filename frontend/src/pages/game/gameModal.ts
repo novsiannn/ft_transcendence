@@ -122,8 +122,9 @@ export function rankedGameModal() {
             <div id="timerDiv"class="invisible mt-2 text-xl text-blue-700 ">
             In queue: <span id="rankedTimer">0:00</span>
             </div>
-        <button id="startRankedMatchBtn" class=" mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">Start Ranked Match!</button>
-        <button id="cancelRankedMatchBtn" class="hidden mt-4 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600">Cancel Ranked Match!</button>
+              <button id="rankedDeleteGameBtn" class=" mt-2 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600">Delete Game</button>
+              <button id="startRankedMatchBtn" class=" mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">Start Ranked Match!</button>
+              <button id="cancelRankedMatchBtn" class="hidden mt-4 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600">Cancel Ranked Match!</button>
       </div>
       ${getModalWindowError()}
     </div>

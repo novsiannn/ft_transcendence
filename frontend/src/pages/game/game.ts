@@ -747,6 +747,7 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
             }
 
         } catch (error) {
+            
             console.error('Error starting ranked match:', error);
         }
     });
@@ -799,6 +800,25 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
             console.error('Error checking ranked game status:', error);
         }
     }
-
+    const playerOneReadyBtn = document.querySelector("#playerOneReadyBtn");
+    playerOneReadyBtn?.addEventListener("click", async (e) => {
+        e.stopPropagation();
+        
+    });
+    //DELETE LATER DEVELOPMENT BUTTON
+    const rankedDeleteGameBtn = document.querySelector("#rankedDeleteGameBtn");
+        rankedDeleteGameBtn?.addEventListener("click", async (e) => {
+        e.stopPropagation();
+        try {
+            const gameToDelete = `/game/2`;
+            console.log("DELETE ADRESS", gameToDelete)
+            const response = await instanceAPI.delete(gameToDelete);
+            if(response.status === 200) {
+               console.log("Game Deleted", response.status);
+            }
+        } catch (error) {
+            console.error('Error deleting game:', error);
+        }
+    });
     // initGame();
 }
