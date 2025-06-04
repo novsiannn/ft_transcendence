@@ -72,7 +72,7 @@ export const getUsersBlock = (
         if (dataFriends.some((friend) => friend.id == el.id)) return;
 
         div = document.createElement("div");
-        div.innerHTML = getUserLayout(el.username, el.avatar);
+        div.innerHTML = getUserLayout(el);
         addBtnsListeners(
           div,
           el,

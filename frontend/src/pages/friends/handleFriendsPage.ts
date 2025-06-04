@@ -9,10 +9,11 @@ import {
   updateContent,
 } from "../../elements/LanguageSelector";
 import { rerenderFriendsPage } from "./handleBtns";
+import { socket } from "../../websockets";
 
 export const filterUsers = (data: IUser[], filterString: string) => {
   return data.filter((user) => user.username.startsWith(filterString));
-}
+};
 
 export const handleFriendsPage = async (
   mainWrapper: HTMLDivElement | undefined
@@ -21,8 +22,9 @@ export const handleFriendsPage = async (
     document.querySelector<HTMLDivElement>("#allUsersContainer");
   const friendsContainer =
     document.querySelector<HTMLDivElement>("#friendsContainer");
-  const usersSelector =
-    document.querySelector<HTMLInputElement>("#searchInputFriendsPage");
+  const usersSelector = document.querySelector<HTMLInputElement>(
+    "#searchInputFriendsPage"
+  );
 
   mainWrapper?.classList.add("relative");
   mainWrapper!.append(getLanguageSelector());
@@ -34,6 +36,8 @@ export const handleFriendsPage = async (
   const responseAllFriends = store.getAllFriends();
   const responseFriendshipSent = await store.getPendingFriendsRequests();
   const responseFriendshipReceived = await store.getIncomingFriendRequest();
+
+  socket?.emit("online:get:all:status");
 
   let users: IUser[] = responseAllUsers;
   const friends: IFriend[] = responseAllFriends;

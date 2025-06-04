@@ -6,6 +6,7 @@ import { BtnUnblock } from "../../elements/BtnUnblock";
 import { BtnUserBlockedYou } from "../../elements/BtnUserBlockedYou";
 import { getColorFromUsername } from "../../shared/randomColors";
 import { API_URL } from "../../store/store";
+import { TypeUserLayoutProps } from "./types";
 
 export const getFriendsLayout = (username: string, avatar: string) => {
   const color = getColorFromUsername(username);
@@ -41,7 +42,11 @@ export const getEmptyBlock = () => {
 		  </div>`;
 };
 
-export const getUserLayout = (username: string, avatar: string) => {
+export const getUserLayout = ({
+  username,
+  avatar,
+  id,
+}: TypeUserLayoutProps) => {
   const color = getColorFromUsername(username);
   const firstLetterOfUser = username.charAt(0).toUpperCase();
 
@@ -60,7 +65,7 @@ export const getUserLayout = (username: string, avatar: string) => {
 	  </div>
 	  <div class="flex flex-col min-w-0">
 		<span class=" text-base font-semibold truncate">${username}</span>
-		<p class="text-gray-400 text-xs">Online</p>
+		<div id="userOnlineStatus${id}" data-userOnlineStatusFriendsPage class="flex text-gray-400 text-xs"></div>
 	  </div>
 	</div>
 	<div class="flex gap-2 items-center ml-2">
