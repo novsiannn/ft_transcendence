@@ -56,5 +56,4 @@ export const handleFriendsPage = async (
     await rerenderFriendsPage(users);
     usersSelector!.readOnly = false;
   });
-  socket?.emit("online:get:all:status");
 };
