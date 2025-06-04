@@ -36,12 +36,18 @@ function setupWebSockets(server) {
         socket.emit('connected', {
             userId: userId,
             username: socket.user.username //may be errors
-        })
+        });
+
+        socket.on('user:logout', () => {
+            userTracker.removeUser(userId, socket);
+            socket.disconnect();
+        });
 
         socket.on('disconnect', function () {
             console.log(`Socket disconnected: ${socket.id}, User: ${userId}`);
             userTracker.removeUser(userId, socket);
         });
+
     });
 
     notificationHandler.initialize(io);
