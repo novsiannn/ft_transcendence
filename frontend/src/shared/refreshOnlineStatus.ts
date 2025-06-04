@@ -38,7 +38,7 @@ export const refreshOnlineStatusFriendsPage = (data: IUserOnlineStatus[]) => {
   const allUsersOnlineStatusLayout = document.querySelectorAll(
     "[data-userOnlineStatusFriendsPage]"
   );
-
+  
   allUsersOnlineStatusLayout.forEach((el) => {
     const userIdFromLayout = Number(el.id.replace(/\D/g, ""));
     let returnedUser;

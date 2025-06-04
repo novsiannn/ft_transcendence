@@ -37,8 +37,6 @@ export const handleFriendsPage = async (
   const responseFriendshipSent = await store.getPendingFriendsRequests();
   const responseFriendshipReceived = await store.getIncomingFriendRequest();
 
-  socket?.emit("online:get:all:status");
-
   let users: IUser[] = responseAllUsers;
   const friends: IFriend[] = responseAllFriends;
 
@@ -58,4 +56,5 @@ export const handleFriendsPage = async (
     await rerenderFriendsPage(users);
     usersSelector!.readOnly = false;
   });
+  socket?.emit("online:get:all:status");
 };

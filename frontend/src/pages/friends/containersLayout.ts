@@ -8,7 +8,11 @@ import { getColorFromUsername } from "../../shared/randomColors";
 import { API_URL } from "../../store/store";
 import { TypeUserLayoutProps } from "./types";
 
-export const getFriendsLayout = (username: string, avatar: string) => {
+export const getFriendsLayout = ({
+  username,
+  avatar,
+  id,
+}: TypeUserLayoutProps) => {
   const color = getColorFromUsername(username);
   const firstLetterOfUser = username.charAt(0).toUpperCase();
 
@@ -25,7 +29,7 @@ export const getFriendsLayout = (username: string, avatar: string) => {
 				  </div>
 				<div>
 					<span class="text-black text-xl font-semibold">${username}</span>
-				  <p class="text-gray-400 text-sm">Online</p>
+				    <div id="userOnlineStatus${id}" data-userOnlineStatusFriendsPage class="flex text-gray-400 text-xs"></div>
 				</div>
 			</div>
 			<div class="flex">
