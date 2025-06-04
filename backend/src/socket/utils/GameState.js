@@ -7,7 +7,7 @@ class GameState {
             boardHeight: 500,
             paddleWidth: 25,
             paddleHeight: 120,
-            ballRadius: 13,
+            ballRadius: 8,
             initialBallSpeed: 5,
             paddleSpeed: 40,
             speedIncrease: 1.07,
