@@ -222,14 +222,11 @@ export function initializeSocket(): Socket | null {
 
   socket.on("mm:ready", (data: any) => {
     socket?.emit("game:leaveQueue");
-    socket?.emit("game:join", data.game.id);
-    // const rankedGameModal = document.querySelector("#rankedGameModal");
-    // rankedGameModal?.classList.add("hidden");
-    
-    // gameState = data;
-    // console.log("!!!GameState data!!!: ", gameState);
-    //Draw ACCEPT MATCH button
-    //Draw FULL GAME
+    // socket?.emit("game:join", data.game.id);
+    // const playerOneReadyBtn = document.querySelector("#playerOneReadyBtn");
+    // const playerTwoReadyBtn = document.querySelector("#playerTwoReadyBtn");
+    // playerTwoReadyBtn?.classList.remove("hidden");
+    // playerOneReadyBtn?.classList.remove("hidden");
     console.log("on Match FOUND:", data);
 
     if (gameCallbacks.onMatchFound) {

@@ -50,6 +50,8 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
     const gameBoardWidth = gameBoard.width;
     const gameBoardHeight = gameBoard.height;
 
+    //     const playerOneReadyBtn = document.querySelector("#playerOneReadyBtn");
+    // const playerTwoReadyBtn = document.querySelector("#playerTwoReadyBtn");
 
     let currentGameState = getCurrentGameState();
     
@@ -258,14 +260,17 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
     function setupRankedListeners() {
         onMatchFound((data: any) => {
             rankedGameModal?.classList.add("hidden");
+
             const gameId = data.game.id.toString();
             initMultiplayerGame(gameId);
 
             updatePlayerProfiles(data);
+            setupButtonDelegation();
 
-            rankedProfiles!.innerHTML = rankedPlayerProfiles();
+
 
             resetMatchmakingButtons();
+
         });
     }
 
@@ -282,6 +287,7 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
         } else {
             game = gameData; // Для первого игрока (если данные приходят напрямую)
         }
+
 
         let user1 = findUser(game.player1Id);
         let user2 = findUser(game.player2Id);
@@ -302,6 +308,60 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
                     rankedPlayerData.secondPlayerColor = getColorFromUsername(user2!.username);
                 }
                 console.log("PLAYER 2", rankedPlayerData.secondPlayer, rankedPlayerData.secondPlayerAvatar, rankedPlayerData.secondPlayerLetter, rankedPlayerData.secondPlayerColor);
+                rankedProfiles!.innerHTML = rankedPlayerProfiles();
+
+    }
+
+    function setupButtonDelegation() {
+                const playerOneReadyBtn = document.querySelector("#playerOneReadyBtn");
+    const playerTwoReadyBtn = document.querySelector("#playerTwoReadyBtn");
+        playerOneReadyBtn?.classList.remove("hidden");
+        playerTwoReadyBtn?.classList.remove("hidden");
+        // Слушаем клики на родительском элементе rankedProfiles
+        rankedProfiles?.addEventListener("click", (e) => {
+            const target = e.target as HTMLElement;
+            target.classList.add("cursor-pointer");
+            
+            console.log("Click detected on:", target.id, target.tagName);
+            
+            if (target.id === "playerOneReadyBtn") {
+                e.stopPropagation();
+                console.log("Player One Ready clicked!");
+                target.classList.add("opacity-50");
+                target.classList.add("cursor-not-allowed");
+                target.classList.remove("hover:bg-blue-600");
+                target.setAttribute("disabled", "true");
+                target.textContent = "Ready!";
+                
+                
+                // if (currentGameId) {
+                //     console.log("Emitting playerReady for player 1, gameId:", currentGameId);
+                //     socket?.emit('game:playerReady', {
+                //         gameId: currentGameId,
+                //         playerId: 1
+                //     });
+                // }
+            }
+            
+            if (target.id === "playerTwoReadyBtn") {
+                e.stopPropagation();
+                console.log("Player Two Ready clicked!");
+                
+                target.classList.add("opacity-50");
+                target.classList.add("cursor-not-allowed");
+                target.classList.remove("hover:bg-blue-600");
+                target.setAttribute("disabled", "true");
+                target.textContent = "Ready!";
+                
+                // if (currentGameId) {
+                //     console.log("Emitting playerReady for player 2, gameId:", currentGameId);
+                //     socket?.emit('game:playerReady', {
+                //         gameId: currentGameId,
+                //         playerId: 2
+                //     });
+                // }
+            }
+        });
     }
 
     function initMultiplayerGame(gameId: string) {
@@ -311,7 +371,7 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
         cleanupCurrentGame();
         currentGameState = getCurrentGameState();
         // Setup WebSocket listeners directly
-        socket?.emit('game:join', gameId);
+        // socket?.emit('game:join', gameId);
         socket?.emit('mm:leave', gameId);
         renderGame(currentGameState);
         
@@ -388,71 +448,7 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
         keys.delete(key);
     }
 
-    // function updatePaddlePositions() {
-    //     const step = paddleSize.height / 4;
-    
-    //     if (keys.has("w") && firstPaddle.y > 0) {
-    //         firstPaddleTargetY = Math.max(0, firstPaddle.y - step);
-    //     }
-    //     if (keys.has("s")) {
-    //         firstPaddleTargetY = Math.min(gameBoardHeight - paddleSize.height, firstPaddle.y + step);
-    //     }
-    
-    //     if (keys.has("arrowup") && secondPaddle.y > 0) {
-    //         secondPaddleTargetY = Math.max(0, secondPaddle.y - step);
-    //     }
-    //     if (keys.has("arrowdown")) {
-    //         secondPaddleTargetY = Math.min(gameBoardHeight - paddleSize.height, secondPaddle.y + step);
-    //     }
-    // }
-
-    // function lerp(start: number, end: number, t: number) {
-    //     return start * (1 - t) + end * t;
-    // }
-
-    // function updateGame(gameState: IGameState) {
-    //     // updatePaddlePositions();
-    
-    //     const lerpFactor = 0.2;
-    //     firstPaddle.y = lerp(firstPaddle.y, firstPaddleTargetY, lerpFactor);
-    //     secondPaddle.y = lerp(secondPaddle.y, secondPaddleTargetY, lerpFactor);
-    
-    //     drawBoard(gameState);
-    //     drawPaddles(gameState);
-    //     // moveBall();
-    //     drawBall(gameState);
-    // }
-
-    // let countdownInterval: ReturnType<typeof setInterval>;
-    // const countdownEl = document.getElementById('countdown');
     const startTextEl = document.getElementById('startText');
-
-    // function restartGame(gameState: IGameState) {
-    //     // clearInterval(intervalID);
-    //     isGameRunning = false;
-    //     isWaitingForStart = false;
-    //     gameStartedOnce = false;
-    
-    //     // ballSpeed = initialBallSpeed;
-    //     firstPlayerScore = 0;
-    //     secondPlayerScore = 0;
-
-    //     // ball = { ...ballInitial };
-    //     firstPaddle = { ...firstPaddleInitial };
-    //     secondPaddle = { ...secondPaddleInitial };
-        
-    //     firstPaddleTargetY = firstPaddleInitial.y;
-    //     secondPaddleTargetY = secondPaddleInitial.y;
-
-    //     // clearInterval(countdownInterval);
-    //     countdownEl!.classList.add('hidden', 'scale-150', 'opacity-0');
-    //     startTextEl!.classList.remove('hidden', 'opacity-0');
-    
-    //     cleanupCurrentGame();
-    //     (restartBtn as HTMLElement)?.blur();
-        
-    //     setupInitialState(gameState);
-    // }
 
     function setupInitialState(gameState: IGameState) {
         isGameRunning = false;
@@ -479,23 +475,28 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
     // function initGame() {
     //     cleanupCurrentGame();
     //     rankedGameStatus();
-    //     setupInitialState();
-    
-    //     restartBtn?.removeEventListener("click", restartGame);
-    //     restartBtn?.addEventListener("click", restartGame);
-    // }
+    //     setupRankedListeners();
+    //     // setupButtonDelegation();
+        
+    //     // Настраиваем WebSocket обработчики
+    //     onGameUpdate((gameState) => {
+    //         renderGame(gameState);
+    //     });
 
-    // function startActualGame() {
-    //     isGameRunning = true;
-    //     gameStartedOnce = true;
-    
-    //     window.addEventListener("keydown", handleKeyDown);
-    //     window.addEventListener("keyup", handleKeyUp);
+    //     onGameStart((gameState) => {
+    //         console.log("Game started!");
+    //         renderGame(gameState);
+    //         scoreInfo!.classList.remove('hidden');
+    //     });
 
-    //     scoreInfo!.classList.remove('hidden');
-    
-    //     setBallDirection();
-    //     // intervalID = setInterval(updateGame, 16);
+    //     onGameFinished((result) => {
+    //         console.log("Game finished:", result);
+    //         handleGameOver();
+    //     });
+
+    //     onGameError((error) => {
+    //         console.error("Game error:", error);
+    //     });
     // }
 
     function startGame(ev: KeyboardEvent) {
@@ -685,6 +686,7 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
     const timerDiv = document.querySelector("#timerDiv");
     const rankedProfiles = document.querySelector("#rankedProfiles");
 
+
     let rankedTimerInterval: ReturnType<typeof setInterval> | null = null;
     let rankedTimerValue = 0;
 
@@ -739,9 +741,10 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
                 initMultiplayerGame(gameId);
                 
                 updatePlayerProfiles(userResponseData);
+                setupButtonDelegation();
                 
                 rankedGameModal?.classList.add("hidden");
-                rankedProfiles!.innerHTML = rankedPlayerProfiles();
+
                 
                 if (rankedTimerInterval) clearInterval(rankedTimerInterval);
             }
@@ -800,17 +803,21 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
             console.error('Error checking ranked game status:', error);
         }
     }
-    const playerOneReadyBtn = document.querySelector("#playerOneReadyBtn");
-    playerOneReadyBtn?.addEventListener("click", async (e) => {
-        e.stopPropagation();
-        
-    });
+    
+    // playerOneReadyBtn?.addEventListener("click", async (e) => {
+    //     e.stopPropagation();
+    //     playerOneReadyBtn?.classList.add("opacity-50");
+    //     playerOneReadyBtn?.classList.add("cursor-not-allowed");
+    //     playerOneReadyBtn?.classList.remove("hover:bg-blue-600");
+    //     playerOneReadyBtn?.setAttribute("disabled", "true");
+
+    // });
     //DELETE LATER DEVELOPMENT BUTTON
     const rankedDeleteGameBtn = document.querySelector("#rankedDeleteGameBtn");
         rankedDeleteGameBtn?.addEventListener("click", async (e) => {
         e.stopPropagation();
         try {
-            const gameToDelete = `/game/2`;
+            const gameToDelete = `/game/48`;
             console.log("DELETE ADRESS", gameToDelete)
             const response = await instanceAPI.delete(gameToDelete);
             if(response.status === 200) {
