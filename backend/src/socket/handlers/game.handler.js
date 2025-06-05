@@ -24,8 +24,8 @@ async function handleJoinGame(io, socket, gameId) {
                 const socketsInRoom = Array.from(room);
                 gameState = new GameState(socketsInRoom[0], socketsInRoom[1]);
                 games.set(gameId, gameState);
-                setTimer(io, gameId);
-                io.to(`game_${gameId}`).emit('game:ready', gameState.getState());
+                setTimer(io, gameId, gameState);
+                console.log(`Game created in WEBSOCKETS for ${gameId}`);
             }
         }
         else if (roomSize > 2) {
@@ -42,14 +42,15 @@ async function handleJoinGame(io, socket, gameId) {
     }
 }
 
-async function setTimer(io, gameId)
+async function setTimer(io, gameId, gameState)
 {
-    const seconds = 10; 
+    let seconds = 10; 
     while(seconds > 0) {
         io.to(`game_${gameId}`).emit('game:timer', { seconds });
         await new Promise(resolve => setTimeout(resolve, 1000));
         seconds--;
     }
+    io.to(`game_${gameId}`).emit('game:ready', gameState.getState());
 }
 
 // async function handleLeaveGame(io, socket, gameId){
@@ -84,14 +85,13 @@ async function setTimer(io, gameId)
 //     }
 // }
 
-async function handleMovePaddle(data) {
-    const { gameId, playerId, direction } = data;
+async function handleMovePaddle(socket, data) {
+    const { gameId, direction } = data; 
+    const playerId = socket.user.id;
     let game = games.get(gameId);
     if (game) {
         game.movePaddle(playerId, direction);
-        // io.to(`game_${gameId}`).emit('game:update', game.getState());
     } else {
-        io.to(`game_${gameId}`).emit('game:error', { error: 'Game not found' });
         console.error(`Game ${gameId} not found for player ${playerId}`);
     }
 }
@@ -134,7 +134,7 @@ async function initialize(io) {
         socket.on('mm:leave', gameId => handleLeaveQueue(io, socket, gameId));
         socket.on('game:joinQueue', () => handleJoinQueue(socket));
         socket.on('game:leaveQueue', () => handleLeaveFromQueue(socket));
-        socket.on('game:movePaddle', data => handleMovePaddle(data));
+        socket.on('game:movePaddle', data => handleMovePaddle(socket, data));
     });
 }
 
