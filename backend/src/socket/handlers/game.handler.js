@@ -12,6 +12,12 @@ async function handleLeaveFromQueue(socket){
     console.log(`User ${socket.user.id} left matchmaking queue`);
 }
 
+// async function preGameTimer(io, gameId) {
+//     let seconds = 30;
+//     const room = socket.adapter.rooms.get(`game_${gameId}`);
+
+
+// }
 async function handleJoinGame(io, socket, gameId) {
     try {
         socket.join(`game_${gameId}`);
@@ -44,12 +50,13 @@ async function handleJoinGame(io, socket, gameId) {
 
 async function setTimer(io, gameId, gameState)
 {
-    let seconds = 10; 
+    let seconds = 5; 
     while(seconds > 0) {
         io.to(`game_${gameId}`).emit('game:timer', { seconds });
         await new Promise(resolve => setTimeout(resolve, 1000));
         seconds--;
     }
+    gameService.updateDuelStatus(gameId, 'playing')
     io.to(`game_${gameId}`).emit('game:ready', gameState.getState());
 }
 
