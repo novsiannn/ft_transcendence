@@ -12,6 +12,12 @@ async function handleLeaveFromQueue(socket){
     console.log(`User ${socket.user.id} left matchmaking queue`);
 }
 
+// async function preGameTimer(io, gameId) {
+//     let seconds = 30;
+//     const room = socket.adapter.rooms.get(`game_${gameId}`);
+
+
+// }
 async function handleJoinGame(io, socket, gameId) {
     try {
         socket.join(`game_${gameId}`);
@@ -24,7 +30,8 @@ async function handleJoinGame(io, socket, gameId) {
                 const socketsInRoom = Array.from(room);
                 gameState = new GameState(socketsInRoom[0], socketsInRoom[1]);
                 games.set(gameId, gameState);
-                io.to(`game_${gameId}`).emit('game:ready', gameState.getState());
+                setTimer(io, gameId, gameState);
+                console.log(`Game created in WEBSOCKETS for ${gameId}`);
             }
         }
         else if (roomSize > 2) {
@@ -41,9 +48,21 @@ async function handleJoinGame(io, socket, gameId) {
     }
 }
 
-async function handleLeaveGame(socket, gameId){
-    socket.leave(`game_${gameId}`);
-    console.log(`User ${socket.user.id} left game ${gameId}`);
+async function setTimer(io, gameId, gameState)
+{
+    let seconds = 5; 
+    while(seconds > 0) {
+        io.to(`game_${gameId}`).emit('game:timer', { seconds });
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        seconds--;
+    }
+    gameService.updateDuelStatus(gameId, 'playing')
+    io.to(`game_${gameId}`).emit('game:ready', gameState.getState());
+}
+
+// async function handleLeaveGame(io, socket, gameId){
+//     socket.leave(`game_${gameId}`);
+//     console.log(`User ${socket.user.id} left game ${gameId}`);
 
     const game = games.get(gameId)
     if (game) {
@@ -74,13 +93,13 @@ async function handleRestartGame(socket, gameId) {
 }
 
 async function handleMovePaddle(socket, data) {
-    const { gameId, playerId, direction } = data;
-    const game = games.get(gameId);
+    const { gameId, direction } = data; 
+    const playerId = socket.user.id;
+    let game = games.get(gameId);
     if (game) {
         game.movePaddle(playerId, direction);
-        io.to(`game_${gameId}`).emit('game:update', game.getState());
     } else {
-        socket.emit('game:error', { error: 'Game not found' });
+        console.error(`Game ${gameId} not found for player ${playerId}`);
     }
 }
 
@@ -116,6 +135,7 @@ async function initialize(io) {
         socket.on('mm:leave', gameId => handleLeaveQueue(io, socket, gameId));
         socket.on('game:joinQueue', () => handleJoinQueue(socket));
         socket.on('game:leaveQueue', () => handleLeaveFromQueue(socket));
+        socket.on('game:movePaddle', data => handleMovePaddle(socket, data));
     });
 }
 
