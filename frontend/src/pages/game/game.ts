@@ -265,7 +265,7 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
             initMultiplayerGame(gameId);
 
             updatePlayerProfiles(data);
-            setupButtonDelegation();
+            setupButtonDelegation(gameId);
 
 
 
@@ -279,6 +279,12 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
         startRankedMatchBtn?.classList.remove("hidden");
     }
 
+    let currentGame: any = null; // Добавьте эту переменную в начало функции handleGame
+
+function getCurrentGame() {
+    return currentGame;
+}
+
     function updatePlayerProfiles(gameData: any) {
 
         let game;
@@ -287,11 +293,18 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
         } else {
             game = gameData; // Для первого игрока (если данные приходят напрямую)
         }
+        currentGame = game;
+                const currentUserId = store.getUser().id;
+                let user1 = findUser(game.player1Id);
+                let user2 = findUser(game.player2Id);
+                
+                console.log("Updating player profiles with game data:", game);
+                console.log("Current user ID:", currentUserId);
+                console.log("Player1 ID:", game.player1Id, "Player2 ID:", game.player2Id);
 
-
-        let user1 = findUser(game.player1Id);
-        let user2 = findUser(game.player2Id);
-        console.log("Updating player profiles with game data:", game);
+                // Определяем, кто из игроков текущий пользователь
+                const isCurrentUserPlayer1 = currentUserId === game.player1Id;
+                const isCurrentUserPlayer2 = currentUserId === game.player2Id;
                 if(user1){
                     const user1 = findUser(game.player1Id);
                     rankedPlayerData.firstPlayer = user1!.username;
@@ -309,60 +322,78 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
                 }
                 console.log("PLAYER 2", rankedPlayerData.secondPlayer, rankedPlayerData.secondPlayerAvatar, rankedPlayerData.secondPlayerLetter, rankedPlayerData.secondPlayerColor);
                 rankedProfiles!.innerHTML = rankedPlayerProfiles();
-
+                  setupReadyButtonsVisibility(isCurrentUserPlayer1, isCurrentUserPlayer2);
     }
 
-    function setupButtonDelegation() {
-                const playerOneReadyBtn = document.querySelector("#playerOneReadyBtn");
-    const playerTwoReadyBtn = document.querySelector("#playerTwoReadyBtn");
-        playerOneReadyBtn?.classList.remove("hidden");
-        playerTwoReadyBtn?.classList.remove("hidden");
-        // Слушаем клики на родительском элементе rankedProfiles
-        rankedProfiles?.addEventListener("click", (e) => {
-            const target = e.target as HTMLElement;
-            target.classList.add("cursor-pointer");
-            
-            console.log("Click detected on:", target.id, target.tagName);
-            
-            if (target.id === "playerOneReadyBtn") {
-                e.stopPropagation();
-                console.log("Player One Ready clicked!");
-                target.classList.add("opacity-50");
-                target.classList.add("cursor-not-allowed");
-                target.classList.remove("hover:bg-blue-600");
-                target.setAttribute("disabled", "true");
-                target.textContent = "Ready!";
-                
-                
-                // if (currentGameId) {
-                //     console.log("Emitting playerReady for player 1, gameId:", currentGameId);
-                //     socket?.emit('game:playerReady', {
-                //         gameId: currentGameId,
-                //         playerId: 1
-                //     });
-                // }
-            }
-            
-            if (target.id === "playerTwoReadyBtn") {
-                e.stopPropagation();
-                console.log("Player Two Ready clicked!");
-                
-                target.classList.add("opacity-50");
-                target.classList.add("cursor-not-allowed");
-                target.classList.remove("hover:bg-blue-600");
-                target.setAttribute("disabled", "true");
-                target.textContent = "Ready!";
-                
-                // if (currentGameId) {
-                //     console.log("Emitting playerReady for player 2, gameId:", currentGameId);
-                //     socket?.emit('game:playerReady', {
-                //         gameId: currentGameId,
-                //         playerId: 2
-                //     });
-                // }
-            }
-        });
+    function setupReadyButtonsVisibility(isCurrentUserPlayer1: boolean, isCurrentUserPlayer2: boolean) {
+    const playerOneReadyBtn = document.querySelector("#playerOneReadyBtn") as HTMLButtonElement;
+    const playerTwoReadyBtn = document.querySelector("#playerTwoReadyBtn") as HTMLButtonElement;
+    
+    if (playerOneReadyBtn && playerTwoReadyBtn) {
+        if (isCurrentUserPlayer1) {
+            // Текущий пользователь - первый игрок, показываем только его кнопку
+            playerOneReadyBtn.classList.remove("hidden");
+            playerTwoReadyBtn.classList.add("hidden");
+            console.log("Showing Player One Ready button for current user");
+        } else if (isCurrentUserPlayer2) {
+            // Текущий пользователь - второй игрок, показываем только его кнопку
+            playerOneReadyBtn.classList.add("hidden");
+            playerTwoReadyBtn.classList.remove("hidden");
+            console.log("Showing Player Two Ready button for current user");
+        } else {
+            // Текущий пользователь не участвует в игре (не должно происходить)
+            playerOneReadyBtn.classList.add("hidden");
+            playerTwoReadyBtn.classList.add("hidden");
+            console.log("Hiding both buttons - user not in game");
+        }
     }
+}
+
+    function setupButtonDelegation(gameId: string) {
+    const currentUserId = store.getUser().id;
+    
+    // Создаем новый обработчик
+    const handleReadyButtonClick = (e: Event) => {
+        const target = e.target as HTMLElement;
+        
+        console.log("Click detected on:", target.id, target.tagName);
+        
+        if (target.id === "playerOneReadyBtn" || target.id === "playerTwoReadyBtn") {
+            e.stopPropagation();
+            
+            // Проверяем, имеет ли пользователь право нажимать эту кнопку
+            const game = getCurrentGame(); // Нужно будет добавить эту функцию
+            const isCurrentUserPlayer1 = currentUserId === game?.player1Id;
+            const isCurrentUserPlayer2 = currentUserId === game?.player2Id;
+            
+            const isPlayer1Button = target.id === "playerOneReadyBtn";
+            const isPlayer2Button = target.id === "playerTwoReadyBtn";
+            
+            // Проверяем соответствие кнопки и игрока
+            if ((isPlayer1Button && !isCurrentUserPlayer1) || (isPlayer2Button && !isCurrentUserPlayer2)) {
+                console.log("User cannot click this button - not their button");
+                return;
+            }
+            
+            console.log(`Player ${isPlayer1Button ? 'One' : 'Two'} Ready clicked by correct user!`);
+            
+            // Обновляем UI кнопки
+            target.classList.add("opacity-50");
+            target.classList.add("cursor-not-allowed");
+            target.classList.remove("hover:bg-blue-600");
+            target.setAttribute("disabled", "true");
+            target.textContent = "Ready!";
+            
+            // Отправляем событие на сервер
+            socket?.emit('game:join', gameId);
+            
+            console.log("Emitting game:join for gameId:", gameId);
+        }
+    };
+    
+    // Добавляем новый обработчик
+    rankedProfiles?.addEventListener("click", handleReadyButtonClick);
+}
 
     function initMultiplayerGame(gameId: string) {
         console.log("Initializing multiplayer game:", gameId);
@@ -741,7 +772,7 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
                 initMultiplayerGame(gameId);
                 
                 updatePlayerProfiles(userResponseData);
-                setupButtonDelegation();
+                setupButtonDelegation(gameId);
                 
                 rankedGameModal?.classList.add("hidden");
 
@@ -817,7 +848,7 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
         rankedDeleteGameBtn?.addEventListener("click", async (e) => {
         e.stopPropagation();
         try {
-            const gameToDelete = `/game/48`;
+            const gameToDelete = `/game/3`;
             console.log("DELETE ADRESS", gameToDelete)
             const response = await instanceAPI.delete(gameToDelete);
             if(response.status === 200) {

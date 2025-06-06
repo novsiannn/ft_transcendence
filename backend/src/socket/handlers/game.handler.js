@@ -30,6 +30,7 @@ async function handleJoinGame(io, socket, gameId) {
                 const socketsInRoom = Array.from(room);
                 gameState = new GameState(socketsInRoom[0], socketsInRoom[1]);
                 games.set(gameId, gameState);
+                gameService.updateDuelStatus(gameId, 'playing')
                 setTimer(io, gameId, gameState);
                 console.log(`Game created in WEBSOCKETS for ${gameId}`);
             }
@@ -56,7 +57,6 @@ async function setTimer(io, gameId, gameState)
         await new Promise(resolve => setTimeout(resolve, 1000));
         seconds--;
     }
-    gameService.updateDuelStatus(gameId, 'playing')
     io.to(`game_${gameId}`).emit('game:ready', gameState.getState());
 }
 
@@ -64,33 +64,33 @@ async function setTimer(io, gameId, gameState)
 //     socket.leave(`game_${gameId}`);
 //     console.log(`User ${socket.user.id} left game ${gameId}`);
 
-    const game = games.get(gameId)
-    if (game) {
-        io.to(`game_${gameId}`).emit('game:finished', { message: 'Game finished' });
-    }
-}
+//     const game = games.get(gameId)
+//     if (game) {
+//         io.to(`game_${gameId}`).emit('game:finished', { message: 'Game finished' });
+//     }
+// }
 
 
-function handleStartGame(socket, gameId) {
-    const game = games.get(gameId);
-    if (game) {
-        game.start();
-        io.to(`game_${gameId}`).emit('game:start', game.getState());
-    } else {
-        socket.emit('game:error', { error: 'Game not found' });
-    }
-}
+// function handleStartGame(io, socket, gameId) {
+//     const game = games.get(gameId);
+//     if (game) {
+//         game.start();
+//         io.to(`game_${gameId}`).emit('game:start', game.getState());
+//     } else {
+//         socket.emit('game:error', { error: 'Game not found' });
+//     }
+// }
 
-async function handleRestartGame(socket, gameId) {
-    const game = games.get(gameId);
-    if (game) {
-        game.restart();
-        game.start();// не уверен, что это нужно
-        io.to(`game_${gameId}`).emit('game:restart', game.getState());
-    } else {
-        socket.emit('game:error', { error: 'Game not found' });
-    }
-}
+// async function handleRestartGame(io,socket, gameId) {
+//     const game = games.get(gameId);
+//     if (game) {
+//         game.restart();
+//         game.start();
+//         io.to(`game_${gameId}`).emit('game:restart', game.getState());
+//     } else {
+//         socket.emit('game:error', { error: 'Game not found' });
+//     }
+// }
 
 async function handleMovePaddle(socket, data) {
     const { gameId, direction } = data; 
@@ -124,7 +124,13 @@ async function initialize(io) {
                 io.to(`game_${gameId}`).emit('game:update', game.getState());
 
                 if (game.winner) {
-                    gameService.finishGame(gameId, game.winner, game.getScore());
+                    gameService.finishDuel(gameId, game.paddles[game.player1Id].score, game.paddles[game.player2Id].score)
+                        .then(() => {
+                            io.to(`game_${gameId}`).emit('game:finished', { winner: game.winner });
+                        })
+                        .catch(error => {
+                            console.error('Error finishing duel:', error);
+                        });
                     games.delete(gameId);
                 }
             }
