@@ -1,5 +1,5 @@
 const jwt = require("jsonwebtoken");
-const TokenModel = require("../../db/models/TokenModel");
+// const TokenModel = require("../../db/models/TokenModel");
 // require("dotenv").config();
 
 function generateTokens(payload) {
@@ -29,32 +29,32 @@ async function validateRefreshToken(token) {
   }
 }
 
-async function saveToken(userId, refreshToken) {
-  const tokenData = await TokenModel.findOne({ where: { userId } });
-  if (tokenData) {
-    tokenData.refreshToken = refreshToken;
-    return tokenData.save();
-  }
-  const token = await TokenModel.create({ userId, refreshToken });
-  return token;
-}
+// async function saveToken(userId, refreshToken) {
+//   const tokenData = await TokenModel.findOne({ where: { userId } });
+//   if (tokenData) {
+//     tokenData.refreshToken = refreshToken;
+//     return tokenData.save();
+//   }
+//   const token = await TokenModel.create({ userId, refreshToken });
+//   return token;
+// }
 
-async function removeToken(refreshToken) {
-  try {
-    const tokenData = await TokenModel.destroy({ where: { refreshToken } });
-    return tokenData;
-  } catch (error) {
-    throw error;
-  }
-}
+// async functionrefreshToken) {
+//   try {
+//     const tokenData = await TokenModel.destroy({ where: { refreshToken } });
+//     return tokenData;
+//   } catch (error) {
+//     throw error;
+//   }
+// }
 
-async function findToken(refreshToken) {
-  try {
-    const tokenData = await TokenModel.findOne({ where: { refreshToken } });
-    return tokenData;
-  } catch (error) {
-    throw error;
-  }
-}
+// async function findToken(refreshToken) {
+//   try {
+//     const tokenData = await TokenModel.findOne({ where: { refreshToken } });
+//     return tokenData;
+//   } catch (error) {
+//     throw error;
+//   }
+// }
 
-module.exports = { findToken, validateRefreshToken, validateAccessToken, removeToken, generateTokens, saveToken };
+module.exports = { validateRefreshToken, validateAccessToken, generateTokens };

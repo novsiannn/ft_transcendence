@@ -1,6 +1,6 @@
 const User = require("../../db/models/UserModel");
 const PinPong = require("../../db/models/PinPongModel");
-const Token = require("../../db/models/TokenModel");
+// const Token = require("../../db/models/TokenModel");
 const bcrypt = require("bcrypt");
 const uuid = require("uuid");
 const { sendActivationMail } = require("./mail.service");
