@@ -32,7 +32,7 @@ async function handleJoinGame(io, socket, gameId) {
                 games.set(gameId, gameState);
                 gameService.updateDuelStatus(gameId, 'playing')
                 setTimer(io, gameId, gameState);
-                console.log(`Game created in WEBSOCKETS for ${gameId}`);
+                console.log(`Game created in WEBSOCKETS for game ${gameId}`);
             }
         }
         else if (roomSize > 2) {
@@ -122,7 +122,7 @@ async function initialize(io) {
             if (game.isRunning) {
                 game.update();
                 io.to(`game_${gameId}`).emit('game:update', game.getState());
-
+                console.log(`Game ${gameId} updated:`, game.getState());
                 if (game.winner) {
                     gameService.finishDuel(gameId, game.paddles[game.player1Id].score, game.paddles[game.player2Id].score)
                         .then(() => {
