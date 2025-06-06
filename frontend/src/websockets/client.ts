@@ -234,6 +234,7 @@ export function initializeSocket(): Socket | null {
     }
   });
 
+
   socket.on("game:update", (newGameState: IGameState) => {
     gameState = newGameState
     console.log("!!!GameState data!!!: ", gameState);

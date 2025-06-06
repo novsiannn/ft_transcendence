@@ -22,6 +22,7 @@ import {
     clearGameCallbacks
 } from "../../websockets/client";
 import { findUser } from "../../shared";
+import { init } from "i18next";
 
 export function handleGame(mainWrapper: HTMLDivElement | undefined) {
     navigationHandle();
@@ -141,7 +142,7 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
     drawBoard(gameState);
     drawPaddles(gameState);
     drawBall(gameState);
-    updateScore(gameState);
+    // updateScore(gameState);
 
     // Проверяем победителя
     if (gameState.winner) {
@@ -239,10 +240,10 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
         context!.shadowBlur = 0;
     }
 
-    function updateScore(gameState: IGameState) {
+    // function updateScore(gameState: IGameState) {
 
-        scoreInfo!.textContent = `${gameState.paddles["1"].score} : ${gameState.paddles["2"].score}`;
-    }
+    //     scoreInfo!.textContent = `${gameState.paddles["1"].score} : ${gameState.paddles["2"].score}`;
+    // }
 
     // РЕЖИМЫ ИГРЫ
     function initTournamentGame() {
@@ -409,6 +410,7 @@ function getCurrentGame() {
         // Join the game
         // joinGame(gameId);
         scoreInfo!.classList.remove('hidden');
+        initGame();
     }
 
     function cleanupCurrentGame() {
@@ -492,7 +494,7 @@ function getCurrentGame() {
 
         drawBoard(gameState);
         drawPaddles(gameState);
-        updateScore(gameState);
+        // updateScore(gameState);
         setBallDirection();
         drawBall(gameState);
         scoreInfo!.classList.add('hidden');
@@ -503,32 +505,30 @@ function getCurrentGame() {
         }
     }
     
-    // function initGame() {
-    //     cleanupCurrentGame();
-    //     rankedGameStatus();
-    //     setupRankedListeners();
-    //     // setupButtonDelegation();
+    function initGame() {
+        cleanupCurrentGame();
+        // setupButtonDelegation();
         
-    //     // Настраиваем WebSocket обработчики
-    //     onGameUpdate((gameState) => {
-    //         renderGame(gameState);
-    //     });
+        // Настраиваем WebSocket обработчики
+        onGameUpdate((gameState) => {
+            renderGame(gameState);
+        });
 
-    //     onGameStart((gameState) => {
-    //         console.log("Game started!");
-    //         renderGame(gameState);
-    //         scoreInfo!.classList.remove('hidden');
-    //     });
+        onGameStart((gameState) => {
+            console.log("Game started!");
+            renderGame(gameState);
+            scoreInfo!.classList.remove('hidden');
+        });
 
-    //     onGameFinished((result) => {
-    //         console.log("Game finished:", result);
-    //         handleGameOver();
-    //     });
+        onGameFinished((result) => {
+            console.log("Game finished:", result);
+            handleGameOver();
+        });
 
-    //     onGameError((error) => {
-    //         console.error("Game error:", error);
-    //     });
-    // }
+        onGameError((error) => {
+            console.error("Game error:", error);
+        });
+    }
 
     function startGame(ev: KeyboardEvent) {
         const preGameModal = document.querySelector("#preGameModal");
@@ -848,7 +848,7 @@ function getCurrentGame() {
         rankedDeleteGameBtn?.addEventListener("click", async (e) => {
         e.stopPropagation();
         try {
-            const gameToDelete = `/game/3`;
+            const gameToDelete = `/game/6`;
             console.log("DELETE ADRESS", gameToDelete)
             const response = await instanceAPI.delete(gameToDelete);
             if(response.status === 200) {
@@ -858,5 +858,5 @@ function getCurrentGame() {
             console.error('Error deleting game:', error);
         }
     });
-    // initGame();
+    initGame();
 }

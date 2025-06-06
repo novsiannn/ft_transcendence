@@ -51,12 +51,15 @@ async function handleJoinGame(io, socket, gameId) {
 
 async function setTimer(io, gameId, gameState)
 {
+    console.log("Timer started");
     let seconds = 5; 
     while(seconds > 0) {
         io.to(`game_${gameId}`).emit('game:timer', { seconds });
+        console.log(`Timer = ${seconds}`);
         await new Promise(resolve => setTimeout(resolve, 1000));
         seconds--;
     }
+    gameState.start();
     io.to(`game_${gameId}`).emit('game:ready', gameState.getState());
 }
 
