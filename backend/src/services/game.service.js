@@ -269,9 +269,6 @@ async function deleteGame(gameId, userId) {
             return { error: 'You are not authorized to delete this game' };
         }
 
-        if (game.status === 'playing') {
-            return { error: 'Cannot delete game that is currently in progress' };
-        }
 
         await game.destroy();
         return { success: true, message: 'Game deleted successfully' };

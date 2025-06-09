@@ -1,5 +1,6 @@
 import { getModalWindowError} from "../../elements";
 import { store, API_URL} from "../../store/store";
+import { tournamentBracket } from "./tournamentBracket";
 
 export function preGameModal() {
   return `
@@ -78,6 +79,7 @@ export function tournamentModal() {
         <button id="submitNicknameBtn" type="submit" class=" mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">Submit</button>
         <button id="startTournament" class="hidden mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">Start Tournament!</button>
       </div>
+      ${tournamentBracket()}
       ${getModalWindowError()}
     </div>
   `;

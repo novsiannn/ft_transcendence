@@ -23,6 +23,7 @@ import {
 } from "../../websockets/client";
 import { findUser } from "../../shared";
 import { init } from "i18next";
+import { tournamentBracket } from "./tournamentBracket";
 
 export function handleGame(mainWrapper: HTMLDivElement | undefined) {
     navigationHandle();
@@ -594,6 +595,7 @@ function handleKeyDown(ev: KeyboardEvent) {
     const playerNickname = document.querySelector("#playerNickname") as HTMLInputElement;
     const tournamentProfiles = document.querySelector("#tournamentProfiles");
     const selectAvatar = document.querySelector("#selectedAvatar");
+    const tournamentBracket = document.querySelector("#tournamentBracket");
     
     clickSubmitNicknameBtn?.addEventListener("click", (e) => {
         e.stopPropagation();
@@ -625,6 +627,7 @@ function handleKeyDown(ev: KeyboardEvent) {
         if(tournamentPlayerData.nicknames.length === 4) {
             tournamentModal?.classList.add("hidden");
             tournamentModal?.classList.remove("flex");
+            tournamentBracket?.classList.remove("hidden");
             createTournamentNet();
         }
     }
@@ -892,5 +895,7 @@ function handleKeyDown(ev: KeyboardEvent) {
             console.error('Error deleting game:', error);
         }
     });
+
+
     initGame();
 }
