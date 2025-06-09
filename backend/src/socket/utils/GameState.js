@@ -102,9 +102,9 @@ class GameState {
             this.ball.speed = this.settings.initialBallSpeed;
             this.setBallDirection();
 
-            if(this.paddles[this.player1Id].score >= this.maxScore || this.paddles[this.player2Id].score >= this.maxScore) {
-                this.winner = this.paddles[this.player1Id].score >= this.maxScore ? this.player1Id : this.player2Id;
-                this.isRunning = false;
+            if(this.paddles[this.player1Id].score >= this.settings.maxScore || this.paddles[this.player2Id].score >= this.settings.maxScore) {
+                this.winner = this.paddles[this.player1Id].score >= this.settings.maxScore ? this.player1Id : this.player2Id;
+                // this.isRunning = false;
             }
         }
     }
