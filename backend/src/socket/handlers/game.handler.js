@@ -28,7 +28,15 @@ async function handleJoinGame(io, socket, gameId) {
             let gameState = games.get(gameId);
             if (!gameState) {
                 const socketsInRoom = Array.from(room);
-                gameState = new GameState(socketsInRoom[0], socketsInRoom[1]);
+                const player1Socket = io.sockets.sockets.get(socketsInRoom[0]);
+                const player2Socket = io.sockets.sockets.get(socketsInRoom[1]);
+                const player1Id = player1Socket?.user?.id;
+                const player2Id = player2Socket?.user?.id;
+                if (!player1Id || !player2Id) {
+                    socket.emit('game:error', { error: 'Players not authenticated' });
+                    return;
+                }
+                gameState = new GameState(player1Id, player2Id);
                 games.set(gameId, gameState);
                 gameService.updateDuelStatus(gameId, 'playing')
                 setTimer(io, gameId, gameState);
