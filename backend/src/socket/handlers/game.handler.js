@@ -95,6 +95,11 @@ async function setTimer(io, gameId, gameState)
 async function handleMovePaddle(socket, data) {
     const { gameId, direction } = data; 
     const playerId = socket.user.id;
+    console.log(`User ${playerId} is moving paddle in game ${gameId} direction: ${direction}`);
+    if (!gameId || !direction) {
+        console.error('Invalid data for paddle movement:', data);
+        return;
+    }
     let game = games.get(gameId);
     if (game) {
         game.movePaddle(playerId, direction);
@@ -119,11 +124,7 @@ async function handleLeaveQueue(io, socket, gameId) {
 async function initialize(io) {
     setInterval(() => {
         games.forEach((game, gameId) => {
-            if (game.isRunning) {
-                game.update();
-                io.to(`game_${gameId}`).emit('game:update', game.getState());
-                console.log(`Game ${gameId} updated:`, game.getState());
-                if (game.winner) {
+            if (game.winner) {
                     gameService.finishDuel(gameId, game.paddles[game.player1Id].score, game.paddles[game.player2Id].score)
                         .then(() => {
                             io.to(`game_${gameId}`).emit('game:finished', { winner: game.winner });
@@ -133,6 +134,10 @@ async function initialize(io) {
                         });
                     games.delete(gameId);
                 }
+            if (game.isRunning) {
+                game.update();
+                io.to(`game_${gameId}`).emit('game:update', game.getState());
+                console.log(`Game ${gameId} updated:`, game.getState());
             }
         });
     }, 1000 / 60); 

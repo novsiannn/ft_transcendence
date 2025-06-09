@@ -109,10 +109,10 @@ async function updateDuelStatus(duelId, status) {
         if (!duel) {
             return { error: 'Duel not found' };
         }
-        if (duel.status === 'finished') {
+        if (duel.status == 'finished') {
             return { error: 'Duel already finished' };
         }
-        if (!['waiting', 'in_progress', 'finished'].includes(status)) {
+        if (!['waiting', 'playing', 'finished'].includes(status)) {
             return { error: 'Invalid status' };
         }
         await duel.update({ status });
