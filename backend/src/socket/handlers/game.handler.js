@@ -142,6 +142,7 @@ async function initialize(io) {
             }
             if (game.winner) {
                     game.isRunning = false;
+                    gameService.updateElo(gameId);
                     gameService.finishDuel(gameId, game.paddles[game.player1Id].score, game.paddles[game.player2Id].score)
                         .then(() => {
                             io.to(`game_${gameId}`).emit('game:finished', { winner: game.winner });

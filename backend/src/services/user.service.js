@@ -530,15 +530,19 @@ async function countProcentWinrate(userId) {
       return { error: "User not found" };
     }
 
-    const totalGames = await PinPong.count({
+    // Получаем все игры пользователя
+    const allGames = await PinPong.findAll({
       where: {
         status: 'finished',
         [Op.or]: [
           { player1Id: userId },
           { player2Id: userId }
         ]
-      }
+      },
+      attributes: ['player1Id', 'player2Id', 'player1Score', 'player2Score']
     });
+
+    const totalGames = allGames.length;
 
     if (totalGames === 0) {
       return {
@@ -548,26 +552,24 @@ async function countProcentWinrate(userId) {
       };
     }
 
-    const wonGames = await PinPong.count({
-      where: {
-        status: 'finished',
-        [Op.or]: [
-          {
-            player1Id: userId,
-            player1Score: 5
-          },
-          {
-            player2Id: userId,
-            player2Score: 5
-          }
-        ]
+    // Подсчитываем победы вручную
+    let wonGames = 0;
+    allGames.forEach(game => {
+      const isPlayer1 = game.player1Id === userId;
+      const isPlayer2 = game.player2Id === userId;
+      
+      if (isPlayer1 && game.player1Score > game.player2Score) {
+        wonGames++; // Игрок 1 победил
+      } else if (isPlayer2 && game.player2Score > game.player1Score) {
+        wonGames++; // Игрок 2 победил
       }
     });
 
     console.log('Query results:', {
       userId,
       totalGames,
-      wonGames
+      wonGames,
+      lostGames: totalGames - wonGames
     });
 
     const winrate = Math.round((wonGames / totalGames) * 100);
