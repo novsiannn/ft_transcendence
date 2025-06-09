@@ -142,7 +142,7 @@ async function start() {
     console.log('Server listening at https://localhost:3000');
 
 
-    await sequelize.sync({ force: true }); //true for cleaning the database
+    await sequelize.sync({ force: false }); //true for cleaning the database
     console.log('Database & tables created!');
 
   } catch (err) {

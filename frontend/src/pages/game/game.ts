@@ -396,38 +396,76 @@ function getCurrentGame() {
     rankedProfiles?.addEventListener("click", handleReadyButtonClick);
 }
 
+function setupKeyboardHandlers() {
+    // Убираем старые обработчики, чтобы избежать дублирования
+    window.removeEventListener("keydown", handleKeyDown);
+    window.removeEventListener("keyup", handleKeyUp);
+    
+    // Добавляем новые
+    window.addEventListener("keydown", handleKeyDown);
+    window.addEventListener("keyup", handleKeyUp);
+    
+    console.log("Keyboard handlers attached for game mode:", gameMode);
+}
+
+function setupMultiplayerSocketHandlers() {
+    // Очищаем старые обработчики
+    clearGameCallbacks();
+    
+    onGameUpdate((gameState) => {
+        // console.log("Received game update:", gameState);
+        renderGame(gameState);
+    });
+
+    onGameStart((gameState) => {
+        console.log("Game started!");
+        isGameRunning = true;
+        renderGame(gameState);
+        scoreInfo!.classList.remove('hidden');
+    });
+
+    onGameFinished((result) => {
+        console.log("Game finished:", result);
+        handleGameOver();
+    });
+
+    onGameError((error) => {
+        console.error("Game error:", error);
+    });
+}
+
     function initMultiplayerGame(gameId: string) {
         console.log("Initializing multiplayer game:", gameId);
         gameMode = 'multiplayer';
         currentGameId = gameId;
-        cleanupCurrentGame();
         currentGameState = getCurrentGameState();
-        // Setup WebSocket listeners directly
-        // socket?.emit('game:join', gameId);
+
         socket?.emit('mm:leave', gameId);
         renderGame(currentGameState);
         
-        // Join the game
-        // joinGame(gameId);
         scoreInfo!.classList.remove('hidden');
-        initGame();
+
+            setupMultiplayerSocketHandlers();
+        setupKeyboardHandlers();
+        // initGame();
     }
 
-    function cleanupCurrentGame() {
-        if (currentGameId) {
-            leaveGame(currentGameId);
-        }
-        clearGameCallbacks();
-        currentGameId = null;
-        
-        // clearInterval(intervalID);
-        window.removeEventListener("keydown", handleKeyDown);
-        window.removeEventListener("keyup", handleKeyUp);
-        // window.removeEventListener("keyup", startGame);
-        
-        gameMode = null;
-        isGameRunning = false;
+function cleanupCurrentGame() {
+    if (currentGameId) {
+        leaveGame(currentGameId);
     }
+    clearGameCallbacks();
+    
+    // Убираем обработчики клавиш
+    window.removeEventListener("keydown", handleKeyDown);
+    window.removeEventListener("keyup", handleKeyUp);
+    
+    currentGameId = null;
+    gameMode = null;
+    isGameRunning = false;
+    
+    console.log("Game cleanup completed");
+}
 
     // СУЩЕСТВУЮЩИЕ ФУНКЦИИ (для совместимости)
     function chooseBallDirection() {
@@ -462,19 +500,34 @@ function getCurrentGame() {
         }
     }
 
-    function handleKeyDown(ev: KeyboardEvent) {
-        const key = ev.key.toLowerCase();
-        keys.add(key);
-        
-        // Send paddle movement for multiplayer games
-        if (gameMode === 'multiplayer' && currentGameId) {
-            if (key === 'w' || key === 'arrowup') {
-                movePaddle(currentGameId, 'up');
-            } else if (key === 's' || key === 'arrowdown') {
-                movePaddle(currentGameId, 'down');
-            }
+function handleKeyDown(ev: KeyboardEvent) {
+    const key = ev.key.toLowerCase();
+    keys.add(key);
+    
+    console.log("=== KEY PRESSED DEBUG ===");
+    console.log("Key:", key);
+    console.log("Game mode:", gameMode);
+    console.log("Game ID:", currentGameId);
+    // console.log("Game running:", isGameRunning);
+    console.log("Socket connected:", !!socket);
+    
+    // Для мультиплеера отправляем на сервер
+    if (gameMode === 'multiplayer' && currentGameId) {
+        if (key === 'w') {
+            console.log("🚀 Sending paddle UP command to server");
+            movePaddle(currentGameId, 'up');
+        } else if (key === 's') {
+            console.log("🚀 Sending paddle DOWN command to server");
+            movePaddle(currentGameId, 'down');
         }
+    } else {
+        console.log("❌ Not sending paddle movement:", {
+            gameMode,
+            currentGameId,
+            condition: gameMode === 'multiplayer' && currentGameId
+        });
     }
+}
     
     function handleKeyUp(ev: KeyboardEvent) {
         const key = ev.key.toLowerCase();
@@ -499,34 +552,15 @@ function getCurrentGame() {
         drawBall(gameState);
         scoreInfo!.classList.add('hidden');
     
-        if (!gameStartedOnce && gameMode !== 'local' && gameMode !== 'multiplayer') {
-            window.removeEventListener("keyup", startGame);
-            window.addEventListener("keyup", startGame, { once: true });
-        }
+        // if (!gameStartedOnce && gameMode !== 'local' && gameMode !== 'multiplayer') {
+        //     window.removeEventListener("keyup", startGame);
+        //     window.addEventListener("keyup", startGame, { once: true });
+        // }
     }
     
     function initGame() {
-        cleanupCurrentGame();
-        // setupButtonDelegation();
-        
-        // Настраиваем WebSocket обработчики
         onGameUpdate((gameState) => {
             renderGame(gameState);
-        });
-
-        onGameStart((gameState) => {
-            console.log("Game started!");
-            renderGame(gameState);
-            scoreInfo!.classList.remove('hidden');
-        });
-
-        onGameFinished((result) => {
-            console.log("Game finished:", result);
-            handleGameOver();
-        });
-
-        onGameError((error) => {
-            console.error("Game error:", error);
         });
     }
 
@@ -848,7 +882,7 @@ function getCurrentGame() {
         rankedDeleteGameBtn?.addEventListener("click", async (e) => {
         e.stopPropagation();
         try {
-            const gameToDelete = `/game/6`;
+            const gameToDelete = `/game/8`;
             console.log("DELETE ADRESS", gameToDelete)
             const response = await instanceAPI.delete(gameToDelete);
             if(response.status === 200) {

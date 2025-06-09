@@ -237,7 +237,6 @@ export function initializeSocket(): Socket | null {
 
   socket.on("game:update", (newGameState: IGameState) => {
     gameState = newGameState
-    console.log("!!!GameState data!!!: ", gameState);
     if (gameCallbacks.onGameUpdate) {
       gameCallbacks.onGameUpdate(gameState);
     }
@@ -245,7 +244,6 @@ export function initializeSocket(): Socket | null {
 
   socket.on("game:start", (newGameState: IGameState) => {
     console.log("Game started!", gameState);
-    console.log("!!!GameState data!!!: ", gameState);
     gameState = newGameState;
 
     if (gameCallbacks.onGameStart) {
@@ -280,11 +278,9 @@ export function initializeSocket(): Socket | null {
 
 export function movePaddle(gameId: string, direction: 'up' | 'down'): void {
   if (!socket) return;
-  
-  const userId = store.getUser().id;
-  socket.emit('game:move', {
+
+  socket.emit('game:movePaddle', {
     gameId: gameId,
-    playerId: userId,
     direction: direction
   });
 }

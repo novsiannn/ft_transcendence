@@ -125,7 +125,8 @@ async function initialize(io) {
             if (game.isRunning) {
                 game.update();
                 io.to(`game_${gameId}`).emit('game:update', game.getState());
-                console.log(`Game ${gameId} updated:`, game.getState());
+                const gameState1 = game.getState();
+                console.log(`Game ${gameId} updated:`, gameState1.paddles);
                 if (game.winner) {
                     gameService.finishDuel(gameId, game.paddles[game.player1Id].score, game.paddles[game.player2Id].score)
                         .then(() => {
