@@ -8,7 +8,11 @@ import {
 import { refreshNotifications } from "../elements/navigation";
 import { store } from "../store/store";
 import { refreshProfileBtnsBlock } from "../pages/profile/getUserData";
-import { findUser } from "../shared";
+import {
+  findUser,
+  refreshOnlineStatus,
+  refreshOnlineStatusFriendsPage,
+} from "../shared";
 import { IUser } from "../services/api/models/response/IUser";
 import { navigateTo } from "../routing";
 
@@ -265,6 +269,40 @@ export function initializeSocket(): Socket | null {
     if (gameCallbacks.onGameError) {
       gameCallbacks.onGameError(error);
     }
+  });
+
+  socket?.on("online:users:list", (data) => {
+    console.log(data);
+  });
+
+  socket?.on("online:error", (data) => {
+    console.log(data);
+  });
+
+  socket?.on("online:user:status", (data) => {
+    refreshOnlineStatus(data);
+    console.log(data);
+  });
+
+  socket?.on("user:offline", (data) => {
+    refreshOnlineStatus(data);
+
+    if (location.pathname === "/friends") socket?.emit("online:get:all:status");
+
+    console.log(data);
+  });
+
+  socket?.on("user:online", (data) => {
+    refreshOnlineStatus(data);
+
+    if (location.pathname === "/friends") socket?.emit("online:get:all:status");
+
+    console.log(data);
+  });
+
+  socket?.on("online:all:status", (data) => {
+    refreshOnlineStatusFriendsPage(data);
+    console.log(data);
   });
 
   return socket;

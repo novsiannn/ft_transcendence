@@ -4,6 +4,7 @@ const notificationHandler = require('./handlers/notification');
 const chatHandler = require('./handlers/chat');
 const gameHandler = require('./handlers/game.handler');
 const userTracker = require('./utils/userTracker');
+const onlineHandler = require('./handlers/online.handler');
 
 function setupWebSockets(server) {
     const io = new Server(server, {
@@ -36,18 +37,27 @@ function setupWebSockets(server) {
         socket.emit('connected', {
             userId: userId,
             username: socket.user.username //may be errors
-        })
+        });
+
+        socket.on('user:logout', () => {
+            userTracker.removeUser(userId, socket);
+            socket.disconnect();
+        });
 
         socket.on('disconnect', function () {
             console.log(`Socket disconnected: ${socket.id}, User: ${userId}`);
             userTracker.removeUser(userId, socket);
         });
+
     });
 
     notificationHandler.initialize(io);
     chatHandler.initialize(io);
     gameHandler.initialize(io);
+    onlineHandler.initialize(io);
+
     io.notification = notificationHandler;
+    io.online = onlineHandler;
 
     console.log('WebSocket server initialized');
 

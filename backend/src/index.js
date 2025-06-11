@@ -122,7 +122,8 @@ fastify.register(require('@fastify/swagger-ui'), {
 fastify.register(userRoutes);
 
 fastify.get('/', (request, reply) => {
-  reply.code(301).redirect('https://localhost:8888');
+  const host = request.headers.host?.split(':')[0] || 'localhost';
+  reply.code(301).redirect(`https://${host}:8888`);
 });
 
 

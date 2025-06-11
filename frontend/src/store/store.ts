@@ -24,7 +24,7 @@ import { initializeSocket, socket } from "../websockets";
 import notificationService from "../services/api/notificationServices";
 import { refreshNotifications } from "../elements/navigation";
 
-export const API_URL: string = "https://localhost:3000";
+export const API_URL: string = `https://${window.location.hostname}:3000`;
 
 class Store {
   constructor() {}

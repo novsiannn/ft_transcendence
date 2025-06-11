@@ -1,5 +1,7 @@
 import instanceAPI from "./instanceAxios";
 import { IAuthResponse } from "./models/response/AuthResponse";
+import { getSocket, disconnectSocket } from "../../websockets/client";
+
 
 const authService = {
   login: async (email: string | null, password: string | null) => {
@@ -18,6 +20,13 @@ const authService = {
     });
   },
   logout: async () => {
+
+    const socket = getSocket();
+    if (socket && socket.connected) {
+      socket.emit('user:logout');
+    }
+    disconnectSocket();
+
     return await instanceAPI.post("logout");
   },
   enableTwoFactor: async () => {
