@@ -10,6 +10,7 @@ export function profilePage(mainWrapper: HTMLDivElement | undefined) {
     <div class="w-full bg-gray-300 min-h-screen flex flex-col font-sans ">
       <div class="bg-white mx-auto mt-8 w-1/2 shadow-md rounded-3xl p-6 text-center mb-8">
         <div class="flex flex-col min-h-full items-center gap-4" id="profileDataContainer">
+          <img id="profileImg" class="hidden rounded-full w-20 h-20 object-cover"></img>
           <div id="profileImgEmpty" class=" relative text-white text-3xl font-bold rounded-full w-24 h-24 flex items-center justify-center">
           </div>
             <div class="flex flex-col gap-2">
