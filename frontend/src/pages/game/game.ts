@@ -22,15 +22,13 @@ import {
     clearGameCallbacks
 } from "../../websockets/client";
 import { findUser } from "../../shared";
-import { init } from "i18next";
 import { tournamentBracket } from "./tournamentBracket";
+import { rankedWinnerData } from "./gameModal";
 
 export function handleGame(mainWrapper: HTMLDivElement | undefined) {
     navigationHandle();
-    const gameOverText = document.querySelector("#gameOverText");
     const scoreInfo = document.querySelector("#score-info");
     const gameBoard = document.getElementById("game-board") as HTMLCanvasElement;
-    const restartBtn = document.querySelector("#restart-btn");
     
     let intervalID: ReturnType<typeof setInterval>;
     let isGameRunning = false;
@@ -49,23 +47,17 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
     const firstPaddleColor = "white";
     const secondPaddleColor = "white";
 
-    const gameBoardWidth = gameBoard.width;
-    const gameBoardHeight = gameBoard.height;
-
-    //     const playerOneReadyBtn = document.querySelector("#playerOneReadyBtn");
-    // const playerTwoReadyBtn = document.querySelector("#playerTwoReadyBtn");
-
     let currentGameState = getCurrentGameState();
     
-    const moveFirstPaddleKey = {
-        up: "w",
-        down: "s"
-    }
+    // const moveFirstPaddleKey = {
+    //     up: "w",
+    //     down: "s"
+    // }
     
-    const moveSecondPaddleKey = {
-        up: "arrowup",
-        down: "arrowdown"
-    }
+    // const moveSecondPaddleKey = {
+    //     up: "arrowup",
+    //     down: "arrowdown"
+    // }
 
     const keys = new Set<string>();
 
@@ -75,9 +67,7 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
     }
 
     const ballRadius = currentGameState.settings.ballRadius;
-    // const initialBallSpeed = 7;
-    // let ballSpeed = initialBallSpeed;
-    // const paddleSpeed = 40;
+
     let firstPlayerScore = currentGameState.paddles['1'].score;
     let secondPlayerScore = currentGameState.paddles['2'].score || 0;
 
@@ -93,9 +83,6 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
 
     let firstPaddle = { ...firstPaddleInitial };
     let secondPaddle = { ...secondPaddleInitial };
-
-    let firstPaddleTargetY = firstPaddle.y;
-    let secondPaddleTargetY = secondPaddle.y;
 
     const paddleEffects = {
         glowSize: 15,      
@@ -143,12 +130,8 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
     drawBoard(gameState);
     drawPaddles(gameState);
     drawBall(gameState);
-    // updateScore(gameState);
+    updateScore(gameState);
 
-    // Проверяем победителя
-    if (gameState.winner) {
-        handleGameOver();
-    }
 }
 
     function drawBoard(gameState: IGameState) {
@@ -241,10 +224,10 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
         context!.shadowBlur = 0;
     }
 
-    // function updateScore(gameState: IGameState) {
+    function updateScore(gameState: IGameState) {
 
-    //     scoreInfo!.textContent = `${gameState.paddles["1"].score} : ${gameState.paddles["2"].score}`;
-    // }
+        scoreInfo!.textContent = `${gameState.paddles["1"].score} : ${gameState.paddles["2"].score}`;
+    }
 
     // РЕЖИМЫ ИГРЫ
     function initTournamentGame() {
@@ -427,7 +410,7 @@ function setupMultiplayerSocketHandlers() {
 
     onGameFinished((result) => {
         console.log("Game finished:", result);
-        handleGameOver();
+        handleGameOver(result);
     });
 
     onGameError((error) => {
@@ -487,18 +470,23 @@ function cleanupCurrentGame() {
         }
     }
 
-    function handleGameOver() {
-        if (firstPlayerScore >= 5 || secondPlayerScore >= 5) {
+    function handleGameOver(result?: any) {
+        const gameOverModal = document.querySelector("#gameOverModal");
             // clearInterval(intervalID);
             isGameRunning = false;
             isWaitingForStart = true;
             gameStartedOnce = false;
             scoreInfo!.classList.add('hidden');
-            gameOverText!.classList.remove('hidden');	
+            gameOverModal!.classList.remove('hidden');
+            gameOverModal!.classList.add('flex');
+    
+            if(result?.winner) {
+                rankedWinnerData.id = result.winner;
+            }
+                
             
             // Очищаем игровой обработчик
             cleanupCurrentGame();
-        }
     }
 
 function handleKeyDown(ev: KeyboardEvent) {
@@ -535,48 +523,49 @@ function handleKeyDown(ev: KeyboardEvent) {
         keys.delete(key);
     }
 
-    const startTextEl = document.getElementById('startText');
 
-    function setupInitialState(gameState: IGameState) {
-        isGameRunning = false;
-        isWaitingForStart = true;
-    
-        firstPaddle = { ...firstPaddleInitial };
-        secondPaddle = { ...secondPaddleInitial };
-        firstPaddleTargetY = firstPaddleInitial.y;
-        secondPaddleTargetY = secondPaddleInitial.y;
 
-        drawBoard(gameState);
-        drawPaddles(gameState);
-        // updateScore(gameState);
-        setBallDirection();
-        drawBall(gameState);
-        scoreInfo!.classList.add('hidden');
+    // function setupInitialState(gameState: IGameState) {
+    //     isGameRunning = false;
+    //     isWaitingForStart = true;
     
-        // if (!gameStartedOnce && gameMode !== 'local' && gameMode !== 'multiplayer') {
-        //     window.removeEventListener("keyup", startGame);
-        //     window.addEventListener("keyup", startGame, { once: true });
-        // }
-    }
+    //     firstPaddle = { ...firstPaddleInitial };
+    //     secondPaddle = { ...secondPaddleInitial };
+    //     firstPaddleTargetY = firstPaddleInitial.y;
+    //     secondPaddleTargetY = secondPaddleInitial.y;
+
+    //     drawBoard(gameState);
+    //     drawPaddles(gameState);
+    //     // updateScore(gameState);
+    //     setBallDirection();
+    //     drawBall(gameState);
+    //     scoreInfo!.classList.add('hidden');
+    
+    //     // if (!gameStartedOnce && gameMode !== 'local' && gameMode !== 'multiplayer') {
+    //     //     window.removeEventListener("keyup", startGame);
+    //     //     window.addEventListener("keyup", startGame, { once: true });
+    //     // }
+    // }
     
     function initGame() {
+        rankedGameStatus();
         onGameUpdate((gameState) => {
             renderGame(gameState);
         });
     }
 
-    function startGame(ev: KeyboardEvent) {
-        const preGameModal = document.querySelector("#preGameModal");
-        const isModalHidden = preGameModal?.classList.contains("hidden");
-        const isTournamentModalHidden = tournamentModal?.classList.contains("hidden");
+    // function startGame(ev: KeyboardEvent) {
+    //     const preGameModal = document.querySelector("#preGameModal");
+    //     const isModalHidden = preGameModal?.classList.contains("hidden");
+    //     const isTournamentModalHidden = tournamentModal?.classList.contains("hidden");
         
-        if (ev.code === 'Space' && !isGameRunning && isWaitingForStart && isModalHidden && isTournamentModalHidden) {
-            isWaitingForStart = false;
+    //     if (ev.code === 'Space' && !isGameRunning && isWaitingForStart && isModalHidden && isTournamentModalHidden) {
+    //         isWaitingForStart = false;
             
-            startTextEl!.classList.add('opacity-0');
+    //         startTextEl!.classList.add('opacity-0');
             
-        }
-    }
+    //     }
+    // }
     renderGame(currentGameState);
 
     // TOURNAMENT PART
@@ -885,7 +874,7 @@ function handleKeyDown(ev: KeyboardEvent) {
         rankedDeleteGameBtn?.addEventListener("click", async (e) => {
         e.stopPropagation();
         try {
-            const gameToDelete = `/game/8`;
+            const gameToDelete = `/game/10`;
             console.log("DELETE ADRESS", gameToDelete)
             const response = await instanceAPI.delete(gameToDelete);
             if(response.status === 200) {

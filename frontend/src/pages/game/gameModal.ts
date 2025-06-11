@@ -1,6 +1,13 @@
 import { getModalWindowError} from "../../elements";
+import { IUser } from "../../services/api/models/response/IUser";
+import { findUser } from "../../shared";
 import { store, API_URL} from "../../store/store";
 import { tournamentBracket } from "./tournamentBracket";
+import { getColorFromUsername } from "../../shared/randomColors";
+
+export let rankedWinnerData ={
+  id: 0,
+}; 
 
 export function preGameModal() {
   return `
@@ -51,7 +58,7 @@ export function preGameModal() {
 
 export function tournamentModal() {
   return `
-    <div id="tournamentModal" style="background-color: rgba(0, 0, 0, 0.7);" class="fixed inset-0 items-center justify-center z-50 hidden">
+      <div id="tournamentModal" style="background-color: rgba(0, 0, 0, 0.7);" class="fixed inset-0 items-center justify-center z-50 hidden">
       <div class="bg-white p-6 rounded-lg shadow-lg text-black space-y-2 w-max h-auto text-center">
         <h2 class="text-lg font-semibold">Tournament Created!</h2>
         <div class="relative w-full">
@@ -79,7 +86,7 @@ export function tournamentModal() {
         <button id="submitNicknameBtn" type="submit" class=" mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">Submit</button>
         <button id="startTournament" class="hidden mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">Start Tournament!</button>
       </div>
-      ${tournamentBracket()}
+      
       ${getModalWindowError()}
     </div>
   `;
@@ -129,6 +136,29 @@ export function rankedGameModal() {
               <button id="cancelRankedMatchBtn" class="hidden mt-4 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600">Cancel Ranked Match!</button>
       </div>
       ${getModalWindowError()}
+    </div>
+  `;
+}
+
+export function gameOverModal() {
+  const winner = findUser(rankedWinnerData.id) as IUser;
+  const winnerColor = getColorFromUsername(winner.username);
+  const firstLetterOfWinner = winner.username.charAt(0).toUpperCase();
+  return `
+        <div id="gameOverModal" style="background-color: rgba(0, 0, 0, 0.7);" class="fixed inset-0 items-center justify-center z-50 hidden">
+      <div class="bg-white p-6 rounded-lg shadow-lg text-black space-y-2 w-max h-auto text-center">
+        <h2 class="text-lg font-semibold">GAME FINISHED</h2>
+        <h3 class="text-lg font-semibold">Winner :</h3>
+        <div class="text-xl font-bold text-blue-700">
+          ${
+            winner.avatar
+              ? `<img id="profileImg2" src="${API_URL}${winner.avatar}" class="rounded-full object-cover w-24 h-24 " draggable="false" alt="Profile Image">`
+              : `<div id="profileImg2" class="text-3xl text-white font-bold flex justify-center items-center w-24 h-24 ${winnerColor} rounded-full cursor-pointer select-none">${firstLetterOfWinner}</div>`
+          }
+          <span class="mt-2 text-lg text-white">${winner.username}</span>
+        </div>
+
+      </div>
     </div>
   `;
 }

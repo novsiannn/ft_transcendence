@@ -253,7 +253,6 @@ export function initializeSocket(): Socket | null {
 
   socket.on("game:finished", (data: any) => {
     console.log("Game finished!", data);
-
     gameState = null;
     if (gameCallbacks.onGameFinished) {
       gameCallbacks.onGameFinished(data);
@@ -363,9 +362,9 @@ function createDefaultGameState(): IGameState {
       boardHeight: 500,
       paddleWidth: 15,
       paddleHeight: 120,
-      ballRadius: 10,
+      ballRadius: 8,
       initialBallSpeed: 5,
-      paddleSpeed: 40,
+      paddleSpeed: 20,
       speedIncrease: 1.07,
       maxScore: 5,
     }

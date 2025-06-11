@@ -5,11 +5,11 @@ class GameState {
         this.settings = {
             boardWidth: 1300,
             boardHeight: 500,
-            paddleWidth: 25,
+            paddleWidth: 15,
             paddleHeight: 120,
             ballRadius: 8,
             initialBallSpeed: 5,
-            paddleSpeed: 40,
+            paddleSpeed: 20,
             speedIncrease: 1.07,
             maxScore: 5, 
         };
