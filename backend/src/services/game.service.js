@@ -289,10 +289,10 @@ async function defineWinner(duelId) {
             throw new Error('Duel not finished');
         }
         let winnerId;
-        if (duel.user_1_score > duel.user_2_score) {
-            winnerId = duel.user_1;
-        } else if (duel.user_2_score > duel.user_1_score) {
-            winnerId = duel.user_2;
+        if (duel.player1Score > duel.player2Score) { 
+            winnerId = duel.player1Id;
+        } else if (duel.player2Score > duel.player1Score) { 
+            winnerId = duel.player2Id; 
         } else {
             throw new Error('Duel is a draw');
         }
