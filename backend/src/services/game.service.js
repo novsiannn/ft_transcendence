@@ -4,18 +4,86 @@ const PinPong = require('../../db/models/PinPongModel');
 
 const mmQueue = new Set();
 
-async function updateElo(userId, eloDifference)  {
+async function updateElo(gameId)  {
     try {
-        const user = await User.findByPk(userId);
-        if (!user) { throw new Error('User not found'); }
+        const game = await PinPong.findByPk(gameId);
+        if (!game) {
+            return { error: 'Game not found' };
+        }
+        const [player1, player2] = await Promise.all([
+            User.findByPk(game.player1Id),
+            User.findByPk(game.player2Id)
+        ]);
 
-        await user.update({ elo: user.elo + eloDifference });
-        return user;
+        if (!player1 || !player2) {
+            return { error: 'Players not found' };
+        }
+        const eloDiff = player1.elo - player2.elo;
+        let diffFromBase;
+        if(eloDiff >= -300 && eloDiff <= 300){
+            diffFromBase = 0;
+        }
+        else if(eloDiff >= -400 && eloDiff <= 400) {
+            diffFromBase = 1;
+        }
+        else if(eloDiff >= -500 && eloDiff <= 500) {
+            diffFromBase = 2;
+        }
+        else if(eloDiff >= -600 && eloDiff <= 600) {
+            diffFromBase = 3;
+        }
+        else if(eloDiff >= -700 && eloDiff <= 700) {
+            diffFromBase = 4;
+        }
+        else if(eloDiff >= -800 && eloDiff <= 800) {
+            diffFromBase = 5;
+        }
+        else if(eloDiff >= -900 && eloDiff <= 900) {
+            diffFromBase = 6;
+        }
+        else 
+            diffFromBase = 7;
+
+        let newRatingUser1;
+        let newRatingUser2;
+        if(game.player1Score > game.player2Score) {
+            if(eloDiff > 0) {
+                newRatingUser1 = player1.elo + 25 - diffFromBase;
+                newRatingUser2 = player2.elo - 25 + diffFromBase;
+            }
+            else {
+                newRatingUser1 = player1.elo + 25 + diffFromBase;
+                newRatingUser2 = player2.elo - 25 - diffFromBase;
+            }
+        }
+        else {
+            if(eloDiff < 0){
+                newRatingUser2 = player2.elo + 25 - diffFromBase;
+                newRatingUser1 = player1.elo - 25 + diffFromBase;
+            }
+            else {
+                newRatingUser2 = player2.elo + 25 + diffFromBase;
+                newRatingUser1 = player1.elo - 25 - diffFromBase;
+            }
+        }
+        if (newRatingUser1 < 0) {
+            newRatingUser1 = 0;
+        }
+        if (newRatingUser2 < 0) {
+            newRatingUser2 = 0;
+        }
+        await Promise.all([
+            player1.update({ elo: newRatingUser1 }),
+            player2.update({ elo: newRatingUser2 })
+        ]);
+        console.log(`ELO updated: ${player1.username} new ELO: ${newRatingUser1}, ${player2.username} new ELO: ${newRatingUser2}`);
+        return { player1: newRatingUser1, player2: newRatingUser2 };
     } catch (error) {
-        console.error('Error updating Elo:', error);
-        throw error;
+        console.error('Error updating ELO:', error);
+        return { error: 'Failed to update ELO' };
     }
 }
+
 
 async function createDuel(initiatorId, opponentId) {
     try {
@@ -221,10 +289,10 @@ async function defineWinner(duelId) {
             throw new Error('Duel not finished');
         }
         let winnerId;
-        if (duel.user_1_score > duel.user_2_score) {
-            winnerId = duel.user_1;
-        } else if (duel.user_2_score > duel.user_1_score) {
-            winnerId = duel.user_2;
+        if (duel.player1Score > duel.player2Score) { 
+            winnerId = duel.player1Id;
+        } else if (duel.player2Score > duel.player1Score) { 
+            winnerId = duel.player2Id; 
         } else {
             throw new Error('Duel is a draw');
         }
