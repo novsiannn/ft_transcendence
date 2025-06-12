@@ -1,5 +1,6 @@
 import { getColorFromUsername } from "../../shared/randomColors";
 import { API_URL, store } from "../../store/store";
+import { findUser } from "../../shared";
 
 export const tournamentPlayerData = {
   tournamentNet: [] as number[],
@@ -18,6 +19,8 @@ export const rankedPlayerData = {
     secondPlayerLetter: "",
     firstPlayerColor: "",
     secondPlayerColor: "",
+    firstPlayerScore: 0,
+    secondPlayerScore: 0
 }
 
 export function tournamentPlayerProfiles() {
@@ -46,36 +49,97 @@ export function tournamentPlayerProfiles() {
     `;
 }
 
-export function rankedPlayerProfiles()
-{
+export function rankedPlayerProfiles() {
     return `
-            <div id="rankedProfiles">
-                <div class="absolute left-16 z-10"> <!-- Добавлено позиционирование -->
-                    <div class="flex flex-col items-center">
-                        ${
-                          rankedPlayerData.firstPlayerAvatar
-                            ? `<img id="profileImg1" src="${API_URL}${rankedPlayerData.firstPlayerAvatar}" class="rounded-full object-cover w-24 h-24 " draggable="false" alt="Profile Image">`
-                            : `<div id="profileImg1" class="text-3xl text-white font-bold flex justify-center items-center w-24 h-24 ${rankedPlayerData.firstPlayerColor} rounded-full cursor-pointer select-none">${rankedPlayerData.firstPlayerLetter}</div>`
-                        }
-                        <span class="mt-2 text-lg text-white">${rankedPlayerData.firstPlayer}</span>
-                        <!-- NEED TO FIX "HIDDEN PROBLEM" -->
-                        <button id="playerOneReadyBtn" class="hidden mt-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">Ready to Play!</button>
-                    </div>
-                </div>
-                <div class="absolute right-16 z-10"> <!-- Добавлено позиционирование -->
-                    <div class="flex flex-col items-center">
-                        ${
-                          rankedPlayerData.secondPlayerAvatar
-                            ? `<img id="profileImg2" src="${API_URL}${rankedPlayerData.secondPlayerAvatar}" class="rounded-full object-cover w-24 h-24 " draggable="false" alt="Profile Image">`
-                            : `<div id="profileImg2" class="text-3xl text-white font-bold flex justify-center items-center w-24 h-24 ${rankedPlayerData.secondPlayerColor} rounded-full cursor-pointer select-none">${rankedPlayerData.secondPlayerLetter}</div>`
-                        }
-                        <span class="mt-2 text-lg text-white">${rankedPlayerData.secondPlayer}</span>
-                        <div>
-                        <!-- NEED TO FIX "HIDDEN PROBLEM" -->
-                        <button id="playerTwoReadyBtn" class="hidden mt-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">Ready to Play!</button>
-                        </div>
-                    </div>
-                </div>
+        <div class="absolute left-16 z-10">
+            <div class="flex flex-col items-center">
+                ${
+                  rankedPlayerData.firstPlayerAvatar
+                    ? `<img id="profileImg1" src="${API_URL}${rankedPlayerData.firstPlayerAvatar}" class="rounded-full object-cover w-24 h-24 " draggable="false" alt="Profile Image">`
+                    : `<div id="profileImg1" class="text-3xl text-white font-bold flex justify-center items-center w-24 h-24 ${rankedPlayerData.firstPlayerColor} rounded-full cursor-pointer select-none">${rankedPlayerData.firstPlayerLetter}</div>`
+                }
+                <span class="mt-2 text-lg text-white">${rankedPlayerData.firstPlayer}</span>
+                <button id="playerOneReadyBtn" class="hidden mt-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">Ready to Play!</button>
             </div>
+        </div>
+        <div class="absolute right-16 z-10">
+            <div class="flex flex-col items-center">
+                ${
+                  rankedPlayerData.secondPlayerAvatar
+                    ? `<img id="profileImg2" src="${API_URL}${rankedPlayerData.secondPlayerAvatar}" class="rounded-full object-cover w-24 h-24 " draggable="false" alt="Profile Image">`
+                    : `<div id="profileImg2" class="text-3xl text-white font-bold flex justify-center items-center w-24 h-24 ${rankedPlayerData.secondPlayerColor} rounded-full cursor-pointer select-none">${rankedPlayerData.secondPlayerLetter}</div>`
+                }
+                <span class="mt-2 text-lg text-white">${rankedPlayerData.secondPlayer}</span>
+                <button id="playerTwoReadyBtn" class="hidden mt-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">Ready to Play!</button>
+            </div>
+        </div>
     `;
+}
+
+export function rankedPlayerProfilesContainer() {
+    return `
+        <div id="rankedProfiles" class="hidden">
+            ${rankedPlayerProfiles()}
+        </div>
+    `;
+}
+
+export function updateRankedProfilesPositions(gameState: any) {
+    const playerIds = Object.keys(gameState.paddles);
+    
+    if (playerIds.length >= 2) {
+        const player1Id = parseInt(playerIds[0]);
+        const player2Id = parseInt(playerIds[1]);
+        
+        const player1X = gameState.paddles[playerIds[0]].x;
+        const player2X = gameState.paddles[playerIds[1]].x;
+        
+        // Определяем, кто слева, кто справа по позиции ракетки
+        let leftPlayerId, rightPlayerId;
+        
+        if (player1X < player2X) {
+            leftPlayerId = player1Id;
+            rightPlayerId = player2Id;
+        } else {
+            leftPlayerId = player2Id;
+            rightPlayerId = player1Id;
+        }
+        
+        // Получаем данные игроков
+        const leftUser = findUser(leftPlayerId);
+        const rightUser = findUser(rightPlayerId);
+        
+        console.log("Left player:", leftUser?.username, "Right player:", rightUser?.username);
+        
+        if (leftUser && rightUser) {
+            // Обновляем данные для левого игрока (firstPlayer)
+            rankedPlayerData.firstPlayer = leftUser.username;
+            rankedPlayerData.firstPlayerAvatar = leftUser.avatar || "";
+            rankedPlayerData.firstPlayerLetter = leftUser.username.charAt(0).toUpperCase();
+            rankedPlayerData.firstPlayerColor = getColorFromUsername(leftUser.username);
+            
+            // Обновляем данные для правого игрока (secondPlayer)
+            rankedPlayerData.secondPlayer = rightUser.username;
+            rankedPlayerData.secondPlayerAvatar = rightUser.avatar || "";
+            rankedPlayerData.secondPlayerLetter = rightUser.username.charAt(0).toUpperCase();
+            rankedPlayerData.secondPlayerColor = getColorFromUsername(rightUser.username);
+            
+            // Перерендериваем профили
+            updateProfilesHTML();
+        }
+    }
+}
+
+// Добавьте эту функцию в playersProfiles.ts
+export function updateProfilesHTML() {
+    const rankedProfilesContainer = document.querySelector('#rankedProfiles');
+    if (rankedProfilesContainer) {
+        rankedProfilesContainer.innerHTML = rankedPlayerProfiles();
+        // rankedProfilesContainer.classList.remove("hidden")
+        
+        // После обновления HTML нужно переустановить обработчики кнопок
+        // Можно вызвать событие для уведомления о необходимости переустановки обработчиков
+        const event = new CustomEvent('profilesUpdated');
+        document.dispatchEvent(event);
+    }
 }

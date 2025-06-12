@@ -1,6 +1,6 @@
 import { handleModalError } from "../../elements";
 import { navigationHandle } from "../../elements/navigation";
-import { tournamentPlayerData, rankedPlayerData, tournamentPlayerProfiles, rankedPlayerProfiles } from "./playersProfiles";
+import { tournamentPlayerData, rankedPlayerData, tournamentPlayerProfiles, rankedPlayerProfiles, updateRankedProfilesPositions } from "./playersProfiles";
 import { API_URL, store} from "../../store/store";
 import instanceAPI from "../../services/api/instanceAxios";
 import { getColorFromUsername } from "../../shared/randomColors";
@@ -23,7 +23,7 @@ import {
 } from "../../websockets/client";
 import { findUser } from "../../shared";
 import { tournamentBracket } from "./tournamentBracket";
-import { rankedWinnerData } from "./gameModal";
+import { rankedWinnerData, gameOverModal, gameOverModalCreator } from "./gameModal";
 
 export function handleGame(mainWrapper: HTMLDivElement | undefined) {
     navigationHandle();
@@ -60,13 +60,6 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
     // }
 
     const keys = new Set<string>();
-
-    const paddleSize = {
-        width: currentGameState.settings.paddleWidth,
-        height: currentGameState.settings.paddleHeight,
-    }
-
-    const ballRadius = currentGameState.settings.ballRadius;
 
     let firstPlayerScore = currentGameState.paddles['1'].score;
     let secondPlayerScore = currentGameState.paddles['2'].score || 0;
@@ -106,17 +99,14 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
 
     function renderGame(gameState: IGameState) {
     
+        updateRankedProfilesPositions(gameState);
     // Получаем ID игроков динамически
     const playerIds = Object.keys(gameState.paddles);
     
     if (playerIds.length >= 2) {
         // Обновляем локальные переменные (если нужны для других функций)
-        firstPaddle.x = gameState.paddles[playerIds[0]].x;
-        firstPaddle.y = gameState.paddles[playerIds[0]].y;
-        firstPlayerScore = gameState.paddles[playerIds[0]].score;
 
-        secondPaddle.x = gameState.paddles[playerIds[1]].x;
-        secondPaddle.y = gameState.paddles[playerIds[1]].y;
+        firstPlayerScore = gameState.paddles[playerIds[0]].score;
         secondPlayerScore = gameState.paddles[playerIds[1]].score;
     }
 
@@ -197,11 +187,46 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
         ctx.closePath();
     }
 
-    function drawPaddles(gameState: IGameState) {
+function drawPaddles(gameState: IGameState) {
+    const currentUserId = store.getUser().id;
+    const playerIds = Object.keys(gameState.paddles);
+    
+    if (playerIds.length >= 2) {
+        const player1Id = parseInt(playerIds[0]);
+        const player2Id = parseInt(playerIds[1]);
         
-        drawPaddle(firstPaddle.x,firstPaddle.y, firstPaddleColor, gameState);
-        drawPaddle(secondPaddle.x,secondPaddle.y, secondPaddleColor, gameState);
+        const player1X = gameState.paddles[playerIds[0]].x;
+        const player2X = gameState.paddles[playerIds[1]].x;
+        
+        // Определяем, кто слева, кто справа
+        let leftPlayerId, rightPlayerId, leftPaddle, rightPaddle;
+        
+        if (player1X < player2X) {
+            // Player1 слева, Player2 справа
+            leftPlayerId = player1Id;
+            rightPlayerId = player2Id;
+            leftPaddle = gameState.paddles[playerIds[0]];
+            rightPaddle = gameState.paddles[playerIds[1]];
+        } else {
+            // Player2 слева, Player1 справа
+            leftPlayerId = player2Id;
+            rightPlayerId = player1Id;
+            leftPaddle = gameState.paddles[playerIds[1]];
+            rightPaddle = gameState.paddles[playerIds[0]];
+        }
+        let leftColor = "white";
+        let rightColor = "white";
+        // Цвета: текущий игрок - синий, противник - белый
+        if(gameState.isRunning){
+            leftColor = (leftPlayerId === currentUserId) ? "#3B82F6" : "white";
+            rightColor = (rightPlayerId === currentUserId) ? "#3B82F6" : "white";
+        }
+        
+        // Отрисовываем ракетки
+        drawPaddle(leftPaddle.x, leftPaddle.y, leftColor, gameState);
+        drawPaddle(rightPaddle.x, rightPaddle.y, rightColor, gameState);
     }
+}
 
     function drawBall(gameState: IGameState) {
         for(let i = 0; i < 3; i++) {
@@ -226,7 +251,31 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
 
     function updateScore(gameState: IGameState) {
 
-        scoreInfo!.textContent = `${gameState.paddles["1"].score} : ${gameState.paddles["2"].score}`;
+        const currentUserId = store.getUser().id;
+    
+        // Находим ID игроков
+        const playerIds = Object.keys(gameState.paddles);
+
+        let leftPlayerScore = 0;
+        let rightPlayerScore = 0;
+        
+        // Определяем, кто слева, кто справа по позиции X
+        const player1Id = playerIds[0];
+        const player2Id = playerIds[1];
+        
+        const player1X = gameState.paddles[player1Id].x;
+        const player2X = gameState.paddles[player2Id].x;
+        
+        // Игрок с меньшим X слева, с большим X справа
+        if (player1X < player2X) {
+            leftPlayerScore = gameState.paddles[player1Id].score;
+            rightPlayerScore = gameState.paddles[player2Id].score;
+        } else {
+            leftPlayerScore = gameState.paddles[player2Id].score;
+            rightPlayerScore = gameState.paddles[player1Id].score;
+        }
+
+        scoreInfo!.textContent = `${leftPlayerScore} : ${rightPlayerScore}`;
     }
 
     // РЕЖИМЫ ИГРЫ
@@ -270,45 +319,31 @@ function getCurrentGame() {
     return currentGame;
 }
 
-    function updatePlayerProfiles(gameData: any) {
-
-        let game;
-        if (gameData.game) {
-            game = gameData.game; // Для второго игрока
-        } else {
-            game = gameData; // Для первого игрока (если данные приходят напрямую)
-        }
-        currentGame = game;
-                const currentUserId = store.getUser().id;
-                let user1 = findUser(game.player1Id);
-                let user2 = findUser(game.player2Id);
-                
-                console.log("Updating player profiles with game data:", game);
-                console.log("Current user ID:", currentUserId);
-                console.log("Player1 ID:", game.player1Id, "Player2 ID:", game.player2Id);
-
-                // Определяем, кто из игроков текущий пользователь
-                const isCurrentUserPlayer1 = currentUserId === game.player1Id;
-                const isCurrentUserPlayer2 = currentUserId === game.player2Id;
-                if(user1){
-                    const user1 = findUser(game.player1Id);
-                    rankedPlayerData.firstPlayer = user1!.username;
-                    rankedPlayerData.firstPlayerAvatar = user1!.avatar;
-                    rankedPlayerData.firstPlayerLetter = user1!.username.charAt(0).toUpperCase();
-                    rankedPlayerData.firstPlayerColor = getColorFromUsername(user1!.username);
-                }
-        console.log("PLAYER 1", rankedPlayerData.firstPlayer, rankedPlayerData.firstPlayerAvatar, rankedPlayerData.firstPlayerLetter, rankedPlayerData.firstPlayerColor);
-                if(user2){
-                    const user2 = findUser(game.player2Id);
-                    rankedPlayerData.secondPlayer = user2!.username;
-                    rankedPlayerData.secondPlayerAvatar = user2!.avatar;
-                    rankedPlayerData.secondPlayerLetter = user2!.username.charAt(0).toUpperCase();
-                    rankedPlayerData.secondPlayerColor = getColorFromUsername(user2!.username);
-                }
-                console.log("PLAYER 2", rankedPlayerData.secondPlayer, rankedPlayerData.secondPlayerAvatar, rankedPlayerData.secondPlayerLetter, rankedPlayerData.secondPlayerColor);
-                rankedProfiles!.innerHTML = rankedPlayerProfiles();
-                  setupReadyButtonsVisibility(isCurrentUserPlayer1, isCurrentUserPlayer2);
+function updatePlayerProfiles(gameData: any) {
+    let game;
+    if (gameData.game) {
+        game = gameData.game;
+    } else {
+        game = gameData;
     }
+    currentGame = game;
+    
+    const currentUserId = store.getUser().id;
+    let user1 = findUser(game.player1Id);
+    let user2 = findUser(game.player2Id);
+    
+    console.log("Updating player profiles with game data:", game);
+    console.log("Current user ID:", currentUserId);
+    console.log("Player1 ID:", game.player1Id, "Player2 ID:", game.player2Id);
+
+    const isCurrentUserPlayer1 = currentUserId === game.player1Id;
+    const isCurrentUserPlayer2 = currentUserId === game.player2Id;
+    
+    // НЕ устанавливаем данные в rankedPlayerData здесь
+    // Просто сохраняем пользователей для дальнейшего использования
+    
+    setupReadyButtonsVisibility(isCurrentUserPlayer1, isCurrentUserPlayer2);
+}
 
     function setupReadyButtonsVisibility(isCurrentUserPlayer1: boolean, isCurrentUserPlayer2: boolean) {
     const playerOneReadyBtn = document.querySelector("#playerOneReadyBtn") as HTMLButtonElement;
@@ -319,17 +354,15 @@ function getCurrentGame() {
             // Текущий пользователь - первый игрок, показываем только его кнопку
             playerOneReadyBtn.classList.remove("hidden");
             playerTwoReadyBtn.classList.add("hidden");
-            console.log("Showing Player One Ready button for current user");
         } else if (isCurrentUserPlayer2) {
             // Текущий пользователь - второй игрок, показываем только его кнопку
             playerOneReadyBtn.classList.add("hidden");
             playerTwoReadyBtn.classList.remove("hidden");
-            console.log("Showing Player Two Ready button for current user");
         } else {
             // Текущий пользователь не участвует в игре (не должно происходить)
             playerOneReadyBtn.classList.add("hidden");
             playerTwoReadyBtn.classList.add("hidden");
-            console.log("Hiding both buttons - user not in game");
+
         }
     }
 }
@@ -341,7 +374,6 @@ function getCurrentGame() {
     const handleReadyButtonClick = (e: Event) => {
         const target = e.target as HTMLElement;
         
-        console.log("Click detected on:", target.id, target.tagName);
         
         if (target.id === "playerOneReadyBtn" || target.id === "playerTwoReadyBtn") {
             e.stopPropagation();
@@ -356,11 +388,9 @@ function getCurrentGame() {
             
             // Проверяем соответствие кнопки и игрока
             if ((isPlayer1Button && !isCurrentUserPlayer1) || (isPlayer2Button && !isCurrentUserPlayer2)) {
-                console.log("User cannot click this button - not their button");
                 return;
             }
             
-            console.log(`Player ${isPlayer1Button ? 'One' : 'Two'} Ready clicked by correct user!`);
             
             // Обновляем UI кнопки
             target.classList.add("opacity-50");
@@ -372,7 +402,6 @@ function getCurrentGame() {
             // Отправляем событие на сервер
             socket?.emit('game:join', gameId);
             
-            console.log("Emitting game:join for gameId:", gameId);
         }
     };
     
@@ -389,7 +418,6 @@ function setupKeyboardHandlers() {
     window.addEventListener("keydown", handleKeyDown);
     window.addEventListener("keyup", handleKeyUp);
     
-    console.log("Keyboard handlers attached for game mode:", gameMode);
 }
 
 function setupMultiplayerSocketHandlers() {
@@ -397,7 +425,6 @@ function setupMultiplayerSocketHandlers() {
     clearGameCallbacks();
     
     onGameUpdate((gameState) => {
-        // console.log("Received game update:", gameState);
         renderGame(gameState);
     });
 
@@ -419,7 +446,7 @@ function setupMultiplayerSocketHandlers() {
 }
 
     function initMultiplayerGame(gameId: string) {
-        console.log("Initializing multiplayer game:", gameId);
+        const rankedProfilesContainer = document.querySelector('#rankedProfiles');
         gameMode = 'multiplayer';
         currentGameId = gameId;
         currentGameState = getCurrentGameState();
@@ -429,8 +456,9 @@ function setupMultiplayerSocketHandlers() {
         
         scoreInfo!.classList.remove('hidden');
 
-            setupMultiplayerSocketHandlers();
+        setupMultiplayerSocketHandlers();
         setupKeyboardHandlers();
+        rankedProfilesContainer?.classList.remove("hidden");
         // initGame();
     }
 
@@ -448,73 +476,46 @@ function cleanupCurrentGame() {
     gameMode = null;
     isGameRunning = false;
     
-    console.log("Game cleanup completed");
 }
 
-    // СУЩЕСТВУЮЩИЕ ФУНКЦИИ (для совместимости)
-    function chooseBallDirection() {
-        return Math.random() < 0.5;
-    }
-
-    function setBallDirection() {
-        if (chooseBallDirection()) {
-            ballDirection.x = 1;
-        } else {
-            ballDirection.x = -1;
+function handleGameOver(result?: any) {
+    const gameOverModalContainer = document.querySelector("#gameOverModal");
+        // clearInterval(intervalID);
+        isGameRunning = false;
+        isWaitingForStart = true;
+        gameStartedOnce = false;
+        scoreInfo!.classList.add('hidden');
+        
+        if (result?.winner) {
+            rankedWinnerData.id = result.winner;
         }
-
-        if (chooseBallDirection()) {
-            ballDirection.y = 1;
-        } else {
-            ballDirection.y = -1;
+        if(gameOverModalContainer)
+        {
+            gameOverModalContainer!.innerHTML = gameOverModalCreator(result.winner);
         }
-    }
+        
+        gameOverModalContainer!.classList.remove('hidden');
+        gameOverModalContainer!.classList.add('flex');
 
-    function handleGameOver(result?: any) {
-        const gameOverModal = document.querySelector("#gameOverModal");
-            // clearInterval(intervalID);
-            isGameRunning = false;
-            isWaitingForStart = true;
-            gameStartedOnce = false;
-            scoreInfo!.classList.add('hidden');
-            gameOverModal!.classList.remove('hidden');
-            gameOverModal!.classList.add('flex');
-    
-            if(result?.winner) {
-                rankedWinnerData.id = result.winner;
-            }
-                
-            
-            // Очищаем игровой обработчик
-            cleanupCurrentGame();
-    }
+        
+        // Очищаем игровой обработчик
+        setTimeout(() => {
+        cleanupCurrentGame();
+    }, 100);
+}
 
 function handleKeyDown(ev: KeyboardEvent) {
     const key = ev.key.toLowerCase();
     keys.add(key);
     
-    console.log("=== KEY PRESSED DEBUG ===");
-    console.log("Key:", key);
-    console.log("Game mode:", gameMode);
-    console.log("Game ID:", currentGameId);
-    // console.log("Game running:", isGameRunning);
-    console.log("Socket connected:", !!socket);
-    
     // Для мультиплеера отправляем на сервер
     if (gameMode === 'multiplayer' && currentGameId) {
         if (key === 'w') {
-            console.log("🚀 Sending paddle UP command to server");
             movePaddle(currentGameId, 'up');
         } else if (key === 's') {
-            console.log("🚀 Sending paddle DOWN command to server");
             movePaddle(currentGameId, 'down');
         }
     } else {
-        console.log("❌ Not sending paddle movement:", {
-            gameMode,
-            currentGameId,
-            condition: gameMode === 'multiplayer' && currentGameId
-        });
     }
 }
     
@@ -770,7 +771,6 @@ function handleKeyDown(ev: KeyboardEvent) {
             const response = await instanceAPI.post("/game/matchmaking", {
                 body: { },
             });
-			console.log(response);
             
             if(response.status === 200) {
                 timerDiv?.classList.remove("invisible");
@@ -844,7 +844,6 @@ function handleKeyDown(ev: KeyboardEvent) {
         try{
             const response = await instanceAPI.get("/game/matchmaking/status");
             let responseData = response.data as {inQueue: true}
-            console.log("RANKED GAME STATUS", responseData);
             if(responseData.inQueue) {
                 preGameModal?.classList.add("hidden");
                 rankedGameModal?.classList.remove("hidden");
@@ -874,7 +873,7 @@ function handleKeyDown(ev: KeyboardEvent) {
         rankedDeleteGameBtn?.addEventListener("click", async (e) => {
         e.stopPropagation();
         try {
-            const gameToDelete = `/game/10`;
+            const gameToDelete = `/game/26`;
             console.log("DELETE ADRESS", gameToDelete)
             const response = await instanceAPI.delete(gameToDelete);
             if(response.status === 200) {

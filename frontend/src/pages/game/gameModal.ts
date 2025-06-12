@@ -140,27 +140,45 @@ export function rankedGameModal() {
   `;
 }
 
-export function gameOverModal() {
+export function gameOverModalCreator(result : number) {
+  console.log("WInner ID: ", rankedWinnerData.id);
   const winner = findUser(rankedWinnerData.id) as IUser;
+  console.log("WINNER DATA", winner);
+  
   const winnerColor = getColorFromUsername(winner.username);
   const firstLetterOfWinner = winner.username.charAt(0).toUpperCase();
+  
   return `
-        <div id="gameOverModal" style="background-color: rgba(0, 0, 0, 0.7);" class="fixed inset-0 items-center justify-center z-50 hidden">
-      <div class="bg-white p-6 rounded-lg shadow-lg text-black space-y-2 w-max h-auto text-center">
-        <h2 class="text-lg font-semibold">GAME FINISHED</h2>
-        <h3 class="text-lg font-semibold">Winner :</h3>
-        <div class="text-xl font-bold text-blue-700">
-          ${
-            winner.avatar
-              ? `<img id="profileImg2" src="${API_URL}${winner.avatar}" class="rounded-full object-cover w-24 h-24 " draggable="false" alt="Profile Image">`
-              : `<div id="profileImg2" class="text-3xl text-white font-bold flex justify-center items-center w-24 h-24 ${winnerColor} rounded-full cursor-pointer select-none">${firstLetterOfWinner}</div>`
-          }
-          <span class="mt-2 text-lg text-white">${winner.username}</span>
-        </div>
+<div class="bg-white p-6 rounded-lg shadow-lg text-black space-y-4 w-max h-auto text-center">
+      <h2 class="text-lg font-semibold">GAME FINISHED</h2>
+      <h3 class="text-md font-semibold">Winner:</h3>
+      
+      <!-- Профиль победителя -->
+      <div class="flex flex-col items-center space-y-2">
+        ${
+          winner.avatar
+            ? `<img src="${API_URL}${winner.avatar}" class="rounded-full object-cover w-16 h-16" draggable="false" alt="Winner Avatar">`
+            : `<div class="text-xl text-white font-bold flex justify-center items-center w-16 h-16 ${winnerColor} rounded-full">${firstLetterOfWinner}</div>`
+        }
+        <span class="text-lg font-semibold text-black">${winner.username}</span>
+      </div>
 
+      <!-- Кнопки действий -->
+      <div class="flex gap-4 mt-6">
+        <button id="playAgainBtn" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">Play Again</button>
+        <button id="backToMenuBtn" class="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600">Back to Menu</button>
       </div>
     </div>
   `;
+}
+
+export function gameOverModal() {
+    // Создаем только пустой контейнер, содержимое будет добавлено динамически
+    return `
+        <div id="gameOverModal" style="background-color: rgba(0, 0, 0, 0.7);" class="fixed inset-0 flex items-center justify-center z-50 hidden">
+            <!-- Содержимое будет добавлено динамически -->
+        </div>
+    `;
 }
 
 // export function rankedWaitingModal() {

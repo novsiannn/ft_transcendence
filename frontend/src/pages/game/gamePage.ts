@@ -2,7 +2,7 @@ import { navigation } from "../../elements/navigation";
 import { store, API_URL } from "../../store/store";
 import { getColorFromUsername } from "../../shared/randomColors";
 import { friendsMatchModal, preGameModal, rankedGameModal, tournamentModal } from "./gameModal";
-import { tournamentPlayerProfiles, rankedPlayerProfiles } from "./playersProfiles";
+import { tournamentPlayerProfiles, rankedPlayerProfiles, rankedPlayerProfilesContainer } from "./playersProfiles";
 import { tournamentBracket } from "./tournamentBracket";
 import { gameOverModal } from "./gameModal";
 
@@ -38,7 +38,7 @@ export function gamePage() {
             <!-- Профили игроков -->
             <div class="flex justify-between w-[1300px] px-6 mt-4"> <!-- Изменено с max-w-7xl на w-[1300px] -->
             ${tournamentPlayerProfiles()}
-            ${rankedPlayerProfiles()}
+            ${rankedPlayerProfilesContainer()}
             </div>
 
             <!-- Таймер -->
