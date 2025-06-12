@@ -126,19 +126,59 @@ export function updateRankedProfilesPositions(gameState: any) {
             
             // Перерендериваем профили
             updateProfilesHTML();
+            
+            // Устанавливаем видимость кнопок Ready на основе реальных позиций
+            updateReadyButtonsVisibility(leftPlayerId, rightPlayerId);
         }
     }
+}
+
+function updateReadyButtonsVisibility(leftPlayerId: number, rightPlayerId: number) {
+    // Не изменяем видимость кнопок после переопределения позиций
+    // Кнопки уже правильно настроены в setupInitialReadyButtonsVisibility
+    // и привязаны к изначальным player1Id/player2Id, а не к позициям ракеток
 }
 
 // Добавьте эту функцию в playersProfiles.ts
 export function updateProfilesHTML() {
     const rankedProfilesContainer = document.querySelector('#rankedProfiles');
     if (rankedProfilesContainer) {
+        // Сохраняем состояние кнопок перед обновлением
+        const playerOneBtn = document.querySelector("#playerOneReadyBtn") as HTMLButtonElement;
+        const playerTwoBtn = document.querySelector("#playerTwoReadyBtn") as HTMLButtonElement;
+        
+        const buttonStates = {
+            playerOne: {
+                disabled: playerOneBtn?.hasAttribute("disabled"),
+                text: playerOneBtn?.textContent,
+                classes: playerOneBtn?.className
+            },
+            playerTwo: {
+                disabled: playerTwoBtn?.hasAttribute("disabled"),
+                text: playerTwoBtn?.textContent,
+                classes: playerTwoBtn?.className
+            }
+        };
+        
         rankedProfilesContainer.innerHTML = rankedPlayerProfiles();
-        // rankedProfilesContainer.classList.remove("hidden")
+        
+        // Восстанавливаем состояние кнопок после обновления
+        const newPlayerOneBtn = document.querySelector("#playerOneReadyBtn") as HTMLButtonElement;
+        const newPlayerTwoBtn = document.querySelector("#playerTwoReadyBtn") as HTMLButtonElement;
+        
+        if (newPlayerOneBtn && buttonStates.playerOne.disabled) {
+            newPlayerOneBtn.setAttribute("disabled", "true");
+            newPlayerOneBtn.textContent = buttonStates.playerOne.text || "Ready!";
+            newPlayerOneBtn.className = buttonStates.playerOne.classes || newPlayerOneBtn.className;
+        }
+        
+        if (newPlayerTwoBtn && buttonStates.playerTwo.disabled) {
+            newPlayerTwoBtn.setAttribute("disabled", "true");
+            newPlayerTwoBtn.textContent = buttonStates.playerTwo.text || "Ready!";
+            newPlayerTwoBtn.className = buttonStates.playerTwo.classes || newPlayerTwoBtn.className;
+        }
         
         // После обновления HTML нужно переустановить обработчики кнопок
-        // Можно вызвать событие для уведомления о необходимости переустановки обработчиков
         const event = new CustomEvent('profilesUpdated');
         document.dispatchEvent(event);
     }

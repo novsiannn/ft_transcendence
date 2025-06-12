@@ -97,32 +97,51 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
         y: currentGameState.ball?.direction.y,
     }
 
-    function renderGame(gameState: IGameState) {
-    
-        updateRankedProfilesPositions(gameState);
-    // Получаем ID игроков динамически
-    const playerIds = Object.keys(gameState.paddles);
-    
-    if (playerIds.length >= 2) {
-        // Обновляем локальные переменные (если нужны для других функций)
+    let profilesLastUpdate: string = "";
 
-        firstPlayerScore = gameState.paddles[playerIds[0]].score;
-        secondPlayerScore = gameState.paddles[playerIds[1]].score;
+    function checkIfProfilesNeedUpdate(gameState: IGameState): boolean {
+        const playerIds = Object.keys(gameState.paddles);
+        if (playerIds.length < 2) return false;
+        
+        // Создаем ключ состояния для отслеживания изменений
+        const currentState = `${playerIds[0]}-${gameState.paddles[playerIds[0]].x}-${playerIds[1]}-${gameState.paddles[playerIds[1]].x}`;
+        
+        if (profilesLastUpdate !== currentState) {
+            profilesLastUpdate = currentState;
+            return true;
+        }
+        
+        return false;
     }
 
-    // Обновляем мяч
-    ball.x = gameState.ball.x;
-    ball.y = gameState.ball.y;
+    function renderGame(gameState: IGameState) {
+        // Обновляем позиции профилей только если они еще не синхронизированы с позициями ракеток
+        const shouldUpdateProfiles = checkIfProfilesNeedUpdate(gameState);
+        if (shouldUpdateProfiles) {
+            updateRankedProfilesPositions(gameState);
+        }
+        
+        // Получаем ID игроков динамически
+        const playerIds = Object.keys(gameState.paddles);
+        
+        if (playerIds.length >= 2) {
+            // Обновляем локальные переменные (если нужны для других функций)
+            firstPlayerScore = gameState.paddles[playerIds[0]].score;
+            secondPlayerScore = gameState.paddles[playerIds[1]].score;
+        }
 
-    // Отрисовываем (очищаем canvas перед отрисовкой)
-    context!.clearRect(0, 0, gameState.settings.boardWidth, gameState.settings.boardHeight);
-    
-    drawBoard(gameState);
-    drawPaddles(gameState);
-    drawBall(gameState);
-    updateScore(gameState);
+        // Обновляем мяч
+        ball.x = gameState.ball.x;
+        ball.y = gameState.ball.y;
 
-}
+        // Отрисовываем (очищаем canvas перед отрисовкой)
+        context!.clearRect(0, 0, gameState.settings.boardWidth, gameState.settings.boardHeight);
+        
+        drawBoard(gameState);
+        drawPaddles(gameState);
+        drawBall(gameState);
+        updateScore(gameState);
+    }
 
     function drawBoard(gameState: IGameState) {
         context!.fillStyle = gameBoardColor;
@@ -329,85 +348,109 @@ function updatePlayerProfiles(gameData: any) {
     currentGame = game;
     
     const currentUserId = store.getUser().id;
-    let user1 = findUser(game.player1Id);
-    let user2 = findUser(game.player2Id);
+    const user1 = findUser(game.player1Id);
+    const user2 = findUser(game.player2Id);
     
     console.log("Updating player profiles with game data:", game);
     console.log("Current user ID:", currentUserId);
     console.log("Player1 ID:", game.player1Id, "Player2 ID:", game.player2Id);
 
-    const isCurrentUserPlayer1 = currentUserId === game.player1Id;
-    const isCurrentUserPlayer2 = currentUserId === game.player2Id;
-    
-    // НЕ устанавливаем данные в rankedPlayerData здесь
-    // Просто сохраняем пользователей для дальнейшего использования
-    
-    setupReadyButtonsVisibility(isCurrentUserPlayer1, isCurrentUserPlayer2);
+    // Инициализируем профили с данными игроков
+    if (user1 && user2) {
+        // Устанавливаем данные согласно player1Id и player2Id (до определения позиций ракеток)
+        rankedPlayerData.firstPlayer = user1.username;
+        rankedPlayerData.firstPlayerAvatar = user1.avatar || "";
+        rankedPlayerData.firstPlayerLetter = user1.username.charAt(0).toUpperCase();
+        rankedPlayerData.firstPlayerColor = getColorFromUsername(user1.username);
+        
+        rankedPlayerData.secondPlayer = user2.username;
+        rankedPlayerData.secondPlayerAvatar = user2.avatar || "";
+        rankedPlayerData.secondPlayerLetter = user2.username.charAt(0).toUpperCase();
+        rankedPlayerData.secondPlayerColor = getColorFromUsername(user2.username);
+        
+        // Обновляем HTML профилей
+        const rankedProfilesContainer = document.querySelector('#rankedProfiles');
+        if (rankedProfilesContainer) {
+            rankedProfilesContainer.innerHTML = rankedPlayerProfiles();
+        }
+        
+        // Устанавливаем видимость кнопок Ready на основе player1Id/player2Id
+        setupInitialReadyButtonsVisibility(game.player1Id, game.player2Id);
+    }
 }
 
-    function setupReadyButtonsVisibility(isCurrentUserPlayer1: boolean, isCurrentUserPlayer2: boolean) {
+function setupInitialReadyButtonsVisibility(player1Id: number, player2Id: number) {
+    const currentUserId = store.getUser().id;
     const playerOneReadyBtn = document.querySelector("#playerOneReadyBtn") as HTMLButtonElement;
     const playerTwoReadyBtn = document.querySelector("#playerTwoReadyBtn") as HTMLButtonElement;
     
     if (playerOneReadyBtn && playerTwoReadyBtn) {
-        if (isCurrentUserPlayer1) {
-            // Текущий пользователь - первый игрок, показываем только его кнопку
+        if (currentUserId === player1Id) {
+            // Текущий пользователь - первый игрок (firstPlayer в левой позиции)
             playerOneReadyBtn.classList.remove("hidden");
             playerTwoReadyBtn.classList.add("hidden");
-        } else if (isCurrentUserPlayer2) {
-            // Текущий пользователь - второй игрок, показываем только его кнопку
+        } else if (currentUserId === player2Id) {
+            // Текущий пользователь - второй игрок (secondPlayer в правой позиции)
             playerOneReadyBtn.classList.add("hidden");
             playerTwoReadyBtn.classList.remove("hidden");
         } else {
-            // Текущий пользователь не участвует в игре (не должно происходить)
+            // Текущий пользователь не участвует в игре
             playerOneReadyBtn.classList.add("hidden");
             playerTwoReadyBtn.classList.add("hidden");
-
         }
     }
 }
 
+    function setupReadyButtonsVisibility(isCurrentUserPlayer1: boolean, isCurrentUserPlayer2: boolean) {
+        // Не устанавливаем видимость кнопок здесь, это будет делаться в updateRankedProfilesPositions
+        // после правильного определения позиций игроков
+    }
+
     function setupButtonDelegation(gameId: string) {
-    const currentUserId = store.getUser().id;
-    
-    // Создаем новый обработчик
-    const handleReadyButtonClick = (e: Event) => {
-        const target = e.target as HTMLElement;
+        const currentUserId = store.getUser().id;
         
-        
-        if (target.id === "playerOneReadyBtn" || target.id === "playerTwoReadyBtn") {
-            e.stopPropagation();
+        // Создаем новый обработчик
+        const handleReadyButtonClick = (e: Event) => {
+            const target = e.target as HTMLElement;
             
-            // Проверяем, имеет ли пользователь право нажимать эту кнопку
-            const game = getCurrentGame(); // Нужно будет добавить эту функцию
-            const isCurrentUserPlayer1 = currentUserId === game?.player1Id;
-            const isCurrentUserPlayer2 = currentUserId === game?.player2Id;
-            
-            const isPlayer1Button = target.id === "playerOneReadyBtn";
-            const isPlayer2Button = target.id === "playerTwoReadyBtn";
-            
-            // Проверяем соответствие кнопки и игрока
-            if ((isPlayer1Button && !isCurrentUserPlayer1) || (isPlayer2Button && !isCurrentUserPlayer2)) {
-                return;
+            if (target.id === "playerOneReadyBtn" || target.id === "playerTwoReadyBtn") {
+                e.stopPropagation();
+                
+                // Проверяем, имеет ли пользователь право нажимать эту кнопку
+                const game = getCurrentGame();
+                const isCurrentUserPlayer1 = currentUserId === game?.player1Id;
+                const isCurrentUserPlayer2 = currentUserId === game?.player2Id;
+                
+                const isPlayer1Button = target.id === "playerOneReadyBtn";
+                const isPlayer2Button = target.id === "playerTwoReadyBtn";
+                
+                // Проверяем соответствие кнопки и игрока
+                // playerOneReadyBtn для player1Id, playerTwoReadyBtn для player2Id
+                if ((isPlayer1Button && !isCurrentUserPlayer1) || (isPlayer2Button && !isCurrentUserPlayer2)) {
+                    return;
+                }
+                
+                // Обновляем UI кнопки
+                target.classList.add("opacity-50");
+                target.classList.add("cursor-not-allowed");
+                target.classList.remove("hover:bg-blue-600");
+                target.setAttribute("disabled", "true");
+                target.textContent = "Ready!";
+                
+                // Отправляем событие на сервер
+                socket?.emit('game:join', gameId);
             }
-            
-            
-            // Обновляем UI кнопки
-            target.classList.add("opacity-50");
-            target.classList.add("cursor-not-allowed");
-            target.classList.remove("hover:bg-blue-600");
-            target.setAttribute("disabled", "true");
-            target.textContent = "Ready!";
-            
-            // Отправляем событие на сервер
-            socket?.emit('game:join', gameId);
-            
-        }
-    };
-    
-    // Добавляем новый обработчик
-    rankedProfiles?.addEventListener("click", handleReadyButtonClick);
-}
+        };
+        
+        // Добавляем новый обработчик
+        rankedProfiles?.addEventListener("click", handleReadyButtonClick);
+        
+        // Слушаем событие обновления профилей для переустановки обработчиков
+        document.addEventListener('profilesUpdated', () => {
+            rankedProfiles?.removeEventListener("click", handleReadyButtonClick);
+            rankedProfiles?.addEventListener("click", handleReadyButtonClick);
+        });
+    }
 
 function setupKeyboardHandlers() {
     // Убираем старые обработчики, чтобы избежать дублирования
@@ -873,7 +916,7 @@ function handleKeyDown(ev: KeyboardEvent) {
         rankedDeleteGameBtn?.addEventListener("click", async (e) => {
         e.stopPropagation();
         try {
-            const gameToDelete = `/game/26`;
+            const gameToDelete = `/game/7`;
             console.log("DELETE ADRESS", gameToDelete)
             const response = await instanceAPI.delete(gameToDelete);
             if(response.status === 200) {
