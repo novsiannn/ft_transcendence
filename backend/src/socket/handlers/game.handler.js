@@ -27,15 +27,24 @@ async function handleJoinGame(io, socket, gameId) {
         if (roomSize == 2) {
             let gameState = games.get(gameId);
             if (!gameState) {
-                const socketsInRoom = Array.from(room);
-                const player1Socket = io.sockets.sockets.get(socketsInRoom[0]);
-                const player2Socket = io.sockets.sockets.get(socketsInRoom[1]);
-                const player1Id = player1Socket?.user?.id;
-                const player2Id = player2Socket?.user?.id;
-                if (!player1Id || !player2Id) {
-                    socket.emit('game:error', { error: 'Players not authenticated' });
+                // const socketsInRoom = Array.from(room);
+                // const player1Socket = io.sockets.sockets.get(socketsInRoom[0]);
+                // const player2Socket = io.sockets.sockets.get(socketsInRoom[1]);
+                // const player1Id = player1Socket?.user?.id;
+                // const player2Id = player2Socket?.user?.id;
+                // if (!player1Id || !player2Id) {
+                //     socket.emit('game:error', { error: 'Players not authenticated' });
+                //     return;
+                // }
+                const duelInfo = await gameService.getDuelInfo(gameId);
+                if (!duelInfo || !duelInfo.game) {
+                    socket.emit('game:error', { error: 'Game not found in database' });
                     return;
                 }
+
+                const player1Id = duelInfo.game.player1Id;
+                const player2Id = duelInfo.game.player2Id;
+
                 gameState = new GameState(player1Id, player2Id);
                 games.set(gameId, gameState);
                 gameService.updateDuelStatus(gameId, 'playing')
@@ -140,12 +149,13 @@ async function initialize(io) {
                 io.to(`game_${gameId}`).emit('game:update', game.getState());
                 console.log(`Game ${gameId} updated:`, game.getState());
             }
-            if (game.winner) {
+            if (game.winner && !game.settings.calculatedElo) {
                     game.isRunning = false;
                     try {
                         await gameService.finishDuel(gameId, game.paddles[game.player1Id].score, game.paddles[game.player2Id].score);
-                        await gameService.updateElo(gameId);
+                        await game.calculateElo(gameId);
                         io.to(`game_${gameId}`).emit('game:finished', { winner: game.winner });
+                        games.delete(gameId);
                     } catch (error) {
                         console.error('Error finishing game:', error);
                     }
