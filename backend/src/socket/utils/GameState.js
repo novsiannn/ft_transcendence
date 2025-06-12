@@ -12,6 +12,7 @@ class GameState {
             paddleSpeed: 40,
             speedIncrease: 1.07,
             maxScore: 5, 
+            calculatedElo: false,
         };
         this.ball = {
             x: this.settings.boardWidth / 2,
@@ -166,6 +167,11 @@ class GameState {
         // this.paddles[this.player1Id].score = 0;
         // this.paddles[this.player2Id].score = 0;
         // this.isRunning = false;
+    }
+    async calculateElo(gameId) {
+        if(this.settings.calculatedElo) return;
+        await gameService.updateElo(gameId);
+        this.settings.calculatedElo = true;
     }
 }
 

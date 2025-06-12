@@ -258,8 +258,8 @@ async function joinMatchmaking(userId) {
                 mmQueue.delete(userId);
                 mmQueue.delete(oponentId);
                 const game = await PinPong.create({
-                    player1Id: userId,
-                    player2Id: oponentId,
+                    player1Id: oponentId,
+                    player2Id: userId,
                     status: 'waiting',
                     gameMode: 'ranked'
                 });
@@ -356,6 +356,7 @@ async function deleteGame(gameId, userId) {
         return { error: 'Failed to delete game' };
     }
 }
+
 
 
 module.exports = {setIo, deleteGame, createDuel, finishDuel, joinMatchmaking, leaveMatchmaking, defineWinner, updateElo, updateDuelStatus, mmQueue, isUserInQueue, getDuelInfo };
