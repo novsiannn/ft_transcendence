@@ -137,6 +137,8 @@ export const rerenderFriendsPage = async (filteredUsers?: IUser[]) => {
     document.querySelector<HTMLDivElement>("#allUsersContainer");
   let responseAllUsers;
 
+  socket?.emit("online:get:all:status");
+
   if (allUsersContainer)
     allUsersContainer.innerHTML = `<h1 data-i18n='friends.allUsers' class="text-2xl text-white font-black text-center mb-4">All Users</h1>
       ${getLoader()}

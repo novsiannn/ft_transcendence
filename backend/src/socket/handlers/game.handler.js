@@ -134,7 +134,7 @@ async function handleLeaveQueue(io, socket, gameId) {
 
 async function initialize(io) {
     setInterval(() => {
-        games.forEach((game, gameId) => {
+        games.forEach(async (game, gameId) => {
             if (game.isRunning) {
                 game.update();
                 io.to(`game_${gameId}`).emit('game:update', game.getState());
@@ -142,15 +142,13 @@ async function initialize(io) {
             }
             if (game.winner) {
                     game.isRunning = false;
-                    gameService.updateElo(gameId);
-                    gameService.finishDuel(gameId, game.paddles[game.player1Id].score, game.paddles[game.player2Id].score)
-                        .then(() => {
-                            io.to(`game_${gameId}`).emit('game:finished', { winner: game.winner });
-                        })
-                        .catch(error => {
-                            console.error('Error finishing duel:', error);
-                        });
-                    games.delete(gameId);
+                    try {
+                        await gameService.finishDuel(gameId, game.paddles[game.player1Id].score, game.paddles[game.player2Id].score);
+                        await gameService.updateElo(gameId);
+                        io.to(`game_${gameId}`).emit('game:finished', { winner: game.winner });
+                    } catch (error) {
+                        console.error('Error finishing game:', error);
+                    }
                 }
         });
     }, 1000 / 60); 

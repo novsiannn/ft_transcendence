@@ -23,6 +23,7 @@ const setProfileInfo = (user: IUser): void => {
   const profileMatchesWin = document.querySelector("#profileMatchesWin");
   const profileMatchesLost = document.querySelector("#profileMatchesLost");
   const profileWinrate = document.querySelector("#profileWinrate");
+  socket?.emit("online:get:user:status" , {userId: user.id});
 
   elo!.innerHTML = IconLVL(user.lvl);
   elo!.innerHTML += `${user.elo} ELO`;
@@ -73,7 +74,10 @@ const hideInfo = () => {
   const profileMatchesWin = document.querySelector("#profileMatchesWin");
   const profileMatchesLost = document.querySelector("#profileMatchesLost");
   const profileWinrate = document.querySelector("#profileWinrate");
+  const userOnlineStatus = document.querySelector("#userOnlineStatusProfile");
 
+
+  userOnlineStatus!.innerHTML = ``;
   elo!.innerHTML = ``;
   lvl!.innerHTML = ``;
   profileFriendsCount!.innerHTML = ``;
@@ -81,7 +85,7 @@ const hideInfo = () => {
   profileMatchesWin!.innerHTML = ``;
   profileMatchesLost!.innerHTML = ``;
   profileWinrate!.innerHTML = ``;
-}
+};
 
 export const refreshProfileBtnsBlock = async (el: IUser) => {
   const userNameElement = document.querySelector("#userNameProfile");
@@ -129,6 +133,7 @@ export const refreshProfileBtnsBlock = async (el: IUser) => {
     hideInfo();
     return;
   }
+  
 
   friendsCount!.innerHTML = `${store.getUser().friendsCount}`;
 
@@ -172,6 +177,7 @@ export const getUserData = async (id?: number) => {
   }
   const res = store.getAllUsers().some((el) => {
     if (el.id == id) {
+      socket?.emit("online:get:user:status", { userId: el.id });
       refreshProfileBtnsBlock(el);
       return true;
     }

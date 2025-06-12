@@ -12,6 +12,7 @@ import {
   getUserLayout,
 } from "./containersLayout";
 import { addBtnsListeners, deleteFriend } from "./handleBtns";
+import { socket } from "../../websockets";
 
 export const getFriendsBlock = (
   data: IFriend[],
@@ -26,7 +27,7 @@ export const getFriendsBlock = (
     data.forEach((el) => {
       if (el.id !== myProfileID) {
         div = document.createElement("div");
-        div.innerHTML = getFriendsLayout(el.username, el.avatar);
+        div.innerHTML = getFriendsLayout(el);
         const btnDeleteFriend =
           div.querySelector<HTMLButtonElement>("#btnDeleteFriend");
         btnDeleteFriend!.id = `btnDeleteFriend${el.id}`;
@@ -72,7 +73,7 @@ export const getUsersBlock = (
         if (dataFriends.some((friend) => friend.id == el.id)) return;
 
         div = document.createElement("div");
-        div.innerHTML = getUserLayout(el.username, el.avatar);
+        div.innerHTML = getUserLayout(el);
         addBtnsListeners(
           div,
           el,
@@ -95,4 +96,6 @@ export const getUsersBlock = (
     div.innerHTML = getEmptyBlock();
     wrapper?.append(div);
   }
+  socket?.emit("online:get:all:status");
+  
 };

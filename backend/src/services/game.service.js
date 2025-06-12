@@ -1,6 +1,17 @@
 const { Op } = require('sequelize');
 const User = require('../../db/models/UserModel');
 const PinPong = require('../../db/models/PinPongModel');
+const { sendNotification } = require('../socket/handlers/notification');
+const notificationService = require('./notification.service');
+
+
+
+let io = null;
+
+function setIo(ioInstance) {
+    io = ioInstance;
+}
+
 
 const mmQueue = new Set();
 
@@ -92,7 +103,7 @@ async function createDuel(initiatorId, opponentId) {
             User.findByPk(opponentId)
         ]);
 
-        if (!initiator || !opponent) {
+        if (!initiatorId || !opponentId) {
             return { error: 'One or both users not found' };
         }
 
@@ -100,7 +111,7 @@ async function createDuel(initiatorId, opponentId) {
             return { error: 'Cannot create duel with yourself' };
         }
 
-        const activeGame = await PinPong.findOne({
+        let activeGame = await PinPong.findOne({
             where: {
                 status: {
                     [Op.not]: 'finished' 
@@ -113,7 +124,7 @@ async function createDuel(initiatorId, opponentId) {
         });
 
         if (activeGame) {
-            return { error: 'Cannot join matchmaking while in an active game' };
+            return { error: 'Cannot join duel while in an active game, initiator already in a game' };
         }
 
         activeGame = await PinPong.findOne({
@@ -129,7 +140,7 @@ async function createDuel(initiatorId, opponentId) {
         });
 
         if (activeGame) {
-            return { error: 'Cannot join matchmaking while in an active game' };
+            return { error: 'Cannot join duel while in an active game, opponent already in a game' };
         }
 
         const existingGame = await PinPong.findOne({
@@ -347,4 +358,4 @@ async function deleteGame(gameId, userId) {
 }
 
 
-module.exports = {deleteGame, createDuel, finishDuel, joinMatchmaking, leaveMatchmaking, defineWinner, updateElo, updateDuelStatus, mmQueue, isUserInQueue, getDuelInfo };
+module.exports = {setIo, deleteGame, createDuel, finishDuel, joinMatchmaking, leaveMatchmaking, defineWinner, updateElo, updateDuelStatus, mmQueue, isUserInQueue, getDuelInfo };
