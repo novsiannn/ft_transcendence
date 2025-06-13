@@ -131,6 +131,7 @@ export function rankedGameModal() {
             <div id="timerDiv"class="invisible mt-2 text-xl text-blue-700 ">
             In queue: <span id="rankedTimer">0:00</span>
             </div>
+              <button id="backToMenuBtn" class="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600">Back to Menu</button>
               <button id="rankedDeleteGameBtn" class=" mt-2 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600">Delete Game</button>
               <button id="startRankedMatchBtn" class=" mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">Start Ranked Match!</button>
               <button id="cancelRankedMatchBtn" class="hidden mt-4 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600">Cancel Ranked Match!</button>
@@ -165,7 +166,7 @@ export function gameOverModalCreator(result : number) {
 
       <!-- Кнопки действий -->
       <div class="flex gap-4 mt-6">
-        <button id="playAgainBtn" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">Play Again</button>
+        <button id="rankedPlayAgainBtn" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">Play Again</button>
         <button id="backToMenuBtn" class="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600">Back to Menu</button>
       </div>
     </div>
@@ -175,19 +176,8 @@ export function gameOverModalCreator(result : number) {
 export function gameOverModal() {
     // Создаем только пустой контейнер, содержимое будет добавлено динамически
     return `
-        <div id="gameOverModal" style="background-color: rgba(0, 0, 0, 0.7);" class="fixed inset-0 flex items-center justify-center z-50 hidden">
+        <div id="gameOverModal" style="background-color: rgba(0, 0, 0, 0.7);" class="fixed inset-0 items-center justify-center z-50 hidden">
             <!-- Содержимое будет добавлено динамически -->
         </div>
     `;
 }
-
-// export function rankedWaitingModal() {
-//   return `
-//       <div id="rankedWaitingModal" style="background-color: rgba(0, 0, 0, 0.7);" class="fixed inset-0 items-center justify-center z-50 hidden">
-//       <div class="bg-white p-6 rounded-lg shadow-lg text-black space-y-2 w-max h-auto text-center">
-//         <h2 class="text-lg font-semibold">Ranked Match Created!</h2>
-//         <button id="startRankedMatchBtn" class=" mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">Start Ranked Match!</button>
-//       </div>
-//     </div>
-//   `;
-// }

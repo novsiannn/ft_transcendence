@@ -523,7 +523,7 @@ function cleanupCurrentGame() {
 
 function handleGameOver(result?: any) {
     const gameOverModalContainer = document.querySelector("#gameOverModal");
-        // clearInterval(intervalID);
+    // clearInterval(intervalID);
         isGameRunning = false;
         isWaitingForStart = true;
         gameStartedOnce = false;
@@ -805,9 +805,8 @@ function handleKeyDown(ev: KeyboardEvent) {
         return `${min}:${sec.toString().padStart(2, "0")}`;
     }
 
-    startRankedMatchBtn?.addEventListener("click", async (e) => {
-        e.stopPropagation();
-        
+    async function startRankedGame()
+    {
         try {
 
             setupRankedListeners();
@@ -853,6 +852,12 @@ function handleKeyDown(ev: KeyboardEvent) {
             
             console.error('Error starting ranked match:', error);
         }
+    }
+
+    startRankedMatchBtn?.addEventListener("click", async (e) => {
+        e.stopPropagation();
+        
+        startRankedGame();
     });
 
     cancelRankedMatchBtn?.addEventListener("click", async (e) => {
@@ -903,20 +908,12 @@ function handleKeyDown(ev: KeyboardEvent) {
         }
     }
     
-    // playerOneReadyBtn?.addEventListener("click", async (e) => {
-    //     e.stopPropagation();
-    //     playerOneReadyBtn?.classList.add("opacity-50");
-    //     playerOneReadyBtn?.classList.add("cursor-not-allowed");
-    //     playerOneReadyBtn?.classList.remove("hover:bg-blue-600");
-    //     playerOneReadyBtn?.setAttribute("disabled", "true");
-
-    // });
     //DELETE LATER DEVELOPMENT BUTTON
     const rankedDeleteGameBtn = document.querySelector("#rankedDeleteGameBtn");
         rankedDeleteGameBtn?.addEventListener("click", async (e) => {
         e.stopPropagation();
         try {
-            const gameToDelete = `/game/7`;
+            const gameToDelete = `/game/13`;
             console.log("DELETE ADRESS", gameToDelete)
             const response = await instanceAPI.delete(gameToDelete);
             if(response.status === 200) {
@@ -926,6 +923,42 @@ function handleKeyDown(ev: KeyboardEvent) {
             console.error('Error deleting game:', error);
         }
     });
+
+    document.addEventListener("click", async (e) =>{
+        const target = e.target as HTMLElement;
+        if(target.id === "backToMenuBtn")
+        {
+            e.stopPropagation();
+            const gameOverModal = document.querySelector("#gameOverModal");
+            if(!rankedGameModal?.classList.contains("hidden"))
+            {
+                rankedGameModal?.classList.add("hidden");
+                preGameModal?.classList.remove("hidden");
+            }
+            if(!gameOverModal?.classList.contains("hidden"))
+            {
+                console.log("GAMEOVER BACK TO MENU CLICKED");
+                gameOverModal?.classList.add("hidden");
+                preGameModal?.classList.remove("hidden");
+            }
+        }
+    });
+    // In case more PLAYAGAIN buttons - REWORK!!!
+    document.addEventListener("click", (e) =>{
+        const target = e.target as HTMLElement;
+        const gameOverModal = document.querySelector("#gameOverModal");
+        if(target.id === "rankedPlayAgainBtn")
+            {
+                e.stopPropagation();
+                gameOverModal?.classList.add("hidden");
+                gameOverModal?.classList.remove("flex");
+                rankedGameModal?.classList.remove("hidden")
+                rankedGameModal?.classList.add("flex");
+                startRankedGame();
+            }
+    
+    });
+
 
 
     initGame();
