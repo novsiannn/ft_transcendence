@@ -66,18 +66,25 @@ async function handleJoinGame(io, socket, gameId) {
     }
 }
 
-async function setTimer(io, gameId, gameState)
-{
+function setTimer(io, gameId, gameState) {
     console.log("Timer started");
-    let seconds = 5; 
-    while(seconds > 0) {
-        io.to(`game_${gameId}`).emit('game:timer', { seconds });
-        console.log(`Timer = ${seconds}`);
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        seconds--;
-    }
-    gameState.start();
-    io.to(`game_${gameId}`).emit('game:ready', gameState.getState());
+    let seconds = 5;
+    
+    const timerInterval = setInterval(() => {
+        if (seconds > 0) {
+            io.to(`game_${gameId}`).emit('game:timer', { seconds });
+            console.log(`Timer = ${seconds}`);
+            seconds--;
+        } else {
+            clearInterval(timerInterval);         
+            const game = games.get(gameId);
+            if (game) {
+                game.start();
+                io.to(`game_${gameId}`).emit('game:ready', game.getState());
+                console.log(`Game ${gameId} started after timer`);
+            }
+        }
+    }, 1000);
 }
 
 // async function handleLeaveGame(io, socket, gameId){
@@ -155,6 +162,13 @@ async function initialize(io) {
                         await gameService.finishDuel(gameId, game.paddles[game.player1Id].score, game.paddles[game.player2Id].score);
                         await game.calculateElo(gameId);
                         io.to(`game_${gameId}`).emit('game:finished', { winner: game.winner });
+
+                        const sockets = await io.in(`game_${gameId}`).fetchSockets();
+                        for (const socket of sockets) {
+                        socket.leave(`game_${gameId}`);
+                        console.log(`Socket ${socket.id} left game room ${gameId}`);
+                        }
+
                         games.delete(gameId);
                     } catch (error) {
                         console.error('Error finishing game:', error);

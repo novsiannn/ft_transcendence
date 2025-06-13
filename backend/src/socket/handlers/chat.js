@@ -2,6 +2,7 @@ const userTracker = require('../utils/userTracker');
 const chatService = require('../../services/chat.service.js');
 const Message = require('../../../db/models/MessageModel');
 const Chat = require('../../../db/models/ChatModel');
+const friendshipService = require('../../services/friendship.service.js');
 const { validateMessage, isUserAllowedToSendMessage } = require('../utils/chat.utils');
 
 async function handleOpenChats(socket) {
