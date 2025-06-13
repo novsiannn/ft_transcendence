@@ -14,12 +14,22 @@ function setIo(ioInstance) {
 
 
 const mmQueue = new Set();
+const processingGames = new Set();
 
 async function updateElo(gameId)  {
+    if (processingGames.has(gameId)) {
+        console.log(`ELO update already in progress for game ${gameId}`);
+        return { message: 'ELO update already in progress' };
+    }
+    processingGames.add(gameId);
     try {
         const game = await PinPong.findByPk(gameId);
         if (!game) {
             return { error: 'Game not found' };
+        }
+        if (game.changedElo === true) {
+            console.log(`ELO already updated for game ${gameId}`);
+            return { message: 'ELO already updated' };
         }
         const [player1, player2] = await Promise.all([
             User.findByPk(game.player1Id),
@@ -85,13 +95,16 @@ async function updateElo(gameId)  {
         }
         await Promise.all([
             player1.update({ elo: newRatingUser1 }),
-            player2.update({ elo: newRatingUser2 })
+            player2.update({ elo: newRatingUser2 }),
+            game.update({ changedElo: true })
         ]);
         console.log(`ELO updated: ${player1.username} new ELO: ${newRatingUser1}, ${player2.username} new ELO: ${newRatingUser2}`);
         return { player1: newRatingUser1, player2: newRatingUser2 };
     } catch (error) {
         console.error('Error updating ELO:', error);
         return { error: 'Failed to update ELO' };
+    } finally {
+        processingGames.delete(gameId);
     }
 }
 

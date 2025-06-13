@@ -52,6 +52,10 @@ const PinPong = sequelize.define("PinPong", {
         defaultValue: 'casual',
         allowNull: false
     },
+    changedElo: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false,
+    },
     // background: {
     //     type: DataTypes.STRING,
     //     allowNull: true,
