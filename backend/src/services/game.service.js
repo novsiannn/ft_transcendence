@@ -3,6 +3,7 @@ const User = require('../../db/models/UserModel');
 const PinPong = require('../../db/models/PinPongModel');
 const { sendNotification } = require('../socket/handlers/notification');
 const notificationService = require('./notification.service');
+const EventEmitter = require('events');
 
 let io = null;
 
@@ -13,6 +14,7 @@ function setIo(ioInstance) {
 
 const mmQueue = new Set();
 const processingGames = new Set();
+const gameEvents = new EventEmitter();
 
 async function updateElo(gameId)  {
     if (processingGames.has(gameId)) {
@@ -114,7 +116,7 @@ async function createDuel(initiatorId, opponentId) {
             User.findByPk(opponentId)
         ]);
 
-        if (!initiatorId || !opponentId) {
+        if (!initiator || !opponent) {
             return { error: 'One or both users not found' };
         }
 
@@ -185,11 +187,45 @@ async function createDuel(initiatorId, opponentId) {
             gameMode: 'casual'
         });
 
+        setTimeout(() => {
+            checkAndCancelGame(game.id);
+        }, 30000);
         return { game };
 
     } catch (error) {
         console.error('Error creating duel:', error);
         return { error: 'Failed to create duel' };
+    }
+}
+
+async function checkAndCancelGame(gameId) {
+    try {
+        const game = await PinPong.findByPk(gameId);
+        
+        if (!game) {
+            console.log(`Game ${gameId} not found for auto-cancel check`);
+            return;
+        }
+
+        if (game.status === 'waiting') {
+            await game.update({
+                status: 'cancelled',
+            });
+            
+            console.log(`Game ${gameId} automatically cancelled due to timeout`);
+            
+            gameEvents.emit('gameCancelled', {
+                gameId: gameId,
+                player1Id: game.player1Id,
+                player2Id: game.player2Id,
+            });
+            
+        } else {
+            console.log(`Game ${gameId} status is '${game.status}' - no auto-cancel needed`);
+        }
+        
+    } catch (error) {
+        console.error(`Error in auto-cancel for game ${gameId}:`, error);
     }
 }
 
@@ -202,7 +238,7 @@ async function updateDuelStatus(duelId, status) {
         if (duel.status == 'finished') {
             return { error: 'Duel already finished' };
         }
-        if (!['waiting', 'playing', 'finished'].includes(status)) {
+        if (!['waiting', 'playing', 'finished', 'cancelled'].includes(status)) {
             return { error: 'Invalid status' };
         }
         await duel.update({ status });
@@ -246,7 +282,7 @@ async function joinMatchmaking(userId) {
         const activeGame = await PinPong.findOne({
             where: {
                 status: {
-                    [Op.not]: 'finished'  // Любой статус кроме 'finished'
+                    [Op.in]: ['waiting', 'playing']  //Только реально активные игры
                 },
                 [Op.or]: [
                     { player1Id: userId },
@@ -273,6 +309,9 @@ async function joinMatchmaking(userId) {
                     status: 'waiting',
                     gameMode: 'ranked'
                 });
+                setTimeout(() => {
+                    checkAndCancelGame(game.id);
+                }, 30000);
                 console.log(`Matchmaking successful: ${userId} vs ${oponentId}`);
                 return { game: game };
             }
@@ -369,4 +408,4 @@ async function deleteGame(gameId, userId) {
 
 
 
-module.exports = {setIo, deleteGame, createDuel, finishDuel, joinMatchmaking, leaveMatchmaking, defineWinner, updateElo, updateDuelStatus, mmQueue, isUserInQueue, getDuelInfo };
+module.exports = {setIo, deleteGame, createDuel, finishDuel, joinMatchmaking, leaveMatchmaking, defineWinner, updateElo, updateDuelStatus, mmQueue, isUserInQueue, getDuelInfo, gameEvents };

@@ -20,6 +20,17 @@ async function handleLeaveFromQueue(socket){
 // }
 async function handleJoinGame(io, socket, gameId) {
     try {
+        const duelInfo = await gameService.getDuelInfo(gameId);
+        if (!duelInfo || !duelInfo.game) {
+            socket.emit('game:error', { error: 'Game not found in database' });
+            return;
+        }
+        if (duelInfo.game.status === 'cancelled') {// Here I check if the game was cancelled
+            socket.emit('game:cancelled', {
+                gameId: gameId,
+            });
+            return;
+        }
         socket.join(`game_${gameId}`);
         console.log(`User ${socket.user.id} joined game ${gameId}`);
         const room = socket.adapter.rooms.get(`game_${gameId}`);
@@ -27,27 +38,12 @@ async function handleJoinGame(io, socket, gameId) {
         if (roomSize == 2) {
             let gameState = games.get(gameId);
             if (!gameState) {
-                // const socketsInRoom = Array.from(room);
-                // const player1Socket = io.sockets.sockets.get(socketsInRoom[0]);
-                // const player2Socket = io.sockets.sockets.get(socketsInRoom[1]);
-                // const player1Id = player1Socket?.user?.id;
-                // const player2Id = player2Socket?.user?.id;
-                // if (!player1Id || !player2Id) {
-                //     socket.emit('game:error', { error: 'Players not authenticated' });
-                //     return;
-                // }
-                const duelInfo = await gameService.getDuelInfo(gameId);
-                if (!duelInfo || !duelInfo.game) {
-                    socket.emit('game:error', { error: 'Game not found in database' });
-                    return;
-                }
-
                 const player1Id = duelInfo.game.player1Id;
                 const player2Id = duelInfo.game.player2Id;
 
                 gameState = new GameState(player1Id, player2Id);
                 games.set(gameId, gameState);
-                gameService.updateDuelStatus(gameId, 'playing')
+                await gameService.updateDuelStatus(gameId, 'playing')
                 setTimer(io, gameId, gameState);
                 console.log(`Game created in WEBSOCKETS for game ${gameId}`);
             }
@@ -149,6 +145,11 @@ async function handleLeaveQueue(io, socket, gameId) {
 }
 
 async function initialize(io) {
+    gameService.gameEvents.on('gameCancelled', (data) => {
+        io.to(`mm_${data.player1Id}`).emit('game:cancelled', data);
+        io.to(`mm_${data.player2Id}`).emit('game:cancelled', data);
+        console.log(`Game ${data.gameId} cancelled and players notified`);
+    });
     setInterval(() => {
         games.forEach(async (game, gameId) => {
             if (game.isRunning) {
