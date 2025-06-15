@@ -358,6 +358,64 @@ export function onGameError(callback: (error: any) => void): void {
 //CLEAR CALLBACKS
 export function clearGameCallbacks(): void {
   gameCallbacks = {};
+
+    if (socket) {
+    socket.removeAllListeners("mm:ready");
+    socket.removeAllListeners("game:update");
+    socket.removeAllListeners("game:start");
+    socket.removeAllListeners("game:finished");
+    socket.removeAllListeners("game:error");
+    
+    console.log("Socket game handlers removed");
+  }
+}
+// Проверка на работоспособность
+export function reinitializeGameSocketHandlers(): void {
+  if (!socket) return;
+  
+  // Сначала полностью очищаем старые
+  clearGameCallbacks();
+  
+  // Затем устанавливаем новые (копируем логику из initializeSocket)
+  socket.on("mm:ready", (data: any) => {
+    socket?.emit("game:leaveQueue");
+    console.log("on Match FOUND:", data);
+    if (gameCallbacks.onMatchFound) {
+      gameCallbacks.onMatchFound(data);
+    }
+  });
+
+  socket.on("game:update", (newGameState: IGameState) => {
+    gameState = newGameState;
+    if (gameCallbacks.onGameUpdate) {
+      gameCallbacks.onGameUpdate(gameState);
+    }
+  });
+
+  socket.on("game:start", (newGameState: IGameState) => {
+    console.log("Game started!", newGameState);
+    gameState = newGameState;
+    if (gameCallbacks.onGameStart) {
+      gameCallbacks.onGameStart(gameState);
+    }
+  });
+
+  socket.on("game:finished", (data: any) => {
+    console.log("Game finished!", data);
+    gameState = null;
+    if (gameCallbacks.onGameFinished) {
+      gameCallbacks.onGameFinished(data);
+    }
+  });
+
+  socket.on("game:error", (error: any) => {
+    console.error("Game error:", error);
+    if (gameCallbacks.onGameError) {
+      gameCallbacks.onGameError(error);
+    }
+  });
+  
+  console.log("Game socket handlers reinitialized");
 }
 
 export function getCurrentGameState(): IGameState{

@@ -913,7 +913,7 @@ function handleKeyDown(ev: KeyboardEvent) {
         rankedDeleteGameBtn?.addEventListener("click", async (e) => {
         e.stopPropagation();
         try {
-            const gameToDelete = `/game/13`;
+            const gameToDelete = `/game/1`;
             console.log("DELETE ADRESS", gameToDelete)
             const response = await instanceAPI.delete(gameToDelete);
             if(response.status === 200) {

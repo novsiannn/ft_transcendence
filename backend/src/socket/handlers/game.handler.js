@@ -154,7 +154,7 @@ async function initialize(io) {
             if (game.isRunning) {
                 game.update();
                 io.to(`game_${gameId}`).emit('game:update', game.getState());
-                console.log(`Game ${gameId} updated:`, game.getState());
+                // console.log(`Game ${gameId} updated:`, game.getState());
             }
             if (game.winner && !game.settings.calculatedElo) {
                     game.isRunning = false;

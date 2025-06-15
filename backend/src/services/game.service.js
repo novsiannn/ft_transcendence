@@ -4,8 +4,6 @@ const PinPong = require('../../db/models/PinPongModel');
 const { sendNotification } = require('../socket/handlers/notification');
 const notificationService = require('./notification.service');
 
-
-
 let io = null;
 
 function setIo(ioInstance) {
@@ -214,7 +212,6 @@ async function updateDuelStatus(duelId, status) {
         return { error: 'Failed to update duel status' };
     }
 }
-
 
 async function finishDuel(duelId, user1Score, user2Score) {
     try {
