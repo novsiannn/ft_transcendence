@@ -62,6 +62,44 @@ async function handleJoinGame(io, socket, gameId) {
     }
 }
 
+async function handleJoinLocalGame(io, socket, data) {
+    try {
+        const { player1, player2 } = data;
+        if (!player1 || !player2) {
+            console.error('Invalid player data for local game:', data);
+            socket.emit('game:error', { error: 'Invalid player data' });
+            return;
+        }
+        let gameState = new GameState(player1, player2);
+        gameState.isLocal = true; 
+        const gameId = `${player1}_${player2}`;
+        games.set(gameId, gameState);
+        socket.join(`game_${gameId}`);
+        console.log(`Local game created with ID: ${gameId}`);
+        socket.emit('game:localCreated', { gameId });
+        setTimer(io, gameId, gameState);
+    } catch (error) {
+        console.error('Error creating local game:', error);
+        socket.emit('game:error', { error: 'Failed to create local game' });
+    }
+}
+
+async function handleMoveLocalPaddle(socket, data) {
+    const { gameId, direction, nickname } = data;
+    console.log(`User ${nickname} is moving paddle in local game ${gameId} direction: ${direction}`);
+    if (!gameId || !direction || !nickname) {
+        socket.emit('localGame:error', { error: 'Missing required fields' });
+        return;
+    }
+    let game = games.get(gameId);
+    if (game) {
+        game.movePaddle(nickname, direction);
+        console.log(`Paddle moved in local game ${gameId} by ${nickname}`);
+    } else {
+        console.error(`Local game ${gameId} not found for player ${nickname}`);
+        socket.emit('localGame:error', { error: 'Game not found' });
+    }
+}
 function setTimer(io, gameId, gameState) {
     console.log("Timer started");
     let seconds = 5;
@@ -157,7 +195,12 @@ async function initialize(io) {
                 io.to(`game_${gameId}`).emit('game:update', game.getState());
                 // console.log(`Game ${gameId} updated:`, game.getState());
             }
-            if (game.winner && !game.settings.calculatedElo) {
+            if (game.winner && game.isLocal) {
+                game.isRunning = false;
+                io.to(`game_${gameId}`).emit('game:finished', { winner: game.winner });
+                games.delete(gameId);
+            }
+            else if (game.winner && !game.settings.calculatedElo) {
                     game.isRunning = false;
                     try {
                         await gameService.finishDuel(gameId, game.paddles[game.player1Id].score, game.paddles[game.player2Id].score);
