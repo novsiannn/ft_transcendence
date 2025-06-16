@@ -126,15 +126,29 @@ export function friendsMatchModal(){
 export function rankedGameModal() {
   return `
     <div id="rankedGameModal" style="background-color: rgba(0, 0, 0, 0.7);" class="fixed inset-0 items-center justify-center z-50 hidden">
-      <div class="bg-white p-6 rounded-lg shadow-lg text-black space-y-2 w-max h-auto text-center">
+      <div class="bg-white p-6 rounded-lg shadow-lg text-black space-y-4 w-max h-auto text-center">
         <h2 class="text-lg font-semibold">Searching for an opponent</h2>
-            <div id="timerDiv"class="invisible mt-2 text-xl text-blue-700 ">
-            In queue: <span id="rankedTimer">0:00</span>
-            </div>
-              <button id="backToMenuBtn" class="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600">Back to Menu</button>
-              <button id="rankedDeleteGameBtn" class=" mt-2 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600">Delete Game</button>
-              <button id="startRankedMatchBtn" class=" mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">Start Ranked Match!</button>
-              <button id="cancelRankedMatchBtn" class="hidden mt-4 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600">Cancel Ranked Match!</button>
+
+        <div id="spinerDiv" class=" hidden mt-2 justify-center">
+          <div class="w-8 h-8 border-4 border-blue-400 border-t-white rounded-full animate-spin opacity-80"></div>
+        </div>
+
+        <button id="backToMenuBtn" class="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600">Back to Menu</button>
+        <button id="rankedDeleteGameBtn" class="mt-2 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600">Delete Game</button>
+
+        <!-- Spinner over Start Button -->
+        <div class="relative inline-block">
+          <div id="rankedSpinner" class="absolute -top-6 left-1/2 -translate-x-1/2 hidden">
+            <div class="w-6 h-6 border-4 border-blue-400 border-t-white rounded-full animate-spin opacity-80"></div>
+          </div>
+          <button id="startRankedMatchBtn" class="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
+            Start Ranked Match!
+          </button>
+        </div>
+
+        <button id="cancelRankedMatchBtn" class="hidden mt-4 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600">
+          Cancel Ranked Match!
+        </button>
       </div>
       ${getModalWindowError()}
     </div>
