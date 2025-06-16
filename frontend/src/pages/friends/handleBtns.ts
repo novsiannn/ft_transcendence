@@ -177,10 +177,13 @@ export const addBtnsListeners = (
   responseFriendshipSentUserId: IFriendshipResponseData,
   wrapper: HTMLDivElement | null
 ) => {
-  const requestFriendshipReceived: IFriendshipResponse | undefined =
+  let requestFriendshipReceived: IFriendshipResponse | undefined;
+  if(incomingFriendshipRequest.requests){
+  requestFriendshipReceived =
     incomingFriendshipRequest.requests.find(
       (friendship) => friendship.requesterId === el.id
     );
+  }
   let ifSentFriendship = false;
   if (responseFriendshipSentUserId!.pendingUserIds) {
     ifSentFriendship = responseFriendshipSentUserId.pendingUserIds.some(
@@ -204,9 +207,14 @@ export const addBtnsListeners = (
   );
   const blockedUserIds = store.getUser().blockedUserIds;
   const blockedByUserIds = store.getUser().blockedByUserIds;
+  let myBlockedUsers;
+  let usersBlockedMe;
 
-  const myBlockedUsers = blockedUserIds.some((id) => id === el.id);
-  const usersBlockedMe = blockedByUserIds.some((id) => id === el.id);
+  if (blockedUserIds)
+    myBlockedUsers = blockedUserIds.some((id) => id === el.id);
+
+  if (blockedByUserIds)
+    usersBlockedMe = blockedByUserIds.some((id) => id === el.id);
 
   if (btnAdd) btnAdd.id = `btnAddFriend${el.id}`;
   if (cancelFriendRequest)

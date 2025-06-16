@@ -23,6 +23,9 @@ const setProfileInfo = (user: IUser): void => {
   const profileMatchesWin = document.querySelector("#profileMatchesWin");
   const profileMatchesLost = document.querySelector("#profileMatchesLost");
   const profileWinrate = document.querySelector("#profileWinrate");
+
+  console.log(user);
+  
   socket?.emit("online:get:user:status" , {userId: user.id});
 
   elo!.innerHTML = IconLVL(user.lvl);
@@ -101,9 +104,10 @@ export const refreshProfileBtnsBlock = async (el: IUser) => {
   const profileBtnsContainer = document.querySelector<HTMLDivElement>(
     "#profileButtonsContainer"
   );
-
+  
   if (hasAvatar) {
-    avatarImg!.src = API_URL + el.avatar;
+    if(avatarImg)
+      avatarImg.src = API_URL + el.avatar;
     emptyPhoto?.classList.toggle("hidden", hasAvatar);
     avatarImg?.classList.toggle("hidden", !hasAvatar);
   } else {
@@ -164,7 +168,8 @@ export const getUserData = async (id?: number) => {
     if (hasAvatar) {
       emptyPhoto?.classList.toggle("hidden", hasAvatar);
       avatarImg?.classList.toggle("hidden", !hasAvatar);
-      avatarImg!.src = API_URL + store.getUser().avatar;
+      if(avatarImg)
+        avatarImg.src = API_URL + store.getUser().avatar;
     } else {
       emptyPhoto!.classList.toggle("hidden", hasAvatar);
       avatarImg?.classList.toggle("hidden", !hasAvatar);
