@@ -231,6 +231,8 @@ async function initialize(io) {
         socket.on('game:joinQueue', () => handleJoinQueue(socket));
         socket.on('game:leaveQueue', () => handleLeaveFromQueue(socket));
         socket.on('game:movePaddle', data => handleMovePaddle(socket, data));
+        socket.on('game:joinLocal', data => handleJoinLocalGame(io, socket, data));
+        socket.on('game:moveLocalPaddle', data => handleMoveLocalPaddle(socket, data));
     });
 }
 
