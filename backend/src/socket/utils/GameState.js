@@ -13,6 +13,7 @@ class GameState {
             speedIncrease: 1.07,
             maxScore: 5, 
             calculatedElo: false,
+            isLocal: false
         };
         this.ball = {
             x: this.settings.boardWidth / 2,
