@@ -53,10 +53,10 @@ export interface IGameState {
 let gameCallbacks: {
   onGameReady?: (gameState: IGameState) => void;
   onGameUpdate?: (gameState: IGameState) => void;
-  onGameStart?: (gameState: IGameState) => void;
   onGameFinished?: (data: any) => void;
-  onGameError?: (error: any) => void;
+  onGameCancelled?: (error: any) => void;
   onMatchFound?: (data: any) => void;
+  timerCountdown?: (data:{seconds: number}) => void;
 } = {};
 
 export let gameState: IGameState | null = null;
@@ -244,15 +244,6 @@ export function initializeSocket(): Socket | null {
   }
 });
 
-  socket.on("game:start", (newGameState: IGameState) => {
-    console.log("Game started!", gameState);
-    gameState = newGameState;
-
-    if (gameCallbacks.onGameStart) {
-      gameCallbacks.onGameStart(gameState);
-    }
-  });
-
   socket.on("game:finished", (data: any) => {
     console.log("Game finished!", data);
     gameState = null;
@@ -261,10 +252,16 @@ export function initializeSocket(): Socket | null {
     }
   });
 
-  socket.on("game:error", (error: any) => {
-    console.error("Game error:", error);
-    if (gameCallbacks.onGameError) {
-      gameCallbacks.onGameError(error);
+  socket.on("game:timer", (data:{seconds: number}) =>{
+    if (gameCallbacks.timerCountdown) {
+      gameCallbacks.timerCountdown(data);
+    }
+  });
+
+  socket.on("game:cancelled", (gameId: any) => {
+    console.error("Game cancelled :", gameId);
+    if (gameCallbacks.onGameCancelled) {
+      gameCallbacks.onGameCancelled(gameId);
     }
   });
 
@@ -332,6 +329,10 @@ export function leaveGame(gameId: string): void {
   socket.emit('game:leave', gameId);
 }
 
+export function timerCountdown(callback: (data:{seconds : number})=> void): void {
+  gameCallbacks.timerCountdown = callback;
+}
+
 export function onMatchFound(callback: (data: any) => void): void {
   gameCallbacks.onMatchFound = callback;
 }
@@ -344,16 +345,12 @@ export function onGameUpdate(callback: (gameState: IGameState) => void): void {
   gameCallbacks.onGameUpdate = callback;
 }
 
-export function onGameStart(callback: (gameState: IGameState) => void): void {
-  gameCallbacks.onGameStart = callback;
-}
-
 export function onGameFinished(callback: (data: any) => void): void {
   gameCallbacks.onGameFinished = callback;
 }
 
-export function onGameError(callback: (error: any) => void): void {
-  gameCallbacks.onGameError = callback;
+export function onGameCancelled(callback: (gameId: any) => void): void {
+  gameCallbacks.onGameCancelled = callback;
 }
 //CLEAR CALLBACKS
 export function clearGameCallbacks(): void {

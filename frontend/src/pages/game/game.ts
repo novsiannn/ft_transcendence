@@ -13,12 +13,11 @@ import {
     startGame as startWebSocketGame, 
     leaveGame,
     onMatchFound,
-    onGameReady,
     onGameUpdate,
-    onGameStart,
     onGameFinished,
-    onGameError,
     clearGameCallbacks,
+    timerCountdown,
+    onGameCancelled,
 } from "../../websockets/client";
 import { findUser } from "../../shared";
 import { tournamentBracket } from "./tournamentBracket";
@@ -312,11 +311,15 @@ function drawPaddles(gameState: IGameState) {
         }, 1000);
     }
 
+
+
     function setupRankedListeners() {
 
-        clearGameCallbacks();
-        onMatchFound((data: any) => {
+        // clearGameCallbacks();
+        onMatchFound(async (data: any) => {
             rankedGameModal?.classList.add("hidden");
+
+           await updateAllStoreUsers();
 
             const gameId = data.game.id.toString();
             initMultiplayerGame(gameId);
@@ -325,11 +328,19 @@ function drawPaddles(gameState: IGameState) {
             setupButtonDelegation(gameId);
             console.log("SETUP RANKED LISTENERS", gameId);
 
-
-
             resetMatchmakingButtons();
 
         });
+
+        onGameCancelled((gameId) => {
+            handleModalError("Game was cancelled!");
+            console.log("GAME CANCELLED");
+            rankedProfiles?.classList.add("hidden");
+            preGameModal?.classList.remove("hidden");
+            preGameModal?.classList.add("flex");
+        });
+
+        
     }
 
     function resetMatchmakingButtons() {
@@ -351,7 +362,6 @@ function updatePlayerProfiles(gameData: any) {
         game = gameData;
     }
     currentGame = game;
-    
     const currentUserId = store.getUser().id;
     const user1 = findUser(game.player1Id);
     const user2 = findUser(game.player2Id);
@@ -472,16 +482,22 @@ function setupKeyboardHandlers() {
 function setupMultiplayerSocketHandlers() {
     // Очищаем старые обработчики
     // clearGameCallbacks();
+timerCountdown((data) => {
+    const seconds = data.seconds;
     
+    const countdownElement = document.getElementById("countdown");
+    countdownElement?.classList.remove("hidden");
+        countdownElement!.textContent = seconds.toString();
+    
+    setTimeout(() => {
+        countdownElement?.classList.add("hidden");
+        scoreInfo?.classList.remove("hidden");
+    }, 5000);
+    
+});
+
     onGameUpdate((gameState) => {
         renderGame(gameState);
-    });
-
-    onGameStart((gameState) => {
-        console.log("Game started!");
-        isGameRunning = true;
-        renderGame(gameState);
-        scoreInfo!.classList.remove('hidden');
     });
 
     onGameFinished((result) => {
@@ -489,9 +505,7 @@ function setupMultiplayerSocketHandlers() {
         handleGameOver(result);
     });
 
-    onGameError((error) => {
-        console.error("Game error:", error);
-    });
+
 }
 
     function initMultiplayerGame(gameId: string) {
@@ -505,7 +519,7 @@ function setupMultiplayerSocketHandlers() {
         socket?.emit('mm:leave', gameId);
         renderGame(currentGameState);
         
-        scoreInfo!.classList.remove('hidden');
+        
 
         rankedProfilesContainer?.classList.remove("hidden");
         // initGame();
@@ -800,6 +814,7 @@ function handleKeyDown(ev: KeyboardEvent) {
     const rankedTimer = document.querySelector("#rankedTimer");
     const spinerDiv = document.querySelector("#spinerDiv");
     const rankedProfiles = document.querySelector("#rankedProfiles");
+    const btmBtn = document.querySelector("#backToMenuBtn")
 
 
     let rankedTimerInterval: ReturnType<typeof setInterval> | null = null;
@@ -824,6 +839,7 @@ function handleKeyDown(ev: KeyboardEvent) {
         try {
 
             setupRankedListeners();
+
             const response = await instanceAPI.post("/game/matchmaking", {
                 body: { },
             });
@@ -851,9 +867,10 @@ function handleKeyDown(ev: KeyboardEvent) {
 
                 // Инициализируем мультиплеерную игру
                 const gameId = userResponseData.game.id.toString();
-
+                await updateAllStoreUsers();
                 initMultiplayerGame(gameId);
                 
+                // store.getUserRequest();
                 updatePlayerProfiles(userResponseData);
                 setupButtonDelegation(gameId);
                 console.log("START RANKED GAME", gameId);
@@ -872,7 +889,7 @@ function handleKeyDown(ev: KeyboardEvent) {
 
     startRankedMatchBtn?.addEventListener("click", async (e) => {
         e.stopPropagation();
-        
+        btmBtn?.setAttribute("disabled", "true");
         startRankedGame();
     });
 
@@ -888,6 +905,7 @@ function handleKeyDown(ev: KeyboardEvent) {
                 console.log("Match Canceled", response.status);
                 cancelRankedMatchBtn?.classList.add("hidden");
                 startRankedMatchBtn?.classList.remove("hidden");
+                btmBtn?.removeAttribute("disabled");
             }
         } catch (error) {
             console.error('Error canceling ranked match:', error);
@@ -945,16 +963,19 @@ function handleKeyDown(ev: KeyboardEvent) {
         const target = e.target as HTMLElement;
         if(target.id === "backToMenuBtn")
         {
+            
             e.stopPropagation();
             const gameOverModal = document.querySelector("#gameOverModal");
             if(!rankedGameModal?.classList.contains("hidden"))
             {
+                spinerDiv?.classList.add("hidden");
                 rankedGameModal?.classList.add("hidden");
                 preGameModal?.classList.remove("hidden");
             }
             if(!gameOverModal?.classList.contains("hidden"))
             {
-                console.log("GAMEOVER BACK TO MENU CLICKED");
+                btmBtn?.removeAttribute("disabled");
+                spinerDiv?.classList.add("hidden");
                 gameOverModal?.classList.add("hidden");
                 preGameModal?.classList.remove("hidden");
             }
@@ -986,6 +1007,15 @@ document.addEventListener("click", (e) => {
     }
 });
 
+   async function updateAllStoreUsers(){
+        try{
+            const updatedUsers = await store.getAllUsersRequest();
+            store.setAllUsers(updatedUsers);
+        }
+        catch(error){
+
+        }
+    }
 
 
     initGame();
