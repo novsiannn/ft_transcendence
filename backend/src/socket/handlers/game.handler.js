@@ -1,5 +1,6 @@
 const GameState = require('../utils/GameState');
 const gameService = require('../../services/game.service');
+const userTracker = require('../utils/userTracker'); 
 
 const games = new Map();
 
@@ -184,8 +185,12 @@ async function handleLeaveQueue(io, socket, gameId) {
 
 async function initialize(io) {
     gameService.gameEvents.on('gameCancelled', (data) => {
-        io.to(`mm_${data.player1Id}`).emit('game:cancelled', data);
-        io.to(`mm_${data.player2Id}`).emit('game:cancelled', data);
+        const player1Socket = userTracker.getUserSocket(data.player1Id);
+        const player2Socket = userTracker.getUserSocket(data.player2Id);
+        if (player1Socket) 
+            player1Socket.emit('game:cancelled', data);
+        if (player2Socket)
+            player2Socket.emit('game:cancelled', data);
         console.log(`Game ${data.gameId} cancelled and players notified`);
     });
     setInterval(() => {
