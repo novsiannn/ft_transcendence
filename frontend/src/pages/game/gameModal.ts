@@ -2,7 +2,6 @@ import { getModalWindowError} from "../../elements";
 import { IUser } from "../../services/api/models/response/IUser";
 import { findUser } from "../../shared";
 import { store, API_URL} from "../../store/store";
-import { tournamentBracket } from "./tournamentBracket";
 import { getColorFromUsername } from "../../shared/randomColors";
 
 export let rankedWinnerData ={

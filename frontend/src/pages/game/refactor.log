@@ -1,0 +1,33 @@
+# Лог-файл рефакторинга game.ts
+# Дата: 2025-06-18
+# Описание: Рефакторинг выполнен - основа игры оставлена в game.ts, рейтинговые компоненты вынесены в ratingGame.ts
+
+## Изменения:
+1. **game.ts** - содержит основу игры (рендеринг, базовая логика, общие функции для всех режимов)
+   - Функции отрисовки (renderGame, drawBoard, drawPaddles, drawBall)
+   - Обработка клавиатуры и ввода
+   - Базовые игровые режимы (tournament, multiplayer setup)
+   - Инициализация и очистка игры
+
+2. **ratingGame.ts** - содержит только специфичные для рейтинговой игры компоненты
+   - setupRankedListeners
+   - updatePlayerProfiles
+   - setupInitialReadyButtonsVisibility
+   - setupButtonDelegation
+   - startRankedGame
+   - rankedGameStatus
+   - cancelRankedMatch
+
+## Структура:
+- **game.ts** - основа игры, на которой можно строить любые режимы
+- **ratingGame.ts** - специфичные компоненты для рейтинга
+- Можно легко добавить новые режимы (например, casualGame.ts, tournamentGame.ts)
+
+## Откат изменений:
+Для отката замените содержимое game.ts содержимым из game_old.ts
+
+## Файлы:
+- game.ts - новая основа игры
+- ratingGame.ts - компоненты рейтинговой игры  
+- game_old.ts - резервная копия оригинального файла
+- refactor.log - этот лог-файл

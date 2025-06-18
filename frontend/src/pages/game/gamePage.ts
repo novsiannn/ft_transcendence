@@ -3,7 +3,7 @@ import { store, API_URL } from "../../store/store";
 import { getColorFromUsername } from "../../shared/randomColors";
 import { friendsMatchModal, preGameModal, rankedGameModal, tournamentModal } from "./gameModal";
 import { tournamentPlayerProfiles, rankedPlayerProfiles, rankedPlayerProfilesContainer } from "./playersProfiles";
-import { tournamentBracket } from "./tournamentBracket";
+import { tournamentBracketFourPlayers } from "./tournamentBracket";
 import { gameOverModal } from "./gameModal";
 import { getModalWindowError } from "../../elements";
 
@@ -33,7 +33,10 @@ export function gamePage() {
             ${friendsMatchModal()}
             ${rankedGameModal()}
             
-            
+            <div>
+                ${tournamentBracketFourPlayers()}
+                <button id="showBracketBtn" class=" hidden mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
+            </div>
             
         <div class="flex flex-col items-center w-full">
             <!-- Профили игроков -->
