@@ -127,7 +127,7 @@ async function createDuel(initiatorId, opponentId) {
         let activeGame = await PinPong.findOne({
             where: {
                 status: {
-                    [Op.not]: 'finished' 
+                    [Op.in]: ['waiting', 'playing']
                 },
                 [Op.or]: [
                     { player1Id: initiatorId },
@@ -143,7 +143,7 @@ async function createDuel(initiatorId, opponentId) {
         activeGame = await PinPong.findOne({
             where: {
                 status: {
-                    [Op.not]: 'finished'  
+                    [Op.in]: ['waiting', 'playing']
                 },
                 [Op.or]: [
                     { player1Id: opponentId },
@@ -159,7 +159,7 @@ async function createDuel(initiatorId, opponentId) {
         const existingGame = await PinPong.findOne({
             where: {
                 status: {
-                    [Op.not]: 'finished' 
+                    [Op.in]: ['waiting', 'playing']
                 },
                 [Op.or]: [
                     {
