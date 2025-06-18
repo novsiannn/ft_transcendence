@@ -33,6 +33,10 @@ const notificationHandler = {
             by: addresseeInfo
         });
     },
+
+    sendFriendGameRequest(opponentId, data) {
+        return this.sendNotification(opponentId, 'game_invite', data);
+    },
     
     // friendship UI
     friendRejected(requesterId, addresseeInfo) {

@@ -5,6 +5,7 @@ const chatHandler = require('./handlers/chat');
 const gameHandler = require('./handlers/game.handler');
 const userTracker = require('./utils/userTracker');
 const onlineHandler = require('./handlers/online.handler');
+const gameService = require('../services/game.service')
 
 function setupWebSockets(server) {
     const io = new Server(server, {
@@ -58,6 +59,8 @@ function setupWebSockets(server) {
 
     io.notification = notificationHandler;
     io.online = onlineHandler;
+
+    gameService.setIo(io); //!
 
     console.log('WebSocket server initialized');
 

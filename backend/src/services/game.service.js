@@ -192,6 +192,43 @@ async function createDuel(initiatorId, opponentId) {
         setTimeout(() => {
             checkAndCancelGame(game.id);
         }, 30000);
+        
+        if (io && io.notification) {
+            const notificationData = {
+                from: {
+                    id: initiator.id,
+                    username: initiator.username,
+                    avatar: initiator.avatar
+                },
+                game: {
+                    id: game.id,
+                    player1Id: game.player1Id,
+                    player2Id: game.player2Id,
+                    status: game.status,
+                    gameMode: game.gameMode,
+                    createdAt: game.createdAt
+                }
+            };
+
+            io.notification.sendFriendGameRequest(opponentId, notificationData);
+        }
+
+        await notificationService.createNotification(
+            opponentId,
+            'game_invite',
+            {
+                game: {
+                    id: game.id,
+                    player1Id: game.player1Id,
+                    player2Id: game.player2Id,
+                    status: game.status,
+                    gameMode: game.gameMode,
+                    createdAt: game.createdAt
+                }
+            },
+            initiatorId
+        );
+
         return { game };
 
     } catch (error) {
