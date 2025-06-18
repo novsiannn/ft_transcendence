@@ -2,21 +2,23 @@ const userTracker = require('../utils/userTracker');
 const chatService = require('../../services/chat.service.js');
 const Message = require('../../../db/models/MessageModel');
 const Chat = require('../../../db/models/ChatModel');
+const friendshipService = require('../../services/friendship.service.js');
 const { validateMessage, isUserAllowedToSendMessage } = require('../utils/chat.utils');
+const areFriends = require('../../utils/friends');
 
-function handleOpenChats(socket) {
+async function handleOpenChats(socket) {
     const userId = socket.user.id;
     socket.join('user_chats_' + userId);
     console.log(`User ${userId} joined user_chats_${userId}`);
 }
-function handleCloseChats(socket) {
+async function handleCloseChats(socket) {
     const userId = socket.user.id;
     socket.leave('user_chats_' + userId);
     console.log(`User ${userId} left user_chats_${userId}`);
 }
 
 
-function handleJoin(socket, chatId) {
+async function handleJoin(socket, chatId) {
     socket.join(`chat_${chatId}`);
     console.log(`User ${socket.user.id} joined chat ${chatId}`);
 }
@@ -33,6 +35,10 @@ async function handleSendMessage(socket, data) {
         }
         if (!isUserAllowedToSendMessage(senderId)) {
             socket.emit('chat:error', { error: 'Please wait before sending another message' });
+            return;
+        }
+        if(!areFriends(senderId, receiverId)) {
+            socket.emit('chat:error', { error: 'You can only send messages to friends' });
             return;
         }
         const validatedMessage = validateMessage(content);
@@ -67,12 +73,12 @@ async function handleSendMessage(socket, data) {
     }
 }
 
-function handleLeave(socket, chatId) {
+async function handleLeave(socket, chatId) {
     socket.leave(`chat_${chatId}`);
     console.log(`User ${socket.user.id} left chat ${chatId}`);
 }
 
-function initialize(io) {
+async function initialize(io) {
     io.on('connection', function (socket) {
         socket.on('chat:openChats', () => handleOpenChats(socket));
         socket.on('chat:closeChats', () => handleCloseChats(socket));

@@ -1,3 +1,5 @@
+const gameService = require('../../services/game.service');
+
 class GameState {
     constructor(player1Id, player2Id) {
         this.settings = {
@@ -5,10 +7,13 @@ class GameState {
             boardHeight: 500,
             paddleWidth: 25,
             paddleHeight: 120,
-            ballRadius: 13,
+            ballRadius: 8,
             initialBallSpeed: 5,
             paddleSpeed: 40,
             speedIncrease: 1.07,
+            maxScore: 5, 
+            calculatedElo: false,
+            isLocal: false
         };
         this.ball = {
             x: this.settings.boardWidth / 2,
@@ -99,9 +104,9 @@ class GameState {
             this.ball.speed = this.settings.initialBallSpeed;
             this.setBallDirection();
 
-            if(this.paddles[this.player1Id].score >= 5 || this.paddles[this.player2Id].score >= 5) {
-                this.winner = this.paddles[this.player1Id].score >= 5 ? this.player1Id : this.player2Id;
-                this.isRunning = false;
+            if(this.paddles[this.player1Id].score >= this.settings.maxScore || this.paddles[this.player2Id].score >= this.settings.maxScore) {
+                this.winner = this.paddles[this.player1Id].score >= this.settings.maxScore ? this.player1Id : this.player2Id;
+                // this.isRunning = false;
             }
         }
     }
@@ -112,6 +117,11 @@ class GameState {
         this.handleBorderCollision();
         this.handlePaddleCollision();
         this.handleGoal();
+        if(!this.isRunning){
+            this.restart();
+            this.start();
+        }
+
     }
 
     movePaddle(playerId, direction) {
@@ -134,7 +144,8 @@ class GameState {
             ball: this.ball,
             paddles: this.paddles,
             isRunning: this.isRunning,
-            winner: this.winner
+            winner: this.winner,
+            settings: this.settings
         }
     }
     start() {
@@ -154,9 +165,14 @@ class GameState {
                 y: 0,
             }
         }
-        this.paddles[this.player1Id].score = 0;
-        this.paddles[this.player2Id].score = 0;
-        this.isRunning = false;
+        // this.paddles[this.player1Id].score = 0;
+        // this.paddles[this.player2Id].score = 0;
+        // this.isRunning = false;
+    }
+    async calculateElo(gameId) {
+        if(this.settings.calculatedElo) return;
+        await gameService.updateElo(gameId);
+        this.settings.calculatedElo = true;
     }
 }
 

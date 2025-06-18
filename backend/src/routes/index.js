@@ -7,6 +7,7 @@ const authMiddleware = require('../middleware/auth.middleware');
 const chatController = require('../controllers/chat.controller');
 const FriendshipController = require('../controllers/friendship.controller');
 const { schema } = require('../../db/models/UserModel');
+const GameController = require('../controllers/game.controller');
 
 const handle2FAEnable = (req, res) => {
   if (req._handled) return;
@@ -1493,6 +1494,213 @@ async function routes(fastify, options) {
     },
     preHandler: authMiddleware
   }, chatController.getUserChats);
+  //GAME ROUTES
+  fastify.post('/game/matchmaking', {
+    schema: {
+        description: 'Join matchmaking queue',
+        tags: ['Game'],
+        security: [{ bearerAuth: [] }],
+        response: {
+            200: {
+                description: 'Added to queue',
+                type: 'object',
+                properties: {
+                    message: { type: 'string' }
+                }
+            },
+            201: {
+                description: 'Game created',
+                type: 'object',
+                properties: {
+                    message: { type: 'string' },
+                    game: {
+                        type: 'object',
+                        properties: {
+                            id: { type: 'integer' },
+                            player1Id: { type: 'integer' },
+                            player2Id: { type: 'integer' },
+                            status: { type: 'string' },
+                            gameMode: { type: 'string' }
+                        }
+                    }
+                }
+            },
+            400: {
+                description: 'Bad request',
+                type: 'object',
+                properties: {
+                    error: { type: 'string' }
+                }
+            },
+            500: {
+                description: 'Internal server error', 
+                type: 'object',
+                properties: {
+                    error: { type: 'string' }
+                }
+            }
+        }
+    },
+    preHandler: authMiddleware
+  }, GameController.BeInAQueue);
+
+ fastify.delete('/game/matchmaking', {
+    schema: {
+        description: 'Leave matchmaking queue',
+        tags: ['Game'],
+        security: [{ bearerAuth: [] }],
+        response: {
+            200: {
+                description: 'Successfully left queue',
+                type: 'object',
+                properties: {
+                    message: { type: 'string' }
+                }
+            },
+            400: {
+                description: 'Bad request',
+                type: 'object',
+                properties: {
+                    error: { type: 'string' }
+                }
+            },
+            500: {
+                description: 'Internal server error',
+                type: 'object',
+                properties: {
+                    error: { type: 'string' }
+                }
+            }
+        }
+    },
+    preHandler: authMiddleware
+}, GameController.leaveMatchmaking);
+
+fastify.post('/game/casual', {
+    schema: {
+        description: 'Create a casual game with a friend',
+        tags: ['Game'],
+        security: [{ bearerAuth: [] }],
+        body: {
+            type: 'object',
+            required: ['friendId'],
+            properties: {
+                friendId: { type: 'integer' }
+            }
+        },
+        response: {
+            201: {
+                description: 'Game created successfully',
+                type: 'object',
+                properties: {
+                    game: {
+                        type: 'object',
+                        properties: {
+                            id: { type: 'integer' },
+                            player1Id: { type: 'integer' },
+                            player2Id: { type: 'integer' },
+                            status: { type: 'string' },
+                            gameMode: { type: 'string' }
+                        }
+                    }
+                }
+            },
+            400: {
+                description: 'Bad request',
+                type: 'object',
+                properties: {
+                    error: { type: 'string' }
+                }
+            },
+            500: {
+                description: 'Internal server error',
+                type: 'object',
+                properties: {
+                    error: { type: 'string' }
+                }
+            }
+        }
+    },
+    preHandler: authMiddleware
+}, GameController.createCasualGame);
+fastify.get('/game/matchmaking/status', {
+    schema: {
+        description: 'Check if user is in matchmaking queue',
+        tags: ['Game'],
+        security: [{ bearerAuth: [] }],
+        response: {
+            200: {
+                description: 'Queue status retrieved successfully',
+                type: 'object',
+                properties: {
+                    inQueue: { type: 'boolean' }
+                }
+            },
+            500: {
+                description: 'Internal server error',
+                type: 'object',
+                properties: {
+                    error: { type: 'string' }
+                }
+            }
+        }
+    },
+    preHandler: authMiddleware
+}, GameController.checkUserInQueue);
+
+//kilchenk
+fastify.delete('/game/:gameId', {
+  schema: {
+      description: 'Delete a game',
+      tags: ['Game'],
+      security: [{ bearerAuth: [] }],
+      params: {
+          type: 'object',
+          required: ['gameId'],
+          properties: {
+              gameId: { type: 'integer' }
+          }
+      },
+      response: {
+          200: {
+              description: 'Game deleted successfully',
+              type: 'object',
+              properties: {
+                  message: { type: 'string' }
+              }
+          },
+          400: {
+              description: 'Bad request',
+              type: 'object',
+              properties: {
+                  error: { type: 'string' }
+              }
+          },
+          403: {
+              description: 'Forbidden - not authorized to delete this game',
+              type: 'object',
+              properties: {
+                  error: { type: 'string' }
+              }
+          },
+          404: {
+              description: 'Game not found',
+              type: 'object',
+              properties: {
+                  error: { type: 'string' }
+              }
+          },
+          500: {
+              description: 'Internal server error',
+              type: 'object',
+              properties: {
+                  error: { type: 'string' }
+              }
+          }
+      }
+  },
+  preHandler: authMiddleware
+}, GameController.deleteGame);
 }
 
 module.exports = routes;

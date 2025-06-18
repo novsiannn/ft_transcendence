@@ -24,6 +24,10 @@ const setProfileInfo = (user: IUser): void => {
   const profileMatchesLost = document.querySelector("#profileMatchesLost");
   const profileWinrate = document.querySelector("#profileWinrate");
 
+  console.log(user);
+  
+  socket?.emit("online:get:user:status" , {userId: user.id});
+
   elo!.innerHTML = IconLVL(user.lvl);
   elo!.innerHTML += `${user.elo} ELO`;
   elo!.classList.add("text-gray-500", "font-bold", "text-md");
@@ -73,7 +77,10 @@ const hideInfo = () => {
   const profileMatchesWin = document.querySelector("#profileMatchesWin");
   const profileMatchesLost = document.querySelector("#profileMatchesLost");
   const profileWinrate = document.querySelector("#profileWinrate");
+  const userOnlineStatus = document.querySelector("#userOnlineStatusProfile");
 
+
+  userOnlineStatus!.innerHTML = ``;
   elo!.innerHTML = ``;
   lvl!.innerHTML = ``;
   profileFriendsCount!.innerHTML = ``;
@@ -81,7 +88,7 @@ const hideInfo = () => {
   profileMatchesWin!.innerHTML = ``;
   profileMatchesLost!.innerHTML = ``;
   profileWinrate!.innerHTML = ``;
-}
+};
 
 export const refreshProfileBtnsBlock = async (el: IUser) => {
   const userNameElement = document.querySelector("#userNameProfile");
@@ -97,9 +104,10 @@ export const refreshProfileBtnsBlock = async (el: IUser) => {
   const profileBtnsContainer = document.querySelector<HTMLDivElement>(
     "#profileButtonsContainer"
   );
-
+  
   if (hasAvatar) {
-    avatarImg!.src = API_URL + el.avatar;
+    if(avatarImg)
+      avatarImg.src = API_URL + el.avatar;
     emptyPhoto?.classList.toggle("hidden", hasAvatar);
     avatarImg?.classList.toggle("hidden", !hasAvatar);
   } else {
@@ -129,6 +137,7 @@ export const refreshProfileBtnsBlock = async (el: IUser) => {
     hideInfo();
     return;
   }
+  
 
   friendsCount!.innerHTML = `${store.getUser().friendsCount}`;
 
@@ -159,7 +168,8 @@ export const getUserData = async (id?: number) => {
     if (hasAvatar) {
       emptyPhoto?.classList.toggle("hidden", hasAvatar);
       avatarImg?.classList.toggle("hidden", !hasAvatar);
-      avatarImg!.src = API_URL + store.getUser().avatar;
+      if(avatarImg)
+        avatarImg.src = API_URL + store.getUser().avatar;
     } else {
       emptyPhoto!.classList.toggle("hidden", hasAvatar);
       avatarImg?.classList.toggle("hidden", !hasAvatar);
@@ -172,6 +182,7 @@ export const getUserData = async (id?: number) => {
   }
   const res = store.getAllUsers().some((el) => {
     if (el.id == id) {
+      socket?.emit("online:get:user:status", { userId: el.id });
       refreshProfileBtnsBlock(el);
       return true;
     }
