@@ -57,6 +57,7 @@ let gameCallbacks: {
   onGameCancelled?: (error: any) => void;
   onMatchFound?: (data: any) => void;
   timerCountdown?: (data:{seconds: number}) => void;
+  onLocalGameCreated?:(data: {gameId: string}) => void;
 } = {};
 
 export let gameState: IGameState | null = null;
@@ -224,6 +225,13 @@ export function initializeSocket(): Socket | null {
   });
   //GAME HANDLERS
 
+  socket.on("game:localCreated", (data : any) => {
+    if(gameCallbacks.onLocalGameCreated)
+      {
+        gameCallbacks.onLocalGameCreated(data);
+      }
+  });
+
   socket.on("mm:ready", (data: any) => {
     socket?.emit("game:leaveQueue");
     console.log("on Match FOUND:", data);
@@ -302,11 +310,17 @@ export function initializeSocket(): Socket | null {
   return socket;
 }
 
-// export function joinGame(gameId: string): void {
-//   if (!socket) return;
-//   socket.emit('game:join', gameId);
-//   console.log(`Joining game: ${gameId}`);
-// }
+export function movePaddleLocal(gameId: string, direction: 'up' | 'down', nickname: string): void {
+  if (!socket) return;
+
+  socket.emit("game:moveLocalPaddle",{
+    gameId: gameId, 
+    direction: direction, 
+    nickname: nickname});
+    console.log("EMITTED GAME ID : ", gameId);
+  console.log("EMITTED DIRECTION : ", direction);
+  console.log("EMITTED NICKNAME : ", nickname);
+}
 
 export function movePaddle(gameId: string, direction: 'up' | 'down'): void {
   if (!socket) return;
@@ -315,8 +329,7 @@ export function movePaddle(gameId: string, direction: 'up' | 'down'): void {
     gameId: gameId,
     direction: direction
   });
-  console.log("EMITTED DIRECTION : ", direction);
-  console.log("EMITTED GAME ID : ", gameId);
+
 }
 //GAME CALLBACKS
 export function startGame(gameId: string): void {
@@ -331,6 +344,10 @@ export function leaveGame(gameId: string): void {
 
 export function timerCountdown(callback: (data:{seconds : number})=> void): void {
   gameCallbacks.timerCountdown = callback;
+}
+
+export function onLocalGameCreated(callback: (data: {gameId: string}) => void): void{
+  gameCallbacks.onLocalGameCreated = callback;
 }
 
 export function onMatchFound(callback: (data: any) => void): void {

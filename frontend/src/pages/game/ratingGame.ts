@@ -12,6 +12,7 @@ import {
 import { findUser } from "../../shared";
 import { rankedWinnerData } from "./gameModal";
 
+
 // Экспортируемые функции для рейтинговой игры
 export function setupRankedListeners(
     rankedGameModal: Element | null,

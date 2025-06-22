@@ -3,7 +3,7 @@ import { store, API_URL } from "../../store/store";
 import { getColorFromUsername } from "../../shared/randomColors";
 import { friendsMatchModal, preGameModal, rankedGameModal, tournamentModal } from "./gameModal";
 import { tournamentPlayerProfiles, rankedPlayerProfiles, rankedPlayerProfilesContainer } from "./playersProfiles";
-import { tournamentBracketFourPlayers } from "./tournamentBracket";
+import { tournamentBracketPlayers } from "./tournamentBracket";
 import { gameOverModal } from "./gameModal";
 import { getModalWindowError } from "../../elements";
 
@@ -32,24 +32,22 @@ export function gamePage() {
             ${tournamentModal()}
             ${friendsMatchModal()}
             ${rankedGameModal()}
+            ${tournamentBracketPlayers()}    
             
-            <div>
-                ${tournamentBracketFourPlayers()}
-                <button id="showBracketBtn" class=" hidden mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
-            </div>
+
             
-        <div class="flex flex-col items-center w-full">
+            <div class="flex flex-col items-center w-full">
             <!-- Профили игроков -->
             <div class="flex justify-between w-[1300px] px-6 mt-4"> <!-- Изменено с max-w-7xl на w-[1300px] -->
             ${tournamentPlayerProfiles()}
             ${rankedPlayerProfilesContainer()}
             </div>
-
+            
             <!-- Таймер -->
             <h1 id="countdown" class="text-4xl text-white mt-6 hidden">5</h1>
             <!-- Счёт -->
             <p id="score-info" class="text-4xl text-white mt-6 hidden">0 : 0</p>
-
+            
             <!-- Игровое поле -->
             <canvas 
                 id="game-board" 
@@ -67,7 +65,7 @@ export function gamePage() {
                         0 0 35px #fff;
                 "
             ></canvas>
-             <div class="absolute inset-0 pointer-events-none" style="box-shadow: 0 0 15px 5px rgba(255,255,255,0.5);"></div>
+                <div class="absolute inset-0 pointer-events-none" style="box-shadow: 0 0 15px 5px rgba(255,255,255,0.5);"></div>
             </div>
             ${gameOverModal()}
             ${getModalWindowError()}

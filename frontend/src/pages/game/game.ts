@@ -1,5 +1,5 @@
 import { handleModalError } from "../../elements";
-import { rankedPlayerProfiles, rankedPlayerProfilesContainer, tournamentPlayerData, tournamentPlayerProfiles, updateRankedProfilesPositions } from "./playersProfiles";
+import {  rankedPlayerProfiles, rankedPlayerProfilesContainer, tournamentData, tournamentPlayerData, tournamentPlayerProfiles, updateRankedProfilesPositions } from "./playersProfiles";
 import { API_URL, store} from "../../store/store";
 import {
     IGameState,
@@ -11,6 +11,8 @@ import {
     onGameFinished,
     clearGameCallbacks,
     timerCountdown,
+    movePaddleLocal,
+    onLocalGameCreated,
 } from "../../websockets/client";
 import { rankedWinnerData, gameOverModalCreator } from "./gameModal";
 import { 
@@ -20,27 +22,37 @@ import {
     startRankedGame as startRankedGameLogic,
     rankedGameStatus,
     cancelRankedMatch,
-    getCurrentGame 
 } from "./ratingGame";
+import { tournamentBracketPlayers } from "./tournamentBracket";
+import { clearRankedPlayerData } from "./playersProfiles";
 
-// Основа игры - универсальные функции для всех режимов
+declare global {
+    interface Window {
+        tournamentPlayerNickname1: string;
+        tournamentPlayerNickname2: string;
+    }
+}
+
 export function handleGame(mainWrapper: HTMLDivElement | undefined) {
     setupMultiplayerSocketHandlers();
+    const tournamentProfiles = document.querySelector("#tournamentProfiles");
+    tournamentProfiles?.classList.add("hidden")
     const scoreInfo = document.querySelector("#score-info");
     const gameBoard = document.getElementById("game-board") as HTMLCanvasElement;
     let currentReadyButtonHandler: ((e: Event) => void) | null = null;
-    const rankedProfilesContainer = document.querySelector('#rankedProfiles');
+    let rankedProfilesContainer = document.querySelector('#rankedProfiles');
     const btmBtn = document.querySelector("#backToMenuBtn");
     const spinerDiv = document.querySelector("#spinerDiv");
-    
-    let intervalID: ReturnType<typeof setInterval>;
-    let isGameRunning = false;
-    let isWaitingForStart = false;
-    let gameStartedOnce = false;
     
     // Игровые переменные для режимов
     let gameMode: 'local' | 'multiplayer' | null = null;
     let currentGameId: string | null = null;
+    let paddleMovementInterval: ReturnType<typeof setInterval> | null = null;
+
+    let tournamentPlayerNickname2 = "";
+    let tournamentPlayerNickname1 = "";
+
+    let step = 0;
     
     mainWrapper!.id = "game-container";
     mainWrapper!.classList.add("h-screen", "flex", "flex-col", "gap-2.5", "justify-center", "items-center");
@@ -206,9 +218,12 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
             let leftColor = "white";
             let rightColor = "white";
             
-            if(gameState.isRunning){
+            if(gameState.isRunning && gameMode === "multiplayer"){
                 leftColor = (leftPlayerId === currentUserId) ? "#3B82F6" : "white";
                 rightColor = (rightPlayerId === currentUserId) ? "#3B82F6" : "white";
+            }else{
+                leftColor = "white";
+                rightColor = "white";
             }
             
             drawPaddle(leftPaddle.x, leftPaddle.y, leftColor, gameState);
@@ -262,15 +277,57 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
     
     // РЕЖИМЫ ИГРЫ
     function initTournamentGame() {
-        gameMode = 'local';
-        cleanupCurrentGame();
+    gameMode = 'local';
+    
+    setupMultiplayerSocketHandlers();
+
+    onLocalGameCreated((data) => {
+        currentGameId = data.gameId;
+    });
+    setupKeyboardHandlers();
+
+    let player1;
+    let player2;
+
+    if(tournamentData.final.length === 2) {
+        player1 = tournamentData.final[0];
+        player2 = tournamentData.final[1];
+
+        tournamentPlayerNickname1 = player1;
+        tournamentPlayerNickname2 = player2;
+        window.tournamentPlayerNickname1 = tournamentPlayerNickname1;
+        window.tournamentPlayerNickname2 = tournamentPlayerNickname2;
         
-        scoreInfo!.classList.remove('hidden');
+
+        tournamentProfiles!.innerHTML = tournamentPlayerProfiles();
+        socket?.emit("game:joinLocal", {player1, player2})
+    } else {
+
+        let player1Index, player2Index;
         
-        setTimeout(() => {
-            // startActualGame();
-        }, 1000);
+        if (step === 0) {
+            player1Index = 0;
+            player2Index = 1;
+        } else { 
+            player1Index = 2;
+            player2Index = 3;
+        }
+
+        player1 = tournamentData.semiFinal[tournamentPlayerData.tournamentNet[player1Index]];
+        player2 = tournamentData.semiFinal[tournamentPlayerData.tournamentNet[player2Index]];
+        
+        tournamentPlayerNickname1 = player1;
+        tournamentPlayerNickname2 = player2;
+        window.tournamentPlayerNickname1 = tournamentPlayerNickname1;
+        window.tournamentPlayerNickname2 = tournamentPlayerNickname2;
+        
+        console.log("Player 1", player1);
+        console.log("Player 2", player2);
+        step++;
+        tournamentProfiles!.innerHTML = tournamentPlayerProfiles();
+        socket?.emit("game:joinLocal", {player1, player2});
     }
+}
     
     function resetMatchmakingButtons() {
         const cancelRankedMatchBtn = document.querySelector("#cancelRankedMatchBtn");
@@ -289,7 +346,7 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
         
         socket?.emit('mm:leave', gameId);
         renderGame(currentGameState);
-        
+        rankedProfilesContainer = document.querySelector("#rankedProfiles")
         rankedProfilesContainer?.classList.remove("hidden");
     }
 
@@ -321,76 +378,170 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
 
         onGameFinished((result) => {
             console.log("Game finished:", result);
-            handleGameOver(result);
-            
+            if(gameMode === "multiplayer")
+                handleGameOver(result);
+            if(gameMode === "local")
+                handleGameOverLocal(result);
         });
     }
 
-    function cleanupCurrentGame() {
-        if (currentGameId) {
-            leaveGame(currentGameId);
-        }
-        
-        const rankedProfiles = document.querySelector("#rankedProfiles");
-        if (rankedProfiles && rankedProfiles.parentNode) {
-            const newElement = rankedProfiles.cloneNode(true) as HTMLElement;
-            rankedProfiles.parentNode.replaceChild(newElement, rankedProfiles);
-        }
-        
-        currentReadyButtonHandler = null;
-        clearGameCallbacks();
-        
-        currentGameId = null;
-        gameMode = null;
-        isGameRunning = false;
+function cleanupCurrentGameLocal() {
+    if (paddleMovementInterval) {
+        clearInterval(paddleMovementInterval);
+        paddleMovementInterval = null;
+    }
+    
+    keys.clear(); // Очищаем состояние клавиш
+    clearGameCallbacks();
+    currentGameId = null;
+    gameMode = null;
+}
+
+function cleanupCurrentGame() {
+    const rankedProfiles = document.querySelector("#rankedProfiles");
+
+    if (rankedProfiles && rankedProfiles.parentNode) {
+        const newElement = rankedProfiles.cloneNode(true) as HTMLElement;
+        rankedProfiles.parentNode.replaceChild(newElement, rankedProfiles);
     }
 
-    function handleGameOver(result?: any) {
-        const gameOverModalContainer = document.querySelector("#gameOverModal");
-        isGameRunning = false;
-        isWaitingForStart = true;
-        gameStartedOnce = false;
-        scoreInfo!.classList.add('hidden');
-        
-        if (result?.winner) {
-            rankedWinnerData.id = result.winner;
-        }
-        if(gameOverModalContainer)
-        {
-            gameOverModalContainer!.innerHTML = gameOverModalCreator(result.winner);
-        }
-        
-        
-        gameOverModalContainer!.classList.remove('hidden');
-        gameOverModalContainer!.classList.add('flex');
-        
+    // Получаем новый элемент и скрываем его
+    const newRankedProfiles = document.querySelector("#rankedProfiles");
+    newRankedProfiles?.classList.add("hidden");
 
-        setTimeout(() => {
-            cleanupCurrentGame();
-        }, 100);
+    if (paddleMovementInterval) {
+        clearInterval(paddleMovementInterval);
+        paddleMovementInterval = null;
     }
 
-    function handleKeyDown(ev: KeyboardEvent) {
-        const key = ev.key.toLowerCase();
-        keys.add(key);
+    keys.clear();
+
+    currentReadyButtonHandler = null;
+    clearGameCallbacks();
+
+    // Очищаем данные профилей рейтинговой игры
+    clearRankedPlayerData();
+
+    currentGameId = null;
+    gameMode = null;
+}
+
+    function handleGameOverLocal(result?: any) {
+        scoreInfo?.classList.add("hidden");
+        let winnerName = '';
+        if (result && typeof result === 'object') {
+            if (result.winner) {
+                winnerName = result.winner;
+            }
+        } else if (typeof result === 'string') {
+            winnerName = result;
+        }
         
-        if (gameMode === 'multiplayer' && currentGameId) {
-            if (key === 'w') {
-                movePaddle(currentGameId, 'up');
-                console.log("W PRESSED");
-                console.log("CURENT GAME ID", currentGameId);
-            } else if (key === 's') {
-                movePaddle(currentGameId, 'down');
-                console.log("S PRESSED");
-                console.log("CURENT GAME ID", currentGameId);
+        if(tournamentData.final.length === 2) {
+            tournamentData.winner = winnerName;
+            
+            
+            
+        } else {
+            if (winnerName && !tournamentData.final.includes(winnerName)) {
+                tournamentData.final.push(winnerName);
             }
         }
-    }
         
-    function handleKeyUp(ev: KeyboardEvent) {
-        const key = ev.key.toLowerCase();
-        keys.delete(key);
+        if (!bracketElement) {
+            document.body.insertAdjacentHTML('beforeend', tournamentBracketPlayers());
+            bracketElement = document.querySelector("#bracketFourPlayers");
+        } else {
+            const newBracketHTML = tournamentBracketPlayers();
+            bracketElement.innerHTML = newBracketHTML.split('>').slice(1).join('>').split('</div>').slice(0, -1).join('</div>');
+        }
+        
+        if (bracketElement) {
+            bracketElement?.classList.remove("hidden");
+            bracketElement?.classList.add("flex");
+        }
+        tournamentProfiles?.classList.add("hidden");
+        cleanupCurrentGameLocal();
     }
+
+function handleGameOver(result?: any) {
+    const gameOverModalContainer = document.querySelector("#gameOverModal");
+    scoreInfo!.classList.add('hidden');
+    
+    if (result?.winner) {
+        rankedWinnerData.id = result.winner;
+    }
+    if(gameOverModalContainer)
+    {
+        gameOverModalContainer!.innerHTML = gameOverModalCreator(result.winner);
+    }
+    
+    gameOverModalContainer!.classList.remove('hidden');
+    gameOverModalContainer!.classList.add('flex');
+    
+    rankedProfilesContainer?.classList.add("hidden");
+    rankedProfilesContainer?.classList.remove("flex");
+    
+    // Очищаем данные профилей
+    clearRankedPlayerData();
+
+    setTimeout(() => {
+        cleanupCurrentGame();
+    }, 100);
+}
+
+function startPaddleMovementInterval() {
+    paddleMovementInterval = setInterval(() => {
+        if (gameMode === 'local' && currentGameId) {
+            // Проверяем клавиши для первого игрока (W/S)
+            if (keys.has('w')) {
+                movePaddleLocal(currentGameId, 'up', tournamentPlayerNickname1);
+            }
+            if (keys.has('s')) {
+                movePaddleLocal(currentGameId, 'down', tournamentPlayerNickname1);
+            }
+            
+            // Проверяем клавиши для второго игрока (стрелки)
+            if (keys.has('arrowup')) {
+                movePaddleLocal(currentGameId, 'up', tournamentPlayerNickname2);
+            }
+            if (keys.has('arrowdown')) {
+                movePaddleLocal(currentGameId, 'down', tournamentPlayerNickname2);
+            }
+        }
+        
+        if (gameMode === 'multiplayer' && currentGameId) {
+            if (keys.has('w')) {
+                movePaddle(currentGameId, 'up');
+            }
+            if (keys.has('s')) {
+                movePaddle(currentGameId, 'down');
+            }
+        }
+    }, 16); // ~60 FPS
+}
+
+function handleKeyDown(ev: KeyboardEvent) {
+    const key = ev.key.toLowerCase();
+    keys.add(key);
+    
+    // Запускаем интервал для локальной игры, если он еще не запущен
+    if (currentGameId && !paddleMovementInterval) {
+        startPaddleMovementInterval();
+    }
+}
+        
+function handleKeyUp(ev: KeyboardEvent) {
+    const key = ev.key.toLowerCase();
+    keys.delete(key);
+    
+    // Останавливаем интервал, если нет активных клавиш
+    if (keys.size === 0 && paddleMovementInterval) {
+        clearInterval(paddleMovementInterval);
+        paddleMovementInterval = null;
+    }
+}
+
 
     async function updateAllStoreUsers(){
         try{
@@ -410,13 +561,11 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
         const rankedGameModal = document.querySelector("#rankedGameModal");
         const startRankedMatchBtn = document.querySelector("#startRankedMatchBtn");
         const cancelRankedMatchBtn = document.querySelector("#cancelRankedMatchBtn");
-        const rankedTimer = document.querySelector("#rankedTimer");
         const rankedProfiles = document.querySelector("#rankedProfiles");
         const rankedMatchBtn = document.querySelector("#rankedMatchBtn");
 
         let rankedTimerInterval: ReturnType<typeof setInterval> | null = null;
-        let rankedTimerValue = 0;
-
+        
         rankedMatchBtn?.addEventListener("click", async (e) => {
             e.stopPropagation();
             preGameModal?.classList.add("hidden");
@@ -489,7 +638,8 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
     const preGameModal = document.querySelector("#preGameModal");
     const tournamentDropdownMenu = document.querySelector("#tournamentDropdownMenu");
     const tournamentDropdownButton = document.querySelector("#tournamentDropdownButton");
-    
+    let bracketElement = document.querySelector("#bracketFourPlayers");
+
     tournamentDropdownButton?.addEventListener("click", (e) => {
         e.stopPropagation();
         tournamentDropdownMenu?.classList.toggle("hidden");
@@ -499,9 +649,9 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
     const fourPlayersGameBtn = document.querySelector("#fourPlayersGameBtn");
     const clickSubmitNicknameBtn = document.querySelector("#submitNicknameBtn");
     const playerNickname = document.querySelector("#playerNickname") as HTMLInputElement;
-    const tournamentProfiles = document.querySelector("#tournamentProfiles");
     const selectAvatar = document.querySelector("#selectedAvatar");
-    const tournamentBracket = document.querySelector("#tournamentBracket");
+    const tournamentBracket = document.querySelector("#bracketFourPlayers");
+    const startTournamentGame = document.querySelector("#startTournamentGame");
     
     clickSubmitNicknameBtn?.addEventListener("click", (e) => {
         e.stopPropagation();
@@ -526,6 +676,7 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
             return;
         }
         tournamentPlayerData.nicknames.push(playerNickname.value);
+        tournamentData.semiFinal.push(playerNickname.value);
         tournamentPlayerData.avatars.set(playerNickname.value, (selectAvatar as HTMLImageElement)!.src);
         playerNickname.value = "";
         
@@ -535,9 +686,11 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
             tournamentModal?.classList.remove("flex");
             tournamentBracket?.classList.remove("hidden");
             createTournamentNet();
+            
         }
+        console.log("PLAYERS : ", tournamentData.semiFinal);
     }
-
+    
     fourPlayersGameBtn?.addEventListener("click", (e) => {
         e.stopPropagation();
         tournamentDropdownMenu?.classList.toggle("hidden");
@@ -545,7 +698,7 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
         tournamentModal?.classList.remove("hidden");
         tournamentModal?.classList.add("flex");
         tournamentProfiles?.classList.remove("hidden");
-        fourPlayersTournament();
+        
     });
 
     function createTournamentNet() {
@@ -560,33 +713,60 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
                 continue;
             }		
         }
-        if (tournamentProfiles) {
-            tournamentProfiles.innerHTML = tournamentPlayerProfiles();
+    const tournamentProfiles = document.querySelector("#tournamentProfiles");
+    if (tournamentProfiles) {
+        tournamentProfiles.innerHTML = tournamentPlayerProfiles();
+        // tournamentProfiles.classList.remove("hidden");
+    }
+        // ВАЖНО: Создаем HTML турнирной сетки ПОСЛЕ заполнения tournamentNet
+        let bracketElement = document.querySelector("#bracketFourPlayers");
+        if (!bracketElement) {
+            // Теперь tournamentNet уже заполнен, можно безопасно генерировать HTML
+            document.body.insertAdjacentHTML('beforeend', tournamentBracketPlayers());
+            bracketElement = document.querySelector("#bracketFourPlayers");
+        } else {
+            // Обновляем содержимое с новыми данными
+            bracketElement.innerHTML = tournamentBracketPlayers().replace(
+                '<div id="bracketFourPlayers" class="fixed inset-0 items-center justify-center z-50 hidden" style="background-color: rgba(0, 0, 0, 0.7);">',
+                ''
+            ).replace('</div>    `;', '');
         }
         
-        initTournamentGame();
+        // Показываем турнирную сетку
+        if (bracketElement) {
+            bracketElement.classList.remove("hidden");
+            bracketElement.classList.add("flex");
+        }
+        
+        console.log("NET AFTER GENERATION:", tournamentPlayerData.tournamentNet);
+        console.log("NICKNAMES:", tournamentPlayerData.nicknames);
+        // tournamentBracket?.classList.add("flex");
+        
     }
 
-    function fourPlayersTournament(){
-        // Логика турнира будет обрабатываться в createTournamentNet
-    }
+    document.addEventListener("click", (event) => {
+        const target = event.target as HTMLElement;
+        
+        if (target && target.id === "startTournamentGame") {
+            const bracketModal = document.querySelector("#bracketFourPlayers");
+            if(!tournamentBracket?.classList.contains("hidden") && tournamentData.winner){
+                startTournamentGame?.setAttribute("disabled", "true");
+            }
+            if (bracketModal && !tournamentData.winner) {
+                startTournamentGame?.removeAttribute("disabled");
+                tournamentProfiles?.classList.remove("hidden");
+                bracketModal.classList.add("hidden");
+                bracketModal.classList.remove("flex");
+                initTournamentGame();
+            }
+            console.log("Starting tournament game...");
+        }
+    });
 
     const avatarSelectBtn = document.querySelector("#avatarSelectBtn");
     const avatarDropdown = document.querySelector("#avatarDropdown");
     const selectedAvatar = document.querySelector("#selectedAvatar");
-    const showBracketBtn = document.querySelector("#showBracketBtn")
-    const tournamentBracketFourPlayers = document.querySelector("#tournamentBracketFourPlayers");
-
-    showBracketBtn?.addEventListener('click', () => {
-        if(!tournamentBracketFourPlayers?.classList.contains("hidden")){
-            tournamentBracketFourPlayers?.classList.add("hidden");
-            showBracketBtn.classList.add("opacity-50");
-            showBracketBtn.classList.remove("hover:bg-blue-600");
-            showBracketBtn.textContent = "Hide Bracket";
-        }else{
-            tournamentBracketFourPlayers.classList.remove("hidden");
-        }
-    });
+    const tournamentBracketFourPlayers = document.querySelector("#bracketFourPlayers");
 
     avatarSelectBtn?.addEventListener('click', () => {
         avatarDropdown?.classList.toggle('hidden');
@@ -684,10 +864,37 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
                 spinerDiv?.classList.add("hidden");
                 gameOverModal?.classList.add("hidden");
                 preGameModal?.classList.remove("hidden");
-                rankedProfilesContainer?.classList.add("hidden");
+                // rankedProfilesContainer!.innerHTML = rankedPlayerProfilesContainer();
+            }
+            if(!tournamentBracketFourPlayers?.classList.contains("hidden"))
+            {
+                tournamentCleaning();
+                tournamentBracketFourPlayers?.classList.add("hidden");
+                tournamentBracketFourPlayers?.classList.remove("flex");
+                btmBtn?.classList.add("hidden");
+                preGameModal?.classList.remove("hidden");
+                preGameModal?.classList.add("flex");
             }
         }
     });
+
+    function tournamentCleaning()
+    {
+        tournamentPlayerData.nicknames.length = 0
+        tournamentData.semiFinal.length = 0;
+        tournamentData.final.length = 0;
+        tournamentData.winner = '';
+
+        window.tournamentPlayerNickname1 = "";
+        window.tournamentPlayerNickname2 = "";
+        
+        tournamentPlayerData.tournamentNet.length = 0;
+        
+        step = 0;
+        
+        tournamentPlayerNickname1 = '';
+        tournamentPlayerNickname2 = '';
+    }
 
     // Play Again для рейтинговой игры
     document.addEventListener("click", (e) => {

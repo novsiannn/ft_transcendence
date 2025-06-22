@@ -1,6 +1,7 @@
 import { getColorFromUsername } from "../../shared/randomColors";
 import { API_URL, store } from "../../store/store";
 import { findUser } from "../../shared";
+import { getPlayerName } from "./tournamentBracket";
 
 export const tournamentPlayerData = {
   tournamentNet: [] as number[],
@@ -9,6 +10,13 @@ export const tournamentPlayerData = {
   firstPlayerScore: 0,
   secondPlayerScore: 0,
 };
+
+export let tournamentData = {
+    quarterFinal: [] as string[],
+    semiFinal: [] as string[],
+    final: [] as string[],
+    winner: "" as string
+}
 
 export const rankedPlayerData = {
     firstPlayer: "",
@@ -26,13 +34,13 @@ export const rankedPlayerData = {
 export function tournamentPlayerProfiles() {
     let defaultAvatar = "../../img/tournamentDefault.png";
     let defaultNickname = "Player";
-    let firstPlayer = tournamentPlayerData.nicknames[tournamentPlayerData.tournamentNet[0]] || defaultNickname;
-    let secondPlayer = tournamentPlayerData.nicknames[tournamentPlayerData.tournamentNet[1]] || defaultNickname;
+    let firstPlayer = window.tournamentPlayerNickname1 || defaultNickname;
+    let secondPlayer = window.tournamentPlayerNickname2 || defaultNickname;
     let firstPlayerAvatar = tournamentPlayerData.avatars.get(firstPlayer) || defaultAvatar;
     let secondPlayerAvatar = tournamentPlayerData.avatars.get(secondPlayer) || defaultAvatar;
 
     return `
-            <div id="tournamentProfiles" class="hidden">
+            <div id="tournamentProfiles" class="">
                 <div class="absolute left-16 z-[-1]"> <!-- Добавлено позиционирование -->
                     <div class="flex flex-col items-center">
                         <img id="player1Img" src ="${firstPlayerAvatar}" class="rounded-full object-cover w-24 h-24" draggable="false" alt="Player1 Image">
@@ -76,6 +84,23 @@ export function rankedPlayerProfiles() {
     `;
 }
 
+// ...existing code...
+
+export function clearRankedPlayerData() {
+    rankedPlayerData.firstPlayer = "";
+    rankedPlayerData.secondPlayer = "";
+    rankedPlayerData.firstPlayerAvatar = "";
+    rankedPlayerData.secondPlayerAvatar = "";
+    rankedPlayerData.firstPlayerLetter = "";
+    rankedPlayerData.secondPlayerLetter = "";
+    rankedPlayerData.firstPlayerColor = "";
+    rankedPlayerData.secondPlayerColor = "";
+    rankedPlayerData.firstPlayerScore = 0;
+    rankedPlayerData.secondPlayerScore = 0;
+}
+
+// ...existing code...
+
 export function rankedPlayerProfilesContainer() {
     return `
         <div id="rankedProfiles" class="hidden">
@@ -108,8 +133,6 @@ export function updateRankedProfilesPositions(gameState: any) {
         // Получаем данные игроков
         const leftUser = findUser(leftPlayerId);
         const rightUser = findUser(rightPlayerId);
-        
-        console.log("Left player:", leftUser?.username, "Right player:", rightUser?.username);
         
         if (leftUser && rightUser) {
             // Обновляем данные для левого игрока (firstPlayer)
