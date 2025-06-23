@@ -12,6 +12,7 @@ const fs = require("fs-extra");
 const path = require("path");
 const speakeasy = require('speakeasy');//ikhristi
 const QRCode = require('qrcode');//ikhristi
+const gameService = require('./game.service');//ikhristi
 const { error } = require("console");
 const { Op } = require('sequelize');
 
@@ -203,6 +204,7 @@ async function getUserProfile(userId) {
     const blokedUsersList = await friendshipService.getBlockedUsers(userId);
 
     const winrateStats = await countProcentWinrate(userId);
+    const userGames = await gameService.getUserGames(userId);
     if (winrateStats.error) {
       return { error: winrateStats.error };
     }
@@ -216,6 +218,7 @@ async function getUserProfile(userId) {
         blockedUserIds: blokedUsersList.blockedUserIds,
         blockedByUserIds: blokedUsersList.blockedByUserIds,
         friendsCount: friendsCount,
+        recentGames: userGames.games
       }
     };
 

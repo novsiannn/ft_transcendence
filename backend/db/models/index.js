@@ -3,6 +3,7 @@ const Chat = require('./ChatModel');
 const Message = require('./MessageModel');
 const Friendship = require('./FriendshipModel');
 const Notification = require('./NotificationModel');
+const PinPong = require('./PinPongModel');
 
 // Friendship relations
 User.hasMany(Friendship, {
@@ -58,4 +59,10 @@ Message.belongsTo(User, { as: 'receiver', foreignKey: 'receiverId' });
 User.hasMany(Message, { foreignKey: 'senderId', as: 'sentMessages' });
 User.hasMany(Message, { foreignKey: 'receiverId', as: 'receivedMessages' });
 
-module.exports = { User, Chat, Message, Friendship, Notification };
+//Game
+PinPong.belongsTo(User, { as: 'Player1', foreignKey: 'player1Id' });
+PinPong.belongsTo(User, { as: 'Player2', foreignKey: 'player2Id' });
+User.hasMany(PinPong, { as: 'GamesAsPlayer1', foreignKey: 'player1Id' });
+User.hasMany(PinPong, { as: 'GamesAsPlayer2', foreignKey: 'player2Id' });
+
+module.exports = { User, Chat, Message, Friendship, Notification, PinPong };
