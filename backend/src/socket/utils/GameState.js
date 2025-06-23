@@ -5,13 +5,15 @@ class GameState {
         this.settings = {
             boardWidth: 1300,
             boardHeight: 500,
-            paddleWidth: 25,
+            paddleWidth: 15,
             paddleHeight: 120,
-            ballRadius: 13,
+            ballRadius: 8,
             initialBallSpeed: 5,
-            paddleSpeed: 40,
+            paddleSpeed: 20,
             speedIncrease: 1.07,
             maxScore: 5, 
+            calculatedElo: false,
+            isLocal: false
         };
         this.ball = {
             x: this.settings.boardWidth / 2,
@@ -102,9 +104,9 @@ class GameState {
             this.ball.speed = this.settings.initialBallSpeed;
             this.setBallDirection();
 
-            if(this.paddles[this.player1Id].score >= this.maxScore || this.paddles[this.player2Id].score >= this.maxScore) {
-                this.winner = this.paddles[this.player1Id].score >= this.maxScore ? this.player1Id : this.player2Id;
-                this.isRunning = false;
+            if(this.paddles[this.player1Id].score >= this.settings.maxScore || this.paddles[this.player2Id].score >= this.settings.maxScore) {
+                this.winner = this.paddles[this.player1Id].score >= this.settings.maxScore ? this.player1Id : this.player2Id;
+                // this.isRunning = false;
             }
         }
     }
@@ -166,6 +168,11 @@ class GameState {
         // this.paddles[this.player1Id].score = 0;
         // this.paddles[this.player2Id].score = 0;
         // this.isRunning = false;
+    }
+    async calculateElo(gameId) {
+        if(this.settings.calculatedElo) return;
+        await gameService.updateElo(gameId);
+        this.settings.calculatedElo = true;
     }
 }
 

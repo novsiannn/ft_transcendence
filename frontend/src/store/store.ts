@@ -24,7 +24,7 @@ import { initializeSocket, socket } from "../websockets";
 import notificationService from "../services/api/notificationServices";
 import { refreshNotifications } from "../elements/navigation";
 
-export const API_URL: string = "https://localhost:3000";
+export const API_URL: string = `https://${window.location.hostname}:3000`;
 
 class Store {
   constructor() {}
@@ -119,10 +119,14 @@ class Store {
   };
 
   getAllFriendsRequest = async () => {
-    const response = await friendsService.getFriends();
+    try {
+      const response = await friendsService.getFriends();
 
-    this.setAllFriends(response.data.friends);
-    return response;
+      this.setAllFriends(response.data.friends);
+      return response;
+    } catch (e) {
+      console.log(e);
+    }
   };
 
   login = async (email: string | null, password: string | null) => {
@@ -228,18 +232,26 @@ class Store {
   };
 
   getAllUsersRequest = async () => {
-    let response = await instanceAPI.get<IUser[]>(`${API_URL}/users`);
-    this.setAllUsers(response.data);
-    return response.data;
+    try {
+      let response = await instanceAPI.get<IUser[]>(`${API_URL}/users`);
+      this.setAllUsers(response.data);
+      return response.data;
+    } catch (e) {
+      console.log(e);
+    }
   };
 
   getUserRequest = async () => {
-    const response = await instanceAPI.get<IAuthResponse>(
-      `${API_URL}/user/profile`
-    );
+    try {
+      const response = await instanceAPI.get<IAuthResponse>(
+        `${API_URL}/user/profile`
+      );
 
-    if (response.status === 200) {
-      this.setUser(response.data.user);
+      if (response.status === 200) {
+        this.setUser(response.data.user);
+      }
+    } catch (e) {
+      console.log(e);
     }
   };
 
@@ -269,24 +281,39 @@ class Store {
   };
 
   getPendingFriendsRequests = async (): Promise<IFriendshipResponseData> => {
-    const response = await friendsService.getPendingFriendsRequests();
-    return response.data as IFriendshipResponseData;
+    try {
+      const response = await friendsService.getPendingFriendsRequests();
+      return response.data as IFriendshipResponseData;
+    } catch (e) {
+      console.log(e);
+      return {} as IFriendshipResponseData;
+    }
   };
 
   getIncomingFriendRequest = async (): Promise<IFriendshipResponseData> => {
-    const response = await friendsService.getIncomingFriendRequest();
-    return response.data as IFriendshipResponseData;
+    try {
+      const response = await friendsService.getIncomingFriendRequest();
+      return response.data as IFriendshipResponseData;
+    } catch (e) {
+      console.log(e);
+      return {} as IFriendshipResponseData;
+    }
   };
 
   cancelPendingFriendRequest = async (idFriendship: number) => {
-    const response = await friendsService.cancelPendingFriendRequest(
-      idFriendship
-    );
+    try {
+      const response = await friendsService.cancelPendingFriendRequest(
+        idFriendship
+      );
 
-    if (response.status === 204) {
-      handleModalSuccess("You have successfully cancelled a friend request");
+      if (response.status === 204) {
+        handleModalSuccess("You have successfully cancelled a friend request");
+      }
+      return response.status;
+    } catch (e) {
+      console.log(e);
+      return {};
     }
-    return response.status;
   };
 
   deleteFriend = async (id: number) => {
@@ -320,8 +347,12 @@ class Store {
   };
 
   getAllChats = async (): Promise<IChatData[]> => {
-    const response = await chatsService.getAllChats();
-    return response;
+    try {
+      const response = await chatsService.getAllChats();
+      return response;
+    } catch (e) {
+      return {} as IChatData[];
+    }
   };
 
   getMessagesFromChat = async (chatID: number): Promise<IMessage[]> => {
@@ -330,9 +361,13 @@ class Store {
   };
 
   getAllNotifications = async () => {
-    const response = await notificationService.getNotifications();
-    this.setNotification(response.data);
-    return response;
+    try {
+      const response = await notificationService.getNotifications();
+      this.setNotification(response.data);
+      return response;
+    } catch (e) {
+      console.log(e);
+    }
   };
 
   deleteNotification = async (notificationID: string): Promise<number> => {
@@ -347,9 +382,13 @@ class Store {
   };
 
   readNotification = async () => {
-    const response = await notificationService.readNotification();
-    if (response.status === 200) {
-      await this.getAllNotifications();
+    try {
+      const response = await notificationService.readNotification();
+      if (response.status === 200) {
+        await this.getAllNotifications();
+      }
+    } catch (e) {
+      console.log(e);
     }
   };
 
@@ -380,11 +419,14 @@ class Store {
       const response = await axios.get<IAuthResponse>(`${API_URL}/refresh`, {
         withCredentials: true,
       });
+
+      console.log(response);
+
       localStorage.setItem("token", response.data.accessToken);
       this.setAuth(true);
       this.setUser(response.data.user);
     } catch (e: any) {
-      console.log(e.response?.data);
+      // console.log(e.response?.data);
     } finally {
       this.setLoading(false);
     }

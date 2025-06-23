@@ -8,7 +8,11 @@ import {
 import { refreshNotifications } from "../elements/navigation";
 import { store } from "../store/store";
 import { refreshProfileBtnsBlock } from "../pages/profile/getUserData";
-import { findUser } from "../shared";
+import {
+  findUser,
+  refreshOnlineStatus,
+  refreshOnlineStatusFriendsPage,
+} from "../shared";
 import { IUser } from "../services/api/models/response/IUser";
 import { navigateTo } from "../routing";
 
@@ -49,10 +53,11 @@ export interface IGameState {
 let gameCallbacks: {
   onGameReady?: (gameState: IGameState) => void;
   onGameUpdate?: (gameState: IGameState) => void;
-  onGameStart?: (gameState: IGameState) => void;
   onGameFinished?: (data: any) => void;
-  onGameError?: (error: any) => void;
+  onGameCancelled?: (error: any) => void;
   onMatchFound?: (data: any) => void;
+  timerCountdown?: (data:{seconds: number}) => void;
+  onLocalGameCreated?:(data: {gameId: string}) => void;
 } = {};
 
 export let gameState: IGameState | null = null;
@@ -220,16 +225,15 @@ export function initializeSocket(): Socket | null {
   });
   //GAME HANDLERS
 
+  socket.on("game:localCreated", (data : any) => {
+    if(gameCallbacks.onLocalGameCreated)
+      {
+        gameCallbacks.onLocalGameCreated(data);
+      }
+  });
+
   socket.on("mm:ready", (data: any) => {
     socket?.emit("game:leaveQueue");
-    socket?.emit("game:join", data.game.id);
-    // const rankedGameModal = document.querySelector("#rankedGameModal");
-    // rankedGameModal?.classList.add("hidden");
-    
-    // gameState = data;
-    // console.log("!!!GameState data!!!: ", gameState);
-    //Draw ACCEPT MATCH button
-    //Draw FULL GAME
     console.log("on Match FOUND:", data);
 
     if (gameCallbacks.onMatchFound) {
@@ -237,58 +241,95 @@ export function initializeSocket(): Socket | null {
     }
   });
 
+
   socket.on("game:update", (newGameState: IGameState) => {
-    gameState = newGameState
-    console.log("!!!GameState data!!!: ", gameState);
-    if (gameCallbacks.onGameUpdate) {
-      gameCallbacks.onGameUpdate(gameState);
-    }
-  });
-
-  socket.on("game:start", (newGameState: IGameState) => {
-    console.log("Game started!", gameState);
-    console.log("!!!GameState data!!!: ", gameState);
-    gameState = newGameState;
-
-    if (gameCallbacks.onGameStart) {
-      gameCallbacks.onGameStart(gameState);
-    }
-  });
+  // console.log("Received game:update", newGameState); // ✅ Для отладки
+  gameState = newGameState;
+  if (gameCallbacks.onGameUpdate) {
+    gameCallbacks.onGameUpdate(gameState);
+  } else {
+    console.warn("onGameUpdate callback not found!"); // ✅ Предупреждение
+  }
+});
 
   socket.on("game:finished", (data: any) => {
     console.log("Game finished!", data);
-
     gameState = null;
     if (gameCallbacks.onGameFinished) {
       gameCallbacks.onGameFinished(data);
     }
   });
 
-  socket.on("game:error", (error: any) => {
-    console.error("Game error:", error);
-    if (gameCallbacks.onGameError) {
-      gameCallbacks.onGameError(error);
+  socket.on("game:timer", (data:{seconds: number}) =>{
+    if (gameCallbacks.timerCountdown) {
+      gameCallbacks.timerCountdown(data);
     }
+  });
+
+  socket.on("game:cancelled", (gameId: any) => {
+    console.error("Game cancelled :", gameId);
+    if (gameCallbacks.onGameCancelled) {
+      gameCallbacks.onGameCancelled(gameId);
+    }
+  });
+
+  socket?.on("online:users:list", (data) => {
+    console.log(data);
+  });
+
+  socket?.on("online:error", (data) => {
+    console.log(data);
+  });
+
+  socket?.on("online:user:status", (data) => {
+    refreshOnlineStatus(data);
+    console.log(data);
+  });
+
+  socket?.on("user:offline", (data) => {
+    refreshOnlineStatus(data);
+
+    if (location.pathname === "/friends") socket?.emit("online:get:all:status");
+
+    console.log(data);
+  });
+
+  socket?.on("user:online", (data) => {
+    refreshOnlineStatus(data);
+
+    if (location.pathname === "/friends") socket?.emit("online:get:all:status");
+
+    console.log(data);
+  });
+
+  socket?.on("online:all:status", (data) => {
+    refreshOnlineStatusFriendsPage(data);
+    console.log(data);
   });
 
   return socket;
 }
 
-// export function joinGame(gameId: string): void {
-//   if (!socket) return;
-//   socket.emit('game:join', gameId);
-//   console.log(`Joining game: ${gameId}`);
-// }
+export function movePaddleLocal(gameId: string, direction: 'up' | 'down', nickname: string): void {
+  if (!socket) return;
+
+  socket.emit("game:moveLocalPaddle",{
+    gameId: gameId, 
+    direction: direction, 
+    nickname: nickname});
+    console.log("EMITTED GAME ID : ", gameId);
+  console.log("EMITTED DIRECTION : ", direction);
+  console.log("EMITTED NICKNAME : ", nickname);
+}
 
 export function movePaddle(gameId: string, direction: 'up' | 'down'): void {
   if (!socket) return;
-  
-  const userId = store.getUser().id;
-  socket.emit('game:move', {
+
+  socket.emit('game:movePaddle', {
     gameId: gameId,
-    playerId: userId,
     direction: direction
   });
+
 }
 //GAME CALLBACKS
 export function startGame(gameId: string): void {
@@ -299,6 +340,14 @@ export function startGame(gameId: string): void {
 export function leaveGame(gameId: string): void {
   if (!socket) return;
   socket.emit('game:leave', gameId);
+}
+
+export function timerCountdown(callback: (data:{seconds : number})=> void): void {
+  gameCallbacks.timerCountdown = callback;
+}
+
+export function onLocalGameCreated(callback: (data: {gameId: string}) => void): void{
+  gameCallbacks.onLocalGameCreated = callback;
 }
 
 export function onMatchFound(callback: (data: any) => void): void {
@@ -313,29 +362,24 @@ export function onGameUpdate(callback: (gameState: IGameState) => void): void {
   gameCallbacks.onGameUpdate = callback;
 }
 
-export function onGameStart(callback: (gameState: IGameState) => void): void {
-  gameCallbacks.onGameStart = callback;
-}
-
 export function onGameFinished(callback: (data: any) => void): void {
   gameCallbacks.onGameFinished = callback;
 }
 
-export function onGameError(callback: (error: any) => void): void {
-  gameCallbacks.onGameError = callback;
+export function onGameCancelled(callback: (gameId: any) => void): void {
+  gameCallbacks.onGameCancelled = callback;
 }
 //CLEAR CALLBACKS
 export function clearGameCallbacks(): void {
   gameCallbacks = {};
+
 }
 
 export function getCurrentGameState(): IGameState{
-  // Если gameState есть, возвращаем его
   if (gameState) {
     return gameState;
   }
   
-  // Если gameState null, создаем дефолтное состояние для локальных игр
   return createDefaultGameState();
 }
 
@@ -369,9 +413,9 @@ function createDefaultGameState(): IGameState {
       boardHeight: 500,
       paddleWidth: 15,
       paddleHeight: 120,
-      ballRadius: 10,
+      ballRadius: 8,
       initialBallSpeed: 5,
-      paddleSpeed: 40,
+      paddleSpeed: 20,
       speedIncrease: 1.07,
       maxScore: 5,
     }

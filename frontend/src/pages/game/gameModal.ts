@@ -1,5 +1,12 @@
 import { getModalWindowError} from "../../elements";
+import { IUser } from "../../services/api/models/response/IUser";
+import { findUser } from "../../shared";
 import { store, API_URL} from "../../store/store";
+import { getColorFromUsername } from "../../shared/randomColors";
+
+export let rankedWinnerData ={
+  id: 0,
+}; 
 
 export function preGameModal() {
   return `
@@ -50,7 +57,7 @@ export function preGameModal() {
 
 export function tournamentModal() {
   return `
-    <div id="tournamentModal" style="background-color: rgba(0, 0, 0, 0.7);" class="fixed inset-0 items-center justify-center z-50 hidden">
+      <div id="tournamentModal" style="background-color: rgba(0, 0, 0, 0.7);" class="fixed inset-0 items-center justify-center z-50 hidden">
       <div class="bg-white p-6 rounded-lg shadow-lg text-black space-y-2 w-max h-auto text-center">
         <h2 class="text-lg font-semibold">Tournament Created!</h2>
         <div class="relative w-full">
@@ -78,6 +85,7 @@ export function tournamentModal() {
         <button id="submitNicknameBtn" type="submit" class=" mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">Submit</button>
         <button id="startTournament" class="hidden mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">Start Tournament!</button>
       </div>
+      
       ${getModalWindowError()}
     </div>
   `;
@@ -117,26 +125,72 @@ export function friendsMatchModal(){
 export function rankedGameModal() {
   return `
     <div id="rankedGameModal" style="background-color: rgba(0, 0, 0, 0.7);" class="fixed inset-0 items-center justify-center z-50 hidden">
-      <div class="bg-white p-6 rounded-lg shadow-lg text-black space-y-2 w-max h-auto text-center">
+      <div class="bg-white p-6 rounded-lg shadow-lg text-black space-y-4 w-max h-auto text-center">
         <h2 class="text-lg font-semibold">Searching for an opponent</h2>
-            <div id="timerDiv"class="invisible mt-2 text-xl text-blue-700 ">
-            In queue: <span id="rankedTimer">0:00</span>
-            </div>
-        <button id="startRankedMatchBtn" class=" mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">Start Ranked Match!</button>
-        <button id="cancelRankedMatchBtn" class="hidden mt-4 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600">Cancel Ranked Match!</button>
+
+        <div id="spinerDiv" class=" hidden mt-2 justify-center">
+          <div class="w-8 h-8 border-4 border-blue-400 border-t-white rounded-full animate-spin opacity-80"></div>
+        </div>
+
+        <button id="backToMenuBtn" class="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600">Back to Menu</button>
+        <button id="rankedDeleteGameBtn" class="mt-2 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600">Delete Game</button>
+
+        <!-- Spinner over Start Button -->
+        <div class="relative inline-block">
+          <div id="rankedSpinner" class="absolute -top-6 left-1/2 -translate-x-1/2 hidden">
+            <div class="w-6 h-6 border-4 border-blue-400 border-t-white rounded-full animate-spin opacity-80"></div>
+          </div>
+          <button id="startRankedMatchBtn" class="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
+            Start Ranked Match!
+          </button>
+        </div>
+
+        <button id="cancelRankedMatchBtn" class="hidden mt-4 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600">
+          Cancel Ranked Match!
+        </button>
       </div>
       ${getModalWindowError()}
     </div>
   `;
 }
 
-// export function rankedWaitingModal() {
-//   return `
-//       <div id="rankedWaitingModal" style="background-color: rgba(0, 0, 0, 0.7);" class="fixed inset-0 items-center justify-center z-50 hidden">
-//       <div class="bg-white p-6 rounded-lg shadow-lg text-black space-y-2 w-max h-auto text-center">
-//         <h2 class="text-lg font-semibold">Ranked Match Created!</h2>
-//         <button id="startRankedMatchBtn" class=" mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">Start Ranked Match!</button>
-//       </div>
-//     </div>
-//   `;
-// }
+export function gameOverModalCreator(result : number) {
+  console.log("WInner ID: ", rankedWinnerData.id);
+  const winner = findUser(rankedWinnerData.id) as IUser;
+  console.log("WINNER DATA", winner);
+  
+  const winnerColor = getColorFromUsername(winner.username);
+  const firstLetterOfWinner = winner.username.charAt(0).toUpperCase();
+  
+  return `
+<div class="bg-white p-6 rounded-lg shadow-lg text-black space-y-4 w-max h-auto text-center">
+      <h2 class="text-lg font-semibold">GAME FINISHED</h2>
+      <h3 class="text-md font-semibold">Winner:</h3>
+      
+      <!-- Профиль победителя -->
+      <div class="flex flex-col items-center space-y-2">
+        ${
+          winner.avatar
+            ? `<img src="${API_URL}${winner.avatar}" class="rounded-full object-cover w-16 h-16" draggable="false" alt="Winner Avatar">`
+            : `<div class="text-xl text-white font-bold flex justify-center items-center w-16 h-16 ${winnerColor} rounded-full">${firstLetterOfWinner}</div>`
+        }
+        <span class="text-lg font-semibold text-black">${winner.username}</span>
+      </div>
+
+      <!-- Кнопки действий -->
+      <div class="flex gap-4 mt-6">
+        <button id="rankedPlayAgainBtn" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">Play Again</button>
+        <button id="backToMenuBtn" class="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600">Back to Menu</button>
+      </div>
+    </div>
+  `;
+}
+
+export function gameOverModal() {
+    // Создаем только пустой контейнер, содержимое будет добавлено динамически
+    return `
+        <div id="gameOverModal" style="background-color: rgba(0, 0, 0, 0.7);" class="fixed inset-0 items-center justify-center z-50 hidden">
+            <!-- Содержимое будет добавлено динамически -->
+        </div>
+    `;
+}

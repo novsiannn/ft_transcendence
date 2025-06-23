@@ -1,21 +1,113 @@
 const { Op } = require('sequelize');
 const User = require('../../db/models/UserModel');
 const PinPong = require('../../db/models/PinPongModel');
+const { sendNotification } = require('../socket/handlers/notification');
+const notificationService = require('./notification.service');
+const EventEmitter = require('events');
+
+let io = null;
+
+function setIo(ioInstance) {
+    io = ioInstance;
+}
+
 
 const mmQueue = new Set();
+const processingGames = new Set();
+const gameEvents = new EventEmitter();
 
-async function updateElo(userId, eloDifference)  {
+async function updateElo(gameId)  {
+    if (processingGames.has(gameId)) {
+        console.log(`ELO update already in progress for game ${gameId}`);
+        return { message: 'ELO update already in progress' };
+    }
+    processingGames.add(gameId);
     try {
-        const user = await User.findByPk(userId);
-        if (!user) { throw new Error('User not found'); }
+        const game = await PinPong.findByPk(gameId);
+        if (!game) {
+            return { error: 'Game not found' };
+        }
+        if (game.changedElo === true) {
+            console.log(`ELO already updated for game ${gameId}`);
+            return { message: 'ELO already updated' };
+        }
+        const [player1, player2] = await Promise.all([
+            User.findByPk(game.player1Id),
+            User.findByPk(game.player2Id)
+        ]);
 
-        await user.update({ elo: user.elo + eloDifference });
-        return user;
+        if (!player1 || !player2) {
+            return { error: 'Players not found' };
+        }
+        const eloDiff = player1.elo - player2.elo;
+        let diffFromBase;
+        if(eloDiff >= -300 && eloDiff <= 300){
+            diffFromBase = 0;
+        }
+        else if(eloDiff >= -400 && eloDiff <= 400) {
+            diffFromBase = 1;
+        }
+        else if(eloDiff >= -500 && eloDiff <= 500) {
+            diffFromBase = 2;
+        }
+        else if(eloDiff >= -600 && eloDiff <= 600) {
+            diffFromBase = 3;
+        }
+        else if(eloDiff >= -700 && eloDiff <= 700) {
+            diffFromBase = 4;
+        }
+        else if(eloDiff >= -800 && eloDiff <= 800) {
+            diffFromBase = 5;
+        }
+        else if(eloDiff >= -900 && eloDiff <= 900) {
+            diffFromBase = 6;
+        }
+        else 
+            diffFromBase = 7;
+
+        let newRatingUser1;
+        let newRatingUser2;
+        if(game.player1Score > game.player2Score) {
+            if(eloDiff > 0) {
+                newRatingUser1 = player1.elo + 25 - diffFromBase;
+                newRatingUser2 = player2.elo - 25 + diffFromBase;
+            }
+            else {
+                newRatingUser1 = player1.elo + 25 + diffFromBase;
+                newRatingUser2 = player2.elo - 25 - diffFromBase;
+            }
+        }
+        else {
+            if(eloDiff < 0){
+                newRatingUser2 = player2.elo + 25 - diffFromBase;
+                newRatingUser1 = player1.elo - 25 + diffFromBase;
+            }
+            else {
+                newRatingUser2 = player2.elo + 25 + diffFromBase;
+                newRatingUser1 = player1.elo - 25 - diffFromBase;
+            }
+        }
+        if (newRatingUser1 < 0) {
+            newRatingUser1 = 0;
+        }
+        if (newRatingUser2 < 0) {
+            newRatingUser2 = 0;
+        }
+        await Promise.all([
+            player1.update({ elo: newRatingUser1 }),
+            player2.update({ elo: newRatingUser2 }),
+            game.update({ changedElo: true })
+        ]);
+        console.log(`ELO updated: ${player1.username} new ELO: ${newRatingUser1}, ${player2.username} new ELO: ${newRatingUser2}`);
+        return { player1: newRatingUser1, player2: newRatingUser2 };
     } catch (error) {
-        console.error('Error updating Elo:', error);
-        throw error;
+        console.error('Error updating ELO:', error);
+        return { error: 'Failed to update ELO' };
+    } finally {
+        processingGames.delete(gameId);
     }
 }
+
 
 async function createDuel(initiatorId, opponentId) {
     try {
@@ -32,10 +124,10 @@ async function createDuel(initiatorId, opponentId) {
             return { error: 'Cannot create duel with yourself' };
         }
 
-        const activeGame = await PinPong.findOne({
+        let activeGame = await PinPong.findOne({
             where: {
                 status: {
-                    [Op.not]: 'finished' 
+                    [Op.in]: ['waiting', 'playing']
                 },
                 [Op.or]: [
                     { player1Id: initiatorId },
@@ -45,13 +137,13 @@ async function createDuel(initiatorId, opponentId) {
         });
 
         if (activeGame) {
-            return { error: 'Cannot join matchmaking while in an active game' };
+            return { error: 'Cannot join duel while in an active game, initiator already in a game' };
         }
 
         activeGame = await PinPong.findOne({
             where: {
                 status: {
-                    [Op.not]: 'finished'  
+                    [Op.in]: ['waiting', 'playing']
                 },
                 [Op.or]: [
                     { player1Id: opponentId },
@@ -61,13 +153,13 @@ async function createDuel(initiatorId, opponentId) {
         });
 
         if (activeGame) {
-            return { error: 'Cannot join matchmaking while in an active game' };
+            return { error: 'Cannot join duel while in an active game, opponent already in a game' };
         }
 
         const existingGame = await PinPong.findOne({
             where: {
                 status: {
-                    [Op.not]: 'finished' 
+                    [Op.in]: ['waiting', 'playing']
                 },
                 [Op.or]: [
                     {
@@ -95,11 +187,45 @@ async function createDuel(initiatorId, opponentId) {
             gameMode: 'casual'
         });
 
+        setTimeout(() => {
+            checkAndCancelGame(game.id);
+        }, 30000);
         return { game };
 
     } catch (error) {
         console.error('Error creating duel:', error);
         return { error: 'Failed to create duel' };
+    }
+}
+
+async function checkAndCancelGame(gameId) {
+    try {
+        const game = await PinPong.findByPk(gameId);
+        
+        if (!game) {
+            console.log(`Game ${gameId} not found for auto-cancel check`);
+            return;
+        }
+
+        if (game.status === 'waiting') {
+            await game.update({
+                status: 'cancelled',
+            });
+            
+            console.log(`Game ${gameId} automatically cancelled due to timeout`);
+            
+            gameEvents.emit('gameCancelled', {
+                gameId: gameId,
+                player1Id: game.player1Id,
+                player2Id: game.player2Id,
+            });
+            
+        } else {
+            console.log(`Game ${gameId} status is '${game.status}' - no auto-cancel needed`);
+        }
+        
+    } catch (error) {
+        console.error(`Error in auto-cancel for game ${gameId}:`, error);
     }
 }
 
@@ -109,10 +235,10 @@ async function updateDuelStatus(duelId, status) {
         if (!duel) {
             return { error: 'Duel not found' };
         }
-        if (duel.status === 'finished') {
+        if (duel.status == 'finished') {
             return { error: 'Duel already finished' };
         }
-        if (!['waiting', 'in_progress', 'finished'].includes(status)) {
+        if (!['waiting', 'playing', 'finished', 'cancelled'].includes(status)) {
             return { error: 'Invalid status' };
         }
         await duel.update({ status });
@@ -122,7 +248,6 @@ async function updateDuelStatus(duelId, status) {
         return { error: 'Failed to update duel status' };
     }
 }
-
 
 async function finishDuel(duelId, user1Score, user2Score) {
     try {
@@ -157,7 +282,7 @@ async function joinMatchmaking(userId) {
         const activeGame = await PinPong.findOne({
             where: {
                 status: {
-                    [Op.not]: 'finished'  // Любой статус кроме 'finished'
+                    [Op.in]: ['waiting', 'playing']  //Только реально активные игры
                 },
                 [Op.or]: [
                     { player1Id: userId },
@@ -179,11 +304,14 @@ async function joinMatchmaking(userId) {
                 mmQueue.delete(userId);
                 mmQueue.delete(oponentId);
                 const game = await PinPong.create({
-                    player1Id: userId,
-                    player2Id: oponentId,
+                    player1Id: oponentId,
+                    player2Id: userId,
                     status: 'waiting',
                     gameMode: 'ranked'
                 });
+                setTimeout(() => {
+                    checkAndCancelGame(game.id);
+                }, 30000);
                 console.log(`Matchmaking successful: ${userId} vs ${oponentId}`);
                 return { game: game };
             }
@@ -221,10 +349,10 @@ async function defineWinner(duelId) {
             throw new Error('Duel not finished');
         }
         let winnerId;
-        if (duel.user_1_score > duel.user_2_score) {
-            winnerId = duel.user_1;
-        } else if (duel.user_2_score > duel.user_1_score) {
-            winnerId = duel.user_2;
+        if (duel.player1Score > duel.player2Score) { 
+            winnerId = duel.player1Id;
+        } else if (duel.player2Score > duel.player1Score) { 
+            winnerId = duel.player2Id; 
         } else {
             throw new Error('Duel is a draw');
         }
@@ -269,9 +397,6 @@ async function deleteGame(gameId, userId) {
             return { error: 'You are not authorized to delete this game' };
         }
 
-        if (game.status === 'playing') {
-            return { error: 'Cannot delete game that is currently in progress' };
-        }
 
         await game.destroy();
         return { success: true, message: 'Game deleted successfully' };
@@ -282,4 +407,5 @@ async function deleteGame(gameId, userId) {
 }
 
 
-module.exports = {deleteGame, createDuel, finishDuel, joinMatchmaking, leaveMatchmaking, defineWinner, updateElo, updateDuelStatus, mmQueue, isUserInQueue, getDuelInfo };
+
+module.exports = {setIo, deleteGame, createDuel, finishDuel, joinMatchmaking, leaveMatchmaking, defineWinner, updateElo, updateDuelStatus, mmQueue, isUserInQueue, getDuelInfo, gameEvents };

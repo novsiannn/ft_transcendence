@@ -50,7 +50,7 @@ export function loginPage(mainWrapper: HTMLDivElement | undefined) {
                     </div>
             </div>
                 <p id="warningMessage" class="invisible text-red-500 text-sm">!</p>
-                <button class="w-full select-none bg-green-500 m-1 text-white py-2 rounded hover:bg-green-600" id="loginBtn">Login</button>
+                <button class="cursor-pointer w-full select-none bg-green-500 m-1 text-white py-2 rounded hover:bg-green-600" id="loginBtn">Login</button>
             </div>
             ${getModalWindowError()}
             ${getModalInput()}

@@ -1,82 +1,71 @@
 import { handleModalError } from "../../elements";
-import { navigationHandle } from "../../elements/navigation";
-import { tournamentPlayerData, rankedPlayerData, tournamentPlayerProfiles, rankedPlayerProfiles } from "./playersProfiles";
+import {  rankedPlayerProfiles, rankedPlayerProfilesContainer, tournamentData, tournamentPlayerData, tournamentPlayerProfiles, updateRankedProfilesPositions } from "./playersProfiles";
 import { API_URL, store} from "../../store/store";
-import instanceAPI from "../../services/api/instanceAxios";
-import { getColorFromUsername } from "../../shared/randomColors";
 import {
     IGameState,
     getCurrentGameState,
-    gameState,
-    socket, 
-    // joinGame, 
+    socket,  
     movePaddle, 
-    startGame as startWebSocketGame, 
     leaveGame,
-    onMatchFound,
-    onGameReady,
     onGameUpdate,
-    onGameStart,
     onGameFinished,
-    onGameError,
-    clearGameCallbacks
+    clearGameCallbacks,
+    timerCountdown,
+    movePaddleLocal,
+    onLocalGameCreated,
 } from "../../websockets/client";
-import { findUser } from "../../shared";
+import { rankedWinnerData, gameOverModalCreator } from "./gameModal";
+import { 
+    setupRankedListeners, 
+    updatePlayerProfiles, 
+    setupButtonDelegation, 
+    startRankedGame as startRankedGameLogic,
+    rankedGameStatus,
+    cancelRankedMatch,
+} from "./ratingGame";
+import { tournamentBracketPlayers } from "./tournamentBracket";
+import { clearRankedPlayerData } from "./playersProfiles";
+
+declare global {
+    interface Window {
+        tournamentPlayerNickname1: string;
+        tournamentPlayerNickname2: string;
+    }
+}
 
 export function handleGame(mainWrapper: HTMLDivElement | undefined) {
-    navigationHandle();
-    const gameOverText = document.querySelector("#gameOverText");
+    setupMultiplayerSocketHandlers();
+    const tournamentProfiles = document.querySelector("#tournamentProfiles");
+    tournamentProfiles?.classList.add("hidden")
     const scoreInfo = document.querySelector("#score-info");
     const gameBoard = document.getElementById("game-board") as HTMLCanvasElement;
-    const restartBtn = document.querySelector("#restart-btn");
+    let currentReadyButtonHandler: ((e: Event) => void) | null = null;
+    let rankedProfilesContainer = document.querySelector('#rankedProfiles');
+    const btmBtn = document.querySelector("#backToMenuBtn");
+    const spinerDiv = document.querySelector("#spinerDiv");
     
-    let intervalID: ReturnType<typeof setInterval>;
-    let isGameRunning = false;
-    let isWaitingForStart = false;
-    let gameStartedOnce = false;
-
     // Игровые переменные для режимов
     let gameMode: 'local' | 'multiplayer' | null = null;
     let currentGameId: string | null = null;
+    let paddleMovementInterval: ReturnType<typeof setInterval> | null = null;
 
+    let tournamentPlayerNickname2 = "";
+    let tournamentPlayerNickname1 = "";
+
+    let step = 0;
+    
     mainWrapper!.id = "game-container";
     mainWrapper!.classList.add("h-screen", "flex", "flex-col", "gap-2.5", "justify-center", "items-center");
     const context = gameBoard?.getContext("2d");
-
+    
     const gameBoardColor = window.getComputedStyle(gameBoard).backgroundColor;
-    const firstPaddleColor = "white";
-    const secondPaddleColor = "white";
-
-    const gameBoardWidth = gameBoard.width;
-    const gameBoardHeight = gameBoard.height;
-
-
     let currentGameState = getCurrentGameState();
     
-    const moveFirstPaddleKey = {
-        up: "w",
-        down: "s"
-    }
-    
-    const moveSecondPaddleKey = {
-        up: "arrowup",
-        down: "arrowdown"
-    }
-
     const keys = new Set<string>();
-
-    const paddleSize = {
-        width: currentGameState.settings.paddleWidth,
-        height: currentGameState.settings.paddleHeight,
-    }
-
-    const ballRadius = currentGameState.settings.ballRadius;
-    // const initialBallSpeed = 7;
-    // let ballSpeed = initialBallSpeed;
-    // const paddleSpeed = 40;
+    
     let firstPlayerScore = currentGameState.paddles['1'].score;
     let secondPlayerScore = currentGameState.paddles['2'].score || 0;
-
+    
     const firstPaddleInitial = {
         x: currentGameState.paddles['1'].x,
         y: currentGameState.paddles['1'].y,
@@ -86,76 +75,68 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
         x: currentGameState.paddles['2'].x,
         y: currentGameState.paddles['2'].y,
     }
-
+    
     let firstPaddle = { ...firstPaddleInitial };
     let secondPaddle = { ...secondPaddleInitial };
-
-    let firstPaddleTargetY = firstPaddle.y;
-    let secondPaddleTargetY = secondPaddle.y;
-
+    
     const paddleEffects = {
         glowSize: 15,      
         glowIntensity: 3,    
         glowColor: 'white',  
         baseColor: 'white'   
     }
-
-    // const ballInitial = {
-    //     x: gameBoardWidth / 2,
-    //     y: gameBoardHeight / 2,
-    // }
-    
     
     let ball = currentGameState.ball;
-
-    const ballDirection = {
-        x: currentGameState.ball.direction.x,
-        y: currentGameState.ball?.direction.y,
+    let profilesLastUpdate: string = "";
+    
+    // Основные игровые функции (универсальные для всех режимов)
+    function checkIfProfilesNeedUpdate(gameState: IGameState): boolean {
+        const playerIds = Object.keys(gameState.paddles);
+        if (playerIds.length < 2) return false;
+        
+        const currentState = `${playerIds[0]}-${gameState.paddles[playerIds[0]].x}-${playerIds[1]}-${gameState.paddles[playerIds[1]].x}`;
+        
+        if (profilesLastUpdate !== currentState) {
+            profilesLastUpdate = currentState;
+            return true;
+        }
+        
+        return false;
     }
-
+    
     function renderGame(gameState: IGameState) {
-    
-    // Получаем ID игроков динамически
-    const playerIds = Object.keys(gameState.paddles);
-    
-    if (playerIds.length >= 2) {
-        // Обновляем локальные переменные (если нужны для других функций)
-        firstPaddle.x = gameState.paddles[playerIds[0]].x;
-        firstPaddle.y = gameState.paddles[playerIds[0]].y;
-        firstPlayerScore = gameState.paddles[playerIds[0]].score;
-
-        secondPaddle.x = gameState.paddles[playerIds[1]].x;
-        secondPaddle.y = gameState.paddles[playerIds[1]].y;
-        secondPlayerScore = gameState.paddles[playerIds[1]].score;
+        const shouldUpdateProfiles = checkIfProfilesNeedUpdate(gameState);
+        if (shouldUpdateProfiles) {
+            updateRankedProfilesPositions(gameState);
+        }
+        
+        const playerIds = Object.keys(gameState.paddles);
+        
+        if (playerIds.length >= 2) {
+            firstPlayerScore = gameState.paddles[playerIds[0]].score;
+            secondPlayerScore = gameState.paddles[playerIds[1]].score;
+        }
+        
+        ball.x = gameState.ball.x;
+        ball.y = gameState.ball.y;
+        
+        context!.clearRect(0, 0, gameState.settings.boardWidth, gameState.settings.boardHeight);
+        
+        drawBoard(gameState);
+        drawPaddles(gameState);
+        drawBall(gameState);
+        updateScore(gameState);
     }
-
-    // Обновляем мяч
-    ball.x = gameState.ball.x;
-    ball.y = gameState.ball.y;
-
-    // Отрисовываем (очищаем canvas перед отрисовкой)
-    context!.clearRect(0, 0, gameState.settings.boardWidth, gameState.settings.boardHeight);
     
-    drawBoard(gameState);
-    drawPaddles(gameState);
-    drawBall(gameState);
-    updateScore(gameState);
-
-    // Проверяем победителя
-    if (gameState.winner) {
-        handleGameOver();
-    }
-}
-
     function drawBoard(gameState: IGameState) {
         context!.fillStyle = gameBoardColor;
         context!.fillRect(0, 0,gameState.settings.boardWidth,gameState.settings.boardHeight);
     }
-
+    
     function drawPaddle(paddleX: number, paddleY: number, paddleColor: string, gameState: IGameState) {
         const { glowSize, glowIntensity } = paddleEffects;
         const radius = gameState.settings.paddleWidth / 2;
-    
+        
         for(let i = 0; i < glowIntensity; i++) {
             context!.beginPath();
             context!.shadowColor = paddleColor;
@@ -174,7 +155,7 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
             );
             context!.fill();
         }
-    
+        
         context!.beginPath();
         context!.shadowColor = 'transparent';
         context!.fillStyle = paddleColor;
@@ -209,13 +190,47 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
         ctx.arcTo(x, y, x + width, y, radius);
         ctx.closePath();
     }
-
+    
     function drawPaddles(gameState: IGameState) {
+        const currentUserId = store.getUser().id;
+        const playerIds = Object.keys(gameState.paddles);
         
-        drawPaddle(firstPaddle.x,firstPaddle.y, firstPaddleColor, gameState);
-        drawPaddle(secondPaddle.x,secondPaddle.y, secondPaddleColor, gameState);
+        if (playerIds.length >= 2) {
+            const player1Id = parseInt(playerIds[0]);
+            const player2Id = parseInt(playerIds[1]);
+            
+            const player1X = gameState.paddles[playerIds[0]].x;
+            const player2X = gameState.paddles[playerIds[1]].x;
+            
+            let leftPlayerId, rightPlayerId, leftPaddle, rightPaddle;
+            
+            if (player1X < player2X) {
+                leftPlayerId = player1Id;
+                rightPlayerId = player2Id;
+                leftPaddle = gameState.paddles[playerIds[0]];
+                rightPaddle = gameState.paddles[playerIds[1]];
+            } else {
+                leftPlayerId = player2Id;
+                rightPlayerId = player1Id;
+                leftPaddle = gameState.paddles[playerIds[1]];
+                rightPaddle = gameState.paddles[playerIds[0]];
+            }
+            let leftColor = "white";
+            let rightColor = "white";
+            
+            if(gameState.isRunning && gameMode === "multiplayer"){
+                leftColor = (leftPlayerId === currentUserId) ? "#3B82F6" : "white";
+                rightColor = (rightPlayerId === currentUserId) ? "#3B82F6" : "white";
+            }else{
+                leftColor = "white";
+                rightColor = "white";
+            }
+            
+            drawPaddle(leftPaddle.x, leftPaddle.y, leftColor, gameState);
+            drawPaddle(rightPaddle.x, rightPaddle.y, rightColor, gameState);
+        }
     }
-
+    
     function drawBall(gameState: IGameState) {
         for(let i = 0; i < 3; i++) {
             context!.beginPath();
@@ -236,287 +251,395 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
         context!.shadowColor = 'transparent';
         context!.shadowBlur = 0;
     }
-
+    
     function updateScore(gameState: IGameState) {
-
-        scoreInfo!.textContent = `${gameState.paddles["1"].score} : ${gameState.paddles["2"].score}`;
+        const playerIds = Object.keys(gameState.paddles);
+        
+        let leftPlayerScore = 0;
+        let rightPlayerScore = 0;
+        
+        const player1Id = playerIds[0];
+        const player2Id = playerIds[1];
+        
+        const player1X = gameState.paddles[player1Id].x;
+        const player2X = gameState.paddles[player2Id].x;
+        
+        if (player1X < player2X) {
+            leftPlayerScore = gameState.paddles[player1Id].score;
+            rightPlayerScore = gameState.paddles[player2Id].score;
+        } else {
+            leftPlayerScore = gameState.paddles[player2Id].score;
+            rightPlayerScore = gameState.paddles[player1Id].score;
+        }
+        
+        scoreInfo!.textContent = `${leftPlayerScore} : ${rightPlayerScore}`;
     }
-
+    
     // РЕЖИМЫ ИГРЫ
     function initTournamentGame() {
-        gameMode = 'local';
-        cleanupCurrentGame();
+    gameMode = 'local';
+    
+    setupMultiplayerSocketHandlers();
+
+    onLocalGameCreated((data) => {
+        currentGameId = data.gameId;
+    });
+    setupKeyboardHandlers();
+
+    let player1;
+    let player2;
+
+    if(tournamentData.final.length === 2) {
+        player1 = tournamentData.final[0];
+        player2 = tournamentData.final[1];
+
+        tournamentPlayerNickname1 = player1;
+        tournamentPlayerNickname2 = player2;
+        window.tournamentPlayerNickname1 = tournamentPlayerNickname1;
+        window.tournamentPlayerNickname2 = tournamentPlayerNickname2;
         
-        scoreInfo!.classList.remove('hidden');
+
+        tournamentProfiles!.innerHTML = tournamentPlayerProfiles();
+        socket?.emit("game:joinLocal", {player1, player2})
+    } else {
+
+        let player1Index, player2Index;
         
-        // Start local tournament game directly
-        setTimeout(() => {
-            // startActualGame();
-        }, 1000);
+        if (step === 0) {
+            player1Index = 0;
+            player2Index = 1;
+        } else { 
+            player1Index = 2;
+            player2Index = 3;
+        }
+
+        player1 = tournamentData.semiFinal[tournamentPlayerData.tournamentNet[player1Index]];
+        player2 = tournamentData.semiFinal[tournamentPlayerData.tournamentNet[player2Index]];
+        
+        tournamentPlayerNickname1 = player1;
+        tournamentPlayerNickname2 = player2;
+        window.tournamentPlayerNickname1 = tournamentPlayerNickname1;
+        window.tournamentPlayerNickname2 = tournamentPlayerNickname2;
+        
+        console.log("Player 1", player1);
+        console.log("Player 2", player2);
+        step++;
+        tournamentProfiles!.innerHTML = tournamentPlayerProfiles();
+        socket?.emit("game:joinLocal", {player1, player2});
     }
-
-    function setupRankedListeners() {
-        onMatchFound((data: any) => {
-            rankedGameModal?.classList.add("hidden");
-            const gameId = data.game.id.toString();
-            initMultiplayerGame(gameId);
-
-            updatePlayerProfiles(data);
-
-            rankedProfiles!.innerHTML = rankedPlayerProfiles();
-
-            resetMatchmakingButtons();
-        });
-    }
-
+}
+    
     function resetMatchmakingButtons() {
+        const cancelRankedMatchBtn = document.querySelector("#cancelRankedMatchBtn");
+        const startRankedMatchBtn = document.querySelector("#startRankedMatchBtn");
         cancelRankedMatchBtn?.classList.add("hidden");
         startRankedMatchBtn?.classList.remove("hidden");
     }
-
-    function updatePlayerProfiles(gameData: any) {
-
-        let game;
-        if (gameData.game) {
-            game = gameData.game; // Для второго игрока
-        } else {
-            game = gameData; // Для первого игрока (если данные приходят напрямую)
-        }
-
-        let user1 = findUser(game.player1Id);
-        let user2 = findUser(game.player2Id);
-        console.log("Updating player profiles with game data:", game);
-                if(user1){
-                    const user1 = findUser(game.player1Id);
-                    rankedPlayerData.firstPlayer = user1!.username;
-                    rankedPlayerData.firstPlayerAvatar = user1!.avatar;
-                    rankedPlayerData.firstPlayerLetter = user1!.username.charAt(0).toUpperCase();
-                    rankedPlayerData.firstPlayerColor = getColorFromUsername(user1!.username);
-                }
-        console.log("PLAYER 1", rankedPlayerData.firstPlayer, rankedPlayerData.firstPlayerAvatar, rankedPlayerData.firstPlayerLetter, rankedPlayerData.firstPlayerColor);
-                if(user2){
-                    const user2 = findUser(game.player2Id);
-                    rankedPlayerData.secondPlayer = user2!.username;
-                    rankedPlayerData.secondPlayerAvatar = user2!.avatar;
-                    rankedPlayerData.secondPlayerLetter = user2!.username.charAt(0).toUpperCase();
-                    rankedPlayerData.secondPlayerColor = getColorFromUsername(user2!.username);
-                }
-                console.log("PLAYER 2", rankedPlayerData.secondPlayer, rankedPlayerData.secondPlayerAvatar, rankedPlayerData.secondPlayerLetter, rankedPlayerData.secondPlayerColor);
-    }
-
+    
     function initMultiplayerGame(gameId: string) {
-        console.log("Initializing multiplayer game:", gameId);
+        
         gameMode = 'multiplayer';
         currentGameId = gameId;
-        cleanupCurrentGame();
         currentGameState = getCurrentGameState();
-        // Setup WebSocket listeners directly
-        socket?.emit('game:join', gameId);
+        setupMultiplayerSocketHandlers();
+        setupKeyboardHandlers();
+        
         socket?.emit('mm:leave', gameId);
         renderGame(currentGameState);
-        
-        // Join the game
-        // joinGame(gameId);
-        scoreInfo!.classList.remove('hidden');
+        rankedProfilesContainer = document.querySelector("#rankedProfiles")
+        rankedProfilesContainer?.classList.remove("hidden");
     }
 
-    function cleanupCurrentGame() {
-        if (currentGameId) {
-            leaveGame(currentGameId);
-        }
-        clearGameCallbacks();
-        currentGameId = null;
-        
-        // clearInterval(intervalID);
+    function setupKeyboardHandlers() {
         window.removeEventListener("keydown", handleKeyDown);
         window.removeEventListener("keyup", handleKeyUp);
-        // window.removeEventListener("keyup", startGame);
         
-        gameMode = null;
-        isGameRunning = false;
+        window.addEventListener("keydown", handleKeyDown);
+        window.addEventListener("keyup", handleKeyUp);
     }
 
-    // СУЩЕСТВУЮЩИЕ ФУНКЦИИ (для совместимости)
-    function chooseBallDirection() {
-        return Math.random() < 0.5;
-    }
-
-    function setBallDirection() {
-        if (chooseBallDirection()) {
-            ballDirection.x = 1;
-        } else {
-            ballDirection.x = -1;
-        }
-
-        if (chooseBallDirection()) {
-            ballDirection.y = 1;
-        } else {
-            ballDirection.y = -1;
-        }
-    }
-
-    function handleGameOver() {
-        if (firstPlayerScore >= 5 || secondPlayerScore >= 5) {
-            // clearInterval(intervalID);
-            isGameRunning = false;
-            isWaitingForStart = true;
-            gameStartedOnce = false;
-            scoreInfo!.classList.add('hidden');
-            gameOverText!.classList.remove('hidden');	
+    function setupMultiplayerSocketHandlers() {
+        timerCountdown((data) => {
+            const seconds = data.seconds;
             
-            // Очищаем игровой обработчик
-            cleanupCurrentGame();
-        }
+            const countdownElement = document.getElementById("countdown");
+            countdownElement?.classList.remove("hidden");
+            countdownElement!.textContent = seconds.toString();
+        
+            setTimeout(() => {
+                countdownElement?.classList.add("hidden");
+                scoreInfo?.classList.remove("hidden");
+            }, 5000);
+        });
+
+        onGameUpdate((gameState) => {
+            renderGame(gameState);
+        });
+
+        onGameFinished((result) => {
+            console.log("Game finished:", result);
+            if(gameMode === "multiplayer")
+                handleGameOver(result);
+            if(gameMode === "local")
+                handleGameOverLocal(result);
+        });
     }
 
-    function handleKeyDown(ev: KeyboardEvent) {
-        const key = ev.key.toLowerCase();
-        keys.add(key);
+function cleanupCurrentGameLocal() {
+    if (paddleMovementInterval) {
+        clearInterval(paddleMovementInterval);
+        paddleMovementInterval = null;
+    }
+    
+    keys.clear(); // Очищаем состояние клавиш
+    clearGameCallbacks();
+    currentGameId = null;
+    gameMode = null;
+}
+
+function cleanupCurrentGame() {
+    const rankedProfiles = document.querySelector("#rankedProfiles");
+
+    if (rankedProfiles && rankedProfiles.parentNode) {
+        const newElement = rankedProfiles.cloneNode(true) as HTMLElement;
+        rankedProfiles.parentNode.replaceChild(newElement, rankedProfiles);
+    }
+
+    // Получаем новый элемент и скрываем его
+    const newRankedProfiles = document.querySelector("#rankedProfiles");
+    newRankedProfiles?.classList.add("hidden");
+
+    if (paddleMovementInterval) {
+        clearInterval(paddleMovementInterval);
+        paddleMovementInterval = null;
+    }
+
+    keys.clear();
+
+    currentReadyButtonHandler = null;
+    clearGameCallbacks();
+
+    // Очищаем данные профилей рейтинговой игры
+    clearRankedPlayerData();
+
+    currentGameId = null;
+    gameMode = null;
+}
+
+    function handleGameOverLocal(result?: any) {
+        scoreInfo?.classList.add("hidden");
+        let winnerName = '';
+        if (result && typeof result === 'object') {
+            if (result.winner) {
+                winnerName = result.winner;
+            }
+        } else if (typeof result === 'string') {
+            winnerName = result;
+        }
         
-        // Send paddle movement for multiplayer games
+        if(tournamentData.final.length === 2) {
+            tournamentData.winner = winnerName;
+            
+            
+            
+        } else {
+            if (winnerName && !tournamentData.final.includes(winnerName)) {
+                tournamentData.final.push(winnerName);
+            }
+        }
+        
+        if (!bracketElement) {
+            document.body.insertAdjacentHTML('beforeend', tournamentBracketPlayers());
+            bracketElement = document.querySelector("#bracketFourPlayers");
+        } else {
+            const newBracketHTML = tournamentBracketPlayers();
+            bracketElement.innerHTML = newBracketHTML.split('>').slice(1).join('>').split('</div>').slice(0, -1).join('</div>');
+        }
+        
+        if (bracketElement) {
+            bracketElement?.classList.remove("hidden");
+            bracketElement?.classList.add("flex");
+        }
+        tournamentProfiles?.classList.add("hidden");
+        cleanupCurrentGameLocal();
+    }
+
+function handleGameOver(result?: any) {
+    const gameOverModalContainer = document.querySelector("#gameOverModal");
+    scoreInfo!.classList.add('hidden');
+    
+    if (result?.winner) {
+        rankedWinnerData.id = result.winner;
+    }
+    if(gameOverModalContainer)
+    {
+        gameOverModalContainer!.innerHTML = gameOverModalCreator(result.winner);
+    }
+    
+    gameOverModalContainer!.classList.remove('hidden');
+    gameOverModalContainer!.classList.add('flex');
+    
+    rankedProfilesContainer?.classList.add("hidden");
+    rankedProfilesContainer?.classList.remove("flex");
+    
+    // Очищаем данные профилей
+    clearRankedPlayerData();
+
+    setTimeout(() => {
+        cleanupCurrentGame();
+    }, 100);
+}
+
+function startPaddleMovementInterval() {
+    paddleMovementInterval = setInterval(() => {
+        if (gameMode === 'local' && currentGameId) {
+            // Проверяем клавиши для первого игрока (W/S)
+            if (keys.has('w')) {
+                movePaddleLocal(currentGameId, 'up', tournamentPlayerNickname1);
+            }
+            if (keys.has('s')) {
+                movePaddleLocal(currentGameId, 'down', tournamentPlayerNickname1);
+            }
+            
+            // Проверяем клавиши для второго игрока (стрелки)
+            if (keys.has('arrowup')) {
+                movePaddleLocal(currentGameId, 'up', tournamentPlayerNickname2);
+            }
+            if (keys.has('arrowdown')) {
+                movePaddleLocal(currentGameId, 'down', tournamentPlayerNickname2);
+            }
+        }
+        
         if (gameMode === 'multiplayer' && currentGameId) {
-            if (key === 'w' || key === 'arrowup') {
+            if (keys.has('w')) {
                 movePaddle(currentGameId, 'up');
-            } else if (key === 's' || key === 'arrowdown') {
+            }
+            if (keys.has('s')) {
                 movePaddle(currentGameId, 'down');
             }
         }
+    }, 16); // ~60 FPS
+}
+
+function handleKeyDown(ev: KeyboardEvent) {
+    const key = ev.key.toLowerCase();
+    keys.add(key);
+    
+    // Запускаем интервал для локальной игры, если он еще не запущен
+    if (currentGameId && !paddleMovementInterval) {
+        startPaddleMovementInterval();
     }
+}
+        
+function handleKeyUp(ev: KeyboardEvent) {
+    const key = ev.key.toLowerCase();
+    keys.delete(key);
     
-    function handleKeyUp(ev: KeyboardEvent) {
-        const key = ev.key.toLowerCase();
-        keys.delete(key);
+    // Останавливаем интервал, если нет активных клавиш
+    if (keys.size === 0 && paddleMovementInterval) {
+        clearInterval(paddleMovementInterval);
+        paddleMovementInterval = null;
     }
+}
 
-    // function updatePaddlePositions() {
-    //     const step = paddleSize.height / 4;
-    
-    //     if (keys.has("w") && firstPaddle.y > 0) {
-    //         firstPaddleTargetY = Math.max(0, firstPaddle.y - step);
-    //     }
-    //     if (keys.has("s")) {
-    //         firstPaddleTargetY = Math.min(gameBoardHeight - paddleSize.height, firstPaddle.y + step);
-    //     }
-    
-    //     if (keys.has("arrowup") && secondPaddle.y > 0) {
-    //         secondPaddleTargetY = Math.max(0, secondPaddle.y - step);
-    //     }
-    //     if (keys.has("arrowdown")) {
-    //         secondPaddleTargetY = Math.min(gameBoardHeight - paddleSize.height, secondPaddle.y + step);
-    //     }
-    // }
 
-    // function lerp(start: number, end: number, t: number) {
-    //     return start * (1 - t) + end * t;
-    // }
-
-    // function updateGame(gameState: IGameState) {
-    //     // updatePaddlePositions();
-    
-    //     const lerpFactor = 0.2;
-    //     firstPaddle.y = lerp(firstPaddle.y, firstPaddleTargetY, lerpFactor);
-    //     secondPaddle.y = lerp(secondPaddle.y, secondPaddleTargetY, lerpFactor);
-    
-    //     drawBoard(gameState);
-    //     drawPaddles(gameState);
-    //     // moveBall();
-    //     drawBall(gameState);
-    // }
-
-    // let countdownInterval: ReturnType<typeof setInterval>;
-    // const countdownEl = document.getElementById('countdown');
-    const startTextEl = document.getElementById('startText');
-
-    // function restartGame(gameState: IGameState) {
-    //     // clearInterval(intervalID);
-    //     isGameRunning = false;
-    //     isWaitingForStart = false;
-    //     gameStartedOnce = false;
-    
-    //     // ballSpeed = initialBallSpeed;
-    //     firstPlayerScore = 0;
-    //     secondPlayerScore = 0;
-
-    //     // ball = { ...ballInitial };
-    //     firstPaddle = { ...firstPaddleInitial };
-    //     secondPaddle = { ...secondPaddleInitial };
-        
-    //     firstPaddleTargetY = firstPaddleInitial.y;
-    //     secondPaddleTargetY = secondPaddleInitial.y;
-
-    //     // clearInterval(countdownInterval);
-    //     countdownEl!.classList.add('hidden', 'scale-150', 'opacity-0');
-    //     startTextEl!.classList.remove('hidden', 'opacity-0');
-    
-    //     cleanupCurrentGame();
-    //     (restartBtn as HTMLElement)?.blur();
-        
-    //     setupInitialState(gameState);
-    // }
-
-    function setupInitialState(gameState: IGameState) {
-        isGameRunning = false;
-        isWaitingForStart = true;
-    
-        firstPaddle = { ...firstPaddleInitial };
-        secondPaddle = { ...secondPaddleInitial };
-        firstPaddleTargetY = firstPaddleInitial.y;
-        secondPaddleTargetY = secondPaddleInitial.y;
-
-        drawBoard(gameState);
-        drawPaddles(gameState);
-        updateScore(gameState);
-        setBallDirection();
-        drawBall(gameState);
-        scoreInfo!.classList.add('hidden');
-    
-        if (!gameStartedOnce && gameMode !== 'local' && gameMode !== 'multiplayer') {
-            window.removeEventListener("keyup", startGame);
-            window.addEventListener("keyup", startGame, { once: true });
+    async function updateAllStoreUsers(){
+        try{
+            const updatedUsers = await store.getAllUsersRequest();
+            if (updatedUsers) {
+                store.setAllUsers(updatedUsers);
+            }
+        }
+        catch(error){
+            // Handle error
         }
     }
-    
-    // function initGame() {
-    //     cleanupCurrentGame();
-    //     rankedGameStatus();
-    //     setupInitialState();
-    
-    //     restartBtn?.removeEventListener("click", restartGame);
-    //     restartBtn?.addEventListener("click", restartGame);
-    // }
 
-    // function startActualGame() {
-    //     isGameRunning = true;
-    //     gameStartedOnce = true;
-    
-    //     window.addEventListener("keydown", handleKeyDown);
-    //     window.addEventListener("keyup", handleKeyUp);
-
-    //     scoreInfo!.classList.remove('hidden');
-    
-    //     setBallDirection();
-    //     // intervalID = setInterval(updateGame, 16);
-    // }
-
-    function startGame(ev: KeyboardEvent) {
+    // Инициализация рейтингового режима
+    function initRankedGameMode() {
         const preGameModal = document.querySelector("#preGameModal");
-        const isModalHidden = preGameModal?.classList.contains("hidden");
-        const isTournamentModalHidden = tournamentModal?.classList.contains("hidden");
+        const rankedGameModal = document.querySelector("#rankedGameModal");
+        const startRankedMatchBtn = document.querySelector("#startRankedMatchBtn");
+        const cancelRankedMatchBtn = document.querySelector("#cancelRankedMatchBtn");
+        const rankedProfiles = document.querySelector("#rankedProfiles");
+        const rankedMatchBtn = document.querySelector("#rankedMatchBtn");
+
+        let rankedTimerInterval: ReturnType<typeof setInterval> | null = null;
         
-        if (ev.code === 'Space' && !isGameRunning && isWaitingForStart && isModalHidden && isTournamentModalHidden) {
-            isWaitingForStart = false;
+        rankedMatchBtn?.addEventListener("click", async (e) => {
+            e.stopPropagation();
+            preGameModal?.classList.add("hidden");
+            rankedGameModal?.classList.remove("hidden");
+            rankedGameModal?.classList.add("flex");
+        });
+
+
+
+        // Инициализируем слушатели рейтинговой игры
+        const rankedListenersSetup = () => setupRankedListeners(
+            rankedGameModal,
+            preGameModal,
+            spinerDiv,
+            rankedProfiles,
+            initMultiplayerGame,
+            updatePlayerProfiles,
+            setupButtonDelegation,
+            resetMatchmakingButtons,
+            updateAllStoreUsers
+        );
+
+        startRankedMatchBtn?.addEventListener("click", async (e) => {
+            e.stopPropagation();
+            btmBtn?.setAttribute("disabled", "true");
             
-            startTextEl!.classList.add('opacity-0');
-            
-        }
+            await startRankedGameLogic(
+                spinerDiv,
+                startRankedMatchBtn,
+                cancelRankedMatchBtn,
+                rankedGameModal,
+                rankedTimerInterval,
+                initMultiplayerGame,
+                updateAllStoreUsers,
+                rankedListenersSetup
+            );
+        });
+
+        cancelRankedMatchBtn?.addEventListener("click", async (e) => {
+            e.stopPropagation();
+            await cancelRankedMatch(
+                rankedTimerInterval,
+                spinerDiv,
+                cancelRankedMatchBtn,
+                startRankedMatchBtn,
+                btmBtn
+            );
+        });
+
+        // Проверяем статус рейтинговой игры при загрузке
+        rankedGameStatus(
+            preGameModal,
+            rankedGameModal,
+            startRankedMatchBtn,
+            spinerDiv,
+            cancelRankedMatchBtn
+        );
     }
+
+    function initGame() {
+        initRankedGameMode();
+        onGameUpdate((gameState) => {
+            renderGame(gameState);
+        });
+    }
+
     renderGame(currentGameState);
 
     // TOURNAMENT PART
     const preGameModal = document.querySelector("#preGameModal");
     const tournamentDropdownMenu = document.querySelector("#tournamentDropdownMenu");
     const tournamentDropdownButton = document.querySelector("#tournamentDropdownButton");
-    
+    let bracketElement = document.querySelector("#bracketFourPlayers");
+
     tournamentDropdownButton?.addEventListener("click", (e) => {
         e.stopPropagation();
         tournamentDropdownMenu?.classList.toggle("hidden");
@@ -526,8 +649,9 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
     const fourPlayersGameBtn = document.querySelector("#fourPlayersGameBtn");
     const clickSubmitNicknameBtn = document.querySelector("#submitNicknameBtn");
     const playerNickname = document.querySelector("#playerNickname") as HTMLInputElement;
-    const tournamentProfiles = document.querySelector("#tournamentProfiles");
     const selectAvatar = document.querySelector("#selectedAvatar");
+    const tournamentBracket = document.querySelector("#bracketFourPlayers");
+    const startTournamentGame = document.querySelector("#startTournamentGame");
     
     clickSubmitNicknameBtn?.addEventListener("click", (e) => {
         e.stopPropagation();
@@ -552,6 +676,7 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
             return;
         }
         tournamentPlayerData.nicknames.push(playerNickname.value);
+        tournamentData.semiFinal.push(playerNickname.value);
         tournamentPlayerData.avatars.set(playerNickname.value, (selectAvatar as HTMLImageElement)!.src);
         playerNickname.value = "";
         
@@ -559,10 +684,13 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
         if(tournamentPlayerData.nicknames.length === 4) {
             tournamentModal?.classList.add("hidden");
             tournamentModal?.classList.remove("flex");
+            tournamentBracket?.classList.remove("hidden");
             createTournamentNet();
+            
         }
+        console.log("PLAYERS : ", tournamentData.semiFinal);
     }
-
+    
     fourPlayersGameBtn?.addEventListener("click", (e) => {
         e.stopPropagation();
         tournamentDropdownMenu?.classList.toggle("hidden");
@@ -570,7 +698,7 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
         tournamentModal?.classList.remove("hidden");
         tournamentModal?.classList.add("flex");
         tournamentProfiles?.classList.remove("hidden");
-        fourPlayersTournament();
+        
     });
 
     function createTournamentNet() {
@@ -585,21 +713,60 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
                 continue;
             }		
         }
-        if (tournamentProfiles) {
-            tournamentProfiles.innerHTML = tournamentPlayerProfiles();
+    const tournamentProfiles = document.querySelector("#tournamentProfiles");
+    if (tournamentProfiles) {
+        tournamentProfiles.innerHTML = tournamentPlayerProfiles();
+        // tournamentProfiles.classList.remove("hidden");
+    }
+        // ВАЖНО: Создаем HTML турнирной сетки ПОСЛЕ заполнения tournamentNet
+        let bracketElement = document.querySelector("#bracketFourPlayers");
+        if (!bracketElement) {
+            // Теперь tournamentNet уже заполнен, можно безопасно генерировать HTML
+            document.body.insertAdjacentHTML('beforeend', tournamentBracketPlayers());
+            bracketElement = document.querySelector("#bracketFourPlayers");
+        } else {
+            // Обновляем содержимое с новыми данными
+            bracketElement.innerHTML = tournamentBracketPlayers().replace(
+                '<div id="bracketFourPlayers" class="fixed inset-0 items-center justify-center z-50 hidden" style="background-color: rgba(0, 0, 0, 0.7);">',
+                ''
+            ).replace('</div>    `;', '');
         }
         
-        // Инициализируем турнирную игру
-        initTournamentGame();
+        // Показываем турнирную сетку
+        if (bracketElement) {
+            bracketElement.classList.remove("hidden");
+            bracketElement.classList.add("flex");
+        }
+        
+        console.log("NET AFTER GENERATION:", tournamentPlayerData.tournamentNet);
+        console.log("NICKNAMES:", tournamentPlayerData.nicknames);
+        // tournamentBracket?.classList.add("flex");
+        
     }
 
-    function fourPlayersTournament(){
-        // Логика турнира будет обрабатываться в createTournamentNet
-    }
+    document.addEventListener("click", (event) => {
+        const target = event.target as HTMLElement;
+        
+        if (target && target.id === "startTournamentGame") {
+            const bracketModal = document.querySelector("#bracketFourPlayers");
+            if(!tournamentBracket?.classList.contains("hidden") && tournamentData.winner){
+                startTournamentGame?.setAttribute("disabled", "true");
+            }
+            if (bracketModal && !tournamentData.winner) {
+                startTournamentGame?.removeAttribute("disabled");
+                tournamentProfiles?.classList.remove("hidden");
+                bracketModal.classList.add("hidden");
+                bracketModal.classList.remove("flex");
+                initTournamentGame();
+            }
+            console.log("Starting tournament game...");
+        }
+    });
 
     const avatarSelectBtn = document.querySelector("#avatarSelectBtn");
     const avatarDropdown = document.querySelector("#avatarDropdown");
     const selectedAvatar = document.querySelector("#selectedAvatar");
+    const tournamentBracketFourPlayers = document.querySelector("#bracketFourPlayers");
 
     avatarSelectBtn?.addEventListener('click', () => {
         avatarDropdown?.classList.toggle('hidden');
@@ -647,7 +814,6 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
         const friends = store.getAllFriends();
         const friendsList = document.querySelector("#friendsDropDown");
         const selectedFriend = document.querySelector("#selectedFriend");
-        const selectedFriendBtn = document.querySelector("#friendSelectBtn");
 
         if (friendsList) {
             friendsList.innerHTML = "";
@@ -675,130 +841,82 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
         }
     }
 
-    // RANKED GAME PART
-    const rankedMatchBtn = document.querySelector("#rankedMatchBtn");
-    const rankedGameModal = document.querySelector("#rankedGameModal");
-    // const rankedGameBtn = document.querySelector("#rankedGameBtn");
-    const startRankedMatchBtn = document.querySelector("#startRankedMatchBtn");
-    const cancelRankedMatchBtn = document.querySelector("#cancelRankedMatchBtn");
-    const rankedTimer = document.querySelector("#rankedTimer");
-    const timerDiv = document.querySelector("#timerDiv");
-    const rankedProfiles = document.querySelector("#rankedProfiles");
-
-    let rankedTimerInterval: ReturnType<typeof setInterval> | null = null;
-    let rankedTimerValue = 0;
-
-    rankedMatchBtn?.addEventListener("click", async (e) => {
-        e.stopPropagation();
-        preGameModal?.classList.add("hidden");
-        rankedGameModal?.classList.remove("hidden");
-        rankedGameModal?.classList.add("flex");
-        
-    });
-
-    function formatTimer(seconds: number): string {
-        const min = Math.floor(seconds / 60);
-        const sec = seconds % 60;
-        return `${min}:${sec.toString().padStart(2, "0")}`;
-    }
-
-    startRankedMatchBtn?.addEventListener("click", async (e) => {
-        e.stopPropagation();
-        
-        try {
-
-            setupRankedListeners();
-            const response = await instanceAPI.post("/game/matchmaking", {
-                body: { },
-            });
-			console.log(response);
+    // Обработчики модальных окон
+    document.addEventListener("click", async (e) =>{
+        const target = e.target as HTMLElement;
+        if(target.id === "backToMenuBtn")
+        {
+            e.stopPropagation();
+            const gameOverModal = document.querySelector("#gameOverModal");
+            const rankedGameModal = document.querySelector("#rankedGameModal");
+            const spinerDiv = document.querySelector("#spinerDiv");
+            const btmBtn = document.querySelector("#backToMenuBtn");
             
-            if(response.status === 200) {
-                timerDiv?.classList.remove("invisible");
-                timer();
-				socket?.emit('game:joinQueue');
-                startRankedMatchBtn?.classList.add("hidden");
-                cancelRankedMatchBtn?.classList.remove("hidden");
-            }
-            
-            if(response.status === 201) {
-                const userResponseData = response.data as {
-                    message: string,
-                    game: {
-                        id: number,
-                        player1Id: number,
-                        player2Id: number,
-                        status: string,
-                        gameMode: string
-                    }
-                };
-
-                // Инициализируем мультиплеерную игру
-                const gameId = userResponseData.game.id.toString();
-
-                initMultiplayerGame(gameId);
-                
-                updatePlayerProfiles(userResponseData);
-                
+            if(!rankedGameModal?.classList.contains("hidden"))
+            {
+                spinerDiv?.classList.add("hidden");
                 rankedGameModal?.classList.add("hidden");
-                rankedProfiles!.innerHTML = rankedPlayerProfiles();
-                
-                if (rankedTimerInterval) clearInterval(rankedTimerInterval);
+                preGameModal?.classList.remove("hidden");
             }
-
-        } catch (error) {
-            console.error('Error starting ranked match:', error);
-        }
-    });
-
-    cancelRankedMatchBtn?.addEventListener("click", async (e) => {
-        e.stopPropagation();
-        try {
-            const response = await instanceAPI.delete("/game/matchmaking");
-            if(response.status === 200) {
-                if (rankedTimerInterval) clearInterval(rankedTimerInterval);
-                timerDiv?.classList.add("invisible");
-				socket?.emit('game:leaveQueue');
-                console.log("Match Canceled", response.status);
-                cancelRankedMatchBtn?.classList.add("hidden");
-                startRankedMatchBtn?.classList.remove("hidden");
+            if(!gameOverModal?.classList.contains("hidden"))
+            {
+                btmBtn?.removeAttribute("disabled");
+                spinerDiv?.classList.add("hidden");
+                gameOverModal?.classList.add("hidden");
+                preGameModal?.classList.remove("hidden");
+                // rankedProfilesContainer!.innerHTML = rankedPlayerProfilesContainer();
             }
-        } catch (error) {
-            console.error('Error canceling ranked match:', error);
-        }
-    });
-
-    function timer() {
-        rankedTimerValue = 0;
-        if (rankedTimer) rankedTimer.textContent = formatTimer(rankedTimerValue);
-        if (rankedTimerInterval) clearInterval(rankedTimerInterval);
-
-        rankedTimerInterval = setInterval(() => {
-            rankedTimerValue++;
-            if (rankedTimer) rankedTimer.textContent = formatTimer(rankedTimerValue);
-        }, 1000);
-    }
-
-    async function rankedGameStatus() {
-        try{
-            const response = await instanceAPI.get("/game/matchmaking/status");
-            let responseData = response.data as {inQueue: true}
-            console.log("RANKED GAME STATUS", responseData);
-            if(responseData.inQueue) {
-                preGameModal?.classList.add("hidden");
-                rankedGameModal?.classList.remove("hidden");
-                rankedGameModal?.classList.add("flex");
-                startRankedMatchBtn?.classList.add("hidden");
-                timerDiv?.classList.remove("invisible");
-                cancelRankedMatchBtn?.classList.remove("hidden");
-            } else {
+            if(!tournamentBracketFourPlayers?.classList.contains("hidden"))
+            {
+                tournamentCleaning();
+                tournamentBracketFourPlayers?.classList.add("hidden");
+                tournamentBracketFourPlayers?.classList.remove("flex");
+                btmBtn?.classList.add("hidden");
                 preGameModal?.classList.remove("hidden");
                 preGameModal?.classList.add("flex");
             }
-        } catch (error) {
-            console.error('Error checking ranked game status:', error);
         }
+    });
+
+    function tournamentCleaning()
+    {
+        tournamentPlayerData.nicknames.length = 0
+        tournamentData.semiFinal.length = 0;
+        tournamentData.final.length = 0;
+        tournamentData.winner = '';
+
+        window.tournamentPlayerNickname1 = "";
+        window.tournamentPlayerNickname2 = "";
+        
+        tournamentPlayerData.tournamentNet.length = 0;
+        
+        step = 0;
+        
+        tournamentPlayerNickname1 = '';
+        tournamentPlayerNickname2 = '';
     }
 
-    // initGame();
+    // Play Again для рейтинговой игры
+    document.addEventListener("click", (e) => {
+        const target = e.target as HTMLElement;
+        if (target.id === "rankedPlayAgainBtn") {
+            e.stopPropagation();
+            
+            const gameOverModal = document.querySelector("#gameOverModal");
+            const rankedGameModal = document.querySelector("#rankedGameModal");
+            
+            gameOverModal?.classList.add("hidden");
+            gameOverModal?.classList.remove("flex");
+
+            rankedGameModal?.classList.remove("hidden");
+            rankedGameModal?.classList.add("flex");
+            spinerDiv?.classList.add("hidden");
+            btmBtn?.removeAttribute("disabled")
+            rankedProfilesContainer?.classList.add("hidden");
+            
+            // Запуск новой рейтинговой игры будет обрабатываться кнопкой startRankedMatchBtn
+        }
+    });
+
+    initGame();
 }

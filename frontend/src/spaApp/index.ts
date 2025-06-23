@@ -10,6 +10,7 @@ import {
   publicRoutes,
 } from "../routing/index";
 import { store } from "../store/store";
+import { socket } from "../websockets";
 
 const matchRoute = (pathname: string) => {
   if (pathname === "/") {
@@ -31,6 +32,9 @@ export default function runSPA() {
   let matched;
 
   matched = matchRoute(location.pathname);
+
+  // socket?.emit("online:get:users");
+  // socket?.emit("online:get:all:status");
 
   if (matched) {
     const { route, params } = matched;

@@ -43,7 +43,7 @@ const PinPong = sequelize.define("PinPong", {
         defaultValue: 0,
     },
     status: {
-        type: DataTypes.ENUM('waiting', 'playing', 'finished', 'abandoned'),
+        type: DataTypes.ENUM('waiting', 'playing', 'finished', 'cancelled'),
         defaultValue: 'waiting',
         allowNull: false
     },
@@ -51,6 +51,10 @@ const PinPong = sequelize.define("PinPong", {
         type: DataTypes.ENUM('ranked', 'casual'),
         defaultValue: 'casual',
         allowNull: false
+    },
+    changedElo: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false,
     },
     // background: {
     //     type: DataTypes.STRING,

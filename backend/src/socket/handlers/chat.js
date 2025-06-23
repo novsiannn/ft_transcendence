@@ -2,7 +2,9 @@ const userTracker = require('../utils/userTracker');
 const chatService = require('../../services/chat.service.js');
 const Message = require('../../../db/models/MessageModel');
 const Chat = require('../../../db/models/ChatModel');
+const friendshipService = require('../../services/friendship.service.js');
 const { validateMessage, isUserAllowedToSendMessage } = require('../utils/chat.utils');
+const areFriends = require('../../utils/friends');
 
 async function handleOpenChats(socket) {
     const userId = socket.user.id;
@@ -33,6 +35,10 @@ async function handleSendMessage(socket, data) {
         }
         if (!isUserAllowedToSendMessage(senderId)) {
             socket.emit('chat:error', { error: 'Please wait before sending another message' });
+            return;
+        }
+        if(!areFriends(senderId, receiverId)) {
+            socket.emit('chat:error', { error: 'You can only send messages to friends' });
             return;
         }
         const validatedMessage = validateMessage(content);

@@ -93,9 +93,7 @@ export function navigationHandle() {
     notificationIndicator?.classList.add('invisible')
     notificationDropDown?.classList.toggle("hidden");
     dropdownMenu?.classList.add("hidden");
-    document
-      .getElementById("notificationIndicator")!
-      .classList.add("invisible");
+    document?.getElementById("notificationIndicator")?.classList.add("invisible");
   });
 
   document.addEventListener("click", (e) => {
@@ -118,7 +116,7 @@ export function navigationHandle() {
   document.addEventListener("keydown", (e) => {
     if (e.keyCode == 27) {
       dropdownMenu?.classList.add("hidden");
-      notificationDropDown!.classList.add("hidden");
+      notificationDropDown?.classList.add("hidden");
     }
   });
 }

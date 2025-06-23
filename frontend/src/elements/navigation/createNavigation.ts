@@ -1,3 +1,4 @@
+import i18next from "i18next";
 import { getColorFromUsername } from "../../shared/randomColors";
 import { store, API_URL } from "../../store/store";
 import { attachNotificationListeners } from "./navigation";
@@ -17,14 +18,15 @@ export const refreshNotifications = async () => {
 
 const getNotificationLayout = (): string => {
   const notificationsData = store.getNotification();
+
   if (!notificationsData?.notifications.length) {
     return `<div class="p-3 font-bold border-b border-gray-500">
-                <p sentYouFriendRequest data-i18n="notification.notifications">Notifications</p>
+                <p sentYouFriendRequest data-i18n="notification.notifications">${i18next.t("notification.notifications")}</p>
               </div><ul class="text-white"><li><a class="block px-4 py-2 hover:bg-gray-700 text-xs">Don't worry if you don't have any new notifications, we're all in this together!</a></li></ul>`;
   }
 
   let allNotifications: string = `<div class="p-3 font-bold border-b border-gray-500">
-                <p sentYouFriendRequest data-i18n="notification.notifications">Notifications</p>
+                <p sentYouFriendRequest data-i18n="notification.notifications">${i18next.t("notification.notifications")}</p>
               </div>`;
 
   notificationsData.notifications.forEach((n) => {
@@ -36,10 +38,10 @@ const getNotificationLayout = (): string => {
 
     switch (n.type) {
       case "friend_accepted":
-        notificationContent = `<p data-i18n='notification.hasAcceptedFriendShip' ></p>`;
+        notificationContent = `<p data-i18n="notification.hasAcceptedFriendShip">${i18next.t("notification.hasAcceptedFriendShip")}</p>`;
         break;
       case "friend_request":
-        notificationContent = `<p data-i18n='notification.sentYouFriendRequest' ></p>`;
+        notificationContent = `<p data-i18n="notification.sentYouFriendRequest">${i18next.t("notification.sentYouFriendRequest")}</p>`;
         break;
 
       default:
@@ -111,7 +113,7 @@ const getProfileIcon = (): string => {
 
   return `
     <div class="flex items-center relative">
-      <div id="notificationMenu" class="w-10 h-10 bg-gray-800 rounded-full flex justify-center items-center mr-4 relative">
+      <div id="notificationMenu" class="cursor-pointer w-10 h-10 bg-gray-800 rounded-full flex justify-center items-center mr-4 relative">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 text-white">
           <path stroke-linecap="round" stroke-linejoin="round"
             d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0M3.124 7.5A8.969 8.969 0 0 1 5.292 3m13.416 0a8.969 8.969 0 0 1 2.168 4.5" />

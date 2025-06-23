@@ -1,10 +1,3 @@
-import { BtnAccept } from "../../elements/BtnAccept";
-import { BtnAdd } from "../../elements/BtnAdd";
-import { BtnBlock } from "../../elements/BtnBlock";
-import { BtnCancel } from "../../elements/BtnCancel";
-import { BtnDelete } from "../../elements/BtnDelete";
-import { BtnReject } from "../../elements/BtnReject";
-import { BtnUnblock } from "../../elements/BtnUnblock";
 import { getModalWindowSuccess } from "../../elements/ModalSuccess";
 import { navigation } from "../../elements/navigation";
 
@@ -17,12 +10,19 @@ export function profilePage(mainWrapper: HTMLDivElement | undefined) {
     <div class="w-full bg-gray-300 min-h-screen flex flex-col font-sans ">
       <div class="bg-white mx-auto mt-8 w-1/2 shadow-md rounded-3xl p-6 text-center mb-8">
         <div class="flex flex-col min-h-full items-center gap-4" id="profileDataContainer">
-          <div id="profileImgEmpty" class=" text-white text-3xl font-bold rounded-full w-24 h-24 flex items-center justify-center">
+          <img id="profileImg" class="hidden rounded-full w-20 h-20 object-cover"></img>
+          <div id="profileImgEmpty" class=" relative text-white text-3xl font-bold rounded-full w-24 h-24 flex items-center justify-center">
           </div>
-          <h2 id="userNameProfile" class="text-xl font-bold text-gray-800"></h2>
-            <div class="flex" id="profileLvlContainer">
-                <p class="text-gray-500 font-bold text-md" id="profileElo"></p>
+            <div class="flex flex-col gap-2">
+              <h2 id="userNameProfile" class="text-xl font-bold text-gray-800"></h2>
+              <div id="userOnlineStatusProfile" class="flex justify-center">
+              
+              </div>
+              <div class="flex" id="profileLvlContainer">
+                  <p class="text-gray-500 font-bold text-md" id="profileElo"></p>
+              </div>
             </div>
+    
             <div class="flex gap-2 items-center ml-2" id="profileButtonsContainer">
                       
             </div>
