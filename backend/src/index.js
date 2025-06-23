@@ -52,53 +52,53 @@ fastify.register(require('@fastify/static'), {
 
 //friendship UI UX
 
-fastify.register(require('@fastify/static'), {
-  root: path.join(__dirname, '..'),
-  prefix: '/test/',
-  decorateReply: false
-});
+// fastify.register(require('@fastify/static'), {
+//   root: path.join(__dirname, '..'),
+//   prefix: '/test/',
+//   decorateReply: false
+// });
 
-fastify.get('/api/test-token', async (request, reply) => {
-  try {
-    const token = request.headers.authorization?.split(' ')[1];
-    if (!token) {
-      return reply.code(400).send({ error: 'Token not provided' });
-    }
+// fastify.get('/api/test-token', async (request, reply) => {
+//   try {
+//     const token = request.headers.authorization?.split(' ')[1];
+//     if (!token) {
+//       return reply.code(400).send({ error: 'Token not provided' });
+//     }
 
-    const userData = await tokenService.validateAccessToken(token);
-    return {
-      isValid: !!userData,
-      userData: userData
-    };
-  } catch (error) {
-    return reply.code(500).send({ error: error.message });
-  }
-});
+//     const userData = await tokenService.validateAccessToken(token);
+//     return {
+//       isValid: !!userData,
+//       userData: userData
+//     };
+//   } catch (error) {
+//     return reply.code(500).send({ error: error.message });
+//   }
+// });
 
-fastify.get('/api/friendship', async (request, reply) => {
-  try {
-      const token = request.headers.authorization?.split(' ')[1];
-      if (!token) {
-          return reply.code(401).send({ error: 'Token not provided' });
-      }
+// fastify.get('/api/friendship', async (request, reply) => {
+//   try {
+//       const token = request.headers.authorization?.split(' ')[1];
+//       if (!token) {
+//           return reply.code(401).send({ error: 'Token not provided' });
+//       }
 
-      const userData = await tokenService.validateAccessToken(token);
-      if (!userData) {
-          return reply.code(401).send({ error: 'Invalid token' });
-      }
+//       const userData = await tokenService.validateAccessToken(token);
+//       if (!userData) {
+//           return reply.code(401).send({ error: 'Invalid token' });
+//       }
 
-      // Возвращаем тестовых друзей
-      const testFriends = [
-          { id: 1, username: 'friend1', avatar: '/avatars/default.png' },
-          { id: 2, username: 'friend2', avatar: '/avatars/default.png' },
-          { id: 3, username: 'friend3', avatar: '/avatars/default.png' }
-      ];
+//       // Возвращаем тестовых друзей
+//       const testFriends = [
+//           { id: 1, username: 'friend1', avatar: '/avatars/default.png' },
+//           { id: 2, username: 'friend2', avatar: '/avatars/default.png' },
+//           { id: 3, username: 'friend3', avatar: '/avatars/default.png' }
+//       ];
 
-      return { friends: testFriends };
-  } catch (error) {
-      return reply.code(500).send({ error: error.message });
-  }
-});
+//       return { friends: testFriends };
+//   } catch (error) {
+//       return reply.code(500).send({ error: error.message });
+//   }
+// });
 
 //for WEBSOCKET test end
 

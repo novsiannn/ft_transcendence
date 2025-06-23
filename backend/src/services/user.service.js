@@ -305,7 +305,7 @@ async function deleteUserAccount(userId, password) {
 
     const avatarPath = user.avatar;
 
-    await Token.destroy({ where: { userId } }); // have to delete
+    // await Token.destroy({ where: { userId } }); // have to delete
 
     await user.destroy();
 
@@ -333,8 +333,8 @@ async function refresh(refreshToken) {
   }
   try {
     const userData = await tokenService.validateRefreshToken(refreshToken);
-    const tokenFromDb = await tokenService.findToken(refreshToken);
-    if (!userData || !tokenFromDb) {
+    // const tokenFromDb = await tokenService.findToken(refreshToken);
+    if (!userData) {
       return { error: "User not authorized" };
     }
     const user = await User.findOne({ where: { id: userData.id } });
@@ -344,7 +344,7 @@ async function refresh(refreshToken) {
 
     const userDto = new UserDto(user);
     const tokens = tokenService.generateTokens({ ...userDto });
-    await tokenService.saveToken(userDto.id, tokens.refreshToken);
+    // await tokenService.saveToken(userDto.id, tokens.refreshToken);
 
     return {
       ...tokens,
@@ -461,7 +461,7 @@ async function verify2FALogin(userId, token) {
 
     const userDto = new UserDto(user);
     const tokens = tokenService.generateTokens({ ...userDto });
-    await tokenService.saveToken(userDto.id, tokens.refreshToken);
+    // await tokenService.saveToken(userDto.id, tokens.refreshToken);
 
     return {
       accessToken: tokens.accessToken,
