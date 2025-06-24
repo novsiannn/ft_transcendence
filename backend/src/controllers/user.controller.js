@@ -270,6 +270,16 @@ const UserController = {
         }
     },
 
+    async getLeaderboard(req, res) {
+        try {
+            const leaderboard = await userService.getLeaderboard();
+            return res.code(200).send(leaderboard);
+        } catch (error) {
+            console.error("Error getting leaderboard:", error);
+            res.code(500).send({ error: "Error getting leaderboard" });
+        }
+    },
+
     async enable2FA(req, res) {
         try {
             const userId = req.user.id;

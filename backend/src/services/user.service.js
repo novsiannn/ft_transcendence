@@ -560,7 +560,7 @@ async function countProcentWinrate(userId) {
     allGames.forEach(game => {
       const isPlayer1 = game.player1Id === userId;
       const isPlayer2 = game.player2Id === userId;
-      
+
       if (isPlayer1 && game.player1Score > game.player2Score) {
         wonGames++; // Игрок 1 победил
       } else if (isPlayer2 && game.player2Score > game.player1Score) {
@@ -589,4 +589,31 @@ async function countProcentWinrate(userId) {
   }
 }
 
-module.exports = { deleteAvatar, getAllUsers, refresh, logout, login, activate, registration, updateUser, saveAvatar, getUserProfile, deleteUserAccount, set2FA, verify2FA, verify2FALogin, disable2FA, setLanguage, countProcentWinrate };
+async function getLeaderboard() {
+  try {
+    const users = await User.findAll({
+      attributes: ['id', 'username', 'elo'],
+      order: [['elo', 'DESC']]
+    });
+
+    const leaderboard = await Promise.all(users.map(async (user, index) => {
+      const winrateStats = await countProcentWinrate(user.id);
+
+      return {
+        id: user.id,
+        username: user.username,
+        elo: user.elo,
+        totalGames: winrateStats.totalGames,
+        wonGames: winrateStats.wonGames,
+        winrate: winrateStats.winrate,
+      };
+    }));
+
+    return leaderboard;
+  } catch (error) {
+    console.error("Error getting leaderboard:", error);
+    throw error;
+  }
+}
+
+module.exports = { getLeaderboard, deleteAvatar, getAllUsers, refresh, logout, login, activate, registration, updateUser, saveAvatar, getUserProfile, deleteUserAccount, set2FA, verify2FA, verify2FALogin, disable2FA, setLanguage, countProcentWinrate };

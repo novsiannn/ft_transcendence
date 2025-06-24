@@ -505,6 +505,39 @@ async function routes(fastify, options) {
     preHandler: authMiddleware
   }, userController.getUsers);
 
+  fastify.get('/leaderboard', {
+    schema: {
+      description: 'Get users leaderboard sorted by ELO',
+      tags: ['Leaderboard'],
+      security: [{ bearerAuth: [] }],
+      response: {
+        200: {
+          description: 'Leaderboard retrieved successfully',
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: {
+              id: { type: 'integer' },
+              username: { type: 'string' },
+              elo: { type: 'integer' },
+              totalGames: { type: 'integer' },
+              wonGames: { type: 'integer' },
+              winrate: { type: 'integer' },
+            }
+          }
+        },
+        500: {
+          description: 'Internal server error',
+          type: 'object',
+          properties: {
+            error: { type: 'string' }
+          }
+        }
+      }
+    },
+    preHandler: authMiddleware
+  }, userController.getLeaderboard);  
+
   fastify.put('/user/profile', {
     schema: {
       description: 'Update user profile',
