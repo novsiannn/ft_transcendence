@@ -344,6 +344,20 @@ async function routes(fastify, options) {
                   items: { type: 'integer' }
                 },
                 friendsCount: { type: 'integer' },
+                recentGames: {
+                  type: 'array',
+                  items: {
+                    type: 'object',
+                    properties: {
+                      id: { type: 'integer' },
+                      player1Username: { type: 'string' },
+                      player2Username: { type: 'string' },
+                      player1Score: { type: 'integer' },
+                      player2Score: { type: 'integer' },
+                      gameDate: { type: 'string', format: 'date-time' }
+                    }
+                  }
+                }
               }
             }
           }
@@ -490,6 +504,39 @@ async function routes(fastify, options) {
     },
     preHandler: authMiddleware
   }, userController.getUsers);
+
+  fastify.get('/leaderboard', {
+    schema: {
+      description: 'Get users leaderboard sorted by ELO',
+      tags: ['Leaderboard'],
+      security: [{ bearerAuth: [] }],
+      response: {
+        200: {
+          description: 'Leaderboard retrieved successfully',
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: {
+              id: { type: 'integer' },
+              username: { type: 'string' },
+              elo: { type: 'integer' },
+              totalGames: { type: 'integer' },
+              wonGames: { type: 'integer' },
+              winrate: { type: 'integer' },
+            }
+          }
+        },
+        500: {
+          description: 'Internal server error',
+          type: 'object',
+          properties: {
+            error: { type: 'string' }
+          }
+        }
+      }
+    },
+    preHandler: authMiddleware
+  }, userController.getLeaderboard);  
 
   fastify.put('/user/profile', {
     schema: {

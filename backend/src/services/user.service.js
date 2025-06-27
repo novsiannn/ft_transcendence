@@ -12,6 +12,7 @@ const fs = require("fs-extra");
 const path = require("path");
 const speakeasy = require('speakeasy');//ikhristi
 const QRCode = require('qrcode');//ikhristi
+const gameService = require('./game.service');//ikhristi
 const { error } = require("console");
 const { Op } = require('sequelize');
 
@@ -203,6 +204,7 @@ async function getUserProfile(userId) {
     const blokedUsersList = await friendshipService.getBlockedUsers(userId);
 
     const winrateStats = await countProcentWinrate(userId);
+    const userGames = await gameService.getUserGames(userId);
     if (winrateStats.error) {
       return { error: winrateStats.error };
     }
@@ -216,6 +218,7 @@ async function getUserProfile(userId) {
         blockedUserIds: blokedUsersList.blockedUserIds,
         blockedByUserIds: blokedUsersList.blockedByUserIds,
         friendsCount: friendsCount,
+        recentGames: userGames.games
       }
     };
 
@@ -305,7 +308,7 @@ async function deleteUserAccount(userId, password) {
 
     const avatarPath = user.avatar;
 
-    await Token.destroy({ where: { userId } }); // have to delete
+    // await Token.destroy({ where: { userId } }); // have to delete
 
     await user.destroy();
 
@@ -333,8 +336,8 @@ async function refresh(refreshToken) {
   }
   try {
     const userData = await tokenService.validateRefreshToken(refreshToken);
-    const tokenFromDb = await tokenService.findToken(refreshToken);
-    if (!userData || !tokenFromDb) {
+    // const tokenFromDb = await tokenService.findToken(refreshToken);
+    if (!userData) {
       return { error: "User not authorized" };
     }
     const user = await User.findOne({ where: { id: userData.id } });
@@ -344,7 +347,7 @@ async function refresh(refreshToken) {
 
     const userDto = new UserDto(user);
     const tokens = tokenService.generateTokens({ ...userDto });
-    await tokenService.saveToken(userDto.id, tokens.refreshToken);
+    // await tokenService.saveToken(userDto.id, tokens.refreshToken);
 
     return {
       ...tokens,
@@ -461,7 +464,7 @@ async function verify2FALogin(userId, token) {
 
     const userDto = new UserDto(user);
     const tokens = tokenService.generateTokens({ ...userDto });
-    await tokenService.saveToken(userDto.id, tokens.refreshToken);
+    // await tokenService.saveToken(userDto.id, tokens.refreshToken);
 
     return {
       accessToken: tokens.accessToken,
@@ -557,7 +560,7 @@ async function countProcentWinrate(userId) {
     allGames.forEach(game => {
       const isPlayer1 = game.player1Id === userId;
       const isPlayer2 = game.player2Id === userId;
-      
+
       if (isPlayer1 && game.player1Score > game.player2Score) {
         wonGames++; // Игрок 1 победил
       } else if (isPlayer2 && game.player2Score > game.player1Score) {
@@ -586,4 +589,31 @@ async function countProcentWinrate(userId) {
   }
 }
 
-module.exports = { deleteAvatar, getAllUsers, refresh, logout, login, activate, registration, updateUser, saveAvatar, getUserProfile, deleteUserAccount, set2FA, verify2FA, verify2FALogin, disable2FA, setLanguage, countProcentWinrate };
+async function getLeaderboard() {
+  try {
+    const users = await User.findAll({
+      attributes: ['id', 'username', 'elo'],
+      order: [['elo', 'DESC']]
+    });
+
+    const leaderboard = await Promise.all(users.map(async (user, index) => {
+      const winrateStats = await countProcentWinrate(user.id);
+
+      return {
+        id: user.id,
+        username: user.username,
+        elo: user.elo,
+        totalGames: winrateStats.totalGames,
+        wonGames: winrateStats.wonGames,
+        winrate: winrateStats.winrate,
+      };
+    }));
+
+    return leaderboard;
+  } catch (error) {
+    console.error("Error getting leaderboard:", error);
+    throw error;
+  }
+}
+
+module.exports = { getLeaderboard, deleteAvatar, getAllUsers, refresh, logout, login, activate, registration, updateUser, saveAvatar, getUserProfile, deleteUserAccount, set2FA, verify2FA, verify2FALogin, disable2FA, setLanguage, countProcentWinrate };

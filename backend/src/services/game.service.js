@@ -443,6 +443,47 @@ async function deleteGame(gameId, userId) {
     }
 }
 
+async function getUserGames(userId) {
+    try {
+        const games = await PinPong.findAndCountAll({
+            where: {
+                status: 'finished', // Только завершенные игры
+                [Op.or]: [
+                    { player1Id: userId },
+                    { player2Id: userId }
+                ]
+            },
+            include: [
+                {
+                    model: User,
+                    as: 'Player1',
+                    attributes: ['id', 'username']
+                },
+                {
+                    model: User, 
+                    as: 'Player2',
+                    attributes: ['id', 'username']
+                }
+            ],
+            order: [['createdAt', 'DESC']],
+        });
 
+        return {
+            games: games.rows.map(game => ({
+                id: game.id,
+                player1Username: game.Player1.username,
+                player2Username: game.Player2.username,
+                player1Score: game.player1Score,
+                player2Score: game.player2Score,
+                gameDate: game.createdAt,
+                currentUserIsPlayer1: game.player1Id === userId
+            })),
+            total: games.count
+        };
+    } catch (error) {
+        console.error('Error getting user games:', error);
+        return { error: 'Failed to get user games' };
+    }
+}
 
-module.exports = {setIo, deleteGame, createDuel, finishDuel, joinMatchmaking, leaveMatchmaking, defineWinner, updateElo, updateDuelStatus, mmQueue, isUserInQueue, getDuelInfo, gameEvents };
+module.exports = {setIo, deleteGame, createDuel, finishDuel, joinMatchmaking, leaveMatchmaking, defineWinner, updateElo, updateDuelStatus, mmQueue, isUserInQueue, getDuelInfo, gameEvents, getUserGames };
