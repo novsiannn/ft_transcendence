@@ -1,7 +1,7 @@
 import i18next from "i18next";
 import { getColorFromUsername } from "../../shared/randomColors";
 import { store, API_URL } from "../../store/store";
-import { attachNotificationListeners } from "./navigation";
+import { attachNotificationListeners, } from "./navigation";
 
 export const refreshNotifications = async () => {
   const dropdownMenuNotification = document.querySelector(
@@ -33,7 +33,6 @@ const getNotificationLayout = (): string => {
     const time = new Date(n.createdAt).toLocaleString();
     const color = getColorFromUsername(n.sender.username);
     const firstLetterOfUser = n.sender.username.charAt(0).toUpperCase();
-
     let notificationContent = "";
 
     switch (n.type) {
@@ -43,16 +42,72 @@ const getNotificationLayout = (): string => {
       case "friend_request":
         notificationContent = `<p data-i18n="notification.sentYouFriendRequest">${i18next.t("notification.sentYouFriendRequest")}</p>`;
         break;
+      case "game_invite":
+        notificationContent = `<p data-i18n="notification.sentYouGameInvite">${i18next.t("notification.sentYouGameInvite")}</p>`;
+        break;
 
       default:
         notificationContent = " unknown event";
         break;
     }
+if(n.type === "game_invite"){
+      allNotifications += `
+      <div class="relative">
 
+        <div data-user-id="${n.sender.id} "notType="game_invite"
+            class="flex notificationBlock items-start gap-3 px-4 py-3 pl-5 hover:bg-gray-700 transition cursor-pointer ${
+              n.isRead ? "opacity-50" : "opacity-100"
+            }">
+
+          <div class="relative">
+            ${
+              n.sender.avatar
+                ? `<img id="profileIcon" draggable="false" src="${
+                    API_URL + n.sender.avatar
+                  }" alt="Profile" class="w-12 h-12 mr-4 rounded-full cursor-pointer object-cover">`
+                : `<div alt="Profile" class="flex mr-4 text-white font-bold text-s justify-center items-center content-center w-12 h-12 ${color} rounded-full cursor-pointer">${firstLetterOfUser}</div>`
+            }
+          </div>
+
+          <div class="flex-1 text-xs">
+            <div><span class="font-semibold">${
+              n.sender.username
+            }</span>${notificationContent}</div>
+            <div class="text-[10px] text-gray-400 mt-1">${time}</div>
+          </div>
+
+          <div class="flex items-center gap-2 relative">
+            <button
+              class="deleteNotificationBtn z-10 h-6 w-6 flex items-center justify-center text-gray-400 hover:text-red-500 hover:bg-white/10 rounded-full transition"
+              title="Delete"
+              data-notification-id="${n.id}"
+            >
+            <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="w-4 h-4"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+        </button>
+      
+          ${
+            !n.isRead
+              ? `<span class="w-2 h-2 bg-blue-500 rounded-full"></span>`
+              : ""
+          }
+        </div>
+
+        </div>
+      </div>
+    `;
+  }else{
     allNotifications += `
   <div class="relative">
 
-    <div data-user-id="${n.sender.id}" 
+    <div data-user-id="${n.sender.id}"  notType ="friendInvite" 
          class="flex notificationBlock items-start gap-3 px-4 py-3 pl-5 hover:bg-gray-700 transition cursor-pointer ${
            n.isRead ? "opacity-50" : "opacity-100"
          }">
@@ -100,7 +155,7 @@ const getNotificationLayout = (): string => {
 
     </div>
   </div>
-`;
+`;}
   });
   return allNotifications;
 };

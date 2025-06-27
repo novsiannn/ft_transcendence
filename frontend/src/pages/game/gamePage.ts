@@ -6,6 +6,7 @@ import { tournamentPlayerProfiles, rankedPlayerProfiles, rankedPlayerProfilesCon
 import { tournamentBracketPlayers } from "./tournamentBracket";
 import { gameOverModal } from "./gameModal";
 import { getModalWindowError } from "../../elements";
+import { getModalWindowSuccess } from "../../elements/ModalSuccess";
 
 export function gamePage() {
     
@@ -69,6 +70,7 @@ export function gamePage() {
             </div>
             ${gameOverModal()}
             ${getModalWindowError()}
+            ${getModalWindowSuccess()}
         </div>
     </div>
     `;

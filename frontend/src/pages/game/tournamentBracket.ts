@@ -2,18 +2,14 @@ import { tournamentData, tournamentPlayerData } from "./playersProfiles";
 
 export const getPlayerName = (index: number) => {
 
-// Получаем правильный индекс из турнирной сетки
 const playerIndex = tournamentPlayerData.tournamentNet[index];
-// console.log("Player Index : ", tournamentPlayerData.tournamentNet);
-// Получаем имя игрока из массива nicknames по этому индексу
 const playerName = tournamentPlayerData.nicknames[playerIndex];
-// console.log("Player name : ", tournamentPlayerData.nicknames);
 return playerName ;
 };
 export function tournamentBracketPlayers() {
 
   return `
-<div id="bracketFourPlayers" class="fixed inset-0 items-center justify-center z-50 hidden" style="background-color: rgba(0, 0, 0, 0.7);">
+<div id="bracketFourPlayers" class="fixed inset-0 items-center justify-center z-10 hidden">
   <div class="bg-white p-8 rounded-lg shadow-lg text-black w-max h-auto text-center relative space-y-6">
 
     <!-- Турнирная сетка -->

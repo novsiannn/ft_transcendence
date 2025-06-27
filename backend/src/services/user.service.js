@@ -284,8 +284,8 @@ async function updateUser(userId, updateData) {
 
 async function logout(refreshToken) {
   try {
-    const token = await tokenService.removeToken(refreshToken);
-    return token;
+    // const token = await tokenService.removeToken(refreshToken);
+    return refreshToken;
   } catch (error) {
     throw error;
   }

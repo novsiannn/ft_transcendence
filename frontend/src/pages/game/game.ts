@@ -25,7 +25,8 @@ import {
 } from "./ratingGame";
 import { tournamentBracketPlayers } from "./tournamentBracket";
 import { clearRankedPlayerData } from "./playersProfiles";
-
+import { getColorFromUsername } from "../../shared/randomColors";
+import gameService from "../../services/api/gameService";
 declare global {
     interface Window {
         tournamentPlayerNickname1: string;
@@ -46,6 +47,7 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
     
     // Игровые переменные для режимов
     let gameMode: 'local' | 'multiplayer' | null = null;
+    let gameType: 'ranked' | 'friends' | null = null;
     let currentGameId: string | null = null;
     let paddleMovementInterval: ReturnType<typeof setInterval> | null = null;
 
@@ -336,18 +338,35 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
         startRankedMatchBtn?.classList.remove("hidden");
     }
     
-    function initMultiplayerGame(gameId: string) {
+    function initMultiplayerRankedGame(gameId: string) {
         
         gameMode = 'multiplayer';
         currentGameId = gameId;
         currentGameState = getCurrentGameState();
         setupMultiplayerSocketHandlers();
         setupKeyboardHandlers();
-        
+        // if(gameType === "ranked")
         socket?.emit('mm:leave', gameId);
         renderGame(currentGameState);
         rankedProfilesContainer = document.querySelector("#rankedProfiles")
         rankedProfilesContainer?.classList.remove("hidden");
+    }
+
+    function initMultiplayerFriendGame(gameId: string) {
+        
+        gameMode = 'multiplayer';
+        currentGameId = gameId;
+        currentGameState = getCurrentGameState();
+        setupMultiplayerSocketHandlers();
+        setupKeyboardHandlers();
+        socket?.emit("game:join");
+        renderGame(currentGameState);
+        friendsMatchModal?.classList.add("hidden");
+        friendsMatchModal?.classList.remove("flex");
+        rankedProfilesContainer = document.querySelector("#rankedProfiles")
+        rankedProfilesContainer?.classList.remove("hidden");
+
+
     }
 
     function setupKeyboardHandlers() {
@@ -421,7 +440,7 @@ function cleanupCurrentGame() {
 
     // Очищаем данные профилей рейтинговой игры
     clearRankedPlayerData();
-
+    gameType = null;
     currentGameId = null;
     gameMode = null;
 }
@@ -522,7 +541,7 @@ function startPaddleMovementInterval() {
 }
 
 function handleKeyDown(ev: KeyboardEvent) {
-    const key = ev.key.toLowerCase();
+    const key = ev.key?.toLowerCase();
     keys.add(key);
     
     // Запускаем интервал для локальной игры, если он еще не запущен
@@ -565,6 +584,7 @@ function handleKeyUp(ev: KeyboardEvent) {
         const rankedMatchBtn = document.querySelector("#rankedMatchBtn");
 
         let rankedTimerInterval: ReturnType<typeof setInterval> | null = null;
+        // gameType = "ranked";
         
         rankedMatchBtn?.addEventListener("click", async (e) => {
             e.stopPropagation();
@@ -581,7 +601,7 @@ function handleKeyUp(ev: KeyboardEvent) {
             preGameModal,
             spinerDiv,
             rankedProfiles,
-            initMultiplayerGame,
+            initMultiplayerRankedGame,
             updatePlayerProfiles,
             setupButtonDelegation,
             resetMatchmakingButtons,
@@ -598,7 +618,7 @@ function handleKeyUp(ev: KeyboardEvent) {
                 cancelRankedMatchBtn,
                 rankedGameModal,
                 rankedTimerInterval,
-                initMultiplayerGame,
+                initMultiplayerRankedGame,
                 updateAllStoreUsers,
                 rankedListenersSetup
             );
@@ -791,6 +811,9 @@ function handleKeyUp(ev: KeyboardEvent) {
     const friendsMatchModal = document.querySelector("#friendsMatchModal");
     const gameModeDropdownBtn = document.querySelector("#gameModeDropdownBtn");
     const gameDropdownMenu = document.querySelector("#gameDropdownMenu");
+    const sendFriendMatchRequestBtn = document.querySelector("#sendInviteBtn");
+    const acceptGameBtn = document.querySelector("#acceptGameBtn");
+    const declineGameBtn = document.querySelector("#declineGameBtn");
 
     gameModeDropdownBtn?.addEventListener("click", (e) => {
         e.stopPropagation();
@@ -810,6 +833,24 @@ function handleKeyUp(ev: KeyboardEvent) {
         getFriendsList();
     });
 
+    acceptGameBtn?.addEventListener('click', () => {
+
+    });
+
+    declineGameBtn?.addEventListener('click', () => {
+        
+    });
+
+    function startFriendMatch(data: any)
+    {
+        initMultiplayerFriendGame(data.game.id);
+        updatePlayerProfiles(data);
+        setupButtonDelegation(data.game.id);
+        resetMatchmakingButtons();
+        updateAllStoreUsers();
+    }
+
+
     function getFriendsList() {
         const friends = store.getAllFriends();
         const friendsList = document.querySelector("#friendsDropDown");
@@ -820,11 +861,20 @@ function handleKeyUp(ev: KeyboardEvent) {
 
             friends.forEach((friend) => {
                 const friendBtn = document.createElement("button");
+                let friendColor = getColorFromUsername(friend.username);
+                let friendFirstLetter = friend.username.charAt(0).toUpperCase();
                 friendBtn.className = "flex items-center p-2 hover:bg-gray-100";
                 friendBtn.setAttribute("data-avatar", friend.avatar);
-                friendBtn.innerHTML = `
-                    <img src="${API_URL}${friend.avatar}" class="w-8 h-8 rounded-full mr-2" alt="avatar" /> ${friend.username}
-                `;
+                console.log("LETTER : ", friendFirstLetter);
+                if(friend.avatar){
+                    friendBtn.innerHTML = `
+                        <img src="${API_URL}${friend.avatar}" class="w-8 h-8 rounded-full mr-2" alt="avatar" /> ${friend.username}
+                    `;
+                }else{
+                    friendBtn.innerHTML = `
+                    <div id="profileImg2" class="text-1xl text-white font-bold flex justify-center items-center w-8 h-8 mr-2 ${friendColor} rounded-full cursor-pointer select-none">${friendFirstLetter}</div>${friend.username}
+                    `;
+                }
                 friendBtn.addEventListener("click", () => {
                     if (selectedFriend) {
                         (selectedFriend as HTMLImageElement).src = API_URL + friend.avatar;
@@ -836,10 +886,31 @@ function handleKeyUp(ev: KeyboardEvent) {
                     }
                     friendsList.classList.add("hidden");
                 });
+                sendFriendMatchRequestBtn?.addEventListener('click',async (e) => {
+                    e.stopPropagation();
+                    try{
+                        const response = await store.sendFriendGameRequest(friend.id);
+                        console.log("RESPONSE : ",response);
+                        if(response.status === 201){
+                            const res = response.data;
+                            sendFriendMatchRequestBtn.classList.add("opacity-50");
+                            sendFriendMatchRequestBtn.setAttribute("disabled", "true");
+                            startFriendMatch(res);
+                            
+                            setTimeout(() => {
+                                sendFriendMatchRequestBtn.classList.remove("opacity-50");
+                                sendFriendMatchRequestBtn.removeAttribute("disabled");
+                            }, 30000);
+                        }
+                    }catch{
+                        console.error("Error");
+                    }
+                });
                 friendsList.appendChild(friendBtn);
             });
         }
     }
+
 
     // Обработчики модальных окон
     document.addEventListener("click", async (e) =>{
@@ -875,6 +946,22 @@ function handleKeyUp(ev: KeyboardEvent) {
                 preGameModal?.classList.remove("hidden");
                 preGameModal?.classList.add("flex");
             }
+            if(!tournamentModal?.classList.contains("hidden"))
+                {
+                    tournamentProfiles?.classList.add("hidden");
+                    tournamentModal?.classList.add("hidden");
+                    tournamentModal?.classList.remove("flex");
+                    preGameModal?.classList.remove("hidden");
+                    preGameModal?.classList.add("flex");
+                }
+            if(!friendsMatchModal?.classList.contains("hidden"))
+                {
+                    friendsMatchModal?.classList.add("hidden");
+                    friendsMatchModal?.classList.remove("flex");
+                    preGameModal?.classList.remove("hidden");
+                    preGameModal?.classList.add("flex");
+
+                }
         }
     });
 

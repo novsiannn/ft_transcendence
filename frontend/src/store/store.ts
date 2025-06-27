@@ -18,6 +18,7 @@ import { handleModalSuccess } from "../elements/ModalSuccess";
 import { IInitialState, IQRCodeEnableResponse } from "../shared";
 import { handleModalInput } from "../elements/ModalInput";
 import friendsService from "../services/api/friendsService";
+import gameService from "../services/api/gameService";
 import i18next from "i18next";
 import chatsService from "../services/api/chatsService";
 import { initializeSocket, socket } from "../websockets";
@@ -264,6 +265,18 @@ class Store {
       await this.setUser(response.data.user);
     }
     return response;
+  };
+
+  sendFriendGameRequest = async (friendId : number) => {
+    const response = await gameService.sendFriendMatchRequest(friendId);
+
+    console.log(response)
+
+    if(response.status === 201){
+      handleModalSuccess("You have successfully sent a game request");
+    }
+
+    return response
   };
 
   sendFriendRequest = async (addresseeId: number) => {

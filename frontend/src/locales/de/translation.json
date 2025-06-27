@@ -69,6 +69,7 @@
   "notification": {
     "notifications": "Benachrichtigungen",
     "sentYouFriendRequest": " hat dir eine Freundschaftsanfrage gesendet.",
-    "hasAcceptedFriendShip": " hat die Freundschaftseinladung angenommen."
+    "hasAcceptedFriendShip": " hat die Freundschaftseinladung angenommen.",
+    "sentYouGameInvite": " PEREVEDITE PLS"
   }
 }

@@ -9,8 +9,12 @@ import { refreshNotifications } from "./createNavigation";
 export const attachNotificationListeners = () => {
   document.querySelectorAll(".notificationBlock")?.forEach((el) => {
     el.addEventListener("click", () => {
+      if(el.getAttribute("notType") === "game_invite"){
+      navigateTo(`/game`);
+    }else{
       const userId = el.getAttribute("data-user-id");
       navigateTo(`/profile/${userId}`);
+    }
     });
   });
 

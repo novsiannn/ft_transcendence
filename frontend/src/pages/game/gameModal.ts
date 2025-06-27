@@ -10,7 +10,7 @@ export let rankedWinnerData ={
 
 export function preGameModal() {
   return `
-    <div id="preGameModal" style="background-color: rgba(0, 0, 0, 0.7);" class="fixed inset-0 flex items-center justify-center z-50">
+    <div id="preGameModal" class="fixed inset-0 z-10 pt-16 flex items-center justify-center">
       <div class="bg-white p-6 rounded-lg shadow-lg text-black space-y-2 w-max h-auto text-center">
         <div class="relative inline-block text-left mb-2">
           <button id="gameModeDropdownBtn" data-dropdown-toggle="gameDropdownMenu" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800" type="button">
@@ -44,9 +44,6 @@ export function preGameModal() {
               <li>
                 <button id="fourPlayersGameBtn" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">4 Players</button>
               </li>
-              <li>
-                <button id="eightPlayersGameBtn" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">8 Players</button>
-              </li>
             </ul>
           </div>
         </div>
@@ -57,7 +54,7 @@ export function preGameModal() {
 
 export function tournamentModal() {
   return `
-      <div id="tournamentModal" style="background-color: rgba(0, 0, 0, 0.7);" class="fixed inset-0 items-center justify-center z-50 hidden">
+      <div id="tournamentModal"  class="fixed inset-0 items-center justify-center z-10 hidden">
       <div class="bg-white p-6 rounded-lg shadow-lg text-black space-y-2 w-max h-auto text-center">
         <h2 class="text-lg font-semibold">Tournament Created!</h2>
         <div class="relative w-full">
@@ -82,8 +79,8 @@ export function tournamentModal() {
           </div>
         </div>
         <input type="text" id="playerNickname" placeholder="Enter Players Nickname" class="mt-2 p-2 border border-gray-300 rounded w-full" />
+        <button id="backToMenuBtn" class="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 ">Back to Menu</button>
         <button id="submitNicknameBtn" type="submit" class=" mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">Submit</button>
-        <button id="startTournament" class="hidden mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">Start Tournament!</button>
       </div>
       
       ${getModalWindowError()}
@@ -98,8 +95,8 @@ export function friendsMatchModal(){
   const userName = store.getUser().username;
   console.log("userPhoto:", userPhoto);
   return`
-    <div id="friendsMatchModal" style="background-color: rgba(0, 0, 0, 0.7);" class="fixed inset-0 items-center justify-center z-50 hidden">
-      <div class="bg-white p-6 rounded-lg shadow-lg text-black space-y-2 w-60 h-40 text-center">
+    <div id="friendsMatchModal"  class="fixed inset-0 items-center justify-center z-10 hidden">
+      <div class="bg-white p-6 rounded-lg shadow-lg text-black space-y-2 w-auto h-auto text-center">
         <h2 class="text-lg font-semibold"> </h2>
         <div class="relative w-full">
           <button id="friendSelectBtn" class="w-full flex items-center justify-between border p-2 rounded bg-white">
@@ -115,6 +112,7 @@ export function friendsMatchModal(){
             </div>
           </div>
         </div>
+        <button id="backToMenuBtn" class="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 ">Back to Menu</button>
         <button id="sendInviteBtn" type="submit" class=" mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">Submit</button>
       </div>
       ${getModalWindowError()}
@@ -124,7 +122,7 @@ export function friendsMatchModal(){
 
 export function rankedGameModal() {
   return `
-    <div id="rankedGameModal" style="background-color: rgba(0, 0, 0, 0.7);" class="fixed inset-0 items-center justify-center z-50 hidden">
+    <div id="rankedGameModal"  class="fixed inset-0 items-center justify-center z-10 hidden">
       <div class="bg-white p-6 rounded-lg shadow-lg text-black space-y-4 w-max h-auto text-center">
         <h2 class="text-lg font-semibold">Searching for an opponent</h2>
 
@@ -189,8 +187,25 @@ export function gameOverModalCreator(result : number) {
 export function gameOverModal() {
     // Создаем только пустой контейнер, содержимое будет добавлено динамически
     return `
-        <div id="gameOverModal" style="background-color: rgba(0, 0, 0, 0.7);" class="fixed inset-0 items-center justify-center z-50 hidden">
+        <div id="gameOverModal"  class="fixed inset-0 items-center justify-center z-10 hidden">
             <!-- Содержимое будет добавлено динамически -->
         </div>
     `;
+}
+
+export function acceptFriendGameModal()
+{
+  return `
+    <div id="friendGameAcceptModal"  class="fixed inset-0 items-center justify-center z-10 hidden">
+      <div class="bg-white p-6 rounded-lg shadow-lg text-black space-y-4 w-max h-auto text-center">
+        <h2 class="text-lg font-semibold">Searching for an opponent</h2>
+
+        <button id="acceptGameBtn" class="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600">Back to Menu</button>
+        <button id="declineGameBtn" class="mt-2 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600">Delete Game</button>
+
+        
+      </div>
+      ${getModalWindowError()}
+    </div>
+  `;
 }

@@ -15,6 +15,7 @@ import {
 } from "../shared";
 import { IUser } from "../services/api/models/response/IUser";
 import { navigateTo } from "../routing";
+import { acceptFriendGameModal } from "../pages/game/gameModal";
 
 export let socket: Socket | null = null;
 
@@ -85,6 +86,13 @@ export function initializeSocket(): Socket | null {
   });
 
   socket.on("notification", async (data) => {
+    if(data.type === "game_invite"){
+      // const friendGameAcceptModal = document.querySelector("#friendGameAcceptModal");
+      // const preGameModal = document.querySelector("#preGameModal");
+      // preGameModal?.classList.add("hidden");
+      // friendGameAcceptModal?.classList.remove("hidden");
+      console.log("RECIEVED GAME INVITE");
+    }
     if (
       data.type !== "friend_removed" &&
       data.type !== "friend_rejected" &&
@@ -234,7 +242,6 @@ export function initializeSocket(): Socket | null {
 
   socket.on("mm:ready", (data: any) => {
     socket?.emit("game:leaveQueue");
-    console.log("on Match FOUND:", data);
 
     if (gameCallbacks.onMatchFound) {
       gameCallbacks.onMatchFound(data);
@@ -243,17 +250,15 @@ export function initializeSocket(): Socket | null {
 
 
   socket.on("game:update", (newGameState: IGameState) => {
-  // console.log("Received game:update", newGameState); // ✅ Для отладки
   gameState = newGameState;
   if (gameCallbacks.onGameUpdate) {
     gameCallbacks.onGameUpdate(gameState);
   } else {
-    console.warn("onGameUpdate callback not found!"); // ✅ Предупреждение
+    console.warn("onGameUpdate callback not found!");
   }
 });
 
   socket.on("game:finished", (data: any) => {
-    console.log("Game finished!", data);
     gameState = null;
     if (gameCallbacks.onGameFinished) {
       gameCallbacks.onGameFinished(data);
@@ -267,7 +272,6 @@ export function initializeSocket(): Socket | null {
   });
 
   socket.on("game:cancelled", (gameId: any) => {
-    console.error("Game cancelled :", gameId);
     if (gameCallbacks.onGameCancelled) {
       gameCallbacks.onGameCancelled(gameId);
     }
@@ -317,9 +321,6 @@ export function movePaddleLocal(gameId: string, direction: 'up' | 'down', nickna
     gameId: gameId, 
     direction: direction, 
     nickname: nickname});
-    console.log("EMITTED GAME ID : ", gameId);
-  console.log("EMITTED DIRECTION : ", direction);
-  console.log("EMITTED NICKNAME : ", nickname);
 }
 
 export function movePaddle(gameId: string, direction: 'up' | 'down'): void {
@@ -422,7 +423,6 @@ function createDefaultGameState(): IGameState {
   };
 }
 
-// Функция для очистки состояния игры
 export function clearGameState(): void {
   gameState = null;
 }

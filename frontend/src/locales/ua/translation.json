@@ -69,6 +69,7 @@
   "notification": {
     "notifications": "Сповіщення",
     "sentYouFriendRequest": " надіслав вам запит про дружбу.",
-    "hasAcceptedFriendShip": " прийняв запрошення до дружби."
+    "hasAcceptedFriendShip": " прийняв запрошення до дружби.",
+    "sentYouGameInvite": " PEREVEDITE PLS"
   }
 }
