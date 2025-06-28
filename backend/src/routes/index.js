@@ -483,6 +483,20 @@ async function routes(fastify, options) {
                 items: { type: 'integer' }
               },
               friendsCount: { type: 'integer' },
+              recentGames: {
+                type: 'array',
+                items: {
+                  type: 'object',
+                  properties: {
+                    id: { type: 'integer' },
+                    player1Username: { type: 'string' },
+                    player2Username: { type: 'string' },
+                    player1Score: { type: 'integer' },
+                    player2Score: { type: 'integer' },
+                    gameDate: { type: 'string', format: 'date-time' }
+                  }
+                }
+              }
             }
           }
         },

@@ -365,6 +365,7 @@ async function getAllUsers() {
       const winrateStats = await countProcentWinrate(user.id);
       const friendsCount = await friendshipService.countUserFriends(user.id);
       const blockedUsersList = await friendshipService.getBlockedUsers(user.id);
+      const userGames = await gameService.getUserGames(user.id);
       return {
         ...user.toJSON(),
         winrate: winrateStats.winrate,
@@ -373,6 +374,7 @@ async function getAllUsers() {
         blockedUserIds: blockedUsersList.blockedUserIds,
         blockedByUserIds: blockedUsersList.blockedByUserIds,
         friendsCount: friendsCount,
+        recentGames: userGames.games  
       };
     }));
     return usersWithStats;
