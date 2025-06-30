@@ -287,7 +287,6 @@ export function initializeSocket(): Socket | null {
 
   socket?.on("online:user:status", (data) => {
     refreshOnlineStatus(data);
-    console.log(data);
   });
 
   socket?.on("user:offline", (data) => {
@@ -302,13 +301,10 @@ export function initializeSocket(): Socket | null {
     refreshOnlineStatus(data);
 
     if (location.pathname === "/friends") socket?.emit("online:get:all:status");
-
-    console.log(data);
   });
 
   socket?.on("online:all:status", (data) => {
     refreshOnlineStatusFriendsPage(data);
-    console.log(data);
   });
 
   return socket;
