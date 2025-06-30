@@ -1,3 +1,4 @@
+import { updateContent } from "../elements/LanguageSelector";
 import { store } from "../store/store";
 import { socket } from "../websockets";
 
@@ -7,16 +8,16 @@ interface IRefreshOnlineStatusProps {
 }
 
 export const refreshOnlineStatus = ({
-  isOnline,
-  userId,
+  isOnline
 }: IRefreshOnlineStatusProps) => {
   const userOnlineStatus = document.querySelector("#userOnlineStatusProfile");
 
   if (userOnlineStatus) {
     userOnlineStatus.innerHTML = isOnline
-      ? `<p class="text-green-500 ">Online</p>
+      ? `<p data-i18n='online' class="text-green-500"></p>
               <div class=" animate-pulse w-2 h-2 rounded-full bg-green-500"></div>`
-      : `<p class="text-gray-500 ">Offline</p>`;
+      : `<p data-i18n='offline' class="text-gray-500 "></p>`;
+      updateContent();
   }
 };
 
