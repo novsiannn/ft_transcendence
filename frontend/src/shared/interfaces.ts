@@ -22,7 +22,7 @@ export interface IRouteParams {
 
 export interface IResponse {
   status: number;
-  statusText?: string;
+  message?: string;
 }
 
 export interface IResponseData {

@@ -1,3 +1,12 @@
+export interface IRecentGame {
+  id: number;
+  player1Username: string;
+  player2Username: string;
+  player1Score: number;
+  player2Score: number;
+  gameDate: string;
+}
+
 export interface IUser {
   avatar: string;
   email: string;
@@ -17,6 +26,7 @@ export interface IUser {
   friendsCount: number;
   blockedUserIds: number[];
   blockedByUserIds: number[];
+  recentGames: IRecentGame[];
 }
 
 export interface IUserProfile {

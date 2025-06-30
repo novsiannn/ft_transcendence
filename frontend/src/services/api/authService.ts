@@ -1,7 +1,7 @@
 import instanceAPI from "./instanceAxios";
 import { IAuthResponse } from "./models/response/AuthResponse";
 import { getSocket, disconnectSocket } from "../../websockets/client";
-
+import { IResponse } from "../../shared";
 
 const authService = {
   login: async (email: string | null, password: string | null) => {
@@ -20,10 +20,9 @@ const authService = {
     });
   },
   logout: async () => {
-
     const socket = getSocket();
     if (socket && socket.connected) {
-      socket.emit('user:logout');
+      socket.emit("user:logout");
     }
     disconnectSocket();
 
@@ -46,6 +45,11 @@ const authService = {
     return await instanceAPI.post<IAuthResponse>("2fa/login", {
       token,
       userId,
+    });
+  },
+  deleteUser: async (password: string) => {
+    return await instanceAPI.delete<IResponse>("user/profile", {
+      data: { password },
     });
   },
 };

@@ -24,6 +24,7 @@ import chatsService from "../services/api/chatsService";
 import { initializeSocket, socket } from "../websockets";
 import notificationService from "../services/api/notificationServices";
 import { refreshNotifications } from "../elements/navigation";
+import userServices from "../services/api/userService";
 
 export const API_URL: string = `https://${window.location.hostname}:3000`;
 
@@ -267,16 +268,16 @@ class Store {
     return response;
   };
 
-  sendFriendGameRequest = async (friendId : number) => {
+  sendFriendGameRequest = async (friendId: number) => {
     const response = await gameService.sendFriendMatchRequest(friendId);
 
-    console.log(response)
+    console.log(response);
 
-    if(response.status === 201){
+    if (response.status === 201) {
       handleModalSuccess("You have successfully sent a game request");
     }
 
-    return response
+    return response;
   };
 
   sendFriendRequest = async (addresseeId: number) => {
@@ -408,6 +409,16 @@ class Store {
   blockUser = async (userId: number) => {
     const response = await friendsService.blockUser(userId);
     console.log(response);
+  };
+
+  deleteAccount = async (password: string) => {
+    try {
+      const response = await authService.deleteUser(password);
+      console.log(response);
+      return response.data;
+    } catch (e) {
+      console.log(e);
+    }
   };
 
   unblockUser = async (userId: number) => {

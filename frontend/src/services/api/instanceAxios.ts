@@ -6,7 +6,7 @@ import { IUser } from "./models/response/IUser";
 
 const API_URL: string = `https://${window.location.hostname}:3000/`;
 
-const instanceAPI = axios.create({
+const instanceAPI: ReturnType<typeof axios.create> = axios.create({
   baseURL: API_URL,
   withCredentials: true,
 });
@@ -104,7 +104,6 @@ instanceAPI.interceptors.response.use(
       }
     }
 
-    // Если ошибка не обработана, возвращаем её
     return Promise.reject(error);
   }
 );
