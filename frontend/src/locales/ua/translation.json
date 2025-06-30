@@ -3,6 +3,8 @@
   "english": "Англійська",
   "german": "Німецька",
   "ukrainian": "Українська",
+  "online": "Онлайн",
+  "offline": "Офлайн",
   "home": {
     "description": "Transcendence — це проект 42 школи для вивчення веб-розробки та SPA. Мета — створити веб-додаток для гри в понг та спілкування з іншими користувачами.",
     "developers": "Розроблено novsiann, kilchenk та ikhristi"
@@ -14,7 +16,9 @@
     "gameStatistics": "Статистика гри",
     "wins": "Перемоги",
     "losses": "Поразки",
-    "winRate": "Вінрейт"
+    "winRate": "Коефіцієнт перемог",
+    "matchHistory": "Історія матчів",
+    "noMatchesYet": "Поки що немає матчів"
   },
   "navigation": {
     "home": "Додому",
@@ -44,7 +48,12 @@
     "block": "Блок",
     "unBlock": "Розблокувати",
     "userBlocked": "Користувач заблокував вас",
-    "inviteInGame": "Запросити друга в гру"
+    "inviteInGame": "Запросити друга в гру",
+    "win": "Перемога",
+    "lost": "Програш",
+    "deleteAccount": "Видалити аккаунт",
+    "changePhoto": "Змінити фото",
+    "deletePhoto": "Видалити фото"
   },
   "settings": {
     "2fa": "Аутентифікація 2FA",

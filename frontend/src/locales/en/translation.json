@@ -3,6 +3,8 @@
   "english": "English",
   "german": "German",
   "ukrainian": "Ukrainian",
+  "online": "Online",
+  "offline": "Offline",
   "home": {
     "description": "Transcendence is a 42 school project, to learn about web developpement and SPA. The goal is to create a web app to play Pong, and socialize with other users.",
     "developers": "Developed by novsiann, kilchenk and ikhristi"
@@ -14,7 +16,9 @@
     "gameStatistics": "Game Statistics",
     "wins": "Wins",
     "losses": "Losses",
-    "winRate": "Win Rate"
+    "winRate": "Win Rate",
+    "matchHistory": "Match History",
+    "noMatchesYet": "No Matches Yet"
   },
   "navigation": {
     "home": "Home",
@@ -44,7 +48,12 @@
     "block": "Block",
     "unBlock": "Unblock",
     "userBlocked": "User has blocked you",
-    "inviteInGame": "Invite Friend in Game"
+    "inviteInGame": "Invite Friend in Game",
+    "win": "Win",
+    "lost": "Lost",
+    "deleteAccount": "Delete Account",
+    "changePhoto": "Change Photo",
+    "deletePhoto": "Delete Photo"
   },
   "settings": {
     "2fa": "2FA-Authentication",
