@@ -7,7 +7,7 @@ export const handleModalInput = (
   endpoint: string,
   modalName: string,
   userID?: string,
-  switchButtonActivity?: (isEnable: boolean) => void,
+  switchButtonActivity?: (isEnable: boolean) => void
 ) => {
   const modalWindow = document.querySelector("#modalWindowInput");
   const modalContent = modalWindow?.querySelector("div");
@@ -22,7 +22,9 @@ export const handleModalInput = (
     modalContent?.classList.add("translate-y-0", "opacity-100");
   }, 50);
 
-  modalInput?.addEventListener("click", () => hideWarning("#warningMessageModalInput"));
+  modalInput?.addEventListener("click", () =>
+    hideWarning("#warningMessageModalInput")
+  );
   modalHeader!.textContent = modalName;
 
   modalWindow?.addEventListener("click", (e) => {
@@ -46,18 +48,17 @@ export const handleModalInput = (
       );
       if (response?.status === 200) {
         handleModalSuccess("2FA is successfull deleted");
-        modalBtn.innerHTML = 'Send';
+        modalBtn.innerHTML = "Send";
         hideWarning("#warningMessageModalInput");
         modalContent?.classList.remove("translate-y-0", "opacity-100");
         modalContent?.classList.add("-translate-y-full", "opacity-0");
-        if(switchButtonActivity)
-          switchButtonActivity(false);
+        if (switchButtonActivity) switchButtonActivity(false);
         setTimeout(() => {
           modalWindow?.classList.add("hidden");
         }, 400);
-      } else { 
-          modalBtn.innerHTML = 'Send';
-          activateWarning("#warningMessageModalInput", 'Incorrect code');
+      } else {
+        modalBtn.innerHTML = "Send";
+        activateWarning("#warningMessageModalInput", "Incorrect code");
       }
       return response;
     } else if (endpoint === "2fa/login") {
@@ -66,12 +67,22 @@ export const handleModalInput = (
         userID ? userID : ""
       );
       console.log(response);
-      
-      if(response.status === 400 || response.status === 401){
+
+      if (response.status === 400 || response.status === 401) {
         activateWarning("#warningMessageModalInput", response.message);
-        modalBtn.innerHTML = 'Send';
+        modalBtn.innerHTML = "Send";
       }
-      
+
+      return response;
+    } else if (endpoint === "user/profile") {
+      let response = await store.deleteAccount(modalInput!.value);
+      console.log(response);
+
+      // if (response.status === 400 || response.status === 401) {
+      //   activateWarning("#warningMessageModalInput", response.message);
+      //   modalBtn.innerHTML = "Send";
+      // }
+
       return response;
     }
     return;
