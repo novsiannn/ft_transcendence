@@ -13,7 +13,6 @@
   "description": "",
   "devDependencies": {
     "@tailwindcss/postcss": "^4.1.4",
-    "@types/axios": "^0.9.36",
     "@types/i18next": "^12.1.0",
     "autoprefixer": "^10.4.21",
     "css-loader": "^7.1.2",
@@ -30,7 +29,7 @@
   },
   "dependencies": {
     "@tailwindcss/cli": "^4.1.4",
-    "axios": "^1.8.4",
+    "axios": "^1.10.0",
     "i18next": "^25.0.1",
     "postcss-cli": "^11.0.1",
     "socket.io-client": "^4.8.1"

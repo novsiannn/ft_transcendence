@@ -82,6 +82,9 @@ export function handleSettings() {
   const enableTwoFactorBtn = document.querySelector<HTMLButtonElement>(
     "#enableTwoFactorBtn"
   );
+  const deleteAccount = document.querySelector<HTMLButtonElement>(
+    "#deleteAccountBtn"
+  );
   const disableTwoFactorBtn = document.querySelector<HTMLButtonElement>(
     "#disableTwoFactorBtn"
   );
@@ -101,6 +104,10 @@ export function handleSettings() {
       enableTwoFactorBtn?.classList.remove("opacity-25");
     }
   };
+
+  deleteAccount?.addEventListener('click', () => {
+    handleModalInput('user/profile', 'Delete Account');
+  });
 
   if (isTwoFactorEnabled) {
     switchButtonActivity(isTwoFactorEnabled);
