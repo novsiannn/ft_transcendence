@@ -2,7 +2,7 @@ import { getModalWindowSuccess } from "../../elements/ModalSuccess";
 import { navigation } from "../../elements/navigation";
 
 export function profilePage(mainWrapper: HTMLDivElement | undefined) {
-  document.body.classList.add("bg-gray-500", "overflow-hidden");
+  document.body.classList.add("bg-gray-500");
 
   return `
     ${navigation()}
@@ -55,7 +55,7 @@ export function profilePage(mainWrapper: HTMLDivElement | undefined) {
       </div>
 
       <div class="bg-white mx-auto shadow-md rounded-3xl p-6 w-1/2">
-        <h3 class="text-center text-xl text-gray-800 mb-4 font-bold">Game Statistics</h3>
+        <h3 class="text-center text-xl text-gray-800 mb-4 font-bold" data-i18n='profile.gameStatistics'></h3>
         <div class="w-full mx-auto flex gap-4 justify-between text-center text-gray-700 font-semibold">
           <div class="bg-gray-100 w-full rounded-xl py-3">
             <p class="text-green-500 text-2xl" id="profileMatchesWin"></p>
@@ -70,6 +70,12 @@ export function profilePage(mainWrapper: HTMLDivElement | undefined) {
         <div class="mt-4 text-center w-full bg-gray-100 py-3 rounded-xl">
           <p class="text-black font-bold text-md" id="profileWinrate"></p>
           <p class="text-sm text-gray-500" data-i18n='profile.winRate'></p>
+        </div>
+      </div>
+
+      <div class="bg-white mx-auto shadow-md rounded-3xl p-6 w-1/2 mt-6 mb-16">
+        <h3 class="text-center text-xl text-gray-800 mb-4 font-bold" data-i18n='profile.matchHistory'> Match History</h3>
+        <div id="matchResultContainer">
         </div>
       </div>
     </div>
