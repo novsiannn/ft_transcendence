@@ -15,7 +15,14 @@
     "friendShipRequest": "Ви успішно надіслали запит на дружбу",
     "friendShipCancel": "Ви успішно скасували запит на дружбу",
     "codeFor2FA": "Код для 2FA",
-    "disable2FA": "Вимкнути 2FA"
+    "disable2FA": "Вимкнути 2FA",
+    "nicknameInUse": "На жаль, цей нікнейм вже використовується",
+    "failedDeleteAvatar": "Не вдалося видалити аватар. Спробуйте ще раз.",
+    "failedUploadAvatar": "Не вдалося завантажити аватар. Спробуйте ще раз.",
+    "pleaseUploadImgFile": "Будь ласка, завантажте файл зображення (JPEG, PNG тощо)",
+    "failedToLoadAvatar": "Не вдалося завантажити аватар",
+    "pleaseEnterNickname": "Будь ласка, введіть нікнейм",
+    "nicknameTooLong": "Нікнейм занадто довгий"
   },
   "home": {
     "description": "Transcendence — це проект 42 школи для вивчення веб-розробки та SPA. Мета — створити веб-додаток для гри в понг та спілкування з іншими користувачами.",
@@ -66,14 +73,17 @@
     "deleteAccount": "Видалити аккаунт",
     "changePhoto": "Змінити фото",
     "deletePhoto": "Видалити фото",
-    "sent": "Відправити"
+    "send": "Відправити"
   },
   "settings": {
     "2fa": "Аутентифікація 2FA",
     "firstName": "Ім'я",
     "lastName": "Фамілія",
     "userName": "Нікнейм",
-    "email": "Електронна пошта"
+    "email": "Електронна пошта",
+    "yourQRCode": "Ваш QR-код",
+    "incorrectCode": "Неправильний код",
+    "incorrectPassword": "Неправильний пароль"
   },
   "chat": {
     "searchChats": "Шукати в чатах...",

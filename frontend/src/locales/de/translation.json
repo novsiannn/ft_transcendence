@@ -15,7 +15,14 @@
     "friendShipRequest": "Sie haben erfolgreich eine Freundschaftsanfrage gesendet",
     "friendShipCancel": "Sie haben eine Freundschaftsanfrage erfolgreich abgebrochen.",
     "codeFor2FA": "Code für 2FA",
-    "disable2FA": "2FA deaktivieren"
+    "disable2FA": "2FA deaktivieren",
+    "nicknameInUse": "Dieser Spitzname wird leider bereits verwendet.",
+    "failedDeleteAvatar": "Avatar konnte nicht gelöscht werden. Bitte versuchen Sie es erneut.",
+    "failedUploadAvatar": "Avatar konnte nicht hochgeladen werden. Bitte versuchen Sie es erneut.",
+    "pleaseUploadImgFile": "Bitte laden Sie eine Bilddatei (JPEG, PNG usw.) hoch.",
+    "failedToLoadAvatar": "Avatar konnte nicht geladen werden.",
+    "pleaseEnterNickname": "Bitte geben Sie einen Spitznamen ein.",
+    "nicknameTooLong": "Der Spitzname ist zu lang."
   },
   "home": {
     "description": "Transcendence ist ein 42 Schulprojekt, um etwas über Webentwicklung und SPA zu lernen. Das Ziel ist es, eine Web-App zu erstellen, um Pong zu spielen und sich mit anderen Nutzern auszutauschen.",
@@ -66,14 +73,17 @@
     "deleteAccount": "Konto löschen",
     "changePhoto": "Foto ändern",
     "deletePhoto": "Foto löschen",
-    "sent": "Senden"
+    "send": "Senden"
   },
   "settings": {
     "2fa": "2FA-Authentifizierung",
     "firstName": "Vorname",
     "lastName": "Familienname",
     "userName": "Benutzername",
-    "email": "Email"
+    "email": "Email",
+    "yourQRCode": "Ihr QR-Code",
+    "incorrectCode": "Falscher Code",
+    "incorrectPassword": "Falsches Passwort"
   },
   "chat": {
     "searchChats": "Chats suchen...",
