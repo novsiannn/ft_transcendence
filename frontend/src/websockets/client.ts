@@ -105,6 +105,7 @@ export function initializeSocket(): Socket | null {
         }
         await store.getAllFriendsRequest();
       }
+      store.getAllUsersRequest();
       document
         .querySelector("#notificationIndicator")
         ?.classList.remove("invisible");
