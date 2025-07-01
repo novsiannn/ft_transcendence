@@ -15,7 +15,7 @@ export function settingsPage(mainWrapper: HTMLDivElement | undefined) {
   mainWrapper!.className = "h-screen w-full flex flex-col items-center";
   let res = `
 				${navigation()}
-				<div class="w-full h-full flex flex-col items-center justify-center font-mono">
+				<div class="w-full h-full flex flex-col items-center justify-center">
   					<div class="px-6  text-black bg-white rounded-lg text-xl w-1/2 h-2/3 text-center font-sans">
     					<div class="flex relative justify-between p-10">
       						<div class="flex flex-col items-center gap-4">
