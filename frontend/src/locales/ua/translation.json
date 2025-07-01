@@ -5,6 +5,18 @@
   "ukrainian": "Українська",
   "online": "Онлайн",
   "offline": "Офлайн",
+  "modalWindowsMessages": {
+    "yourAccountDeleted": "Ваш обліковий запис успішно видалено",
+    "yourAccountCreated": "Ви успішно створили обліковий запис",
+    "twoFactorDeletedSuccess": "Двофакторну аутентифікацію успішно видалено",
+    "twoFactorAddedSuccess": "Двофакторну аутентифікацію успішно додано",
+    "updateDataSuccess": "Ви успішно оновили свої дані!",
+    "loggedInSuccess": "Ви успішно увійшли в систему.",
+    "friendShipRequest": "Ви успішно надіслали запит на дружбу",
+    "friendShipCancel": "Ви успішно скасували запит на дружбу",
+    "codeFor2FA": "Код для 2FA",
+    "disable2FA": "Вимкнути 2FA"
+  },
   "home": {
     "description": "Transcendence — це проект 42 школи для вивчення веб-розробки та SPA. Мета — створити веб-додаток для гри в понг та спілкування з іншими користувачами.",
     "developers": "Розроблено novsiann, kilchenk та ikhristi"
@@ -53,7 +65,8 @@
     "lost": "Програш",
     "deleteAccount": "Видалити аккаунт",
     "changePhoto": "Змінити фото",
-    "deletePhoto": "Видалити фото"
+    "deletePhoto": "Видалити фото",
+    "sent": "Відправити"
   },
   "settings": {
     "2fa": "Аутентифікація 2FA",

@@ -5,6 +5,18 @@
   "ukrainian": "Ukrainisch",
   "online": "Online",
   "offline": "Offline",
+  "modalWindowsMessages": {
+    "yourAccountDeleted": "Ihr Konto wurde erfolgreich gelöscht",
+    "yourAccountCreated": "Sie haben erfolgreich ein Konto erstellt",
+    "twoFactorDeletedSuccess": "2FA wurde erfolgreich gelöscht",
+    "twoFactorAddedSuccess": "2FA wurde erfolgreich hinzugefügt",
+    "updateDataSuccess": "Sie haben Ihre Daten erfolgreich aktualisiert!",
+    "loggedInSuccess": "Sie haben sich erfolgreich angemeldet.",
+    "friendShipRequest": "Sie haben erfolgreich eine Freundschaftsanfrage gesendet",
+    "friendShipCancel": "Sie haben eine Freundschaftsanfrage erfolgreich abgebrochen.",
+    "codeFor2FA": "Code für 2FA",
+    "disable2FA": "2FA deaktivieren"
+  },
   "home": {
     "description": "Transcendence ist ein 42 Schulprojekt, um etwas über Webentwicklung und SPA zu lernen. Das Ziel ist es, eine Web-App zu erstellen, um Pong zu spielen und sich mit anderen Nutzern auszutauschen.",
     "developers": "Entwickelt von novsiann, kilchenk und ikhristi"
@@ -53,7 +65,8 @@
     "lost": "Niederlage",
     "deleteAccount": "Konto löschen",
     "changePhoto": "Foto ändern",
-    "deletePhoto": "Foto löschen"
+    "deletePhoto": "Foto löschen",
+    "sent": "Senden"
   },
   "settings": {
     "2fa": "2FA-Authentifizierung",

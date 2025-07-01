@@ -42,7 +42,7 @@ export const handleModalTwoFactor = async (switchButtonActivity?: (isEnable: boo
       setTimeout(() => {
         modalWindow?.classList.add("hidden");
       }, 400);
-      handleModalSuccess('2FA added successfull');
+      handleModalSuccess('modalWindowsMessages.twoFactorAddedSuccess');
       if(switchButtonActivity)
         switchButtonActivity(true);
     } else if (response.status === 400){

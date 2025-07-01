@@ -16,7 +16,7 @@ export const handleRequests = (status: number) => {
 			break;
 		case 200:
 			navigateTo("/");
-			handleModalSuccess("You have successfully logged in.");
+			handleModalSuccess('modalWindowsMessages.loggedInSuccess');
 			break;
 		default:
 			navigateTo("/");

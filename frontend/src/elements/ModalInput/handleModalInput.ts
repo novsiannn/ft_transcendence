@@ -1,5 +1,6 @@
 import { activateWarning, hideWarning } from "../../pages/login/loginPage";
 import { store } from "../../store/store";
+import { updateContent } from "../LanguageSelector";
 import { getLoader } from "../Loader";
 import { handleModalSuccess } from "../ModalSuccess";
 
@@ -25,7 +26,8 @@ export const handleModalInput = (
   modalInput?.addEventListener("click", () =>
     hideWarning("#warningMessageModalInput")
   );
-  modalHeader!.textContent = modalName;
+
+  modalHeader!.setAttribute("data-i18n", modalName);
 
   modalWindow?.addEventListener("click", (e) => {
     if (e.target === modalWindow) {
@@ -39,16 +41,16 @@ export const handleModalInput = (
     }
   });
 
+  updateContent();
+
   modalBtn?.addEventListener("click", async () => {
     hideWarning("#warningMessageModalInput");
-    modalBtn.innerHTML = getLoader();
     if (endpoint === "2fa/disable") {
       let response = await store.disableTwoFactor(
         modalInput?.value ? modalInput.value : ""
       );
       if (response?.status === 200) {
-        handleModalSuccess("2FA is successfull deleted");
-        modalBtn.innerHTML = "Send";
+        handleModalSuccess("modalWindowsMessages.twoFactorDeletedSuccess");
         hideWarning("#warningMessageModalInput");
         modalContent?.classList.remove("translate-y-0", "opacity-100");
         modalContent?.classList.add("-translate-y-full", "opacity-0");
@@ -57,7 +59,6 @@ export const handleModalInput = (
           modalWindow?.classList.add("hidden");
         }, 400);
       } else {
-        modalBtn.innerHTML = "Send";
         activateWarning("#warningMessageModalInput", "Incorrect code");
       }
       return response;
@@ -78,10 +79,14 @@ export const handleModalInput = (
       let response = await store.deleteAccount(modalInput!.value);
       console.log(response);
 
-      // if (response.status === 400 || response.status === 401) {
-      //   activateWarning("#warningMessageModalInput", response.message);
-      //   modalBtn.innerHTML = "Send";
-      // }
+      if (response.status === 204) {
+        store.logout();
+      }
+
+      if (response.status === 400 || response.status === 401) {
+        console.log("here");
+        activateWarning("#warningMessageModalInput", "Password Incorrect");
+      }
 
       return response;
     }

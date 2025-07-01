@@ -49,7 +49,7 @@ export function handleSettings() {
       });
       const res = await store.updateUserData(updateData);
       if ((res.status = 200)) {
-        handleModalSuccess("You have successfully updated your data!");
+        handleModalSuccess('modalWindowsMessages.updateDataSuccess');
       }
       btnSave!.innerHTML = "Save";
       btnSave!.disabled = false;
@@ -106,7 +106,7 @@ export function handleSettings() {
   };
 
   deleteAccount?.addEventListener('click', () => {
-    handleModalInput('user/profile', 'Delete Account');
+    handleModalInput('user/profile', 'buttons.deleteAccount');
   });
 
   if (isTwoFactorEnabled) {
@@ -121,7 +121,7 @@ export function handleSettings() {
   disableTwoFactorBtn?.addEventListener("click", async () => {
     await handleModalInput(
       "2fa/disable",
-      "Disable 2FA",
+      'modalWindowsMessages.disable2FA',
       "0",
       switchButtonActivity
     );
