@@ -143,9 +143,9 @@ class Store {
         initializeSocket();
         i18next.changeLanguage(this.getUserLanguage());
         navigateTo("/");
-        handleModalSuccess("You have successfully logged in!");
+        handleModalSuccess('modalWindowsMessages.loggedInSuccess');
       } else if (response.status === 401 && response.data.requiresTwoFactor) {
-        handleModalInput("2fa/login", "Code for 2FA", response.data.userId);
+        handleModalInput("2fa/login", 'modalWindowsMessages.codeFor2FA', response.data.userId);
       }
       return response;
     } catch (e: any) {
@@ -166,7 +166,7 @@ class Store {
       );
       if (response.status === 201) {
         navigateTo("/activate");
-        handleModalSuccess("You have successfully created an account");
+        handleModalSuccess('modalWindowsMessages.yourAccountCreated');
       }
     } catch (e: any) {
       throw new Error(e.response?.data);
@@ -179,6 +179,9 @@ class Store {
       localStorage.removeItem("token");
       this.setAuth(false);
       this.setUser({} as IUser);
+      console.log('here');
+
+      navigateTo('/');
       return response;
     } catch (e: any) {
       console.log(e.response?.data);
@@ -225,7 +228,7 @@ class Store {
         this.setUser(response.data.user);
         await this.checkAuth();
         navigateTo("/");
-        handleModalSuccess("You have successfully logged in!");
+        handleModalSuccess('modalWindowsMessages.loggedInSuccess');
       }
       return response;
     } catch (e: any) {
@@ -286,7 +289,7 @@ class Store {
     console.log(response);
 
     if (response.status === 201) {
-      handleModalSuccess("You have successfully sent a friend request");
+      handleModalSuccess('modalWindowsMessages.friendShipRequest');
       socket?.emit("notification:friendRequest", {
         addresseeId,
       });
@@ -321,7 +324,7 @@ class Store {
       );
 
       if (response.status === 204) {
-        handleModalSuccess("You have successfully cancelled a friend request");
+        handleModalSuccess('modalWindowsMessages.friendShipCancel');
       }
       return response.status;
     } catch (e) {
@@ -408,22 +411,24 @@ class Store {
 
   blockUser = async (userId: number) => {
     const response = await friendsService.blockUser(userId);
-    console.log(response);
   };
 
   deleteAccount = async (password: string) => {
     try {
       const response = await authService.deleteUser(password);
       console.log(response);
+      if(response.status === 204){
+        await this.logout();
+        handleModalSuccess('modalWindowsMessages.yourAccountDeleted');
+      }
       return response.data;
-    } catch (e) {
-      console.log(e);
+    } catch (e : any) {
+      return e.response;
     }
   };
 
   unblockUser = async (userId: number) => {
     const response = await friendsService.unblockUser(userId);
-    console.log(response);
   };
 
   checkAuth = async () => {
