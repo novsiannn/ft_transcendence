@@ -628,9 +628,6 @@ async function routes(fastify, options) {
       body: {
         type: 'object',
         required: ['password'],
-        properties: {
-          password: { type: 'string', minLength: 6 }
-        }
       },
       response: {
         204: {
