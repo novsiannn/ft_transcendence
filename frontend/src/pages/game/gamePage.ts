@@ -1,7 +1,7 @@
 import { navigation } from "../../elements/navigation";
 import { store, API_URL } from "../../store/store";
 import { getColorFromUsername } from "../../shared/randomColors";
-import { friendsMatchModal, preGameModal, rankedGameModal, tournamentModal } from "./gameModal";
+import { friendsMatchModal, preGameModal, rankedGameModal, tournamentModal, acceptFriendGameModal } from "./gameModal";
 import { tournamentPlayerProfiles, rankedPlayerProfiles, rankedPlayerProfilesContainer } from "./playersProfiles";
 import { tournamentBracketPlayers } from "./tournamentBracket";
 import { gameOverModal } from "./gameModal";
@@ -32,6 +32,7 @@ export function gamePage() {
             ${preGameModal()}
             ${tournamentModal()}
             ${friendsMatchModal()}
+            ${acceptFriendGameModal()}
             ${rankedGameModal()}
             ${tournamentBracketPlayers()}    
             

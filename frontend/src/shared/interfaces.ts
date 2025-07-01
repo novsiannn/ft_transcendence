@@ -61,7 +61,8 @@ export interface INotificationData {
   senderId: number;
   isRead: boolean;
   createdAt:string;
-  sender: ISender
+  sender: ISender;
+  data: any
 }
 
 export interface INotificationResponse extends IResponse {

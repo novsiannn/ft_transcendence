@@ -1,7 +1,7 @@
 import i18next from "i18next";
 import { getColorFromUsername } from "../../shared/randomColors";
 import { store, API_URL } from "../../store/store";
-import { attachNotificationListeners, } from "./navigation";
+import { attachNotificationListeners, } from "./navigation"; 
 
 export const refreshNotifications = async () => {
   const dropdownMenuNotification = document.querySelector(
@@ -15,6 +15,8 @@ export const refreshNotifications = async () => {
     attachNotificationListeners();
   }
 };
+
+
 
 const getNotificationLayout = (): string => {
   const notificationsData = store.getNotification();
@@ -51,10 +53,11 @@ const getNotificationLayout = (): string => {
         break;
     }
 if(n.type === "game_invite"){
+      // console.log("N DATA",n.data);
       allNotifications += `
       <div class="relative">
 
-        <div data-user-id="${n.sender.id} "notType="game_invite"
+        <div data-user-id="${n.sender.id}"  data-game-id="${n.data.game.id}" data-game-playerOne="${n.data.game.player1Id}" data-game-playerTwo="${n.data.game.player2Id}"  notType="game_invite"
             class="flex notificationBlock items-start gap-3 px-4 py-3 pl-5 hover:bg-gray-700 transition cursor-pointer ${
               n.isRead ? "opacity-50" : "opacity-100"
             }">

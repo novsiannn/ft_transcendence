@@ -1,4 +1,4 @@
-import { handleModalError } from "../../elements";
+import { getModalWindowError, handleModalError } from "../../elements";
 import {  rankedPlayerProfiles, rankedPlayerProfilesContainer, tournamentData, tournamentPlayerData, tournamentPlayerProfiles, updateRankedProfilesPositions } from "./playersProfiles";
 import { API_URL, store} from "../../store/store";
 import {
@@ -13,8 +13,9 @@ import {
     timerCountdown,
     movePaddleLocal,
     onLocalGameCreated,
+    onMatchFriendsFound,
 } from "../../websockets/client";
-import { rankedWinnerData, gameOverModalCreator } from "./gameModal";
+import { rankedWinnerData, gameOverModalCreator, acceptFriendGameModal } from "./gameModal";
 import { 
     setupRankedListeners, 
     updatePlayerProfiles, 
@@ -35,7 +36,43 @@ declare global {
 }
 
 export function handleGame(mainWrapper: HTMLDivElement | undefined) {
-    setupMultiplayerSocketHandlers();
+    // Проверяем, есть ли сохраненное действие для игрового приглашения
+    const gameInviteAction = localStorage.getItem('gameInviteAction');
+    if (gameInviteAction) {
+        try {
+            const action = JSON.parse(gameInviteAction);
+            if (action.action === 'show_accept_modal') {
+                // Очищаем сохраненное действие
+                
+                // Показываем модальное окно принятия приглашения через небольшую задержку
+                setTimeout(() => {
+                    console.log('Показываем friendGameAcceptModal');
+                    const preGameModal = document.querySelector("#preGameModal");
+                    const friendGameAcceptModal = document.querySelector("#friendGameAcceptModal");
+                    
+                    preGameModal?.classList.add("hidden");
+                    preGameModal?.classList.remove("flex");
+                    friendGameAcceptModal?.classList.remove("hidden");
+                    friendGameAcceptModal?.classList.add("flex");
+                    acceptGameBtn?.addEventListener('click', () => {
+                        console.log("ACCEPT CLICK");
+                        friendGameAcceptModal?.classList.add("hidden");
+                        friendGameAcceptModal?.classList.remove("flex");
+                        startFriendMatch(action.gameData);
+                    });
+                    
+                    declineGameBtn?.addEventListener('click', () => {
+                        
+                    });
+                }, 100);
+                localStorage.removeItem('gameInviteAction');
+            }
+        } catch (e) {
+            console.error('Error parsing game invite action:', e);
+            localStorage.removeItem('gameInviteAction');
+        }
+    }
+
     const tournamentProfiles = document.querySelector("#tournamentProfiles");
     tournamentProfiles?.classList.add("hidden")
     const scoreInfo = document.querySelector("#score-info");
@@ -50,6 +87,8 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
     let gameType: 'ranked' | 'friends' | null = null;
     let currentGameId: string | null = null;
     let paddleMovementInterval: ReturnType<typeof setInterval> | null = null;
+
+    setupMultiplayerSocketHandlers();
 
     let tournamentPlayerNickname2 = "";
     let tournamentPlayerNickname1 = "";
@@ -359,7 +398,7 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
         currentGameState = getCurrentGameState();
         setupMultiplayerSocketHandlers();
         setupKeyboardHandlers();
-        socket?.emit("game:join");
+        socket?.emit('game:join', gameId);
         renderGame(currentGameState);
         friendsMatchModal?.classList.add("hidden");
         friendsMatchModal?.classList.remove("flex");
@@ -390,6 +429,20 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
                 scoreInfo?.classList.remove("hidden");
             }, 5000);
         });
+        // if(gameType === "friends"){
+            onMatchFriendsFound((data) =>{
+                console.log("I AM HERE");
+
+                acceptGameBtn?.addEventListener('click', () => {
+                    console.log("ACCEPT CLICK");
+                    startFriendMatch(data);
+                });
+
+                declineGameBtn?.addEventListener('click', () => {
+                
+                });
+            });
+        // }
 
         onGameUpdate((gameState) => {
             renderGame(gameState);
@@ -570,7 +623,7 @@ function handleKeyUp(ev: KeyboardEvent) {
             }
         }
         catch(error){
-            // Handle error
+            handleModalError("Failed to update users!");
         }
     }
 
@@ -610,7 +663,8 @@ function handleKeyUp(ev: KeyboardEvent) {
 
         startRankedMatchBtn?.addEventListener("click", async (e) => {
             e.stopPropagation();
-            btmBtn?.setAttribute("disabled", "true");
+                const rankedBackToMenuBtn = rankedGameModal?.querySelector("#backToMenuBtn") as HTMLButtonElement;
+                rankedBackToMenuBtn?.setAttribute("disabled", "true");
             
             await startRankedGameLogic(
                 spinerDiv,
@@ -631,7 +685,7 @@ function handleKeyUp(ev: KeyboardEvent) {
                 spinerDiv,
                 cancelRankedMatchBtn,
                 startRankedMatchBtn,
-                btmBtn
+                rankedGameModal
             );
         });
 
@@ -641,7 +695,8 @@ function handleKeyUp(ev: KeyboardEvent) {
             rankedGameModal,
             startRankedMatchBtn,
             spinerDiv,
-            cancelRankedMatchBtn
+            cancelRankedMatchBtn,
+            btmBtn
         );
     }
 
@@ -833,19 +888,12 @@ function handleKeyUp(ev: KeyboardEvent) {
         getFriendsList();
     });
 
-    acceptGameBtn?.addEventListener('click', () => {
-
-    });
-
-    declineGameBtn?.addEventListener('click', () => {
-        
-    });
-
     function startFriendMatch(data: any)
     {
-        initMultiplayerFriendGame(data.game.id);
+        gameType = "friends";
+        initMultiplayerFriendGame(data.gameId || data.game.id);
         updatePlayerProfiles(data);
-        setupButtonDelegation(data.game.id);
+        setupButtonDelegation(data.gameId || data.game.id);
         resetMatchmakingButtons();
         updateAllStoreUsers();
     }
@@ -895,6 +943,7 @@ function handleKeyUp(ev: KeyboardEvent) {
                             const res = response.data;
                             sendFriendMatchRequestBtn.classList.add("opacity-50");
                             sendFriendMatchRequestBtn.setAttribute("disabled", "true");
+                            
                             startFriendMatch(res);
                             
                             setTimeout(() => {
@@ -925,9 +974,11 @@ function handleKeyUp(ev: KeyboardEvent) {
             
             if(!rankedGameModal?.classList.contains("hidden"))
             {
+                const rankedBackToMenuBtn = rankedGameModal?.querySelector("#backToMenuBtn") as HTMLButtonElement;
                 spinerDiv?.classList.add("hidden");
                 rankedGameModal?.classList.add("hidden");
                 preGameModal?.classList.remove("hidden");
+                rankedBackToMenuBtn?.removeAttribute("disabled");
             }
             if(!gameOverModal?.classList.contains("hidden"))
             {

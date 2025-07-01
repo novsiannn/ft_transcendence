@@ -10,11 +10,24 @@ export const attachNotificationListeners = () => {
   document.querySelectorAll(".notificationBlock")?.forEach((el) => {
     el.addEventListener("click", () => {
       if(el.getAttribute("notType") === "game_invite"){
-      navigateTo(`/game`);
-    }else{
-      const userId = el.getAttribute("data-user-id");
-      navigateTo(`/profile/${userId}`);
-    }
+        const gameId = el.getAttribute("data-game-id");
+        
+        const gamePlayerOne = el.getAttribute("data-game-playerOne");
+        const gamePlayerTwo = el.getAttribute("data-game-playerTwo");
+        // Сохраняем информацию о том, что это переход по приглашению
+        localStorage.setItem('gameInviteAction', JSON.stringify({
+          gameData: {
+            gameId: gameId,
+            player1Id: gamePlayerOne,
+            player2Id: gamePlayerTwo
+          },
+          action: 'show_accept_modal'
+        }));
+        navigateTo(`/game`);
+      }else{
+        const userId = el.getAttribute("data-user-id");
+        navigateTo(`/profile/${userId}`);
+      }
     });
   });
 

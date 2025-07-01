@@ -15,7 +15,7 @@ import {
 } from "../shared";
 import { IUser } from "../services/api/models/response/IUser";
 import { navigateTo } from "../routing";
-import { acceptFriendGameModal } from "../pages/game/gameModal";
+// import { acceptFriendGameModal } from "../pages/game/gameModal";
 
 export let socket: Socket | null = null;
 
@@ -56,7 +56,8 @@ let gameCallbacks: {
   onGameUpdate?: (gameState: IGameState) => void;
   onGameFinished?: (data: any) => void;
   onGameCancelled?: (error: any) => void;
-  onMatchFound?: (data: any) => void;
+  onMatchRankedFound?: (data: any) => void;
+  onMatchFriendsFound?: (data: any) => void;
   timerCountdown?: (data:{seconds: number}) => void;
   onLocalGameCreated?:(data: {gameId: string}) => void;
 } = {};
@@ -87,10 +88,10 @@ export function initializeSocket(): Socket | null {
 
   socket.on("notification", async (data) => {
     if(data.type === "game_invite"){
-      // const friendGameAcceptModal = document.querySelector("#friendGameAcceptModal");
-      // const preGameModal = document.querySelector("#preGameModal");
-      // preGameModal?.classList.add("hidden");
-      // friendGameAcceptModal?.classList.remove("hidden");
+      console.log(data);
+    if (gameCallbacks.onMatchFriendsFound) {
+      gameCallbacks.onMatchFriendsFound(data);
+    }
       console.log("RECIEVED GAME INVITE");
     }
     if (
@@ -243,8 +244,8 @@ export function initializeSocket(): Socket | null {
   socket.on("mm:ready", (data: any) => {
     socket?.emit("game:leaveQueue");
 
-    if (gameCallbacks.onMatchFound) {
-      gameCallbacks.onMatchFound(data);
+    if (gameCallbacks.onMatchRankedFound) {
+      gameCallbacks.onMatchRankedFound(data);
     }
   });
 
@@ -351,10 +352,12 @@ export function onLocalGameCreated(callback: (data: {gameId: string}) => void): 
   gameCallbacks.onLocalGameCreated = callback;
 }
 
-export function onMatchFound(callback: (data: any) => void): void {
-  gameCallbacks.onMatchFound = callback;
+export function onMatchRankedFound(callback: (data: any) => void): void {
+  gameCallbacks.onMatchRankedFound = callback;
 }
-
+export function onMatchFriendsFound(callback: (data: any) => void): void {
+  gameCallbacks.onMatchFriendsFound = callback;
+}
 export function onGameReady(callback: (gameState: IGameState) => void): void {
   gameCallbacks.onGameReady = callback;
 }
