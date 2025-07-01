@@ -1,11 +1,18 @@
-export const handleModalError = (text?: string) => {
+import { updateContent } from "../LanguageSelector";
+
+export const handleModalError = (key?: string) => {
   const modalWindow = document.querySelector("#modalWindow");
   const modalContent = modalWindow?.querySelector("div");
   const closeModal = document.querySelector("#closeModal");
   const modalErrorText = document.querySelector("#modalErrorText");
 
-  if (text && modalErrorText) modalErrorText.textContent = text;
+  if (key && modalErrorText) {
+    console.log("here");
 
+    modalErrorText.setAttribute("data-i18n", key);
+  }
+
+  updateContent();
   modalWindow?.classList.remove("hidden");
   setTimeout(() => {
     modalContent?.classList.remove("-translate-y-full", "opacity-0");

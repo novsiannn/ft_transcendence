@@ -59,7 +59,7 @@ export const handleModalInput = (
           modalWindow?.classList.add("hidden");
         }, 400);
       } else {
-        activateWarning("#warningMessageModalInput", "Incorrect code");
+        activateWarning("#warningMessageModalInput", 'settings.IncorrectCode');
       }
       return response;
     } else if (endpoint === "2fa/login") {
@@ -70,14 +70,12 @@ export const handleModalInput = (
       console.log(response);
 
       if (response.status === 400 || response.status === 401) {
-        activateWarning("#warningMessageModalInput", response.message);
-        modalBtn.innerHTML = "Send";
+        activateWarning("#warningMessageModalInput", 'settings.IncorrectCode');
       }
 
       return response;
     } else if (endpoint === "user/profile") {
       let response = await store.deleteAccount(modalInput!.value);
-      console.log(response);
 
       if (response.status === 204) {
         store.logout();
@@ -85,7 +83,7 @@ export const handleModalInput = (
 
       if (response.status === 400 || response.status === 401) {
         console.log("here");
-        activateWarning("#warningMessageModalInput", "Password Incorrect");
+        activateWarning("#warningMessageModalInput", 'settings.IncorrectCode');
       }
 
       return response;

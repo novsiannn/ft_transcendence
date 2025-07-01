@@ -1,3 +1,4 @@
+import { updateContent } from "../../elements/LanguageSelector";
 import { getLoader } from "../../elements/Loader";
 import { navigationHandle } from "../../elements/navigation";
 import { getEyeHidePassword, getEyeShowPassword } from "../../elements/PasswordVisibility";
@@ -51,7 +52,8 @@ export function handleLogin() {
       await store.login(userDataLogin.email, userDataLogin.password);
       loginBtn!.innerHTML = "Login";
     } catch (error: any) {
-      activateWarning('#warningMessage','Incorrect email or password');
+      activateWarning('#warningMessage','settings.incorrectPassword');
+      updateContent();
       loginBtn!.innerHTML = "Login";
     }
   });

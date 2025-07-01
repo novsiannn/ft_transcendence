@@ -54,7 +54,10 @@ export function handleSettings() {
       btnSave!.innerHTML = "Save";
       btnSave!.disabled = false;
     } catch (e: any) {
-      handleModalError(e.message);
+      console.log(e);
+      if(e.status === 409){
+        handleModalError('modalWindowsMessages.nicknameInUse');
+      }
       btnSave!.innerHTML = "Save";
       btnSave!.disabled = false;
     }
@@ -142,7 +145,7 @@ export function handleSettings() {
       }
     } catch (error) {
       if (profileImgContainer) {
-        handleModalError("Failed to load avatar");
+        handleModalError('modalWindowsMessages.failedToLoadAvatar');
       }
     }
   };
@@ -154,7 +157,7 @@ export function handleSettings() {
     const file = target.files?.[0];
 
     if (file && !file.type.startsWith("image/")) {
-      handleModalError("Please upload an image file (JPEG, PNG, etc)");
+      handleModalError('modalWindowsMessages.pleaseUploadImgFile');
       uploadImgInput!.value = "";
       return;
     }
@@ -206,7 +209,7 @@ export function handleSettings() {
           }
         }
       } catch (error) {
-        handleModalError("Failed to upload avatar. Please try again.");
+        handleModalError('modalWindowsMessages.failedUploadAvatar');
       } finally {
         uploadImgInput!.value = "";
       }
@@ -283,7 +286,7 @@ export function handleSettings() {
         }
       }
     } catch (error) {
-      handleModalError("Failed to delete avatar. Please try again.");
+      handleModalError('modalWindowsMessages.failedDeleteAvatar');
     }
   });
 

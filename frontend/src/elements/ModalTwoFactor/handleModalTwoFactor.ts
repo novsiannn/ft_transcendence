@@ -32,7 +32,6 @@ export const handleModalTwoFactor = async (switchButtonActivity?: (isEnable: boo
 
   modalBtn?.addEventListener("click", async () => {
     hideWarning('#warningMessage');
-    modalBtn.innerHTML = getLoader();
     const response = await store.verifyTwoFactor(
       codeForTwoFactor?.value ? codeForTwoFactor.value : ""
     );
@@ -46,8 +45,7 @@ export const handleModalTwoFactor = async (switchButtonActivity?: (isEnable: boo
       if(switchButtonActivity)
         switchButtonActivity(true);
     } else if (response.status === 400){
-      activateWarning('#warningMessage', response.data.message);
-      modalBtn.innerHTML = 'Send';
+      activateWarning('#warningMessage', 'settings.incorrectCode');
     }
   });
 

@@ -687,11 +687,11 @@ function handleKeyUp(ev: KeyboardEvent) {
     
     function handleSubmitNickname(){
         if (playerNickname.value.includes(" ") || playerNickname.value === "") {
-            handleModalError("Please enter a nickname");
+            handleModalError("modalWindowsMessages.pleaseEnterNickname");
             return;
         }
         else if (playerNickname.value.length > 10) {
-            handleModalError("Nickname is too long");
+            handleModalError('modalWindowsMessages.nicknameTooLong');
             playerNickname.value = "";
             return;
         }
