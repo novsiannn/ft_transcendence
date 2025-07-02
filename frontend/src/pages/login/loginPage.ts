@@ -1,15 +1,21 @@
 import { getModalWindowError } from "../../elements";
+import { updateContent } from "../../elements/LanguageSelector";
 import { getModalInput } from "../../elements/ModalInput";
 import { navigation } from "../../elements/navigation";
 import { getEyeShowPassword } from "../../elements/PasswordVisibility";
 
 export const activateWarning = (elementID: string, errorValue?: string) => {
   const text = document.querySelectorAll(elementID);
-  console.log(text);
 
   text.forEach((el) => {
     el.classList.remove("invisible");
-    if (errorValue) el.setAttribute("data-i18n", errorValue ? errorValue : "fix translation plssss");
+    if (errorValue) {
+      el.setAttribute(
+        "data-i18n",
+        errorValue ? errorValue : "fix translation plssss"
+      );
+      updateContent();
+    }
   });
 };
 
