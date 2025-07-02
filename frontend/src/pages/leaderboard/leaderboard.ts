@@ -1,9 +1,44 @@
+import { leaderBoardPage } from './leaderBoardPage';
 import { navigationHandle } from "../../elements/navigation";
+import { store } from "../../store/store";
 
-export const filterLeaderBoard = (data: Array<{ id: number, username: string, playedGames: number, wonGames: number, totalPoints: number }>) => {
-	return data.sort((a, b) => b.totalPoints - a.totalPoints).slice(0, 8);
+interface ILeaderBoardElement {
+  id: number;
+  username: string;
+  elo: number;
+  totalGames: number;
+  wonGames: number;
+  winrate: number;
 }
 
-export function handleLeaderboardPage() {
-	navigationHandle();
-}
+const getLeaderboardContent = (data: ILeaderBoardElement[]): string => {
+  let leaderboardContent: string = "";
+
+  data.forEach((user, i) => {
+     leaderboardContent += `<div class="grid w-full grid-cols-6 mb-4">
+	 					<p > ${++i} </p>
+						<p > ${user.username} </p>
+						<p > ${user.totalGames} </p>
+						<p > ${user.wonGames} </p>
+						<p > ${user.winrate} </p>
+						<p > ${user.elo} </p>
+			</div>`;
+  });
+
+  return leaderboardContent;
+};
+
+export const handleLeaderboardPage = async () => {
+  const leaderBoard = document.querySelector("#leaderBoardContainer");
+
+  const response = await store.getLeaderBoard();
+  const leaderboardContentContainer = document.createElement('div');
+
+  let leaderboardContent: string = getLeaderboardContent(response.data);
+  leaderboardContentContainer.innerHTML = leaderboardContent;
+//   leaderboardContentContainer.className = 'flex flex-col justify-start'
+  leaderBoard?.append(leaderboardContentContainer)
+
+
+  navigationHandle();
+};

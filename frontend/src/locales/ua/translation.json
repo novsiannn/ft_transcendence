@@ -83,7 +83,8 @@
     "email": "Електронна пошта",
     "yourQRCode": "Ваш QR-код",
     "incorrectCode": "Неправильний код",
-    "incorrectPassword": "Неправильний пароль"
+    "incorrectPassword": "Неправильний пароль",
+    "incorrectEmailOrPassword": "Неправильний пароль або електронна адреса"
   },
   "chat": {
     "searchChats": "Шукати в чатах...",

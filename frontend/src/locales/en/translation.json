@@ -83,7 +83,8 @@
     "email": "Email",
     "yourQRCode": "Your QR-Code",
     "incorrectCode": "Incorrect Code",
-    "incorrectPassword": "Incorrect Password"
+    "incorrectPassword": "Incorrect Password",
+    "incorrectEmailOrPassword": "Incorrect password or email"
   },
   "chat": {
     "searchChats": "Search chats...",
