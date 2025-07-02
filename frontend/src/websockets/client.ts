@@ -71,7 +71,7 @@ export function initializeSocket(): Socket | null {
 
   if (socket) return socket;
 
-  socket = io("https://localhost:3000", {
+  socket = io(`https://${window.location.hostname}:3000`, {
     withCredentials: true,
     auth: { token },
     transports: ["websocket"],
