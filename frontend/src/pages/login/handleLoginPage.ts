@@ -52,7 +52,7 @@ export function handleLogin() {
       await store.login(userDataLogin.email, userDataLogin.password);
       loginBtn!.innerHTML = "Login";
     } catch (error: any) {
-      activateWarning('#warningMessage','settings.incorrectPassword');
+      activateWarning('#warningMessage','settings.incorrectEmailOrPassword');
       updateContent();
       loginBtn!.innerHTML = "Login";
     }
