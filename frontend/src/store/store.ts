@@ -143,9 +143,13 @@ class Store {
         initializeSocket();
         i18next.changeLanguage(this.getUserLanguage());
         navigateTo("/");
-        handleModalSuccess('modalWindowsMessages.loggedInSuccess');
+        handleModalSuccess("modalWindowsMessages.loggedInSuccess");
       } else if (response.status === 401 && response.data.requiresTwoFactor) {
-        handleModalInput("2fa/login", 'modalWindowsMessages.codeFor2FA', response.data.userId);
+        handleModalInput(
+          "2fa/login",
+          "modalWindowsMessages.codeFor2FA",
+          response.data.userId
+        );
       }
       return response;
     } catch (e: any) {
@@ -166,7 +170,7 @@ class Store {
       );
       if (response.status === 201) {
         navigateTo("/activate");
-        handleModalSuccess('modalWindowsMessages.yourAccountCreated');
+        handleModalSuccess("modalWindowsMessages.yourAccountCreated");
       }
     } catch (e: any) {
       throw new Error(e.response?.data);
@@ -179,9 +183,9 @@ class Store {
       localStorage.removeItem("token");
       this.setAuth(false);
       this.setUser({} as IUser);
-      console.log('here');
+      console.log("here");
 
-      navigateTo('/');
+      navigateTo("/");
       return response;
     } catch (e: any) {
       console.log(e.response?.data);
@@ -228,7 +232,7 @@ class Store {
         this.setUser(response.data.user);
         await this.checkAuth();
         navigateTo("/");
-        handleModalSuccess('modalWindowsMessages.loggedInSuccess');
+        handleModalSuccess("modalWindowsMessages.loggedInSuccess");
       }
       return response;
     } catch (e: any) {
@@ -260,21 +264,29 @@ class Store {
     }
   };
 
+  setUserUpdateData = (user: IUser) => {
+    this.state.auth.user = {
+      ...this.state.auth.user,
+      username: user.username,
+      firstName: user.firstName,
+      lastName: user.firstName,
+      phoneNumber: user.phoneNumber,
+    };
+  };
+
   updateUserData = async (data: IUpdateProfileData) => {
     const response = await instanceAPI.put<IAuthResponse>(
       `${API_URL}/user/profile`,
       data
     );
     if (response.status === 200) {
-      await this.setUser(response.data.user);
+      await this.setUserUpdateData(response.data.user);
     }
     return response;
   };
 
   sendFriendGameRequest = async (friendId: number) => {
     const response = await gameService.sendFriendMatchRequest(friendId);
-
-    console.log(response);
 
     if (response.status === 201) {
       handleModalSuccess("You have successfully sent a game request");
@@ -286,10 +298,8 @@ class Store {
   sendFriendRequest = async (addresseeId: number) => {
     const response = await friendsService.sendFriendRequest(addresseeId);
 
-    console.log(response);
-
     if (response.status === 201) {
-      handleModalSuccess('modalWindowsMessages.friendShipRequest');
+      handleModalSuccess("modalWindowsMessages.friendShipRequest");
       socket?.emit("notification:friendRequest", {
         addresseeId,
       });
@@ -312,7 +322,6 @@ class Store {
       const response = await friendsService.getIncomingFriendRequest();
       return response.data as IFriendshipResponseData;
     } catch (e) {
-      console.log(e);
       return {} as IFriendshipResponseData;
     }
   };
@@ -324,11 +333,10 @@ class Store {
       );
 
       if (response.status === 204) {
-        handleModalSuccess('modalWindowsMessages.friendShipCancel');
+        handleModalSuccess("modalWindowsMessages.friendShipCancel");
       }
       return response.status;
     } catch (e) {
-      console.log(e);
       return {};
     }
   };
@@ -413,16 +421,22 @@ class Store {
     const response = await friendsService.blockUser(userId);
   };
 
+  getLeaderBoard = async () => {
+    const response = await userServices.getLeaderboard();
+
+    return response;
+  };
+
   deleteAccount = async (password: string) => {
     try {
       const response = await authService.deleteUser(password);
       console.log(response);
-      if(response.status === 204){
+      if (response.status === 204) {
         await this.logout();
-        handleModalSuccess('modalWindowsMessages.yourAccountDeleted');
+        handleModalSuccess("modalWindowsMessages.yourAccountDeleted");
       }
       return response.data;
-    } catch (e : any) {
+    } catch (e: any) {
       return e.response;
     }
   };
