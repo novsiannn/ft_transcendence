@@ -1320,7 +1320,7 @@ async function routes(fastify, options) {
                   id: { type: 'integer' },
                   type: { type: 'string', enum: ['friend_request', 'friend_accepted', 'friend_rejected', 'friend_removed', 'game_invite'] },
                   senderId: { type: 'integer' },
-                  data: { type: 'object' },
+                  data: { type: 'object', additionalProperties: true },
                   isRead: { type: 'boolean' },
                   createdAt: { type: 'string', format: 'date-time' },
                   sender: {

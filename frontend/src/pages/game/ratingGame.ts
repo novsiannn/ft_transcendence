@@ -6,7 +6,7 @@ import { getColorFromUsername } from "../../shared/randomColors";
 import {
     getCurrentGameState,
     socket,  
-    onMatchFound,
+    onMatchRankedFound,
     onGameCancelled,
 } from "../../websockets/client";
 import { findUser } from "../../shared";
@@ -25,7 +25,7 @@ export function setupRankedListeners(
     resetMatchmakingButtons: () => void,
     updateAllStoreUsers: () => Promise<void>
 ) {
-    onMatchFound(async (data: any) => {
+    onMatchRankedFound(async (data: any) => {
         rankedGameModal?.classList.add("hidden");
 
         await updateAllStoreUsers();
@@ -62,17 +62,23 @@ export function updatePlayerProfiles(gameData: any) {
     let game;
     if (gameData.game) {
         game = gameData.game;
+        console.log("Game DATA",game);
     } else {
         game = gameData;
+        console.log("Game DATA",game);
     }
+
+
+    console.log("Game DATA",game);
     currentGame = game;
-    const currentUserId = store.getUser().id;
-    const user1 = findUser(game.player1Id);
-    const user2 = findUser(game.player2Id);
+    const user1 = findUser(Number(game.player1Id));
+    const user2 = findUser(Number(game.player2Id));
     
     console.log("Updating player profiles with game data:", game);
-    console.log("Current user ID:", currentUserId);
+    // console.log("Current user ID:", currentUserId);
     console.log("Player1 ID:", game.player1Id, "Player2 ID:", game.player2Id);
+
+    console.log("User1 :", user1, "User2 :", user2);
 
     if (user1 && user2) {
         rankedPlayerData.firstPlayer = user1.username;
@@ -90,7 +96,7 @@ export function updatePlayerProfiles(gameData: any) {
             rankedProfilesContainer.innerHTML = rankedPlayerProfiles();
         }
         
-        setupInitialReadyButtonsVisibility(game.player1Id, game.player2Id);
+        setupInitialReadyButtonsVisibility(Number(game.player1Id), Number(game.player2Id));
     }
 }
 
@@ -98,15 +104,21 @@ export function setupInitialReadyButtonsVisibility(player1Id: number, player2Id:
     const currentUserId = store.getUser().id;
     const playerOneReadyBtn = document.querySelector("#playerOneReadyBtn") as HTMLButtonElement;
     const playerTwoReadyBtn = document.querySelector("#playerTwoReadyBtn") as HTMLButtonElement;
+    console.log("CURRENT USER ID", currentUserId);
+    console.log("player 1 : ", player1Id);
+    console.log("player 2 : ", player2Id);
     
     if (playerOneReadyBtn && playerTwoReadyBtn) {
         if (currentUserId === player1Id) {
+            console.log("SECOND HIDDEN");
             playerOneReadyBtn.classList.remove("hidden");
             playerTwoReadyBtn.classList.add("hidden");
         } else if (currentUserId === player2Id) {
+            console.log("FIRST HIDDEN");
             playerOneReadyBtn.classList.add("hidden");
             playerTwoReadyBtn.classList.remove("hidden");
         } else {
+            console.log("ALL HIDDEN");
             playerOneReadyBtn.classList.add("hidden");
             playerTwoReadyBtn.classList.add("hidden");
         }
@@ -130,6 +142,7 @@ export function setupButtonDelegation(gameId: string) {
                 e.stopPropagation();
                 
                 let game = getCurrentGame();
+                console.log(getCurrentGame());
                 const isCurrentUserPlayer1 = currentUserId === game?.player1Id;
                 const isCurrentUserPlayer2 = currentUserId === game?.player2Id;
                 
@@ -216,7 +229,8 @@ export async function rankedGameStatus(
     rankedGameModal: Element | null,
     startRankedMatchBtn: Element | null,
     spinerDiv: Element | null,
-    cancelRankedMatchBtn: Element | null
+    cancelRankedMatchBtn: Element | null,
+    btmBtn: Element | null
 ) {
     try{
         const response = await instanceAPI.get("/game/matchmaking/status");
@@ -228,12 +242,16 @@ export async function rankedGameStatus(
             startRankedMatchBtn?.classList.add("hidden");
             spinerDiv?.classList.remove("invisible");
             cancelRankedMatchBtn?.classList.remove("hidden");
+            btmBtn?.setAttribute("disabled", "true");
         } else {
             preGameModal?.classList.remove("hidden");
             preGameModal?.classList.add("flex");
+            rankedGameModal?.classList.add("hidden");
+            btmBtn?.removeAttribute("disabled");
         }
     } catch (error) {
         console.error('Error checking ranked game status:', error);
+        btmBtn?.removeAttribute("disabled");
     }
 }
 
@@ -242,8 +260,9 @@ export async function cancelRankedMatch(
     spinerDiv: Element | null,
     cancelRankedMatchBtn: Element | null,
     startRankedMatchBtn: Element | null,
-    btmBtn: Element | null
+    rankedGameModal: Element | null
 ) {
+    const rankedBackToMenuBtn = rankedGameModal?.querySelector("#backToMenuBtn") as HTMLButtonElement;
     try {
         const response = await instanceAPI.delete("/game/matchmaking");
         if(response.status === 200) {
@@ -254,7 +273,7 @@ export async function cancelRankedMatch(
             console.log("Match Canceled", response.status);
             cancelRankedMatchBtn?.classList.add("hidden");
             startRankedMatchBtn?.classList.remove("hidden");
-            btmBtn?.removeAttribute("disabled");
+            rankedBackToMenuBtn?.removeAttribute("disabled");
         }
     } catch (error) {
         console.error('Error canceling ranked match:', error);

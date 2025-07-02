@@ -1,7 +1,7 @@
 import i18next from "i18next";
 import { getColorFromUsername } from "../../shared/randomColors";
 import { store, API_URL } from "../../store/store";
-import { attachNotificationListeners, } from "./navigation";
+import { attachNotificationListeners, } from "./navigation"; 
 
 export const refreshNotifications = async () => {
   const dropdownMenuNotification = document.querySelector(
@@ -15,6 +15,8 @@ export const refreshNotifications = async () => {
     attachNotificationListeners();
   }
 };
+
+
 
 const getNotificationLayout = (): string => {
   const notificationsData = store.getNotification();
@@ -54,7 +56,7 @@ if(n.type === "game_invite"){
       allNotifications += `
       <div class="relative">
 
-        <div data-user-id="${n.sender.id} "notType="game_invite"
+        <div data-user-id="${n.sender.id}"  data-game-id="${n.data.game.id}" data-game-playerOne="${n.data.game.player1Id}" data-game-playerTwo="${n.data.game.player2Id}"  notType="game_invite"
             class="flex notificationBlock items-start gap-3 px-4 py-3 pl-5 hover:bg-gray-700 transition cursor-pointer ${
               n.isRead ? "opacity-50" : "opacity-100"
             }">
@@ -214,7 +216,7 @@ const getAuthBtn = () => {
 
 export function navigation() {
   return `
-		<nav class="top-0 left-0  text-white h-16 w-full flex items-center justify-between px-6 select-none p-3">
+		<nav class="top-0 left-0  text-white h-16 w-full flex items-center justify-between px-6 select-none p-3 z-50">
       
     	<img src="https://img.icons8.com/plasticine/100/ping-pong--v1.png" draggable="false" alt="Logo" class="h-12 w-12 object-cover" id=imgLogoNavi>
       

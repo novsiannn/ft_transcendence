@@ -1,4 +1,4 @@
-import { handleModalError } from "../../elements";
+import { getModalWindowError, handleModalError } from "../../elements";
 import {  rankedPlayerProfiles, rankedPlayerProfilesContainer, tournamentData, tournamentPlayerData, tournamentPlayerProfiles, updateRankedProfilesPositions } from "./playersProfiles";
 import { API_URL, store} from "../../store/store";
 import {
@@ -13,8 +13,9 @@ import {
     timerCountdown,
     movePaddleLocal,
     onLocalGameCreated,
+    onMatchFriendsFound,
 } from "../../websockets/client";
-import { rankedWinnerData, gameOverModalCreator } from "./gameModal";
+import { rankedWinnerData, gameOverModalCreator, acceptFriendGameModal } from "./gameModal";
 import { 
     setupRankedListeners, 
     updatePlayerProfiles, 
@@ -27,6 +28,7 @@ import { tournamentBracketPlayers } from "./tournamentBracket";
 import { clearRankedPlayerData } from "./playersProfiles";
 import { getColorFromUsername } from "../../shared/randomColors";
 import gameService from "../../services/api/gameService";
+import { navigationHandle } from "../../elements/navigation";
 declare global {
     interface Window {
         tournamentPlayerNickname1: string;
@@ -35,7 +37,43 @@ declare global {
 }
 
 export function handleGame(mainWrapper: HTMLDivElement | undefined) {
-    setupMultiplayerSocketHandlers();
+    navigationHandle();
+    // Проверяем, есть ли сохраненное действие для игрового приглашения
+    const gameInviteAction = localStorage.getItem('gameInviteAction');
+    if (gameInviteAction) {
+        try {
+            const action = JSON.parse(gameInviteAction);
+            if (action.action === 'show_accept_modal') {
+                // Очищаем сохраненное действие
+                
+                // Показываем модальное окно принятия приглашения через небольшую задержку
+                setTimeout(() => {
+                    const preGameModal = document.querySelector("#preGameModal");
+                    const friendGameAcceptModal = document.querySelector("#friendGameAcceptModal");
+                    
+                    preGameModal?.classList.add("hidden");
+                    preGameModal?.classList.remove("flex");
+                    friendGameAcceptModal?.classList.remove("hidden");
+                    friendGameAcceptModal?.classList.add("flex");
+                    acceptGameBtn?.addEventListener('click', () => {
+
+                        friendGameAcceptModal?.classList.add("hidden");
+                        friendGameAcceptModal?.classList.remove("flex");
+                        startFriendMatch(action.gameData);
+                    });
+                    
+                    declineGameBtn?.addEventListener('click', () => {
+                        
+                    });
+                }, 100);
+                localStorage.removeItem('gameInviteAction');
+            }
+        } catch (e) {
+            console.error('Error parsing game invite action:', e);
+            localStorage.removeItem('gameInviteAction');
+        }
+    }
+
     const tournamentProfiles = document.querySelector("#tournamentProfiles");
     tournamentProfiles?.classList.add("hidden")
     const scoreInfo = document.querySelector("#score-info");
@@ -50,6 +88,8 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
     let gameType: 'ranked' | 'friends' | null = null;
     let currentGameId: string | null = null;
     let paddleMovementInterval: ReturnType<typeof setInterval> | null = null;
+
+    setupMultiplayerSocketHandlers();
 
     let tournamentPlayerNickname2 = "";
     let tournamentPlayerNickname1 = "";
@@ -341,6 +381,7 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
     function initMultiplayerRankedGame(gameId: string) {
         
         gameMode = 'multiplayer';
+        gameType ="ranked";
         currentGameId = gameId;
         currentGameState = getCurrentGameState();
         setupMultiplayerSocketHandlers();
@@ -359,7 +400,7 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
         currentGameState = getCurrentGameState();
         setupMultiplayerSocketHandlers();
         setupKeyboardHandlers();
-        socket?.emit("game:join");
+        // socket?.emit('game:join', gameId);
         renderGame(currentGameState);
         friendsMatchModal?.classList.add("hidden");
         friendsMatchModal?.classList.remove("flex");
@@ -396,7 +437,7 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
         });
 
         onGameFinished((result) => {
-            console.log("Game finished:", result);
+            console.log("Game finished:", result, gameMode);
             if(gameMode === "multiplayer")
                 handleGameOver(result);
             if(gameMode === "local")
@@ -445,43 +486,7 @@ function cleanupCurrentGame() {
     gameMode = null;
 }
 
-    function handleGameOverLocal(result?: any) {
-        scoreInfo?.classList.add("hidden");
-        let winnerName = '';
-        if (result && typeof result === 'object') {
-            if (result.winner) {
-                winnerName = result.winner;
-            }
-        } else if (typeof result === 'string') {
-            winnerName = result;
-        }
-        
-        if(tournamentData.final.length === 2) {
-            tournamentData.winner = winnerName;
-            
-            
-            
-        } else {
-            if (winnerName && !tournamentData.final.includes(winnerName)) {
-                tournamentData.final.push(winnerName);
-            }
-        }
-        
-        if (!bracketElement) {
-            document.body.insertAdjacentHTML('beforeend', tournamentBracketPlayers());
-            bracketElement = document.querySelector("#bracketFourPlayers");
-        } else {
-            const newBracketHTML = tournamentBracketPlayers();
-            bracketElement.innerHTML = newBracketHTML.split('>').slice(1).join('>').split('</div>').slice(0, -1).join('</div>');
-        }
-        
-        if (bracketElement) {
-            bracketElement?.classList.remove("hidden");
-            bracketElement?.classList.add("flex");
-        }
-        tournamentProfiles?.classList.add("hidden");
-        cleanupCurrentGameLocal();
-    }
+
 
 function handleGameOver(result?: any) {
     const gameOverModalContainer = document.querySelector("#gameOverModal");
@@ -494,9 +499,15 @@ function handleGameOver(result?: any) {
     {
         gameOverModalContainer!.innerHTML = gameOverModalCreator(result.winner);
     }
-    
+
     gameOverModalContainer!.classList.remove('hidden');
     gameOverModalContainer!.classList.add('flex');
+    const playAgainBtn = document.querySelector("#rankedPlayAgainBtn");
+    if(gameType === "friends"){
+        playAgainBtn?.classList.add("hidden");
+    }else{
+        playAgainBtn?.classList.remove("hidden");
+    }
     
     rankedProfilesContainer?.classList.add("hidden");
     rankedProfilesContainer?.classList.remove("flex");
@@ -570,7 +581,7 @@ function handleKeyUp(ev: KeyboardEvent) {
             }
         }
         catch(error){
-            // Handle error
+            handleModalError("Failed to update users!");
         }
     }
 
@@ -610,7 +621,8 @@ function handleKeyUp(ev: KeyboardEvent) {
 
         startRankedMatchBtn?.addEventListener("click", async (e) => {
             e.stopPropagation();
-            btmBtn?.setAttribute("disabled", "true");
+                const rankedBackToMenuBtn = rankedGameModal?.querySelector("#backToMenuBtn") as HTMLButtonElement;
+                rankedBackToMenuBtn?.setAttribute("disabled", "true");
             
             await startRankedGameLogic(
                 spinerDiv,
@@ -631,7 +643,7 @@ function handleKeyUp(ev: KeyboardEvent) {
                 spinerDiv,
                 cancelRankedMatchBtn,
                 startRankedMatchBtn,
-                btmBtn
+                rankedGameModal
             );
         });
 
@@ -641,7 +653,8 @@ function handleKeyUp(ev: KeyboardEvent) {
             rankedGameModal,
             startRankedMatchBtn,
             spinerDiv,
-            cancelRankedMatchBtn
+            cancelRankedMatchBtn,
+            btmBtn
         );
     }
 
@@ -655,14 +668,20 @@ function handleKeyUp(ev: KeyboardEvent) {
     renderGame(currentGameState);
 
     // TOURNAMENT PART
-    const preGameModal = document.querySelector("#preGameModal");
+    let preGameModal = document.querySelector("#preGameModal");
     const tournamentDropdownMenu = document.querySelector("#tournamentDropdownMenu");
     const tournamentDropdownButton = document.querySelector("#tournamentDropdownButton");
-    let bracketElement = document.querySelector("#bracketFourPlayers");
 
-    tournamentDropdownButton?.addEventListener("click", (e) => {
+    document.addEventListener("click", (e) => {
         e.stopPropagation();
-        tournamentDropdownMenu?.classList.toggle("hidden");
+        
+         const target = e.target as HTMLElement;
+        
+        if (target && target.id === "tournamentDropdownButton")
+            tournamentDropdownMenu?.classList.toggle("hidden");
+        else
+            tournamentDropdownMenu?.classList.add("hidden");
+
     });
 
     const tournamentModal = document.querySelector("#tournamentModal");
@@ -733,30 +752,30 @@ function handleKeyUp(ev: KeyboardEvent) {
                 continue;
             }		
         }
-    const tournamentProfiles = document.querySelector("#tournamentProfiles");
-    if (tournamentProfiles) {
-        tournamentProfiles.innerHTML = tournamentPlayerProfiles();
-        // tournamentProfiles.classList.remove("hidden");
+        const tournamentProfiles = document.querySelector("#tournamentProfiles");
+        if (tournamentProfiles) {
+            tournamentProfiles.innerHTML = tournamentPlayerProfiles();
+            // tournamentProfiles.classList.remove("hidden");
+        }
+    // Удаляем старый элемент, если он существует
+    let bracketElement = document.querySelector("#bracketFourPlayers");
+    if (bracketElement) {
+        bracketElement.remove();
     }
-        // ВАЖНО: Создаем HTML турнирной сетки ПОСЛЕ заполнения tournamentNet
-        let bracketElement = document.querySelector("#bracketFourPlayers");
-        if (!bracketElement) {
-            // Теперь tournamentNet уже заполнен, можно безопасно генерировать HTML
-            document.body.insertAdjacentHTML('beforeend', tournamentBracketPlayers());
-            bracketElement = document.querySelector("#bracketFourPlayers");
-        } else {
-            // Обновляем содержимое с новыми данными
-            bracketElement.innerHTML = tournamentBracketPlayers().replace(
-                '<div id="bracketFourPlayers" class="fixed inset-0 items-center justify-center z-50 hidden" style="background-color: rgba(0, 0, 0, 0.7);">',
-                ''
-            ).replace('</div>    `;', '');
+    
+    // Создаем новый элемент
+    document.body.insertAdjacentHTML('beforeend', tournamentBracketPlayers());
+    
+    // Получаем новый элемент и показываем его
+    bracketElement = document.querySelector("#bracketFourPlayers");
+    if (bracketElement) {
+        const bracketElement = document.querySelector("#bracketFourPlayers");
+        if (bracketBackToMenuBtn) {
+            bracketBackToMenuBtn.removeAttribute("disabled");
         }
-        
-        // Показываем турнирную сетку
-        if (bracketElement) {
-            bracketElement.classList.remove("hidden");
-            bracketElement.classList.add("flex");
-        }
+        bracketElement!.classList.remove("hidden");
+        bracketElement!.classList.add("flex");
+    }
         
         console.log("NET AFTER GENERATION:", tournamentPlayerData.tournamentNet);
         console.log("NICKNAMES:", tournamentPlayerData.nicknames);
@@ -774,7 +793,10 @@ function handleKeyUp(ev: KeyboardEvent) {
             }
             if (bracketModal && !tournamentData.winner) {
                 startTournamentGame?.removeAttribute("disabled");
+                bracketBackToMenuBtn?.removeAttribute("disabled");
                 tournamentProfiles?.classList.remove("hidden");
+
+                // bracketBackToMenuBtn.removeAttribute("disabled");
                 bracketModal.classList.add("hidden");
                 bracketModal.classList.remove("flex");
                 initTournamentGame();
@@ -787,9 +809,18 @@ function handleKeyUp(ev: KeyboardEvent) {
     const avatarDropdown = document.querySelector("#avatarDropdown");
     const selectedAvatar = document.querySelector("#selectedAvatar");
     const tournamentBracketFourPlayers = document.querySelector("#bracketFourPlayers");
+    const bracketBackToMenuBtn = document.querySelector("#bracketBackToMenuBtn");
 
-    avatarSelectBtn?.addEventListener('click', () => {
-        avatarDropdown?.classList.toggle('hidden');
+    document.addEventListener("click", (e) => {
+        e.stopPropagation();
+        
+         const target = e.target as HTMLElement;
+        
+        if (target && target.id === "avatarSelectBtn")
+            avatarDropdown?.classList.toggle("hidden");
+        else
+            avatarDropdown?.classList.add("hidden");
+
     });
 
     avatarDropdown?.addEventListener('click', (e) => {
@@ -803,6 +834,52 @@ function handleKeyUp(ev: KeyboardEvent) {
             }
         }
     });
+
+
+    function handleGameOverLocal(result?: any) {
+    scoreInfo?.classList.add("hidden");
+    let winnerName = '';
+    if (result && typeof result === 'object') {
+        if (result.winner) {
+            winnerName = result.winner;
+        }
+    } else if (typeof result === 'string') {
+        winnerName = result;
+    }
+    
+    if(tournamentData.final.length === 2) {
+        tournamentData.winner = winnerName;
+    } else {
+        if (winnerName && !tournamentData.final.includes(winnerName)) {
+            tournamentData.final.push(winnerName);
+        }
+    }
+    
+    // Удаляем старый элемент если он существует
+    let existingBracket = document.querySelector("#bracketFourPlayers");
+    if (existingBracket) {
+        existingBracket.remove();
+    }
+    
+    // Создаем новый элемент
+    document.body.insertAdjacentHTML('beforeend', tournamentBracketPlayers());
+    
+    // Получаем свежую ссылку на элемент
+    const newBracketElement = document.querySelector("#bracketFourPlayers");
+    if (newBracketElement) {
+        newBracketElement.classList.remove("hidden");
+        newBracketElement.classList.add("flex");
+        
+        console.log("Tournament bracket shown successfully");
+    }
+    
+    tournamentProfiles?.classList.add("hidden");
+    
+    // Очищаем игровые данные в конце
+    setTimeout(() => {
+        cleanupCurrentGameLocal();
+    }, 100);
+}
     
     // FRIENDS MATCH PART
     const friendsDropDown = document.querySelector("#friendsDropDown");
@@ -815,10 +892,17 @@ function handleKeyUp(ev: KeyboardEvent) {
     const acceptGameBtn = document.querySelector("#acceptGameBtn");
     const declineGameBtn = document.querySelector("#declineGameBtn");
 
-    gameModeDropdownBtn?.addEventListener("click", (e) => {
+    document.addEventListener("click", (e) => {
         e.stopPropagation();
-        gameDropdownMenu?.classList.toggle("hidden");
-    });
+        
+         const target = e.target as HTMLElement;
+        
+        if (target && target.id === "gameModeDropdownBtn")
+            gameDropdownMenu?.classList.toggle("hidden");
+        else
+            gameDropdownMenu?.classList.add("hidden");
+
+    });    
 
     createFriendsMatchBtn?.addEventListener("click", (e) => {
         e.stopPropagation();
@@ -833,19 +917,26 @@ function handleKeyUp(ev: KeyboardEvent) {
         getFriendsList();
     });
 
-    acceptGameBtn?.addEventListener('click', () => {
-
-    });
-
-    declineGameBtn?.addEventListener('click', () => {
+    // document.addEventListener("click", (e) => {
+    //     e.stopPropagation();
         
-    });
+    //      const target = e.target as HTMLElement;
+        
+    //     if (target && target.id === "friendSelectBtn"){
+    //         friendsDropDown?.classList.toggle("hidden");
+    //         getFriendsList();
+    //     }
+    //     else
+    //         friendsDropDown?.classList.add("hidden");
+
+    // }); 
 
     function startFriendMatch(data: any)
-    {
-        initMultiplayerFriendGame(data.game.id);
+    {   
+        gameType = "friends";
+        initMultiplayerFriendGame(data.gameId || data.game.id.toString());
         updatePlayerProfiles(data);
-        setupButtonDelegation(data.game.id);
+        setupButtonDelegation(data.gameId || data.game.id);
         resetMatchmakingButtons();
         updateAllStoreUsers();
     }
@@ -865,7 +956,6 @@ function handleKeyUp(ev: KeyboardEvent) {
                 let friendFirstLetter = friend.username.charAt(0).toUpperCase();
                 friendBtn.className = "flex items-center p-2 hover:bg-gray-100";
                 friendBtn.setAttribute("data-avatar", friend.avatar);
-                console.log("LETTER : ", friendFirstLetter);
                 if(friend.avatar){
                     friendBtn.innerHTML = `
                         <img src="${API_URL}${friend.avatar}" class="w-8 h-8 rounded-full mr-2" alt="avatar" /> ${friend.username}
@@ -890,11 +980,11 @@ function handleKeyUp(ev: KeyboardEvent) {
                     e.stopPropagation();
                     try{
                         const response = await store.sendFriendGameRequest(friend.id);
-                        console.log("RESPONSE : ",response);
                         if(response.status === 201){
                             const res = response.data;
                             sendFriendMatchRequestBtn.classList.add("opacity-50");
                             sendFriendMatchRequestBtn.setAttribute("disabled", "true");
+                            
                             startFriendMatch(res);
                             
                             setTimeout(() => {
@@ -921,28 +1011,22 @@ function handleKeyUp(ev: KeyboardEvent) {
             const gameOverModal = document.querySelector("#gameOverModal");
             const rankedGameModal = document.querySelector("#rankedGameModal");
             const spinerDiv = document.querySelector("#spinerDiv");
-            const btmBtn = document.querySelector("#backToMenuBtn");
+            
             
             if(!rankedGameModal?.classList.contains("hidden"))
             {
+                const rankedBackToMenuBtn = rankedGameModal?.querySelector("#backToMenuBtn") as HTMLButtonElement;
                 spinerDiv?.classList.add("hidden");
                 rankedGameModal?.classList.add("hidden");
                 preGameModal?.classList.remove("hidden");
+                rankedBackToMenuBtn?.removeAttribute("disabled");
             }
             if(!gameOverModal?.classList.contains("hidden"))
             {
+                preGameModal = document.querySelector("#preGameModal");
                 btmBtn?.removeAttribute("disabled");
                 spinerDiv?.classList.add("hidden");
                 gameOverModal?.classList.add("hidden");
-                preGameModal?.classList.remove("hidden");
-                // rankedProfilesContainer!.innerHTML = rankedPlayerProfilesContainer();
-            }
-            if(!tournamentBracketFourPlayers?.classList.contains("hidden"))
-            {
-                tournamentCleaning();
-                tournamentBracketFourPlayers?.classList.add("hidden");
-                tournamentBracketFourPlayers?.classList.remove("flex");
-                btmBtn?.classList.add("hidden");
                 preGameModal?.classList.remove("hidden");
                 preGameModal?.classList.add("flex");
             }
@@ -964,6 +1048,22 @@ function handleKeyUp(ev: KeyboardEvent) {
                 }
         }
     });
+
+document.addEventListener("click", (e) => {
+    const target = e.target as HTMLElement;
+    if (target.id === "bracketBackToMenuBtn") {
+        e.stopPropagation();
+        console.log("BTM CLICK");
+        tournamentCleaning();
+        const tournamentBracketFourPlayers = document.querySelector("#bracketFourPlayers");
+        tournamentBracketFourPlayers?.classList.add("hidden");
+        tournamentBracketFourPlayers?.classList.remove("flex");
+        tournamentProfiles?.classList.add("hidden");
+        preGameModal?.classList.remove("hidden");
+        preGameModal?.classList.add("flex");
+    }
+});
+    
 
     function tournamentCleaning()
     {
@@ -988,9 +1088,9 @@ function handleKeyUp(ev: KeyboardEvent) {
         const target = e.target as HTMLElement;
         if (target.id === "rankedPlayAgainBtn") {
             e.stopPropagation();
-            
-            const gameOverModal = document.querySelector("#gameOverModal");
             const rankedGameModal = document.querySelector("#rankedGameModal");
+             const rankedBackToMenuBtn = rankedGameModal?.querySelector("#backToMenuBtn") as HTMLButtonElement;
+            const gameOverModal = document.querySelector("#gameOverModal");
             
             gameOverModal?.classList.add("hidden");
             gameOverModal?.classList.remove("flex");
@@ -998,8 +1098,9 @@ function handleKeyUp(ev: KeyboardEvent) {
             rankedGameModal?.classList.remove("hidden");
             rankedGameModal?.classList.add("flex");
             spinerDiv?.classList.add("hidden");
-            btmBtn?.removeAttribute("disabled")
+            rankedBackToMenuBtn?.removeAttribute("disabled")
             rankedProfilesContainer?.classList.add("hidden");
+            
             
             // Запуск новой рейтинговой игры будет обрабатываться кнопкой startRankedMatchBtn
         }
