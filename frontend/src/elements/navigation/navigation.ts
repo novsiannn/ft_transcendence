@@ -18,8 +18,8 @@ export const attachNotificationListeners = () => {
         localStorage.setItem('gameInviteAction', JSON.stringify({
           gameData: {
             gameId: gameId,
-            player1Id: gamePlayerOne,
-            player2Id: gamePlayerTwo
+            player1Id: Number(gamePlayerOne),
+            player2Id: Number(gamePlayerTwo)
           },
           action: 'show_accept_modal'
         }));

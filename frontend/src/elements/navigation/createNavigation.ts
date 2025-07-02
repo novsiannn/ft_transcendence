@@ -53,7 +53,6 @@ const getNotificationLayout = (): string => {
         break;
     }
 if(n.type === "game_invite"){
-      // console.log("N DATA",n.data);
       allNotifications += `
       <div class="relative">
 
@@ -217,7 +216,7 @@ const getAuthBtn = () => {
 
 export function navigation() {
   return `
-		<nav class="top-0 left-0  text-white h-16 w-full flex items-center justify-between px-6 select-none p-3">
+		<nav class="top-0 left-0  text-white h-16 w-full flex items-center justify-between px-6 select-none p-3 z-50">
       
     	<img src="https://img.icons8.com/plasticine/100/ping-pong--v1.png" draggable="false" alt="Logo" class="h-12 w-12 object-cover" id=imgLogoNavi>
       

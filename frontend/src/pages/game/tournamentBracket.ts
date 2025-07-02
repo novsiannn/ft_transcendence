@@ -58,7 +58,7 @@ export function tournamentBracketPlayers() {
     </div>
 
     <!-- Кнопка под сеткой -->
-      <button id="backToMenuBtn" class="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 ">Back to Menu</button>
+      <button id="bracketBackToMenuBtn" class="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 ">Back to Menu</button>
       <button id="startTournamentGame" class="mt-4 px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition">
         Start Match!
     </button>

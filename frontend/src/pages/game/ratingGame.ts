@@ -142,6 +142,7 @@ export function setupButtonDelegation(gameId: string) {
                 e.stopPropagation();
                 
                 let game = getCurrentGame();
+                console.log(getCurrentGame());
                 const isCurrentUserPlayer1 = currentUserId === game?.player1Id;
                 const isCurrentUserPlayer2 = currentUserId === game?.player2Id;
                 
