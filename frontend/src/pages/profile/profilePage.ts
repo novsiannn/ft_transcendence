@@ -28,15 +28,7 @@ export function profilePage(mainWrapper: HTMLDivElement | undefined) {
             </div>
         </div>
         
-        <div class="mt-6 mb-4">
-            <div class="flex justify-between" >
-                <p class="text-sm text-gray-600" >Level 0</p>
-                <p class="text-sm text-gray-600 mt-1">0 / 1000 XP</p>
-            </div>
-          <div class="w-full bg-gray-200 rounded-full h-2 mt-1">
-            <div class="bg-gray-400 h-2 rounded-full" style="width: 0%"></div>
-          </div>
-        </div>
+        
 
         <div class=" mx-auto flex justify-between items-stretch mt-6 text-gray-700 font-semibold">
             <div class="flex-1 text-center h-full">
