@@ -204,6 +204,10 @@ module.exports = {
         "bg-opacity-90",
         "bg-opacity-95",
         "bg-opacity-100",
+        "justify-around",
+        "table-fixed",
+        "table-auto",
+        "grid-cols-6",
 
         // utility & animation
         "bottom-0",

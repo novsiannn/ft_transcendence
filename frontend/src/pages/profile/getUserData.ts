@@ -77,6 +77,8 @@ const setMatchHistory = ({
     "#matchResultContainer"
   );
 
+  matchResultContainer!.innerHTML = '';
+
   if (recentGames.length === 0) {
     const noMatchesYet = document.createElement("p");
     noMatchesYet.className = "text-center";

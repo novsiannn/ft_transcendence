@@ -59,7 +59,7 @@ export const handleModalInput = (
           modalWindow?.classList.add("hidden");
         }, 400);
       } else {
-        activateWarning("#warningMessageModalInput", 'settings.IncorrectCode');
+        activateWarning("#warningMessageModalInput", 'settings.incorrectCode');
       }
       return response;
     } else if (endpoint === "2fa/login") {
@@ -67,10 +67,8 @@ export const handleModalInput = (
         modalInput?.value ? modalInput.value : "",
         userID ? userID : ""
       );
-      console.log(response);
-
       if (response.status === 400 || response.status === 401) {
-        activateWarning("#warningMessageModalInput", 'settings.IncorrectCode');
+        activateWarning("#warningMessageModalInput", 'settings.incorrectCode');
       }
 
       return response;
@@ -83,7 +81,7 @@ export const handleModalInput = (
 
       if (response.status === 400 || response.status === 401) {
         console.log("here");
-        activateWarning("#warningMessageModalInput", 'settings.IncorrectCode');
+        activateWarning("#warningMessageModalInput", 'settings.incorrectCode');
       }
 
       return response;

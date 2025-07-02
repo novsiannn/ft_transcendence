@@ -85,7 +85,7 @@ export function handleSettings() {
   const enableTwoFactorBtn = document.querySelector<HTMLButtonElement>(
     "#enableTwoFactorBtn"
   );
-  const deleteAccount = document.querySelector<HTMLButtonElement>(
+  const deleteAccountBtn = document.querySelector<HTMLButtonElement>(
     "#deleteAccountBtn"
   );
   const disableTwoFactorBtn = document.querySelector<HTMLButtonElement>(
@@ -108,7 +108,7 @@ export function handleSettings() {
     }
   };
 
-  deleteAccount?.addEventListener('click', () => {
+  deleteAccountBtn?.addEventListener('click', () => {
     handleModalInput('user/profile', 'buttons.deleteAccount');
   });
 
