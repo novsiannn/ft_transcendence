@@ -233,6 +233,7 @@ export async function rankedGameStatus(
     btmBtn: Element | null
 ) {
     try{
+        const rankedBackToMenuBtn = rankedGameModal?.querySelector("#backToMenuBtn") as HTMLButtonElement;
         const response = await instanceAPI.get("/game/matchmaking/status");
         let responseData = response.data as {inQueue: true}
         if(responseData.inQueue) {
@@ -240,14 +241,15 @@ export async function rankedGameStatus(
             rankedGameModal?.classList.remove("hidden");
             rankedGameModal?.classList.add("flex");
             startRankedMatchBtn?.classList.add("hidden");
-            spinerDiv?.classList.remove("invisible");
+            spinerDiv?.classList.remove("hidden");
+            spinerDiv?.classList.add("flex");
             cancelRankedMatchBtn?.classList.remove("hidden");
-            btmBtn?.setAttribute("disabled", "true");
+            rankedBackToMenuBtn?.setAttribute("disabled", "true");
         } else {
             preGameModal?.classList.remove("hidden");
             preGameModal?.classList.add("flex");
             rankedGameModal?.classList.add("hidden");
-            btmBtn?.removeAttribute("disabled");
+            rankedBackToMenuBtn?.removeAttribute("disabled");
         }
     } catch (error) {
         console.error('Error checking ranked game status:', error);

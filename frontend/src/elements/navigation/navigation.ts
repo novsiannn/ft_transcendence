@@ -14,7 +14,7 @@ export const attachNotificationListeners = () => {
         
         const gamePlayerOne = el.getAttribute("data-game-playerOne");
         const gamePlayerTwo = el.getAttribute("data-game-playerTwo");
-        // Сохраняем информацию о том, что это переход по приглашению
+
         localStorage.setItem('gameInviteAction', JSON.stringify({
           gameData: {
             gameId: gameId,

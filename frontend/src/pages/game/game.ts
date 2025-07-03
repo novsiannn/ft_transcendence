@@ -13,7 +13,7 @@ import {
     timerCountdown,
     movePaddleLocal,
     onLocalGameCreated,
-    onMatchFriendsFound,
+    onGameCancelled,
 } from "../../websockets/client";
 import { rankedWinnerData, gameOverModalCreator, acceptFriendGameModal } from "./gameModal";
 import { 
@@ -29,6 +29,8 @@ import { clearRankedPlayerData } from "./playersProfiles";
 import { getColorFromUsername } from "../../shared/randomColors";
 import gameService from "../../services/api/gameService";
 import { navigationHandle } from "../../elements/navigation";
+import { BtnAccept } from "../../elements/BtnAccept";
+import { navigateTo } from "../../routing";
 declare global {
     interface Window {
         tournamentPlayerNickname1: string;
@@ -86,8 +88,11 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
     // Игровые переменные для режимов
     let gameMode: 'local' | 'multiplayer' | null = null;
     let gameType: 'ranked' | 'friends' | null = null;
+
     let currentGameId: string | null = null;
     let paddleMovementInterval: ReturnType<typeof setInterval> | null = null;
+
+    let invitedFriendId: number;
 
     setupMultiplayerSocketHandlers();
 
@@ -422,6 +427,10 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
         timerCountdown((data) => {
             const seconds = data.seconds;
             
+            const player1ReadyBtn = document.querySelector("#playerOneReadyBtn");
+            const player2ReadyBtn = document.querySelector("#playerTwoReadyBtn");
+            player1ReadyBtn?.classList.add("hidden");
+            player2ReadyBtn?.classList.add("hidden");
             const countdownElement = document.getElementById("countdown");
             countdownElement?.classList.remove("hidden");
             countdownElement!.textContent = seconds.toString();
@@ -435,6 +444,18 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
         onGameUpdate((gameState) => {
             renderGame(gameState);
         });
+
+                    onGameCancelled((gameId) => {
+                const rankedProfilesContainer = document.querySelector('#rankedProfiles');
+                console.log("Game was cancelled!");
+                console.log("GAME CANCELLED");
+                spinerDiv?.classList.add("hidden");
+                rankedProfilesContainer?.classList.add("hidden");
+                preGameModal?.classList.remove("hidden");
+                preGameModal?.classList.add("flex");
+                rankedProfilesContainer?.classList.add("hidden");
+                // navigateTo("/");
+            });
 
         onGameFinished((result) => {
             console.log("Game finished:", result, gameMode);
@@ -939,15 +960,16 @@ function handleKeyUp(ev: KeyboardEvent) {
         setupButtonDelegation(data.gameId || data.game.id);
         resetMatchmakingButtons();
         updateAllStoreUsers();
+
     }
 
 
+    let selectedFriend = document.querySelector("#selectedFriend");
     function getFriendsList() {
         const friends = store.getAllFriends();
         const friendsList = document.querySelector("#friendsDropDown");
-        const selectedFriend = document.querySelector("#selectedFriend");
 
-        if (friendsList) {
+        if (friendsList && friends.length > 0) {
             friendsList.innerHTML = "";
 
             friends.forEach((friend) => {
@@ -967,40 +989,81 @@ function handleKeyUp(ev: KeyboardEvent) {
                 }
                 friendBtn.addEventListener("click", () => {
                     if (selectedFriend) {
-                        (selectedFriend as HTMLImageElement).src = API_URL + friend.avatar;
-                        const btn = document.getElementById("friendSelectBtn");
-                        const span = btn?.querySelector("span");
-                        if (span) {
-                            span.textContent = friend.username;
+                        invitedFriendId = friend.id;
+                        if(friend.avatar){
+                            // (selectedFriend as HTMLImageElement).src = API_URL + friend.avatar;
+                            // const btn = document.getElementById("friendSelectBtn");
+                            // const span = btn?.querySelector("span");
+                            // invitedFriendId = friend.id;
+                            // if (span) {
+                                //     span.textContent = friend.username;
+                                // }
+                                
+                                const newImg = document.createElement("img");
+                                    newImg.id = "profileImg";
+                                    newImg.className = "w-8 h-8 rounded-full mr-2";
+                                    newImg.alt = "Profile Image";
+                                    newImg.src = API_URL + friend.avatar;
+
+                                    selectedFriend.replaceWith(newImg);
+                                    selectedFriend = newImg;
+                                    console.log("SELECTED FRIEND", selectedFriend)
+                                    const btn = document.getElementById("friendSelectBtn");
+                                    const span = btn?.querySelector("span");
+                                    if (span) {
+                                        span.textContent = friend.username;
+                                    }
+                        }else{
+                            const newDiv = createProfileDivElement(friendFirstLetter, friendColor);
+                            selectedFriend.replaceWith(newDiv);
+                            selectedFriend= newDiv;
+                            const btn = document.getElementById("friendSelectBtn");
+                            const span = btn?.querySelector("span");
+                            if (span) {
+                                span.textContent = friend.username;
+                            }
                         }
                     }
                     friendsList.classList.add("hidden");
                 });
-                sendFriendMatchRequestBtn?.addEventListener('click',async (e) => {
-                    e.stopPropagation();
-                    try{
-                        const response = await store.sendFriendGameRequest(friend.id);
-                        if(response.status === 201){
-                            const res = response.data;
-                            sendFriendMatchRequestBtn.classList.add("opacity-50");
-                            sendFriendMatchRequestBtn.setAttribute("disabled", "true");
-                            
-                            startFriendMatch(res);
-                            
-                            setTimeout(() => {
-                                sendFriendMatchRequestBtn.classList.remove("opacity-50");
-                                sendFriendMatchRequestBtn.removeAttribute("disabled");
-                            }, 30000);
-                        }
-                    }catch{
-                        console.error("Error");
-                    }
-                });
+
                 friendsList.appendChild(friendBtn);
             });
         }
     }
 
+    function createProfileDivElement(
+        firstLetter: string,
+        color: string
+    ): HTMLDivElement {
+        const newDiv = document.createElement("div");
+        newDiv.id = "profileImg";
+        newDiv.className = `text-1xl text-white font-bold flex justify-center items-center w-8 h-8 mr-2 ${color} rounded-full cursor-pointer select-none`;
+        newDiv.textContent = firstLetter;
+        console.log("NEW DIV : ", newDiv)
+        return newDiv;
+    }
+    
+    sendFriendMatchRequestBtn?.addEventListener('click',async (e) => {
+    e.stopPropagation();
+    try{
+        const response = await store.sendFriendGameRequest(invitedFriendId);
+        if(response.status === 201){
+            const res = response.data;
+            sendFriendMatchRequestBtn.classList.add("opacity-50");
+            sendFriendMatchRequestBtn.setAttribute("disabled", "true");
+            
+            startFriendMatch(res);
+            
+            setTimeout(() => {
+                sendFriendMatchRequestBtn.classList.remove("opacity-50");
+                sendFriendMatchRequestBtn.removeAttribute("disabled");
+            }, 35000);
+        }
+    }catch{
+        console.error("Error");
+    }
+    });
 
     // Обработчики модальных окон
     document.addEventListener("click", async (e) =>{

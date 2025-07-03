@@ -13,7 +13,7 @@ export function preGameModal() {
     <div id="preGameModal" class="fixed inset-0 z-10 pt-16 flex items-center justify-center">
       <div class="bg-white p-6 rounded-lg shadow-lg text-black space-y-2 w-max h-auto text-center">
         <div class="relative inline-block text-left mb-2">
-          <button id="gameModeDropdownBtn" data-dropdown-toggle="gameDropdownMenu" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800" type="button">
+          <button id="gameModeDropdownBtn" data-dropdown-toggle="gameDropdownMenu" class="cursor-pointer text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800" type="button">
             Select Game Mode
             <svg class="w-2.5 h-2.5 ms-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
               <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 4 4 4-4"/>
@@ -22,18 +22,18 @@ export function preGameModal() {
           <div id="gameDropdownMenu" class="z-10 hidden absolute left-0 mt-2 bg-white divide-y divide-gray-100 rounded-lg shadow-sm w-44 dark:bg-gray-700">
             <ul class="py-2 text-sm text-gray-700 dark:text-gray-200" aria-labelledby="gameDropdownButton">
               <li>
-                 <button id="createFriendsMatchBtn" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Friends Match</button>
+                 <button id="createFriendsMatchBtn" class="cursor-pointer block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Friends Match</button>
               </li>
             </ul>
             <ul class="py-2 text-sm text-gray-700 dark:text-gray-200" aria-labelledby="gameDropdownButton">
               <li>
-                 <button id="rankedMatchBtn" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Ranked Match</button>
+                 <button id="rankedMatchBtn" class=" cursor-pointer block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Ranked Match</button>
               </li>
             </ul>
           </div>
         </div>
         <div class="relative inline-block text-left">
-          <button id="tournamentDropdownButton" data-dropdown-toggle="tournamentDropdownMenu" class="justify-start text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800" type="button">
+          <button id="tournamentDropdownButton" data-dropdown-toggle="tournamentDropdownMenu" class=" cursor-pointer justify-start text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800" type="button">
             Create Tournament 
             <svg class="w-2.5 h-2.5 ms-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
               <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 4 4 4-4"/>
@@ -42,7 +42,7 @@ export function preGameModal() {
           <div id="tournamentDropdownMenu" class="z-10 hidden absolute left-0 mt-2 bg-white divide-y divide-gray-100 rounded-lg shadow-sm w-44 dark:bg-gray-700">
             <ul class="py-2 text-sm text-gray-700 dark:text-gray-200" aria-labelledby="tournamentDropdownButton">
               <li>
-                <button id="fourPlayersGameBtn" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">4 Players</button>
+                <button id="fourPlayersGameBtn" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white cursor-pointer">4 Players</button>
               </li>
             </ul>
           </div>
@@ -58,20 +58,20 @@ export function tournamentModal() {
       <div class="bg-white p-6 rounded-lg shadow-lg text-black space-y-2 w-max h-auto text-center">
         <h2 class="text-lg font-semibold">Tournament Created!</h2>
         <div class="relative w-full">
-          <button id="avatarSelectBtn" class="w-full flex items-center justify-between border p-2 rounded bg-white">
+          <button id="avatarSelectBtn" class="w-full flex items-center justify-between border p-2 rounded bg-white cursor-pointer">
             <img id="selectedAvatar" src="../../img/tournamentDefault.png" class="w-8 h-8 rounded-full" alt="avatar" />
             <span>Выберите аватар</span>
             <svg class="w-4 h-4 ml-2"></svg>
           </button>
           <div id="avatarDropdown" class="absolute left-0 mt-2 w-full bg-white border rounded shadow-lg hidden z-10">
             <div class="flex flex-col">
-              <button class="flex items-center p-2 hover:bg-gray-100" data-avatar="../../img/granny.jpg">
+              <button class=" cursor-pointerflex items-center p-2 hover:bg-gray-100" data-avatar="../../img/granny.jpg">
                 <img src="../../img/granny.jpg" class="w-8 h-8 rounded-full mr-2" alt="avatar1" /> Аватар 1
               </button>
-              <button class="flex items-center p-2 hover:bg-gray-100" data-avatar="../../img/spichka.jpg">
+              <button class=" cursor-pointerflex items-center p-2 hover:bg-gray-100" data-avatar="../../img/spichka.jpg">
                 <img src="../../img/spichka.jpg" class="w-8 h-8 rounded-full mr-2" alt="avatar2" /> Аватар 2
               </button>
-              <button class="flex items-center p-2 hover:bg-gray-100" data-avatar="../../img/tyler.jpg">
+              <button class=" cursor-pointerflex items-center p-2 hover:bg-gray-100" data-avatar="../../img/tyler.jpg">
                 <img src="../../img/tyler.jpg" class="w-8 h-8 rounded-full mr-2" alt="avatar2" /> Аватар 2
               </button>
               <!-- Добавь еще аватары -->
@@ -79,8 +79,8 @@ export function tournamentModal() {
           </div>
         </div>
         <input type="text" id="playerNickname" placeholder="Enter Players Nickname" class="mt-2 p-2 border border-gray-300 rounded w-full" />
-        <button id="backToMenuBtn" class="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 ">Back to Menu</button>
-        <button id="submitNicknameBtn" type="submit" class=" mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">Submit</button>
+        <button id="backToMenuBtn" class="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 cursor-pointer">Back to Menu</button>
+        <button id="submitNicknameBtn" type="submit" class=" mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 cursor-pointer">Submit</button>
       </div>
       
       ${getModalWindowError()}
@@ -99,21 +99,21 @@ export function friendsMatchModal(){
       <div class="bg-white p-6 rounded-lg shadow-lg text-black space-y-2 w-auto h-auto text-center">
         <h2 class="text-lg font-semibold"> </h2>
         <div class="relative w-full">
-          <button id="friendSelectBtn" class="w-full flex items-center justify-between border p-2 rounded bg-white">
+          <button id="friendSelectBtn" class="w-full flex items-center justify-between border p-2 rounded bg-white cursor-pointer">
             <img id="selectedFriend" src="../../img/tournamentDefault.png" class="w-8 h-8 rounded-full" alt="avatar" />
             <span>Select Friend</span>
             <svg class="w-4 h-4 ml-2"></svg>
           </button>
           <div id="friendsDropDown" class="absolute left-0 mt-2 w-full bg-white border rounded shadow-lg hidden z-10">
             <div class="flex flex-col">
-              <button class="flex items-center p-2 hover:bg-gray-100" data-avatar="${userPhoto}">
-                <img src="${userPhoto}" class="w-8 h-8 rounded-full mr-2" alt="avatar1" /> ${userName}
+              <button class="flex items-center p-2 hover:bg-gray-100" ">
+                You have no friends yet!
               </button>
             </div>
           </div>
         </div>
-        <button id="backToMenuBtn" class="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 ">Back to Menu</button>
-        <button id="sendInviteBtn" type="submit" class=" mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">Submit</button>
+        <button id="backToMenuBtn" class="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 cursor-pointer">Back to Menu</button>
+        <button id="sendInviteBtn" type="submit" class=" mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 cursor-pointer">Submit</button>
       </div>
       ${getModalWindowError()}
     </div>
@@ -130,20 +130,20 @@ export function rankedGameModal() {
           <div class="w-8 h-8 border-4 border-blue-400 border-t-white rounded-full animate-spin opacity-80"></div>
         </div>
 
-        <button id="backToMenuBtn" class="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600">Back to Menu</button>
-        <button id="rankedDeleteGameBtn" class="mt-2 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600">Delete Game</button>
+        <button id="backToMenuBtn" class="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 cursor-pointer">Back to Menu</button>
+        <button id="rankedDeleteGameBtn" class="mt-2 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 cursor-pointer">Delete Game</button>
 
         <!-- Spinner over Start Button -->
         <div class="relative inline-block">
           <div id="rankedSpinner" class="absolute -top-6 left-1/2 -translate-x-1/2 hidden">
             <div class="w-6 h-6 border-4 border-blue-400 border-t-white rounded-full animate-spin opacity-80"></div>
           </div>
-          <button id="startRankedMatchBtn" class="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
+          <button id="startRankedMatchBtn" class="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 cursor-pointer">
             Start Ranked Match!
           </button>
         </div>
 
-        <button id="cancelRankedMatchBtn" class="hidden mt-4 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600">
+        <button id="cancelRankedMatchBtn" class="hidden mt-4 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 cursor-pointer">
           Cancel Ranked Match!
         </button>
       </div>
@@ -177,8 +177,8 @@ export function gameOverModalCreator(result : number) {
 
       <!-- Кнопки действий -->
       <div class="flex gap-4 mt-6">
-        <button id="rankedPlayAgainBtn" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">Play Again</button>
-        <button id="backToMenuBtn" class="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600">Back to Menu</button>
+        <button id="rankedPlayAgainBtn" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 cursor-pointer">Play Again</button>
+        <button id="backToMenuBtn" class="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 cursor-pointer">Back to Menu</button>
       </div>
     </div>
   `;
@@ -200,8 +200,8 @@ export function acceptFriendGameModal()
       <div class="bg-white p-6 rounded-lg shadow-lg text-black space-y-4 w-max h-auto text-center">
         <h2 class="text-lg font-semibold">Searching for an opponent</h2>
 
-        <button id="acceptGameBtn" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-500">Accept game</button>
-        <button id="declineGameBtn" class="mt-2 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600">Decline game</button>
+        <button id="acceptGameBtn" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-500 cursor-pointer">Accept game</button>
+        <button id="declineGameBtn" class="mt-2 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 cursor-pointer">Decline game</button>
 
         
       </div>
