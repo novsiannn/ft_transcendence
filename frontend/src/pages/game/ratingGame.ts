@@ -35,14 +35,12 @@ export function setupRankedListeners(
 
         updatePlayerProfiles(data);
         setupButtonDelegation(gameId);
-        console.log("SETUP RANKED LISTENERS", gameId);
 
         resetMatchmakingButtons();
     });
 
     onGameCancelled((gameId) => {
         const rankedProfilesContainer = document.querySelector('#rankedProfiles');
-        console.log("Game was cancelled!");
         console.log("GAME CANCELLED");
         spinerDiv?.classList.add("hidden");
         rankedProfiles?.classList.add("hidden");
@@ -62,23 +60,13 @@ export function updatePlayerProfiles(gameData: any) {
     let game;
     if (gameData.game) {
         game = gameData.game;
-        console.log("Game DATA",game);
     } else {
         game = gameData;
-        console.log("Game DATA",game);
     }
 
-
-    console.log("Game DATA",game);
     currentGame = game;
     const user1 = findUser(Number(game.player1Id));
     const user2 = findUser(Number(game.player2Id));
-    
-    console.log("Updating player profiles with game data:", game);
-    // console.log("Current user ID:", currentUserId);
-    console.log("Player1 ID:", game.player1Id, "Player2 ID:", game.player2Id);
-
-    console.log("User1 :", user1, "User2 :", user2);
 
     if (user1 && user2) {
         rankedPlayerData.firstPlayer = user1.username;
@@ -104,21 +92,15 @@ export function setupInitialReadyButtonsVisibility(player1Id: number, player2Id:
     const currentUserId = store.getUser().id;
     const playerOneReadyBtn = document.querySelector("#playerOneReadyBtn") as HTMLButtonElement;
     const playerTwoReadyBtn = document.querySelector("#playerTwoReadyBtn") as HTMLButtonElement;
-    console.log("CURRENT USER ID", currentUserId);
-    console.log("player 1 : ", player1Id);
-    console.log("player 2 : ", player2Id);
     
     if (playerOneReadyBtn && playerTwoReadyBtn) {
         if (currentUserId === player1Id) {
-            console.log("SECOND HIDDEN");
             playerOneReadyBtn.classList.remove("hidden");
             playerTwoReadyBtn.classList.add("hidden");
         } else if (currentUserId === player2Id) {
-            console.log("FIRST HIDDEN");
             playerOneReadyBtn.classList.add("hidden");
             playerTwoReadyBtn.classList.remove("hidden");
         } else {
-            console.log("ALL HIDDEN");
             playerOneReadyBtn.classList.add("hidden");
             playerTwoReadyBtn.classList.add("hidden");
         }
@@ -142,7 +124,6 @@ export function setupButtonDelegation(gameId: string) {
                 e.stopPropagation();
                 
                 let game = getCurrentGame();
-                console.log(getCurrentGame());
                 const isCurrentUserPlayer1 = currentUserId === game?.player1Id;
                 const isCurrentUserPlayer2 = currentUserId === game?.player2Id;
                 
@@ -212,7 +193,6 @@ export async function startRankedGame(
             
             updatePlayerProfiles(userResponseData);
             setupButtonDelegation(gameId);
-            console.log("START RANKED GAME", gameId);
             
             rankedGameModal?.classList.add("hidden");
             

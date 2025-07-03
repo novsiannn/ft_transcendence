@@ -38,8 +38,10 @@ declare global {
     }
 }
 
-export function handleGame(mainWrapper: HTMLDivElement | undefined) {
-    navigationHandle();
+
+let testData :any;
+export function showAcceptModal()
+{
     const gameInviteAction = localStorage.getItem('gameInviteAction');
     if (gameInviteAction) {
         try {
@@ -53,16 +55,10 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
                     preGameModal?.classList.remove("flex");
                     friendGameAcceptModal?.classList.remove("hidden");
                     friendGameAcceptModal?.classList.add("flex");
-                    acceptGameBtn?.addEventListener('click', () => {
+                    console.log("TEST DATA BEFORE : ", testData)
+                    testData = action.gameData;
+                    console.log("TEST DATA AFTER : ", testData)
 
-                        friendGameAcceptModal?.classList.add("hidden");
-                        friendGameAcceptModal?.classList.remove("flex");
-                        startFriendMatch(action.gameData);
-                    });
-                    
-                    declineGameBtn?.addEventListener('click', () => {
-                        
-                    });
                 }, 100);
                 localStorage.removeItem('gameInviteAction');
             }
@@ -70,7 +66,28 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
             console.error('Error parsing game invite action:', e);
             localStorage.removeItem('gameInviteAction');
         }
-    }
+    }  
+}
+
+export function handleGame(mainWrapper: HTMLDivElement | undefined) {
+    navigationHandle();
+    
+
+
+    const acceptGameBtn = document.querySelector("#acceptGameBtn");
+    const declineGameBtn = document.querySelector("#declineGameBtn");
+    const friendGameAcceptModal = document.querySelector("#friendGameAcceptModal");
+    acceptGameBtn?.addEventListener('click', () => {
+
+        friendGameAcceptModal?.classList.add("hidden");
+        friendGameAcceptModal?.classList.remove("flex");
+        console.log("TEST DATA ACCEPT : ", testData)
+        startFriendMatch(testData);
+    });
+    
+    declineGameBtn?.addEventListener('click', () => {
+        
+    });
 
     const tournamentProfiles = document.querySelector("#tournamentProfiles");
     tournamentProfiles?.classList.add("hidden")
@@ -363,8 +380,6 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
         window.tournamentPlayerNickname1 = tournamentPlayerNickname1;
         window.tournamentPlayerNickname2 = tournamentPlayerNickname2;
         
-        console.log("Player 1", player1);
-        console.log("Player 2", player2);
         step++;
         tournamentProfiles!.innerHTML = tournamentPlayerProfiles();
         socket?.emit("game:joinLocal", {player1, player2});
@@ -441,11 +456,9 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
         });
 
         onGameCancelled((gameId) => {
-            console.log("SENDER ID : ", gameInviteSenderId, gameType);
-            if(gameInviteSenderId === store.getUser().id || gameType === "ranked")
+            if(gameInviteSenderId === store.getUser().id || gameType === "friends" || gameType === "ranked")
             {
             const rankedProfilesContainer = document.querySelector('#rankedProfiles');
-            console.log("Game was cancelled!");
             console.log("GAME CANCELLED");
             spinerDiv?.classList.add("hidden");
             rankedProfilesContainer?.classList.add("hidden");
@@ -455,7 +468,6 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
             gameInviteSenderId = 0;
             gameType = null;
             }
-            // navigateTo("/");
         });
 
         onGameFinished((result) => {
@@ -740,7 +752,6 @@ function handleKeyUp(ev: KeyboardEvent) {
         tournamentPlayerData.avatars.set(playerNickname.value, (selectAvatar as HTMLImageElement)!.src);
         playerNickname.value = "";
         
-        console.log(tournamentPlayerData.nicknames);
         if(tournamentPlayerData.nicknames.length === 4) {
             tournamentModal?.classList.add("hidden");
             tournamentModal?.classList.remove("flex");
@@ -748,7 +759,6 @@ function handleKeyUp(ev: KeyboardEvent) {
             createTournamentNet();
             
         }
-        console.log("PLAYERS : ", tournamentData.semiFinal);
     }
     
     fourPlayersGameBtn?.addEventListener("click", (e) => {
@@ -779,28 +789,24 @@ function handleKeyUp(ev: KeyboardEvent) {
             // tournamentProfiles.classList.remove("hidden");
         }
     // Удаляем старый элемент, если он существует
-    let bracketElement = document.querySelector("#bracketFourPlayers");
-    if (bracketElement) {
-        bracketElement.remove();
-    }
-    
-    // Создаем новый элемент
-    document.body.insertAdjacentHTML('beforeend', tournamentBracketPlayers());
-    
-    // Получаем новый элемент и показываем его
-    bracketElement = document.querySelector("#bracketFourPlayers");
-    if (bracketElement) {
-        const bracketElement = document.querySelector("#bracketFourPlayers");
-        if (bracketBackToMenuBtn) {
-            bracketBackToMenuBtn.removeAttribute("disabled");
+        let bracketElement = document.querySelector("#bracketFourPlayers");
+        if (bracketElement) {
+            bracketElement.remove();
         }
-        bracketElement!.classList.remove("hidden");
-        bracketElement!.classList.add("flex");
-    }
         
-        console.log("NET AFTER GENERATION:", tournamentPlayerData.tournamentNet);
-        console.log("NICKNAMES:", tournamentPlayerData.nicknames);
-        // tournamentBracket?.classList.add("flex");
+        // Создаем новый элемент
+        document.body.insertAdjacentHTML('beforeend', tournamentBracketPlayers());
+        
+        // Получаем новый элемент и показываем его
+        bracketElement = document.querySelector("#bracketFourPlayers");
+        if (bracketElement) {
+            const bracketElement = document.querySelector("#bracketFourPlayers");
+            if (bracketBackToMenuBtn) {
+                bracketBackToMenuBtn.removeAttribute("disabled");
+            }
+            bracketElement!.classList.remove("hidden");
+            bracketElement!.classList.add("flex");
+        }
         
     }
 
@@ -910,8 +916,8 @@ function handleKeyUp(ev: KeyboardEvent) {
     const gameModeDropdownBtn = document.querySelector("#gameModeDropdownBtn");
     const gameDropdownMenu = document.querySelector("#gameDropdownMenu");
     const sendFriendMatchRequestBtn = document.querySelector("#sendInviteBtn");
-    const acceptGameBtn = document.querySelector("#acceptGameBtn");
-    const declineGameBtn = document.querySelector("#declineGameBtn");
+    // const acceptGameBtn = document.querySelector("#acceptGameBtn");
+    // const declineGameBtn = document.querySelector("#declineGameBtn");
 
     document.addEventListener("click", (e) => {
         e.stopPropagation();
@@ -960,6 +966,7 @@ function handleKeyUp(ev: KeyboardEvent) {
         setupButtonDelegation(data.gameId || data.game.id);
         resetMatchmakingButtons();
         updateAllStoreUsers();
+        testData = null;
 
     }
 
@@ -1007,7 +1014,6 @@ function handleKeyUp(ev: KeyboardEvent) {
 
                                     selectedFriend.replaceWith(newImg);
                                     selectedFriend = newImg;
-                                    console.log("SELECTED FRIEND", selectedFriend)
                                     const btn = document.getElementById("friendSelectBtn");
                                     const span = btn?.querySelector("span");
                                     if (span) {
@@ -1040,7 +1046,6 @@ function handleKeyUp(ev: KeyboardEvent) {
         newDiv.id = "profileImg";
         newDiv.className = `text-1xl text-white font-bold flex justify-center items-center w-8 h-8 mr-2 ${color} rounded-full cursor-pointer select-none`;
         newDiv.textContent = firstLetter;
-        console.log("NEW DIV : ", newDiv)
         return newDiv;
     }
     
@@ -1053,7 +1058,6 @@ function handleKeyUp(ev: KeyboardEvent) {
             sendFriendMatchRequestBtn.classList.add("opacity-50");
             sendFriendMatchRequestBtn.setAttribute("disabled", "true");
             gameInviteSenderId = store.getUser().id;
-            console.log("INVITE SENDER ID : ", gameInviteSenderId);
             startFriendMatch(res);
             
             setTimeout(() => {
@@ -1117,7 +1121,6 @@ document.addEventListener("click", (e) => {
     const target = e.target as HTMLElement;
     if (target.id === "bracketBackToMenuBtn") {
         e.stopPropagation();
-        console.log("BTM CLICK");
         tournamentCleaning();
         const tournamentBracketFourPlayers = document.querySelector("#bracketFourPlayers");
         tournamentBracketFourPlayers?.classList.add("hidden");
