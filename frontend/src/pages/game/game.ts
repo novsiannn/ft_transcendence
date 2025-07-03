@@ -40,15 +40,11 @@ declare global {
 
 export function handleGame(mainWrapper: HTMLDivElement | undefined) {
     navigationHandle();
-    // Проверяем, есть ли сохраненное действие для игрового приглашения
     const gameInviteAction = localStorage.getItem('gameInviteAction');
     if (gameInviteAction) {
         try {
             const action = JSON.parse(gameInviteAction);
             if (action.action === 'show_accept_modal') {
-                // Очищаем сохраненное действие
-                
-                // Показываем модальное окно принятия приглашения через небольшую задержку
                 setTimeout(() => {
                     const preGameModal = document.querySelector("#preGameModal");
                     const friendGameAcceptModal = document.querySelector("#friendGameAcceptModal");
@@ -85,9 +81,9 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
     const btmBtn = document.querySelector("#backToMenuBtn");
     const spinerDiv = document.querySelector("#spinerDiv");
     
-    // Игровые переменные для режимов
     let gameMode: 'local' | 'multiplayer' | null = null;
     let gameType: 'ranked' | 'friends' | null = null;
+    let gameInviteSenderId: number;
 
     let currentGameId: string | null = null;
     let paddleMovementInterval: ReturnType<typeof setInterval> | null = null;
@@ -135,8 +131,7 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
     
     let ball = currentGameState.ball;
     let profilesLastUpdate: string = "";
-    
-    // Основные игровые функции (универсальные для всех режимов)
+
     function checkIfProfilesNeedUpdate(gameState: IGameState): boolean {
         const playerIds = Object.keys(gameState.paddles);
         if (playerIds.length < 2) return false;
@@ -445,17 +440,23 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
             renderGame(gameState);
         });
 
-                    onGameCancelled((gameId) => {
-                const rankedProfilesContainer = document.querySelector('#rankedProfiles');
-                console.log("Game was cancelled!");
-                console.log("GAME CANCELLED");
-                spinerDiv?.classList.add("hidden");
-                rankedProfilesContainer?.classList.add("hidden");
-                preGameModal?.classList.remove("hidden");
-                preGameModal?.classList.add("flex");
-                rankedProfilesContainer?.classList.add("hidden");
-                // navigateTo("/");
-            });
+        onGameCancelled((gameId) => {
+            console.log("SENDER ID : ", gameInviteSenderId, gameType);
+            if(gameInviteSenderId === store.getUser().id || gameType === "ranked")
+            {
+            const rankedProfilesContainer = document.querySelector('#rankedProfiles');
+            console.log("Game was cancelled!");
+            console.log("GAME CANCELLED");
+            spinerDiv?.classList.add("hidden");
+            rankedProfilesContainer?.classList.add("hidden");
+            preGameModal?.classList.remove("hidden");
+            preGameModal?.classList.add("flex");
+            rankedProfilesContainer?.classList.add("hidden");
+            gameInviteSenderId = 0;
+            gameType = null;
+            }
+            // navigateTo("/");
+        });
 
         onGameFinished((result) => {
             console.log("Game finished:", result, gameMode);
@@ -616,7 +617,6 @@ function handleKeyUp(ev: KeyboardEvent) {
         const rankedMatchBtn = document.querySelector("#rankedMatchBtn");
 
         let rankedTimerInterval: ReturnType<typeof setInterval> | null = null;
-        // gameType = "ranked";
         
         rankedMatchBtn?.addEventListener("click", async (e) => {
             e.stopPropagation();
@@ -1052,7 +1052,8 @@ function handleKeyUp(ev: KeyboardEvent) {
             const res = response.data;
             sendFriendMatchRequestBtn.classList.add("opacity-50");
             sendFriendMatchRequestBtn.setAttribute("disabled", "true");
-            
+            gameInviteSenderId = store.getUser().id;
+            console.log("INVITE SENDER ID : ", gameInviteSenderId);
             startFriendMatch(res);
             
             setTimeout(() => {
