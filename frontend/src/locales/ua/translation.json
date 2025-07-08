@@ -44,7 +44,19 @@
     "block": "Блок",
     "unBlock": "Розблокувати",
     "userBlocked": "Користувач заблокував вас",
-    "inviteInGame": "Запросити друга в гру"
+    "inviteInGame": "Запросити друга в гру",
+    "backToMenu": "Назад до меню",
+    "selectGameMode": "Виберіть режим гри",
+    "createTournament": "Створити турнір",
+    "fourPlayers": "4 Гравця",
+    "friendsMatch": "Гра з друзями",
+    "rankedMatch": "Рейтинговий матч",
+    "submitNickname": "Додати нікнейм",
+    "startRankedMatch": "Почати рейтингову гру",
+    "cancelRankedMatch": "Скасувати рейтингову гру",
+    "startGame": "Почати гру",
+    "playAgain": "Грати знову",
+    "ready": "Готовий!"
   },
   "settings": {
     "2fa": "Аутентифікація 2FA",
@@ -70,6 +82,13 @@
     "notifications": "Сповіщення",
     "sentYouFriendRequest": " надіслав вам запит про дружбу.",
     "hasAcceptedFriendShip": " прийняв запрошення до дружби.",
-    "sentYouGameInvite": " PEREVEDITE PLS"
+    "sentYouGameInvite": " надіслав вам запрошення у гру"
+  },
+  "game": {
+    "rankedMode": "Рейтинговий режим",
+    "gameOver": "Гра закінчена",
+    "winner": "Переможець",
+    "friendsMatchReady": "Гра з другом готова"
+    
   }
 }

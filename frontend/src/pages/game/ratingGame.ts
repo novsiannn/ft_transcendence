@@ -11,6 +11,7 @@ import {
 } from "../../websockets/client";
 import { findUser } from "../../shared";
 import { rankedWinnerData } from "./gameModal";
+import i18next from "i18next"
 
 
 // Экспортируемые функции для рейтинговой игры
@@ -138,7 +139,7 @@ export function setupButtonDelegation(gameId: string) {
                 target.classList.add("cursor-not-allowed");
                 target.classList.remove("hover:bg-blue-600");
                 target.setAttribute("disabled", "true");
-                target.textContent = "Ready!";
+                target.textContent = i18next.t("buttons.ready");
                 
                 console.log(`Emitting game:join with gameId: ${gameId}`);
                 socket?.emit('game:join', gameId);

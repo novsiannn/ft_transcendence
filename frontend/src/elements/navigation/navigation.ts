@@ -10,6 +10,7 @@ import { showAcceptModal } from "../../pages/game";
 export const attachNotificationListeners = () => {
   document.querySelectorAll(".notificationBlock")?.forEach((el) => {
     el.addEventListener("click", () => {
+      console.log("NOT TYPE : ", el.getAttribute("notType"))
       if(el.getAttribute("notType") === "game_invite"){
         const gameId = el.getAttribute("data-game-id");
         
@@ -28,6 +29,7 @@ export const attachNotificationListeners = () => {
           showAcceptModal();
         else
           navigateTo(`/game`);
+          showAcceptModal();
 
       }else{
         const userId = el.getAttribute("data-user-id");

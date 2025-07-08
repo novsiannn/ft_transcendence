@@ -15,7 +15,7 @@ import {
     onLocalGameCreated,
     onGameCancelled,
 } from "../../websockets/client";
-import { rankedWinnerData, gameOverModalCreator, acceptFriendGameModal } from "./gameModal";
+import { rankedWinnerData, gameOverModalCreator, acceptFriendGameModal, gameOverModal } from "./gameModal";
 import { 
     setupRankedListeners, 
     updatePlayerProfiles, 
@@ -31,6 +31,7 @@ import gameService from "../../services/api/gameService";
 import { navigationHandle } from "../../elements/navigation";
 import { BtnAccept } from "../../elements/BtnAccept";
 import { navigateTo } from "../../routing";
+import i18next from "i18next"
 declare global {
     interface Window {
         tournamentPlayerNickname1: string;
@@ -48,16 +49,9 @@ export function showAcceptModal()
             const action = JSON.parse(gameInviteAction);
             if (action.action === 'show_accept_modal') {
                 setTimeout(() => {
-                    const preGameModal = document.querySelector("#preGameModal");
-                    const friendGameAcceptModal = document.querySelector("#friendGameAcceptModal");
                     
-                    preGameModal?.classList.add("hidden");
-                    preGameModal?.classList.remove("flex");
-                    friendGameAcceptModal?.classList.remove("hidden");
-                    friendGameAcceptModal?.classList.add("flex");
-                    console.log("TEST DATA BEFORE : ", testData)
+                    hideAllShowAccept();
                     testData = action.gameData;
-                    console.log("TEST DATA AFTER : ", testData)
 
                 }, 100);
                 localStorage.removeItem('gameInviteAction');
@@ -69,9 +63,44 @@ export function showAcceptModal()
     }  
 }
 
+    function hideAllShowAccept(){
+        const gameOverModalContainer = document.querySelector("#gameOverModal");
+        const preGameModal = document.querySelector("#preGameModal");
+        const friendGameAcceptModal = document.querySelector("#friendGameAcceptModal");
+        const friendsMatchModal = document.querySelector("#friendsMatchModal");
+        const tournamentModal = document.querySelector("#tournamentModal");
+        const rankedGameModal = document.querySelector("#rankedGameModal");
+        const tournamentProfiles = document.querySelector("#tournamentProfiles");
+        if(!preGameModal?.classList.contains("hidden")){
+            preGameModal?.classList.add("hidden");
+            preGameModal?.classList.remove("flex");
+        }
+        if(!gameOverModalContainer?.classList.contains("hidden")){
+            gameOverModalContainer?.classList.add("hidden");
+            gameOverModalContainer?.classList.remove("flex");
+        }
+        if(!friendsMatchModal?.classList.contains("hidden")){
+            friendsMatchModal?.classList.add("hidden");
+            friendsMatchModal?.classList.remove("flex");
+        }
+        if(!tournamentModal?.classList.contains("hidden")){
+            tournamentModal?.classList.add("hidden");
+            tournamentModal?.classList.remove("flex");
+        }
+        if(!rankedGameModal?.classList.contains("hidden")){
+            rankedGameModal?.classList.add("hidden");
+            rankedGameModal?.classList.remove("flex");
+        }
+        if(!tournamentProfiles?.classList.contains("hidden")){
+            tournamentProfiles?.classList.add("hidden");
+            tournamentProfiles?.classList.remove("flex");
+        }
+        friendGameAcceptModal?.classList.remove("hidden");
+        friendGameAcceptModal?.classList.add("flex");
+    }
+
 export function handleGame(mainWrapper: HTMLDivElement | undefined) {
     navigationHandle();
-    
 
 
     const acceptGameBtn = document.querySelector("#acceptGameBtn");
@@ -86,7 +115,7 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
     });
     
     declineGameBtn?.addEventListener('click', () => {
-        
+        navigateTo("/");
     });
 
     const tournamentProfiles = document.querySelector("#tournamentProfiles");
@@ -337,7 +366,7 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
     // РЕЖИМЫ ИГРЫ
     function initTournamentGame() {
     gameMode = 'local';
-    
+
     setupMultiplayerSocketHandlers();
 
     onLocalGameCreated((data) => {
@@ -411,6 +440,7 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
     function initMultiplayerFriendGame(gameId: string) {
         
         gameMode = 'multiplayer';
+
         currentGameId = gameId;
         currentGameState = getCurrentGameState();
         setupMultiplayerSocketHandlers();
@@ -456,21 +486,52 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
         });
 
         onGameCancelled((gameId) => {
+
+            console.log("GAME TYPE : ", gameType, gameInviteSenderId);
             if(gameInviteSenderId === store.getUser().id || gameType === "friends" || gameType === "ranked")
             {
-            const rankedProfilesContainer = document.querySelector('#rankedProfiles');
-            console.log("GAME CANCELLED");
-            spinerDiv?.classList.add("hidden");
-            rankedProfilesContainer?.classList.add("hidden");
-            preGameModal?.classList.remove("hidden");
-            preGameModal?.classList.add("flex");
-            rankedProfilesContainer?.classList.add("hidden");
-            gameInviteSenderId = 0;
-            gameType = null;
+                const navNotification = document.querySelector("#notificationMenu");
+                const navProfile = document.querySelector("#profileIcon");
+                const navHome = document.querySelector("#imgLogoNavi");
+                navNotification?.removeAttribute("disabled");
+                navProfile?.removeAttribute("disabled");
+                navHome?.removeAttribute("disabled");
+
+                const rankedProfilesContainer = document.querySelector('#rankedProfiles');
+                const acceptFriendGameModal = document.querySelector('#friendGameAcceptModal');
+                if(!acceptFriendGameModal?.classList.contains("hidden")){
+                    acceptFriendGameModal?.classList.add("hidden");
+                    acceptFriendGameModal?.classList.remove("flex");
+                }
+                console.log("GAME CANCELLED");
+                spinerDiv?.classList.add("hidden");
+                rankedProfilesContainer?.classList.add("hidden");
+                preGameModal?.classList.remove("hidden");
+                preGameModal?.classList.add("flex");
+                rankedProfilesContainer?.classList.add("hidden");
+                gameInviteSenderId = 0;
+                gameType = null;
+            }else{
+                const acceptFriendGameModal = document.querySelector('#friendGameAcceptModal');
+                if(!acceptFriendGameModal?.classList.contains("hidden")){
+                    acceptFriendGameModal?.classList.add("hidden");
+                    acceptFriendGameModal?.classList.remove("flex");
+                    preGameModal?.classList.remove("hidden");
+                    preGameModal?.classList.add("flex");
+                }
+                gameInviteSenderId = 0;
+                gameType = null;
             }
         });
 
         onGameFinished((result) => {
+            const navNotification = document.querySelector("#notificationMenu");
+            const navProfile = document.querySelector("#profileIcon");
+            const navHome = document.querySelector("#imgLogoNavi");
+            navNotification?.removeAttribute("disabled");
+            navProfile?.removeAttribute("disabled");
+            navHome?.removeAttribute("disabled");
+
             console.log("Game finished:", result, gameMode);
             if(gameMode === "multiplayer")
                 handleGameOver(result);
@@ -956,11 +1017,19 @@ function handleKeyUp(ev: KeyboardEvent) {
     //     else
     //         friendsDropDown?.classList.add("hidden");
 
-    // }); 
+    // });
 
     function startFriendMatch(data: any)
     {   
         gameType = "friends";
+
+    //         const navNotification = document.querySelector("#notificationMenu");
+    // const navProfile = document.querySelector("#profileIcon");
+    // const navHome = document.querySelector("#imgLogoNavi");
+    // navNotification?.setAttribute("disabled", "true");
+    // navProfile?.setAttribute("disabled", "true");
+    // navHome?.setAttribute("disabled", "true");
+
         initMultiplayerFriendGame(data.gameId || data.game.id.toString());
         updatePlayerProfiles(data);
         setupButtonDelegation(data.gameId || data.game.id);
@@ -998,14 +1067,6 @@ function handleKeyUp(ev: KeyboardEvent) {
                     if (selectedFriend) {
                         invitedFriendId = friend.id;
                         if(friend.avatar){
-                            // (selectedFriend as HTMLImageElement).src = API_URL + friend.avatar;
-                            // const btn = document.getElementById("friendSelectBtn");
-                            // const span = btn?.querySelector("span");
-                            // invitedFriendId = friend.id;
-                            // if (span) {
-                                //     span.textContent = friend.username;
-                                // }
-                                
                                 const newImg = document.createElement("img");
                                     newImg.id = "profileImg";
                                     newImg.className = "w-8 h-8 rounded-full mr-2";
@@ -1038,6 +1099,8 @@ function handleKeyUp(ev: KeyboardEvent) {
         }
     }
 
+
+
     function createProfileDivElement(
         firstLetter: string,
         color: string
@@ -1066,7 +1129,7 @@ function handleKeyUp(ev: KeyboardEvent) {
             }, 35000);
         }
     }catch{
-        console.error("Error");
+        handleModalError("Wait until invite expired");
     }
     });
 
