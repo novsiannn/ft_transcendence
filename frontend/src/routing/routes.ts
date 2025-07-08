@@ -7,8 +7,6 @@ import { handleProfilePage } from "../pages/profile"
 import { handleSettings, settingsPage } from "../pages/settingsPage"
 import { handleErrorPage } from "../pages/errorPage"
 import { handleLeaderboardPage } from "../pages/leaderboard"
-import { handleActivateAccount } from "../pages/activateAccPage"
-import { activateAccountPage } from "../pages/activateAccPage/activateAccountPage"
 import { errorPage } from "../pages/errorPage/errorPage"
 import { gamePage } from "../pages/game/gamePage"
 import { homePage } from "../pages/home/homePage"
@@ -45,7 +43,6 @@ export const publicRoutes: Record<string, handleFunctionI> = {
     "/signUp": { layoutCreate: registrationPage, handleFunc: handleRegistration },
     "/signIn": { layoutCreate: loginPage, handleFunc: handleLogin },
     "/error": {layoutCreate: errorPage, handleFunc: handleErrorPage},
-    "/activate": {layoutCreate: activateAccountPage, handleFunc: handleActivateAccount},
 };
 
 export const allRoutes: Record<string, handleFunctionI> = {
@@ -58,7 +55,6 @@ export const allRoutes: Record<string, handleFunctionI> = {
     "/settings": {layoutCreate: settingsPage, handleFunc: handleSettings},
     "/error": {layoutCreate: errorPage, handleFunc: handleErrorPage},
     "/leaderboard": {layoutCreate: leaderBoardPage, handleFunc: handleLeaderboardPage},
-    "/activate": {layoutCreate: activateAccountPage, handleFunc: handleActivateAccount},
     "/friends": {layoutCreate: friendsPage, handleFunc: handleFriendsPage},
     "/chats": {layoutCreate: chatsPage, handleFunc: handleChatsPage}
 };

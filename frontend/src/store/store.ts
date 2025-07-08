@@ -169,7 +169,7 @@ class Store {
         password
       );
       if (response.status === 201) {
-        navigateTo("/activate");
+        navigateTo("/signIn");
         handleModalSuccess("modalWindowsMessages.yourAccountCreated");
       }
     } catch (e: any) {

@@ -224,12 +224,13 @@ const UserController = {
     async logout(req, res) {
         const { refreshToken } = req.cookies;
         try {
-            if (!refreshToken) {
-                res.code(400).send({ error: "Refresh token not found" });
+            if (refreshToken) {
+                res.clearCookie("refreshToken");
             }
-            const token = await userService.logout(refreshToken);
-            res.clearCookie("refreshToken");
-            res.code(200).send(token);
+            // const token = await userService.logout(refreshToken);
+    
+            // res.clearCookie("refreshToken");
+            res.code(200).send("Log out success");
         } catch (error) {
             res.code(500).send({ error: "Error logging out user" });
         }
