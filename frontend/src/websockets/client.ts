@@ -274,6 +274,7 @@ export function initializeSocket(): Socket | null {
   });
 
   socket.on("game:cancelled", (gameId: any) => {
+    console.log("GAME CANCELED   ", gameId)
     if (gameCallbacks.onGameCancelled) {
       gameCallbacks.onGameCancelled(gameId);
     }

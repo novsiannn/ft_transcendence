@@ -5,6 +5,7 @@ import { API_URL, store } from "../../store/store";
 import { dropMenuRoutes } from "./navigationRoutes";
 import { getColorFromUsername } from "../../shared/randomColors";
 import { refreshNotifications } from "./createNavigation";
+import { showAcceptModal } from "../../pages/game";
 
 export const attachNotificationListeners = () => {
   document.querySelectorAll(".notificationBlock")?.forEach((el) => {
@@ -14,7 +15,7 @@ export const attachNotificationListeners = () => {
         
         const gamePlayerOne = el.getAttribute("data-game-playerOne");
         const gamePlayerTwo = el.getAttribute("data-game-playerTwo");
-        // Сохраняем информацию о том, что это переход по приглашению
+
         localStorage.setItem('gameInviteAction', JSON.stringify({
           gameData: {
             gameId: gameId,
@@ -23,7 +24,11 @@ export const attachNotificationListeners = () => {
           },
           action: 'show_accept_modal'
         }));
-        navigateTo(`/game`);
+        if(location.pathname === "/game")
+          showAcceptModal();
+        else
+          navigateTo(`/game`);
+
       }else{
         const userId = el.getAttribute("data-user-id");
         navigateTo(`/profile/${userId}`);

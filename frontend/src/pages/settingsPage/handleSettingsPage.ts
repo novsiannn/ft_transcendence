@@ -289,36 +289,4 @@ export function handleSettings() {
       handleModalError('modalWindowsMessages.failedDeleteAvatar');
     }
   });
-
-  // Will be used for code clearnes. Not working yet.Will do it later
-  
-  // function updateProfileAvatar(avatarPath: string | null) {
-  //   const profileImgContainer = document.querySelector("#profileImg");
-  //   if (!profileImgContainer) return;
-  
-  //   if (avatarPath) {
-  //     const timestamp = new Date().getTime();
-  //     const avatarUrl = `${API_URL}${avatarPath}?t=${timestamp}`;
-  
-  //     const newImg = document.createElement("img");
-  //     newImg.id = "profileImg";
-  //     newImg.className = "w-48 h-48 rounded-full object-cover";
-  //     newImg.src = avatarUrl;
-  //     newImg.alt = "Profile Avatar";
-  //     newImg.draggable = false;
-  
-  //     profileImgContainer.replaceWith(newImg);
-  //   } else {
-  //     const username = store.getUser().username;
-  //     const firstLetter = username.charAt(0).toUpperCase();
-  //     const color = getColorFromUsername(username);
-  
-  //     const newDiv = document.createElement("div");
-  //     newDiv.id = "profileIcon";
-  //     newDiv.className = `text-5x1 w-12 h-12 flex items-center justify-center rounded-full text-white font-bold ${color}`;
-  //     newDiv.textContent = firstLetter;
-  
-  //     profileImgContainer.replaceWith(newDiv);
-  //   }
-  // }
 }
