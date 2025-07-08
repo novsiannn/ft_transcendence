@@ -58,8 +58,8 @@ let gameCallbacks: {
   onGameCancelled?: (error: any) => void;
   onMatchRankedFound?: (data: any) => void;
   onMatchFriendsFound?: (data: any) => void;
-  timerCountdown?: (data:{seconds: number}) => void;
-  onLocalGameCreated?:(data: {gameId: string}) => void;
+  timerCountdown?: (data: { seconds: number }) => void;
+  onLocalGameCreated?: (data: { gameId: string }) => void;
 } = {};
 
 export let gameState: IGameState | null = null;
@@ -87,11 +87,11 @@ export function initializeSocket(): Socket | null {
   });
 
   socket.on("notification", async (data) => {
-    if(data.type === "game_invite"){
+    if (data.type === "game_invite") {
       console.log(data);
-    if (gameCallbacks.onMatchFriendsFound) {
-      gameCallbacks.onMatchFriendsFound(data);
-    }
+      if (gameCallbacks.onMatchFriendsFound) {
+        gameCallbacks.onMatchFriendsFound(data);
+      }
       console.log("RECIEVED GAME INVITE");
     }
     if (
@@ -127,13 +127,17 @@ export function initializeSocket(): Socket | null {
     if (location.pathname.slice(0, 8) === "/profile") {
       const response = data.data.from ? data.data.from.id : data.data.by.id;
 
+      console.log(location.pathname);
+
       if (data.type === "friend_removed" || data.type === "friend_accepted") {
         await store.getAllUsersRequest();
         await store.getAllFriendsRequest();
       }
 
-      const user = findUser(response);
-      if (user) refreshProfileBtnsBlock(user);
+      if (location.pathname !== "/profile") {
+        const user = findUser(response);
+        if (user) refreshProfileBtnsBlock(user);
+      }
     }
 
     if (location.pathname === "/friends") rerenderFriendsPage();
@@ -235,11 +239,10 @@ export function initializeSocket(): Socket | null {
   });
   //GAME HANDLERS
 
-  socket.on("game:localCreated", (data : any) => {
-    if(gameCallbacks.onLocalGameCreated)
-      {
-        gameCallbacks.onLocalGameCreated(data);
-      }
+  socket.on("game:localCreated", (data: any) => {
+    if (gameCallbacks.onLocalGameCreated) {
+      gameCallbacks.onLocalGameCreated(data);
+    }
   });
 
   socket.on("mm:ready", (data: any) => {
@@ -250,15 +253,14 @@ export function initializeSocket(): Socket | null {
     }
   });
 
-
   socket.on("game:update", (newGameState: IGameState) => {
-  gameState = newGameState;
-  if (gameCallbacks.onGameUpdate) {
-    gameCallbacks.onGameUpdate(gameState);
-  } else {
-    console.warn("onGameUpdate callback not found!");
-  }
-});
+    gameState = newGameState;
+    if (gameCallbacks.onGameUpdate) {
+      gameCallbacks.onGameUpdate(gameState);
+    } else {
+      console.warn("onGameUpdate callback not found!");
+    }
+  });
 
   socket.on("game:finished", (data: any) => {
     gameState = null;
@@ -267,14 +269,14 @@ export function initializeSocket(): Socket | null {
     }
   });
 
-  socket.on("game:timer", (data:{seconds: number}) =>{
+  socket.on("game:timer", (data: { seconds: number }) => {
     if (gameCallbacks.timerCountdown) {
       gameCallbacks.timerCountdown(data);
     }
   });
 
   socket.on("game:cancelled", (gameId: any) => {
-    console.log("GAME CANCELED   ", gameId)
+    console.log("GAME CANCELED   ", gameId);
     if (gameCallbacks.onGameCancelled) {
       gameCallbacks.onGameCancelled(gameId);
     }
@@ -313,40 +315,48 @@ export function initializeSocket(): Socket | null {
   return socket;
 }
 
-export function movePaddleLocal(gameId: string, direction: 'up' | 'down', nickname: string): void {
+export function movePaddleLocal(
+  gameId: string,
+  direction: "up" | "down",
+  nickname: string
+): void {
   if (!socket) return;
 
-  socket.emit("game:moveLocalPaddle",{
-    gameId: gameId, 
-    direction: direction, 
-    nickname: nickname});
+  socket.emit("game:moveLocalPaddle", {
+    gameId: gameId,
+    direction: direction,
+    nickname: nickname,
+  });
 }
 
-export function movePaddle(gameId: string, direction: 'up' | 'down'): void {
+export function movePaddle(gameId: string, direction: "up" | "down"): void {
   if (!socket) return;
 
-  socket.emit('game:movePaddle', {
+  socket.emit("game:movePaddle", {
     gameId: gameId,
-    direction: direction
+    direction: direction,
   });
-
 }
 //GAME CALLBACKS
 export function startGame(gameId: string): void {
   if (!socket) return;
-  socket.emit('game:start', gameId);
+  socket.emit("game:start", gameId);
 }
 
 export function leaveGame(gameId: string): void {
   if (!socket) return;
-  socket.emit('game:leave', gameId);
+  socket.emit("game:leave", gameId);
 }
 
-export function timerCountdown(callback: (data:{seconds : number})=> void): void {
+export function timerCountdown(
+  callback: (data: { seconds: number }) => void
+): void {
   gameCallbacks.timerCountdown = callback;
 }
 
-export function onLocalGameCreated(callback: (data: {gameId: string}) => void): void{
+export function onLocalGameCreated(
+  callback: (data: { gameId: string }) => void
+): void {
   gameCallbacks.onLocalGameCreated = callback;
 }
 
@@ -374,14 +384,13 @@ export function onGameCancelled(callback: (gameId: any) => void): void {
 //CLEAR CALLBACKS
 export function clearGameCallbacks(): void {
   gameCallbacks = {};
-
 }
 
-export function getCurrentGameState(): IGameState{
+export function getCurrentGameState(): IGameState {
   if (gameState) {
     return gameState;
   }
-  
+
   return createDefaultGameState();
 }
 
@@ -394,19 +403,19 @@ function createDefaultGameState(): IGameState {
       direction: {
         x: 0,
         y: 0,
-      }
+      },
     },
     paddles: {
-      '1': {
+      "1": {
         x: 0,
         y: 190, // (500 - 120) / 2
         score: 0,
       },
-      '2': {
+      "2": {
         x: 1275, // 1300 - 25
-        y: 190,  // (500 - 120) / 2
+        y: 190, // (500 - 120) / 2
         score: 0,
-      }
+      },
     },
     isRunning: false,
     winner: null,
@@ -420,7 +429,7 @@ function createDefaultGameState(): IGameState {
       paddleSpeed: 20,
       speedIncrease: 1.07,
       maxScore: 5,
-    }
+    },
   };
 }
 
