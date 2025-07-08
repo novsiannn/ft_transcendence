@@ -9,7 +9,6 @@ import {
   updateContent,
 } from "../../elements/LanguageSelector";
 import { rerenderFriendsPage } from "./handleBtns";
-import { socket } from "../../websockets";
 
 export const filterUsers = (data: IUser[], filterString: string) => {
   return data.filter((user) => user.username.startsWith(filterString));

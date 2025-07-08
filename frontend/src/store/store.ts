@@ -342,18 +342,30 @@ class Store {
   };
 
   deleteFriend = async (id: number) => {
-    const response = await friendsService.deleteFriend(id);
-    return response;
+    try {
+      const response = await friendsService.deleteFriend(id);
+      return response;
+    } catch (e: any) {
+      return e.response;
+    }
   };
 
   acceptFriendship = async (friendshipId: number) => {
-    const response = await friendsService.acceptFriendship(friendshipId);
-    return response;
+    try {
+      const response = await friendsService.acceptFriendship(friendshipId);
+      return response;
+    } catch (e: any) {
+      return e.response;
+    }
   };
 
   rejectFriendship = async (friendshipId: number) => {
-    const response = await friendsService.rejectFriendship(friendshipId);
-    return response;
+    try {
+      const response = await friendsService.rejectFriendship(friendshipId);
+      return response;
+    } catch (e: any) {
+      return e.response;
+    }
   };
 
   setUserLanguageRequest = async (language: string) => {

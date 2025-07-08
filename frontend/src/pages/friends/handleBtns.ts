@@ -17,7 +17,6 @@ export const addFriend = async (
   addBtn: HTMLButtonElement | null
 ) => {
   const cancelButton = document.getElementById(`btnCancelFriendRequest${id}`);
-  addBtn!.innerHTML = getLoader();
   addBtn!.disabled = true;
 
   const result = await store.sendFriendRequest(id);
@@ -25,10 +24,6 @@ export const addFriend = async (
     addBtn!.disabled = false;
     addBtn!.classList.add("hidden");
     cancelButton!.classList.remove("hidden");
-    addBtn!.innerHTML = "Add";
-  } else if (result === 400) {
-    console.log("some error occurred");
-    addBtn!.innerHTML = "Add";
   }
   return await store.getPendingFriendsRequests();
 };
@@ -40,7 +35,6 @@ export const cancelFriendshipRequest = async (
   user?: IUser
 ) => {
   const addBtn = document.getElementById(`btnAddFriend${id}`);
-  cancelBtn!.innerHTML = getLoader();
   cancelBtn!.disabled = true;
   const res = requests.filter((el) => el.addresseeId === id).map((el) => el.id);
   const result = await store.cancelPendingFriendRequest(res[0]);
@@ -49,13 +43,10 @@ export const cancelFriendshipRequest = async (
     cancelBtn!.disabled = false;
     cancelBtn!.classList.add("hidden");
     addBtn!.classList.remove("hidden");
-    cancelBtn!.innerHTML = "Cancel";
     store.getPendingFriendsRequests();
     if (location.pathname.slice(0, 8) === "/profile" && user) {
       refreshProfileBtnsBlock(user);
     }
-  } else if (result === 400) {
-    console.log("some error occurred");
   }
   return await store.getPendingFriendsRequests();
 };
@@ -65,12 +56,10 @@ export const deleteFriend = async (
   deleteFriendBtn: HTMLButtonElement | null,
   user?: IUser
 ) => {
-  deleteFriendBtn!.innerHTML = getLoader();
   deleteFriendBtn!.disabled = true;
   const res = await store.deleteFriend(id);
 
   if (res.status === 204) {
-    deleteFriendBtn!.innerHTML = "Delete";
     deleteFriendBtn!.disabled = false;
 
     await store.getAllUsersRequest();
@@ -90,14 +79,11 @@ export const acceptFriend = async (
   acceptFriendBtn: HTMLButtonElement | null,
   user?: IUser
 ) => {
-  acceptFriendBtn!.innerHTML = getLoader();
   acceptFriendBtn!.disabled = true;
   const res = await store.acceptFriendship(requestFriendshipReceived.id);
 
   if (res.status === 200) {
     if (location.pathname === "/friends") rerenderFriendsPage();
-
-    acceptFriendBtn!.innerHTML = "Accept";
     acceptFriendBtn!.disabled = false;
 
     await store.getAllUsersRequest();
@@ -116,12 +102,10 @@ export const rejectFriend = async (
   rejectFriendBtn: HTMLButtonElement | null,
   user?: IUser
 ) => {
-  rejectFriendBtn!.innerHTML = getLoader();
   rejectFriendBtn!.disabled = true;
   const res = await store.rejectFriendship(requestFriendshipReceived.id);
 
   if (res.status === 200) {
-    rejectFriendBtn!.innerHTML = "Reject";
     rejectFriendBtn!.disabled = false;
     rerenderFriendsPage();
     if (location.pathname.slice(0, 8) === "/profile" && user) {

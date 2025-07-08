@@ -25,7 +25,6 @@ export function handleSettings() {
   );
 
   btnSave!.addEventListener("click", async () => {
-    btnSave!.innerHTML = getLoader();
     btnSave!.disabled = true;
     const updateData: IUpdateProfileData = {
       username,
@@ -51,14 +50,12 @@ export function handleSettings() {
       if ((res.status = 200)) {
         handleModalSuccess('modalWindowsMessages.updateDataSuccess');
       }
-      btnSave!.innerHTML = "Save";
       btnSave!.disabled = false;
     } catch (e: any) {
       console.log(e);
       if(e.status === 409){
         handleModalError('modalWindowsMessages.nicknameInUse');
       }
-      btnSave!.innerHTML = "Save";
       btnSave!.disabled = false;
     }
   });
