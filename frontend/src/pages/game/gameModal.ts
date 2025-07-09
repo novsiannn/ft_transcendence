@@ -125,7 +125,7 @@ export function rankedGameModal() {
   return `
     <div id="rankedGameModal"  class="fixed inset-0 items-center justify-center z-10 hidden">
       <div class="bg-white p-6 rounded-lg shadow-lg text-black space-y-4 w-max h-auto text-center">
-        <h2 data-i18n='buttons.rankedMode' class="text-lg font-semibold">${i18next.t("buttons.rankedMode")}</h2>
+        <h2 data-i18n='game.rankedMode' class="text-lg font-semibold">${i18next.t("buttons.rankedMode")}</h2>
 
         <div id="spinerDiv" class=" hidden mt-2 justify-center">
           <div class="w-8 h-8 border-4 border-blue-400 border-t-white rounded-full animate-spin opacity-80"></div>

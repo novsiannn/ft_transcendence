@@ -29,12 +29,19 @@ export function setupRankedListeners(
     onMatchRankedFound(async (data: any) => {
         rankedGameModal?.classList.add("hidden");
 
+        const navNotification = document.querySelector("#notificationMenu");
+        const navProfile = document.querySelector("#profileIcon");
+        const navHome = document.querySelector("#imgLogoNavi");
+        navNotification?.classList.add("pointer-events-none", "opacity-50");
+        navProfile?.classList.add("pointer-events-none", "opacity-50");
+        navHome?.classList.add("pointer-events-none", "opacity-50");
+
         await updateAllStoreUsers();
 
         const gameId = data.game.id.toString();
         initMultiplayerGame(gameId);
 
-        updatePlayerProfiles(data);
+        updatePlayerProfiles(data.game);
         setupButtonDelegation(gameId);
 
         resetMatchmakingButtons();
@@ -58,16 +65,14 @@ export function getCurrentGame() {
 }
 
 export function updatePlayerProfiles(gameData: any) {
-    let game;
-    if (gameData.game) {
-        game = gameData.game;
-    } else {
-        game = gameData;
-    }
-
-    currentGame = game;
-    const user1 = findUser(Number(game.player1Id));
-    const user2 = findUser(Number(game.player2Id));
+    
+    console.log("GAME DATA UPDATEPROF : ", gameData)
+    currentGame = gameData;
+    console.log("CURRENT GAME UPDATEPROF : ", currentGame)
+    const user1 = findUser(Number(gameData.player1Id));
+    const user2 = findUser(Number(gameData.player2Id));
+    console.log("PLAYER 1 UPDATEPROF : ", gameData.player1Id)
+    console.log("PLAYER 2 UPDATEPROF : ", gameData.player2Id)
 
     if (user1 && user2) {
         rankedPlayerData.firstPlayer = user1.username;
@@ -85,12 +90,14 @@ export function updatePlayerProfiles(gameData: any) {
             rankedProfilesContainer.innerHTML = rankedPlayerProfiles();
         }
         
-        setupInitialReadyButtonsVisibility(Number(game.player1Id), Number(game.player2Id));
+        setupInitialReadyButtonsVisibility(Number(gameData.player1Id), Number(gameData.player2Id));
     }
 }
 
 export function setupInitialReadyButtonsVisibility(player1Id: number, player2Id: number) {
     const currentUserId = store.getUser().id;
+    console.log("PLAYER 1 : ",player1Id)
+    console.log("PLAYER 2 : ",player2Id)
     const playerOneReadyBtn = document.querySelector("#playerOneReadyBtn") as HTMLButtonElement;
     const playerTwoReadyBtn = document.querySelector("#playerTwoReadyBtn") as HTMLButtonElement;
     
@@ -125,6 +132,8 @@ export function setupButtonDelegation(gameId: string) {
                 e.stopPropagation();
                 
                 let game = getCurrentGame();
+                
+                console.log("GAME DATA : ", game)
                 const isCurrentUserPlayer1 = currentUserId === game?.player1Id;
                 const isCurrentUserPlayer2 = currentUserId === game?.player2Id;
                 
@@ -188,11 +197,18 @@ export async function startRankedGame(
                 }
             };
 
+            const navNotification = document.querySelector("#notificationMenu");
+            const navProfile = document.querySelector("#profileIcon");
+            const navHome = document.querySelector("#imgLogoNavi");
+            navNotification?.classList.add("pointer-events-none", "opacity-50");
+            navProfile?.classList.add("pointer-events-none", "opacity-50");
+            navHome?.classList.add("pointer-events-none", "opacity-50");
+            
             const gameId = userResponseData.game.id.toString();
             await updateAllStoreUsers();
             initMultiplayerGame(gameId);
             
-            updatePlayerProfiles(userResponseData);
+            updatePlayerProfiles(userResponseData.game);
             setupButtonDelegation(gameId);
             
             rankedGameModal?.classList.add("hidden");

@@ -5,31 +5,46 @@ import { API_URL, store } from "../../store/store";
 import { dropMenuRoutes } from "./navigationRoutes";
 import { getColorFromUsername } from "../../shared/randomColors";
 import { refreshNotifications } from "./createNavigation";
-import { showAcceptModal } from "../../pages/game";
+import { hideAllShowAccept } from "../../pages/game";
 
 export const attachNotificationListeners = () => {
   document.querySelectorAll(".notificationBlock")?.forEach((el) => {
     el.addEventListener("click", () => {
       console.log("NOT TYPE : ", el.getAttribute("notType"))
       if(el.getAttribute("notType") === "game_invite"){
-        const gameId = el.getAttribute("data-game-id");
+        // const gameId = el.getAttribute("data-game-id");
         
-        const gamePlayerOne = el.getAttribute("data-game-playerOne");
-        const gamePlayerTwo = el.getAttribute("data-game-playerTwo");
+        // const gamePlayerOne = el.getAttribute("data-game-playerOne");
+        // const gamePlayerTwo = el.getAttribute("data-game-playerTwo");
 
-        localStorage.setItem('gameInviteAction', JSON.stringify({
-          gameData: {
-            gameId: gameId,
-            player1Id: Number(gamePlayerOne),
-            player2Id: Number(gamePlayerTwo)
-          },
-          action: 'show_accept_modal'
-        }));
-        if(location.pathname === "/game")
-          showAcceptModal();
-        else
+        // localStorage.setItem('gameInviteAction', JSON.stringify({
+        //   gameData: {
+        //     gameId: gameId,
+        //     player1Id: Number(gamePlayerOne),
+        //     player2Id: Number(gamePlayerTwo)
+        //   },
+        //   action: 'show_accept_modal'
+        // }));
+        if(location.pathname === "/game"){
+          console.log("IM HERE")
+        // showAcceptModal();
+        hideAllShowAccept();
+        }
+        else{
+          console.log("NAVIGATING TO GAME")
           navigateTo(`/game`);
-          showAcceptModal();
+          setTimeout(() => {
+          const preGameModal = document.querySelector("#preGameModal");
+          const friendGameAcceptModal = document.querySelector("#friendGameAcceptModal");
+          
+          if (preGameModal && friendGameAcceptModal) {
+            preGameModal.classList.add("hidden");
+            preGameModal.classList.remove("flex");
+            friendGameAcceptModal.classList.remove("hidden");
+            friendGameAcceptModal.classList.add("flex");
+          }
+        }, 100);
+        }
 
       }else{
         const userId = el.getAttribute("data-user-id");

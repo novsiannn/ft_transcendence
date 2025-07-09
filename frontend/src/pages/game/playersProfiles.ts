@@ -130,7 +130,8 @@ export function updateRankedProfilesPositions(gameState: any) {
             leftPlayerId = player2Id;
             rightPlayerId = player1Id;
         }
-        
+        console.log("LEFTPLAYERID : ",leftPlayerId)
+        console.log("LEFTPLAYERID : ",rightPlayerId)
         // Получаем данные игроков
         const leftUser = findUser(leftPlayerId);
         const rightUser = findUser(rightPlayerId);

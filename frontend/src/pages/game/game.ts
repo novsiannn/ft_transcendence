@@ -41,29 +41,47 @@ declare global {
 
 
 let testData :any;
-export function showAcceptModal()
-{
-    const gameInviteAction = localStorage.getItem('gameInviteAction');
-    if (gameInviteAction) {
-        try {
-            const action = JSON.parse(gameInviteAction);
-            if (action.action === 'show_accept_modal') {
-                setTimeout(() => {
+// export function showAcceptModal()
+// {
+//     const gameInviteAction = localStorage.getItem('gameInviteAction');
+//     if (gameInviteAction) {
+//         try {
+//             const action = JSON.parse(gameInviteAction);
+//             if (action.action === 'show_accept_modal') {
+//                 setTimeout(() => {
                     
-                    hideAllShowAccept();
-                    testData = action.gameData;
+//                     hideAllShowAccept();
+//                     testData = action.gameData;
 
-                }, 100);
-                localStorage.removeItem('gameInviteAction');
-            }
-        } catch (e) {
-            console.error('Error parsing game invite action:', e);
-            localStorage.removeItem('gameInviteAction');
+//                 }, 100);
+//                 localStorage.removeItem('gameInviteAction');
+//             }
+//         } catch (e) {
+//             console.error('Error parsing game invite action:', e);
+//             localStorage.removeItem('gameInviteAction');
+//         }
+//     }  
+// }
+
+export async function testChatInvite(invitedFriendId: number)
+{
+    try{
+        const response = await store.sendFriendGameRequest(invitedFriendId);
+        if(response.status === 201){
+            const res = response.data;
+            console.log("GAME ID ", res.game.id);
+            console.log("PLAYER1 ID ", res.game.player1Id);
+            console.log("PLAYER2 ID ", res.game.player2Id);
+            store.setFriendGameId(res.game.id);
+            store.setFriendPlayerOne(res.game.player1Id);
+            store.setFriendPlayerTwo(res.game.player2Id);
         }
-    }  
+    }catch{
+        handleModalError("Wait until invite expired");
+    }
 }
 
-    function hideAllShowAccept(){
+    export function hideAllShowAccept(){
         const gameOverModalContainer = document.querySelector("#gameOverModal");
         const preGameModal = document.querySelector("#preGameModal");
         const friendGameAcceptModal = document.querySelector("#friendGameAcceptModal");
@@ -103,6 +121,7 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
     navigationHandle();
 
 
+
     const acceptGameBtn = document.querySelector("#acceptGameBtn");
     const declineGameBtn = document.querySelector("#declineGameBtn");
     const friendGameAcceptModal = document.querySelector("#friendGameAcceptModal");
@@ -110,8 +129,11 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
 
         friendGameAcceptModal?.classList.add("hidden");
         friendGameAcceptModal?.classList.remove("flex");
-        console.log("TEST DATA ACCEPT : ", testData)
-        startFriendMatch(testData);
+
+        let gameData = store.getFriendGameData();
+        console.log("GAME DATA ", gameData)
+
+        startFriendMatch(gameData);
     });
     
     declineGameBtn?.addEventListener('click', () => {
@@ -367,6 +389,13 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
     function initTournamentGame() {
     gameMode = 'local';
 
+    const navNotification = document.querySelector("#notificationMenu");
+    const navProfile = document.querySelector("#profileIcon");
+    const navHome = document.querySelector("#imgLogoNavi");
+    navNotification?.classList.add("pointer-events-none", "opacity-50");
+    navProfile?.classList.add("pointer-events-none", "opacity-50");
+    navHome?.classList.add("pointer-events-none", "opacity-50");
+
     setupMultiplayerSocketHandlers();
 
     onLocalGameCreated((data) => {
@@ -493,9 +522,9 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
                 const navNotification = document.querySelector("#notificationMenu");
                 const navProfile = document.querySelector("#profileIcon");
                 const navHome = document.querySelector("#imgLogoNavi");
-                navNotification?.removeAttribute("disabled");
-                navProfile?.removeAttribute("disabled");
-                navHome?.removeAttribute("disabled");
+                navNotification?.classList.remove("pointer-events-none", "opacity-50");
+                navProfile?.classList.remove("pointer-events-none", "opacity-50");
+                navHome?.classList.remove("pointer-events-none", "opacity-50");
 
                 const rankedProfilesContainer = document.querySelector('#rankedProfiles');
                 const acceptFriendGameModal = document.querySelector('#friendGameAcceptModal');
@@ -525,12 +554,12 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
         });
 
         onGameFinished((result) => {
-            const navNotification = document.querySelector("#notificationMenu");
-            const navProfile = document.querySelector("#profileIcon");
-            const navHome = document.querySelector("#imgLogoNavi");
-            navNotification?.removeAttribute("disabled");
-            navProfile?.removeAttribute("disabled");
-            navHome?.removeAttribute("disabled");
+                const navNotification = document.querySelector("#notificationMenu");
+                const navProfile = document.querySelector("#profileIcon");
+                const navHome = document.querySelector("#imgLogoNavi");
+                navNotification?.classList.remove("pointer-events-none", "opacity-50");
+                navProfile?.classList.remove("pointer-events-none", "opacity-50");
+                navHome?.classList.remove("pointer-events-none", "opacity-50");
 
             console.log("Game finished:", result, gameMode);
             if(gameMode === "multiplayer")
@@ -1021,21 +1050,22 @@ function handleKeyUp(ev: KeyboardEvent) {
 
     function startFriendMatch(data: any)
     {   
-        gameType = "friends";
+        gameType = "friends"
+        console.log("GAME DATA STORE 2: ", data);
+        const navNotification = document.querySelector("#notificationMenu");
+        const navProfile = document.querySelector("#profileIcon");
+        const navHome = document.querySelector("#imgLogoNavi");
+        navNotification?.classList.add("pointer-events-none", "opacity-50");
+        navProfile?.classList.add("pointer-events-none", "opacity-50");
+        navHome?.classList.add("pointer-events-none", "opacity-50");
+        
 
-    //         const navNotification = document.querySelector("#notificationMenu");
-    // const navProfile = document.querySelector("#profileIcon");
-    // const navHome = document.querySelector("#imgLogoNavi");
-    // navNotification?.setAttribute("disabled", "true");
-    // navProfile?.setAttribute("disabled", "true");
-    // navHome?.setAttribute("disabled", "true");
-
-        initMultiplayerFriendGame(data.gameId || data.game.id.toString());
-        updatePlayerProfiles(data);
-        setupButtonDelegation(data.gameId || data.game.id);
+        initMultiplayerFriendGame(data.game.id);
+        updatePlayerProfiles(data.game);
+        setupButtonDelegation(data.game.id);
         resetMatchmakingButtons();
         updateAllStoreUsers();
-        testData = null;
+        
 
     }
 
@@ -1116,11 +1146,13 @@ function handleKeyUp(ev: KeyboardEvent) {
     e.stopPropagation();
     try{
         const response = await store.sendFriendGameRequest(invitedFriendId);
+        // console.log("SEND REQUEST RESPONSE " ,response.status)
         if(response.status === 201){
             const res = response.data;
             sendFriendMatchRequestBtn.classList.add("opacity-50");
             sendFriendMatchRequestBtn.setAttribute("disabled", "true");
             gameInviteSenderId = store.getUser().id;
+            // console.log("RES " ,res)
             startFriendMatch(res);
             
             setTimeout(() => {
@@ -1197,6 +1229,14 @@ document.addEventListener("click", (e) => {
 
     function tournamentCleaning()
     {
+
+        const navNotification = document.querySelector("#notificationMenu");
+        const navProfile = document.querySelector("#profileIcon");
+        const navHome = document.querySelector("#imgLogoNavi");
+        navNotification?.classList.remove("pointer-events-none", "opacity-50");
+        navProfile?.classList.remove("pointer-events-none", "opacity-50");
+        navHome?.classList.remove("pointer-events-none", "opacity-50");
+
         tournamentPlayerData.nicknames.length = 0
         tournamentData.semiFinal.length = 0;
         tournamentData.final.length = 0;

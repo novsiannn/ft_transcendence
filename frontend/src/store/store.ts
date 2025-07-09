@@ -2,6 +2,7 @@ import {
   IChatData,
   IChatsResponse,
   IFriend,
+  IFriendGame,
   IFriendshipResponseData,
   IMessage,
   INotificationResponse,
@@ -45,7 +46,42 @@ class Store {
       activeChatID: null,
       onChatsPage: false,
     },
+    friendGame: {
+      game: {
+        id: 0,
+        player1Id: 0,
+        player2Id: 0
+      }
+    } as IFriendGame
   };
+
+  setFriendGameId = (gameId: number): void => {
+    this.state.friendGame.game.id = gameId;
+  };
+
+  setFriendPlayerOne = (player1: number): void => {
+    this.state.friendGame.game.player1Id = player1;
+  };
+
+    setFriendPlayerTwo = (player2: number): void => {
+    this.state.friendGame.game.player2Id = player2;
+  };
+
+  // getFriendGameId = (): number => {
+  //   return this.state.friendGame.gameId;
+  // };
+
+  // getFriendPlayerOne = (): number => {
+  //   return this.state.friendGame.player1;
+  // };
+
+  // getFriendPlayerTwo = (): number => {
+  //   return this.state.friendGame.player2;
+  // };
+    getFriendGameData = (): IFriendGame => {
+    return this.state.friendGame;
+  };
+
 
   setAuth = (bool: boolean): void => {
     this.state.auth.isAuth = bool;
@@ -270,9 +306,11 @@ class Store {
   sendFriendGameRequest = async (friendId : number) => {
     const response = await gameService.sendFriendMatchRequest(friendId);
 
-    console.log(response)
+    console.log("STORE RESPONSE ",response)
 
     if(response.status === 201){
+
+            
       handleModalSuccess("You have successfully sent a game request");
     }
 

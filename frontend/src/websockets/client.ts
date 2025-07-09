@@ -88,11 +88,16 @@ export function initializeSocket(): Socket | null {
 
   socket.on("notification", async (data) => {
     if(data.type === "game_invite"){
-      console.log(data);
+      console.log("CLIENT DATA ",data.data.game);
+      console.log("RECIEVED GAME INVITE");
+            let responseData = data.data;
+      store.setFriendGameId(responseData.game.id);
+      store.setFriendPlayerOne(responseData.game.player1Id);
+      store.setFriendPlayerTwo(responseData.game.player2Id);
+      
     if (gameCallbacks.onMatchFriendsFound) {
       gameCallbacks.onMatchFriendsFound(data);
     }
-      console.log("RECIEVED GAME INVITE");
     }
     if (
       data.type !== "friend_removed" &&
