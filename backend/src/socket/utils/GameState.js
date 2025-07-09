@@ -117,10 +117,10 @@ class GameState {
         this.handleBorderCollision();
         this.handlePaddleCollision();
         this.handleGoal();
-        if(!this.isRunning){
-            this.restart();
-            this.start();
-        }
+        // if(!this.isRunning){
+        //     this.restart();
+        //     this.start();
+        // }
 
     }
 

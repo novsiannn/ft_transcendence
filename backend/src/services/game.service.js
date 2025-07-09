@@ -27,6 +27,9 @@ async function updateElo(gameId)  {
         if (!game) {
             return { error: 'Game not found' };
         }
+        if (game.module !== 'ranked') {
+            return { error: 'Game is not a ranked game' };
+        }
         if (game.changedElo === true) {
             console.log(`ELO already updated for game ${gameId}`);
             return { message: 'ELO already updated' };
