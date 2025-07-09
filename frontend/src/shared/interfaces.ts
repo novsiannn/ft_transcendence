@@ -99,6 +99,17 @@ export interface IInitialState {
   auth: IAuth;
   friendsPage: IFriendsPage;
   chatPage: IChatPage
+  friendGame: IFriendGame;
+}
+
+export interface IFriendGame {
+    game: IGame;
+}
+
+export interface IGame{
+    id: number;
+    player1Id: number;
+    player2Id: number;
 }
 
 export interface IFriend {

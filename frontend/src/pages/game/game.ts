@@ -15,7 +15,7 @@ import {
     onLocalGameCreated,
     onGameCancelled,
 } from "../../websockets/client";
-import { rankedWinnerData, gameOverModalCreator, acceptFriendGameModal } from "./gameModal";
+import { rankedWinnerData, gameOverModalCreator, acceptFriendGameModal, gameOverModal } from "./gameModal";
 import { 
     setupRankedListeners, 
     updatePlayerProfiles, 
@@ -31,6 +31,7 @@ import gameService from "../../services/api/gameService";
 import { navigationHandle } from "../../elements/navigation";
 import { BtnAccept } from "../../elements/BtnAccept";
 import { navigateTo } from "../../routing";
+import i18next from "i18next"
 declare global {
     interface Window {
         tournamentPlayerNickname1: string;
@@ -40,38 +41,85 @@ declare global {
 
 
 let testData :any;
-export function showAcceptModal()
-{
-    const gameInviteAction = localStorage.getItem('gameInviteAction');
-    if (gameInviteAction) {
-        try {
-            const action = JSON.parse(gameInviteAction);
-            if (action.action === 'show_accept_modal') {
-                setTimeout(() => {
-                    const preGameModal = document.querySelector("#preGameModal");
-                    const friendGameAcceptModal = document.querySelector("#friendGameAcceptModal");
+// export function showAcceptModal()
+// {
+//     const gameInviteAction = localStorage.getItem('gameInviteAction');
+//     if (gameInviteAction) {
+//         try {
+//             const action = JSON.parse(gameInviteAction);
+//             if (action.action === 'show_accept_modal') {
+//                 setTimeout(() => {
                     
-                    preGameModal?.classList.add("hidden");
-                    preGameModal?.classList.remove("flex");
-                    friendGameAcceptModal?.classList.remove("hidden");
-                    friendGameAcceptModal?.classList.add("flex");
-                    console.log("TEST DATA BEFORE : ", testData)
-                    testData = action.gameData;
-                    console.log("TEST DATA AFTER : ", testData)
+//                     hideAllShowAccept();
+//                     testData = action.gameData;
 
-                }, 100);
-                localStorage.removeItem('gameInviteAction');
-            }
-        } catch (e) {
-            console.error('Error parsing game invite action:', e);
-            localStorage.removeItem('gameInviteAction');
+//                 }, 100);
+//                 localStorage.removeItem('gameInviteAction');
+//             }
+//         } catch (e) {
+//             console.error('Error parsing game invite action:', e);
+//             localStorage.removeItem('gameInviteAction');
+//         }
+//     }  
+// }
+
+export async function testChatInvite(invitedFriendId: number)
+{
+    try{
+        const response = await store.sendFriendGameRequest(invitedFriendId);
+        if(response.status === 201){
+            const res = response.data;
+            console.log("GAME ID ", res.game.id);
+            console.log("PLAYER1 ID ", res.game.player1Id);
+            console.log("PLAYER2 ID ", res.game.player2Id);
+            store.setFriendGameId(res.game.id);
+            store.setFriendPlayerOne(res.game.player1Id);
+            store.setFriendPlayerTwo(res.game.player2Id);
         }
-    }  
+    }catch{
+        handleModalError("Wait until invite expired");
+    }
 }
+
+    export function hideAllShowAccept(){
+        const gameOverModalContainer = document.querySelector("#gameOverModal");
+        const preGameModal = document.querySelector("#preGameModal");
+        const friendGameAcceptModal = document.querySelector("#friendGameAcceptModal");
+        const friendsMatchModal = document.querySelector("#friendsMatchModal");
+        const tournamentModal = document.querySelector("#tournamentModal");
+        const rankedGameModal = document.querySelector("#rankedGameModal");
+        const tournamentProfiles = document.querySelector("#tournamentProfiles");
+        if(!preGameModal?.classList.contains("hidden")){
+            preGameModal?.classList.add("hidden");
+            preGameModal?.classList.remove("flex");
+        }
+        if(!gameOverModalContainer?.classList.contains("hidden")){
+            gameOverModalContainer?.classList.add("hidden");
+            gameOverModalContainer?.classList.remove("flex");
+        }
+        if(!friendsMatchModal?.classList.contains("hidden")){
+            friendsMatchModal?.classList.add("hidden");
+            friendsMatchModal?.classList.remove("flex");
+        }
+        if(!tournamentModal?.classList.contains("hidden")){
+            tournamentModal?.classList.add("hidden");
+            tournamentModal?.classList.remove("flex");
+        }
+        if(!rankedGameModal?.classList.contains("hidden")){
+            rankedGameModal?.classList.add("hidden");
+            rankedGameModal?.classList.remove("flex");
+        }
+        if(!tournamentProfiles?.classList.contains("hidden")){
+            tournamentProfiles?.classList.add("hidden");
+            tournamentProfiles?.classList.remove("flex");
+        }
+        friendGameAcceptModal?.classList.remove("hidden");
+        friendGameAcceptModal?.classList.add("flex");
+    }
 
 export function handleGame(mainWrapper: HTMLDivElement | undefined) {
     navigationHandle();
-    
+
 
 
     const acceptGameBtn = document.querySelector("#acceptGameBtn");
@@ -81,12 +129,15 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
 
         friendGameAcceptModal?.classList.add("hidden");
         friendGameAcceptModal?.classList.remove("flex");
-        console.log("TEST DATA ACCEPT : ", testData)
-        startFriendMatch(testData);
+
+        let gameData = store.getFriendGameData();
+        console.log("GAME DATA ", gameData)
+
+        startFriendMatch(gameData);
     });
     
     declineGameBtn?.addEventListener('click', () => {
-        
+        navigateTo("/");
     });
 
     const tournamentProfiles = document.querySelector("#tournamentProfiles");
@@ -337,7 +388,14 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
     // РЕЖИМЫ ИГРЫ
     function initTournamentGame() {
     gameMode = 'local';
-    
+
+    const navNotification = document.querySelector("#notificationMenu");
+    const navProfile = document.querySelector("#profileIcon");
+    const navHome = document.querySelector("#imgLogoNavi");
+    navNotification?.classList.add("pointer-events-none", "opacity-50");
+    navProfile?.classList.add("pointer-events-none", "opacity-50");
+    navHome?.classList.add("pointer-events-none", "opacity-50");
+
     setupMultiplayerSocketHandlers();
 
     onLocalGameCreated((data) => {
@@ -411,6 +469,7 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
     function initMultiplayerFriendGame(gameId: string) {
         
         gameMode = 'multiplayer';
+
         currentGameId = gameId;
         currentGameState = getCurrentGameState();
         setupMultiplayerSocketHandlers();
@@ -456,21 +515,52 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
         });
 
         onGameCancelled((gameId) => {
+
+            console.log("GAME TYPE : ", gameType, gameInviteSenderId);
             if(gameInviteSenderId === store.getUser().id || gameType === "friends" || gameType === "ranked")
             {
-            const rankedProfilesContainer = document.querySelector('#rankedProfiles');
-            console.log("GAME CANCELLED");
-            spinerDiv?.classList.add("hidden");
-            rankedProfilesContainer?.classList.add("hidden");
-            preGameModal?.classList.remove("hidden");
-            preGameModal?.classList.add("flex");
-            rankedProfilesContainer?.classList.add("hidden");
-            gameInviteSenderId = 0;
-            gameType = null;
+                const navNotification = document.querySelector("#notificationMenu");
+                const navProfile = document.querySelector("#profileIcon");
+                const navHome = document.querySelector("#imgLogoNavi");
+                navNotification?.classList.remove("pointer-events-none", "opacity-50");
+                navProfile?.classList.remove("pointer-events-none", "opacity-50");
+                navHome?.classList.remove("pointer-events-none", "opacity-50");
+
+                const rankedProfilesContainer = document.querySelector('#rankedProfiles');
+                const acceptFriendGameModal = document.querySelector('#friendGameAcceptModal');
+                if(!acceptFriendGameModal?.classList.contains("hidden")){
+                    acceptFriendGameModal?.classList.add("hidden");
+                    acceptFriendGameModal?.classList.remove("flex");
+                }
+                console.log("GAME CANCELLED");
+                spinerDiv?.classList.add("hidden");
+                rankedProfilesContainer?.classList.add("hidden");
+                preGameModal?.classList.remove("hidden");
+                preGameModal?.classList.add("flex");
+                rankedProfilesContainer?.classList.add("hidden");
+                gameInviteSenderId = 0;
+                gameType = null;
+            }else{
+                const acceptFriendGameModal = document.querySelector('#friendGameAcceptModal');
+                if(!acceptFriendGameModal?.classList.contains("hidden")){
+                    acceptFriendGameModal?.classList.add("hidden");
+                    acceptFriendGameModal?.classList.remove("flex");
+                    preGameModal?.classList.remove("hidden");
+                    preGameModal?.classList.add("flex");
+                }
+                gameInviteSenderId = 0;
+                gameType = null;
             }
         });
 
         onGameFinished((result) => {
+                const navNotification = document.querySelector("#notificationMenu");
+                const navProfile = document.querySelector("#profileIcon");
+                const navHome = document.querySelector("#imgLogoNavi");
+                navNotification?.classList.remove("pointer-events-none", "opacity-50");
+                navProfile?.classList.remove("pointer-events-none", "opacity-50");
+                navHome?.classList.remove("pointer-events-none", "opacity-50");
+
             console.log("Game finished:", result, gameMode);
             if(gameMode === "multiplayer")
                 handleGameOver(result);
@@ -956,17 +1046,26 @@ function handleKeyUp(ev: KeyboardEvent) {
     //     else
     //         friendsDropDown?.classList.add("hidden");
 
-    // }); 
+    // });
 
     function startFriendMatch(data: any)
     {   
-        gameType = "friends";
-        initMultiplayerFriendGame(data.gameId || data.game.id.toString());
-        updatePlayerProfiles(data);
-        setupButtonDelegation(data.gameId || data.game.id);
+        gameType = "friends"
+        console.log("GAME DATA STORE 2: ", data);
+        const navNotification = document.querySelector("#notificationMenu");
+        const navProfile = document.querySelector("#profileIcon");
+        const navHome = document.querySelector("#imgLogoNavi");
+        navNotification?.classList.add("pointer-events-none", "opacity-50");
+        navProfile?.classList.add("pointer-events-none", "opacity-50");
+        navHome?.classList.add("pointer-events-none", "opacity-50");
+        
+
+        initMultiplayerFriendGame(data.game.id);
+        updatePlayerProfiles(data.game);
+        setupButtonDelegation(data.game.id);
         resetMatchmakingButtons();
         updateAllStoreUsers();
-        testData = null;
+        
 
     }
 
@@ -998,14 +1097,6 @@ function handleKeyUp(ev: KeyboardEvent) {
                     if (selectedFriend) {
                         invitedFriendId = friend.id;
                         if(friend.avatar){
-                            // (selectedFriend as HTMLImageElement).src = API_URL + friend.avatar;
-                            // const btn = document.getElementById("friendSelectBtn");
-                            // const span = btn?.querySelector("span");
-                            // invitedFriendId = friend.id;
-                            // if (span) {
-                                //     span.textContent = friend.username;
-                                // }
-                                
                                 const newImg = document.createElement("img");
                                     newImg.id = "profileImg";
                                     newImg.className = "w-8 h-8 rounded-full mr-2";
@@ -1038,6 +1129,8 @@ function handleKeyUp(ev: KeyboardEvent) {
         }
     }
 
+
+
     function createProfileDivElement(
         firstLetter: string,
         color: string
@@ -1053,11 +1146,13 @@ function handleKeyUp(ev: KeyboardEvent) {
     e.stopPropagation();
     try{
         const response = await store.sendFriendGameRequest(invitedFriendId);
+        // console.log("SEND REQUEST RESPONSE " ,response.status)
         if(response.status === 201){
             const res = response.data;
             sendFriendMatchRequestBtn.classList.add("opacity-50");
             sendFriendMatchRequestBtn.setAttribute("disabled", "true");
             gameInviteSenderId = store.getUser().id;
+            // console.log("RES " ,res)
             startFriendMatch(res);
             
             setTimeout(() => {
@@ -1066,7 +1161,7 @@ function handleKeyUp(ev: KeyboardEvent) {
             }, 35000);
         }
     }catch{
-        console.error("Error");
+        handleModalError("Wait until invite expired");
     }
     });
 
@@ -1134,6 +1229,14 @@ document.addEventListener("click", (e) => {
 
     function tournamentCleaning()
     {
+
+        const navNotification = document.querySelector("#notificationMenu");
+        const navProfile = document.querySelector("#profileIcon");
+        const navHome = document.querySelector("#imgLogoNavi");
+        navNotification?.classList.remove("pointer-events-none", "opacity-50");
+        navProfile?.classList.remove("pointer-events-none", "opacity-50");
+        navHome?.classList.remove("pointer-events-none", "opacity-50");
+
         tournamentPlayerData.nicknames.length = 0
         tournamentData.semiFinal.length = 0;
         tournamentData.final.length = 0;

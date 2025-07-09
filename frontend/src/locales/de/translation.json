@@ -68,12 +68,18 @@
     "unBlock": "Entsperren",
     "userBlocked": "Benutzer hat dich blockiert",
     "inviteInGame": "Freund ins Spiel einladen",
-    "win": "Sieg",
-    "lost": "Niederlage",
-    "deleteAccount": "Konto löschen",
-    "changePhoto": "Foto ändern",
-    "deletePhoto": "Foto löschen",
-    "send": "Senden"
+    "backToMenu": "Zurück zum Menü",
+    "selectGameMode": "Spielmodus auswählen",
+    "createTournament": "Wettkampf erstellen",
+    "fourPlayers": "4 Spieler",
+    "friendsMatch": "Freunde Spiel",
+    "rankedMatch": "Rangspiel",
+    "submitNickname": "Spitzname einreichen",
+    "startRankedMatch": "Rangspiel starten",
+    "cancelRankedMatch": "Rangspiel abbrechen",
+    "startGame": "Spiel starten",
+    "playAgain": "Noch einmal spielen",
+    "ready": "Bereit!"
   },
   "settings": {
     "2fa": "2FA-Authentifizierung",
@@ -103,6 +109,13 @@
     "notifications": "Benachrichtigungen",
     "sentYouFriendRequest": " hat dir eine Freundschaftsanfrage gesendet.",
     "hasAcceptedFriendShip": " hat die Freundschaftseinladung angenommen.",
-    "sentYouGameInvite": " PEREVEDITE PLS"
+    "sentYouGameInvite": " hat dir eine Einladung zum Spiel gesendet"
+  },
+    "game": {
+    "rankedMode": "Rang modus",
+    "gameOver": "Spiel beendet",
+    "winner": "Gewinner",
+    "friendsMatchReady": "Spiel mit Freund bereit"
+    
   }
 }

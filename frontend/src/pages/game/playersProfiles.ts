@@ -2,6 +2,7 @@ import { getColorFromUsername } from "../../shared/randomColors";
 import { API_URL, store } from "../../store/store";
 import { findUser } from "../../shared";
 import { getPlayerName } from "./tournamentBracket";
+import i18next from "i18next"
 
 export const tournamentPlayerData = {
   tournamentNet: [] as number[],
@@ -67,7 +68,7 @@ export function rankedPlayerProfiles() {
                     : `<div id="profileImg1" class="text-3xl text-white font-bold flex justify-center items-center w-24 h-24 ${rankedPlayerData.firstPlayerColor} rounded-full cursor-pointer select-none">${rankedPlayerData.firstPlayerLetter}</div>`
                 }
                 <span class="mt-2 text-lg text-white">${rankedPlayerData.firstPlayer}</span>
-                <button id="playerOneReadyBtn" class="hidden mt-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">Ready to Play!</button>
+                <button id="playerOneReadyBtn" data-i18n='buttons.ready' class="hidden mt-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">${i18next.t("buttons.ready")}</button>
             </div>
         </div>
         <div class="absolute right-16 z-10">
@@ -78,7 +79,7 @@ export function rankedPlayerProfiles() {
                     : `<div id="profileImg2" class="text-3xl text-white font-bold flex justify-center items-center w-24 h-24 ${rankedPlayerData.secondPlayerColor} rounded-full cursor-pointer select-none">${rankedPlayerData.secondPlayerLetter}</div>`
                 }
                 <span class="mt-2 text-lg text-white">${rankedPlayerData.secondPlayer}</span>
-                <button id="playerTwoReadyBtn" class="hidden mt-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">Ready to Play!</button>
+                <button id="playerTwoReadyBtn" data-i18n='buttons.ready' class="hidden mt-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">${i18next.t("buttons.ready")}</button>
             </div>
         </div>
     `;
@@ -129,7 +130,8 @@ export function updateRankedProfilesPositions(gameState: any) {
             leftPlayerId = player2Id;
             rightPlayerId = player1Id;
         }
-        
+        console.log("LEFTPLAYERID : ",leftPlayerId)
+        console.log("LEFTPLAYERID : ",rightPlayerId)
         // Получаем данные игроков
         const leftUser = findUser(leftPlayerId);
         const rightUser = findUser(rightPlayerId);
@@ -191,13 +193,13 @@ export function updateProfilesHTML() {
         
         if (newPlayerOneBtn && buttonStates.playerOne.disabled) {
             newPlayerOneBtn.setAttribute("disabled", "true");
-            newPlayerOneBtn.textContent = buttonStates.playerOne.text || "Ready!";
+            newPlayerOneBtn.textContent = buttonStates.playerOne.text || i18next.t("buttons.ready");
             newPlayerOneBtn.className = buttonStates.playerOne.classes || newPlayerOneBtn.className;
         }
         
         if (newPlayerTwoBtn && buttonStates.playerTwo.disabled) {
             newPlayerTwoBtn.setAttribute("disabled", "true");
-            newPlayerTwoBtn.textContent = buttonStates.playerTwo.text || "Ready!";
+            newPlayerTwoBtn.textContent = buttonStates.playerTwo.text || i18next.t("buttons.ready");
             newPlayerTwoBtn.className = buttonStates.playerTwo.classes || newPlayerTwoBtn.className;
         }
         

@@ -87,12 +87,17 @@ export function initializeSocket(): Socket | null {
   });
 
   socket.on("notification", async (data) => {
-    if (data.type === "game_invite") {
-      console.log(data);
-      if (gameCallbacks.onMatchFriendsFound) {
-        gameCallbacks.onMatchFriendsFound(data);
-      }
+    if(data.type === "game_invite"){
+      console.log("CLIENT DATA ",data.data.game);
       console.log("RECIEVED GAME INVITE");
+            let responseData = data.data;
+      store.setFriendGameId(responseData.game.id);
+      store.setFriendPlayerOne(responseData.game.player1Id);
+      store.setFriendPlayerTwo(responseData.game.player2Id);
+      
+    if (gameCallbacks.onMatchFriendsFound) {
+      gameCallbacks.onMatchFriendsFound(data);
+    }
     }
     if (
       data.type !== "friend_removed" &&
@@ -276,7 +281,6 @@ export function initializeSocket(): Socket | null {
   });
 
   socket.on("game:cancelled", (gameId: any) => {
-    console.log("GAME CANCELED   ", gameId);
     if (gameCallbacks.onGameCancelled) {
       gameCallbacks.onGameCancelled(gameId);
     }

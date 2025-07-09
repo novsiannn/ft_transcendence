@@ -68,6 +68,18 @@
     "unBlock": "Unblock",
     "userBlocked": "User has blocked you",
     "inviteInGame": "Invite Friend in Game",
+    "backToMenu": "Back to menu",
+    "selectGameMode": "Select game mode",
+    "createTournament": "Create tournament",
+    "fourPlayers": "4 Players",
+    "friendsMatch": "Friends match",
+    "rankedMatch": "Ranked match",
+    "submitNickname": "Submit nickname",
+    "startRankedMatch": "Start ranked match",
+    "cancelRankedMatch": "Cancel ranked match",
+    "startGame": "Start game",
+    "playAgain": "Play again",
+    "ready": "Ready!",
     "win": "Win",
     "lost": "Lost",
     "deleteAccount": "Delete Account",
@@ -103,6 +115,13 @@
     "notifications": "Notifications",
     "sentYouFriendRequest": " sent you friend request.",
     "hasAcceptedFriendShip": " has accepted the friendship invite.",
-    "sentYouGameInvite": " PEREVEDITE PLS"
+    "sentYouGameInvite": " sent you game invite"
+  },
+  "game": {
+    "rankedMode": "Ranked mode",
+    "gameOver": "Game over",
+    "winner": "Winner",
+    "friendsMatchReady": "Game with friend ready"
+    
   }
 }
