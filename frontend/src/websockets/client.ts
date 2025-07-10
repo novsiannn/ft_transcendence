@@ -182,14 +182,14 @@ export function initializeSocket(): Socket | null {
   socket.on("user:blocked:by", async (data) => {
     const user: IUser | undefined = findUser(data.blockedByUserId);
 
-    console.log(data);
-
     await store.getUserRequest();
 
     if (location.pathname.slice(0, 8) === "/profile") {
-      if (user) {
-        await store.getUserRequest();
-        refreshProfileBtnsBlock(user);
+      if (location.pathname.split("/")[2] == data.blockedByUserId) {
+        if (user) {
+          await store.getUserRequest();
+          refreshProfileBtnsBlock(user);
+        }
       }
     } else if (location.pathname === "/friends") {
       rerenderFriendsPage();
@@ -203,14 +203,17 @@ export function initializeSocket(): Socket | null {
   socket.on("user:unblocked:by", async (data) => {
     const user: IUser | undefined = findUser(data.unblockedByUserId);
 
-    console.log(data);
     await store.getUserRequest();
 
     await store.getAllFriendsRequest();
     if (location.pathname.slice(0, 8) === "/profile") {
-      if (user) {
-        await store.getUserRequest();
-        refreshProfileBtnsBlock(user);
+      if (location.pathname.split("/")[2] == data.unblockedByUserId) {
+        console.log('here');
+        
+        if (user) {
+          await store.getUserRequest();
+          refreshProfileBtnsBlock(user);
+        }
       }
     } else if (location.pathname === "/friends") {
       rerenderFriendsPage();
