@@ -51,9 +51,9 @@ class Store {
       game: {
         id: 0,
         player1Id: 0,
-        player2Id: 0
-      }
-    } as IFriendGame
+        player2Id: 0,
+      },
+    } as IFriendGame,
   };
 
   setFriendGameId = (gameId: number): void => {
@@ -64,7 +64,7 @@ class Store {
     this.state.friendGame.game.player1Id = player1;
   };
 
-    setFriendPlayerTwo = (player2: number): void => {
+  setFriendPlayerTwo = (player2: number): void => {
     this.state.friendGame.game.player2Id = player2;
   };
 
@@ -79,10 +79,9 @@ class Store {
   // getFriendPlayerTwo = (): number => {
   //   return this.state.friendGame.player2;
   // };
-    getFriendGameData = (): IFriendGame => {
+  getFriendGameData = (): IFriendGame => {
     return this.state.friendGame;
   };
-
 
   setAuth = (bool: boolean): void => {
     this.state.auth.isAuth = bool;
@@ -324,11 +323,9 @@ class Store {
   sendFriendGameRequest = async (friendId: number) => {
     const response = await gameService.sendFriendMatchRequest(friendId);
 
-    console.log("STORE RESPONSE ",response)
+    console.log("STORE RESPONSE ", response);
 
-    if(response.status === 201){
-
-            
+    if (response.status === 201) {
       handleModalSuccess("You have successfully sent a game request");
     }
 
@@ -337,15 +334,15 @@ class Store {
 
   sendFriendRequest = async (addresseeId: number) => {
     try {
-    const response = await friendsService.sendFriendRequest(addresseeId);
+      const response = await friendsService.sendFriendRequest(addresseeId);
 
-    if (response.status === 201) {
-      handleModalSuccess("modalWindowsMessages.friendShipRequest");
-      socket?.emit("notification:friendRequest", {
-        addresseeId,
-      });
-    }
-    return response.status;
+      if (response.status === 201) {
+        handleModalSuccess("modalWindowsMessages.friendShipRequest");
+        socket?.emit("notification:friendRequest", {
+          addresseeId,
+        });
+      }
+      return response.status;
     } catch (e) {
       return {};
     }
@@ -452,14 +449,18 @@ class Store {
   };
 
   deleteNotification = async (notificationID: string): Promise<number> => {
-    const response = await notificationService.deleteNotifications(
-      notificationID
-    );
+    try {
+      const response = await notificationService.deleteNotifications(
+        notificationID
+      );
 
-    if (response.status === 204) {
-      refreshNotifications();
+      if (response.status === 204) {
+        refreshNotifications();
+      }
+      return response.status;
+    } catch (e) {
+      return {} as Promise<number>
     }
-    return response.status;
   };
 
   readNotification = async () => {
