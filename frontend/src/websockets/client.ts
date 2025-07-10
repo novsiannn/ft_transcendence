@@ -87,17 +87,17 @@ export function initializeSocket(): Socket | null {
   });
 
   socket.on("notification", async (data) => {
-    if(data.type === "game_invite"){
-      console.log("CLIENT DATA ",data.data.game);
+    if (data.type === "game_invite") {
+      console.log("CLIENT DATA ", data.data.game);
       console.log("RECIEVED GAME INVITE");
-            let responseData = data.data;
+      let responseData = data.data;
       store.setFriendGameId(responseData.game.id);
       store.setFriendPlayerOne(responseData.game.player1Id);
       store.setFriendPlayerTwo(responseData.game.player2Id);
-      
-    if (gameCallbacks.onMatchFriendsFound) {
-      gameCallbacks.onMatchFriendsFound(data);
-    }
+
+      if (gameCallbacks.onMatchFriendsFound) {
+        gameCallbacks.onMatchFriendsFound(data);
+      }
     }
     if (
       data.type !== "friend_removed" &&
@@ -140,8 +140,14 @@ export function initializeSocket(): Socket | null {
       }
 
       if (location.pathname !== "/profile") {
-        const user = findUser(response);
-        if (user) refreshProfileBtnsBlock(user);
+        console.log(location.pathname.split("/"));
+
+        console.log(response);
+
+        if (location.pathname.split("/")[2] == response) {
+          const user = findUser(response);
+          if (user) refreshProfileBtnsBlock(user);
+        }
       }
     }
 
@@ -178,6 +184,8 @@ export function initializeSocket(): Socket | null {
 
     console.log(data);
 
+    await store.getUserRequest();
+
     if (location.pathname.slice(0, 8) === "/profile") {
       if (user) {
         await store.getUserRequest();
@@ -196,6 +204,7 @@ export function initializeSocket(): Socket | null {
     const user: IUser | undefined = findUser(data.unblockedByUserId);
 
     console.log(data);
+    await store.getUserRequest();
 
     await store.getAllFriendsRequest();
     if (location.pathname.slice(0, 8) === "/profile") {
