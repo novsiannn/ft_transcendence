@@ -296,6 +296,7 @@ class Store {
   };
 
   sendFriendRequest = async (addresseeId: number) => {
+    try {
     const response = await friendsService.sendFriendRequest(addresseeId);
 
     if (response.status === 201) {
@@ -305,6 +306,9 @@ class Store {
       });
     }
     return response.status;
+    } catch (e) {
+      return {};
+    }
   };
 
   getPendingFriendsRequests = async (): Promise<IFriendshipResponseData> => {
