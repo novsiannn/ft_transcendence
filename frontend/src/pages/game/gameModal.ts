@@ -184,7 +184,6 @@ export function gameOverModalCreator(result : number) {
 }
 
 export function gameOverModal() {
-    // Создаем только пустой контейнер, содержимое будет добавлено динамически
     return `
         <div id="gameOverModal"  class="fixed inset-0 items-center justify-center z-10 hidden">
             <!-- Содержимое будет добавлено динамически -->

@@ -14,7 +14,7 @@ export function gamePage() {
       const color = getColorFromUsername(store.getUser().username);
       const firstLetterOfUser = store.getUser().username.charAt(0).toUpperCase();
       const userNickname = store.getUser().username;
-    // сброс отступов и фон
+
     document.body.style.margin = "0";
     document.body.style.padding = "0";
     document.body.classList.add(    

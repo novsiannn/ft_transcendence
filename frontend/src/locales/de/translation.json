@@ -79,7 +79,13 @@
     "cancelRankedMatch": "Rangspiel abbrechen",
     "startGame": "Spiel starten",
     "playAgain": "Noch einmal spielen",
-    "ready": "Bereit!"
+    "ready": "Bereit!",
+    "win": "Sieg",
+    "lost":  "Niederlage",
+    "deleteAccount": "Konto löschen",
+    "changePhoto": "Foto ändern",
+    "deleteFoto": "Foto löschen",
+    "send": "Senden"
   },
   "settings": {
     "2fa": "2FA-Authentifizierung",

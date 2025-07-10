@@ -1,4 +1,3 @@
-// ratingGame.ts — компоненты для рейтинговой игры
 import { rankedPlayerData, rankedPlayerProfiles, rankedPlayerProfilesContainer, updateRankedProfilesPositions } from "./playersProfiles";
 import { API_URL, store} from "../../store/store";
 import instanceAPI from "../../services/api/instanceAxios";
@@ -13,8 +12,6 @@ import { findUser } from "../../shared";
 import { rankedWinnerData } from "./gameModal";
 import i18next from "i18next"
 
-
-// Экспортируемые функции для рейтинговой игры
 export function setupRankedListeners(
     rankedGameModal: Element | null,
     preGameModal: Element | null,

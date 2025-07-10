@@ -85,8 +85,6 @@ export function rankedPlayerProfiles() {
     `;
 }
 
-// ...existing code...
-
 export function clearRankedPlayerData() {
     rankedPlayerData.firstPlayer = "";
     rankedPlayerData.secondPlayer = "";
@@ -99,8 +97,6 @@ export function clearRankedPlayerData() {
     rankedPlayerData.firstPlayerScore = 0;
     rankedPlayerData.secondPlayerScore = 0;
 }
-
-// ...existing code...
 
 export function rankedPlayerProfilesContainer() {
     return `
@@ -120,7 +116,6 @@ export function updateRankedProfilesPositions(gameState: any) {
         const player1X = gameState.paddles[playerIds[0]].x;
         const player2X = gameState.paddles[playerIds[1]].x;
         
-        // Определяем, кто слева, кто справа по позиции ракетки
         let leftPlayerId, rightPlayerId;
         
         if (player1X < player2X) {
@@ -132,43 +127,35 @@ export function updateRankedProfilesPositions(gameState: any) {
         }
         console.log("LEFTPLAYERID : ",leftPlayerId)
         console.log("LEFTPLAYERID : ",rightPlayerId)
-        // Получаем данные игроков
+
         const leftUser = findUser(leftPlayerId);
         const rightUser = findUser(rightPlayerId);
         
         if (leftUser && rightUser) {
-            // Обновляем данные для левого игрока (firstPlayer)
             rankedPlayerData.firstPlayer = leftUser.username;
             rankedPlayerData.firstPlayerAvatar = leftUser.avatar || "";
             rankedPlayerData.firstPlayerLetter = leftUser.username.charAt(0).toUpperCase();
             rankedPlayerData.firstPlayerColor = getColorFromUsername(leftUser.username);
             
-            // Обновляем данные для правого игрока (secondPlayer)
             rankedPlayerData.secondPlayer = rightUser.username;
             rankedPlayerData.secondPlayerAvatar = rightUser.avatar || "";
             rankedPlayerData.secondPlayerLetter = rightUser.username.charAt(0).toUpperCase();
             rankedPlayerData.secondPlayerColor = getColorFromUsername(rightUser.username);
             
-            // Перерендериваем профили
             updateProfilesHTML();
             
-            // Устанавливаем видимость кнопок Ready на основе реальных позиций
             updateReadyButtonsVisibility(leftPlayerId, rightPlayerId);
         }
     }
 }
 
 function updateReadyButtonsVisibility(leftPlayerId: number, rightPlayerId: number) {
-    // Не изменяем видимость кнопок после переопределения позиций
-    // Кнопки уже правильно настроены в setupInitialReadyButtonsVisibility
-    // и привязаны к изначальным player1Id/player2Id, а не к позициям ракеток
+
 }
 
-// Добавьте эту функцию в playersProfiles.ts
 export function updateProfilesHTML() {
     const rankedProfilesContainer = document.querySelector('#rankedProfiles');
     if (rankedProfilesContainer) {
-        // Сохраняем состояние кнопок перед обновлением
         const playerOneBtn = document.querySelector("#playerOneReadyBtn") as HTMLButtonElement;
         const playerTwoBtn = document.querySelector("#playerTwoReadyBtn") as HTMLButtonElement;
         
@@ -187,7 +174,6 @@ export function updateProfilesHTML() {
         
         rankedProfilesContainer.innerHTML = rankedPlayerProfiles();
         
-        // Восстанавливаем состояние кнопок после обновления
         const newPlayerOneBtn = document.querySelector("#playerOneReadyBtn") as HTMLButtonElement;
         const newPlayerTwoBtn = document.querySelector("#playerTwoReadyBtn") as HTMLButtonElement;
         
@@ -203,7 +189,6 @@ export function updateProfilesHTML() {
             newPlayerTwoBtn.className = buttonStates.playerTwo.classes || newPlayerTwoBtn.className;
         }
         
-        // После обновления HTML нужно переустановить обработчики кнопок
         const event = new CustomEvent('profilesUpdated');
         document.dispatchEvent(event);
     }

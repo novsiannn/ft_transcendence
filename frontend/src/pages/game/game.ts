@@ -41,27 +41,6 @@ declare global {
 
 
 let testData :any;
-// export function showAcceptModal()
-// {
-//     const gameInviteAction = localStorage.getItem('gameInviteAction');
-//     if (gameInviteAction) {
-//         try {
-//             const action = JSON.parse(gameInviteAction);
-//             if (action.action === 'show_accept_modal') {
-//                 setTimeout(() => {
-                    
-//                     hideAllShowAccept();
-//                     testData = action.gameData;
-
-//                 }, 100);
-//                 localStorage.removeItem('gameInviteAction');
-//             }
-//         } catch (e) {
-//             console.error('Error parsing game invite action:', e);
-//             localStorage.removeItem('gameInviteAction');
-//         }
-//     }  
-// }
 
 export async function testChatInvite(invitedFriendId: number)
 {
@@ -385,7 +364,7 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
         scoreInfo!.textContent = `${leftPlayerScore} : ${rightPlayerScore}`;
     }
     
-    // РЕЖИМЫ ИГРЫ
+    // GAME MODS
     function initTournamentGame() {
     gameMode = 'local';
 
@@ -459,7 +438,7 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
         currentGameState = getCurrentGameState();
         setupMultiplayerSocketHandlers();
         setupKeyboardHandlers();
-        // if(gameType === "ranked")
+
         socket?.emit('mm:leave', gameId);
         renderGame(currentGameState);
         rankedProfilesContainer = document.querySelector("#rankedProfiles")
@@ -474,7 +453,7 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
         currentGameState = getCurrentGameState();
         setupMultiplayerSocketHandlers();
         setupKeyboardHandlers();
-        // socket?.emit('game:join', gameId);
+
         renderGame(currentGameState);
         friendsMatchModal?.classList.add("hidden");
         friendsMatchModal?.classList.remove("flex");
@@ -575,7 +554,7 @@ function cleanupCurrentGameLocal() {
         paddleMovementInterval = null;
     }
     
-    keys.clear(); // Очищаем состояние клавиш
+    keys.clear();
     clearGameCallbacks();
     currentGameId = null;
     gameMode = null;
@@ -589,7 +568,6 @@ function cleanupCurrentGame() {
         rankedProfiles.parentNode.replaceChild(newElement, rankedProfiles);
     }
 
-    // Получаем новый элемент и скрываем его
     const newRankedProfiles = document.querySelector("#rankedProfiles");
     newRankedProfiles?.classList.add("hidden");
 
@@ -603,7 +581,6 @@ function cleanupCurrentGame() {
     currentReadyButtonHandler = null;
     clearGameCallbacks();
 
-    // Очищаем данные профилей рейтинговой игры
     clearRankedPlayerData();
     gameType = null;
     currentGameId = null;
@@ -636,7 +613,6 @@ function handleGameOver(result?: any) {
     rankedProfilesContainer?.classList.add("hidden");
     rankedProfilesContainer?.classList.remove("flex");
     
-    // Очищаем данные профилей
     clearRankedPlayerData();
 
     setTimeout(() => {
@@ -647,7 +623,6 @@ function handleGameOver(result?: any) {
 function startPaddleMovementInterval() {
     paddleMovementInterval = setInterval(() => {
         if (gameMode === 'local' && currentGameId) {
-            // Проверяем клавиши для первого игрока (W/S)
             if (keys.has('w')) {
                 movePaddleLocal(currentGameId, 'up', tournamentPlayerNickname1);
             }
@@ -655,7 +630,6 @@ function startPaddleMovementInterval() {
                 movePaddleLocal(currentGameId, 'down', tournamentPlayerNickname1);
             }
             
-            // Проверяем клавиши для второго игрока (стрелки)
             if (keys.has('arrowup')) {
                 movePaddleLocal(currentGameId, 'up', tournamentPlayerNickname2);
             }
@@ -679,7 +653,6 @@ function handleKeyDown(ev: KeyboardEvent) {
     const key = ev.key?.toLowerCase();
     keys.add(key);
     
-    // Запускаем интервал для локальной игры, если он еще не запущен
     if (currentGameId && !paddleMovementInterval) {
         startPaddleMovementInterval();
     }
@@ -689,7 +662,6 @@ function handleKeyUp(ev: KeyboardEvent) {
     const key = ev.key.toLowerCase();
     keys.delete(key);
     
-    // Останавливаем интервал, если нет активных клавиш
     if (keys.size === 0 && paddleMovementInterval) {
         clearInterval(paddleMovementInterval);
         paddleMovementInterval = null;
@@ -709,7 +681,6 @@ function handleKeyUp(ev: KeyboardEvent) {
         }
     }
 
-    // Инициализация рейтингового режима
     function initRankedGameMode() {
         const preGameModal = document.querySelector("#preGameModal");
         const rankedGameModal = document.querySelector("#rankedGameModal");
@@ -729,7 +700,6 @@ function handleKeyUp(ev: KeyboardEvent) {
 
 
 
-        // Инициализируем слушатели рейтинговой игры
         const rankedListenersSetup = () => setupRankedListeners(
             rankedGameModal,
             preGameModal,
@@ -770,7 +740,6 @@ function handleKeyUp(ev: KeyboardEvent) {
             );
         });
 
-        // Проверяем статус рейтинговой игры при загрузке
         rankedGameStatus(
             preGameModal,
             rankedGameModal,
@@ -876,18 +845,14 @@ function handleKeyUp(ev: KeyboardEvent) {
         const tournamentProfiles = document.querySelector("#tournamentProfiles");
         if (tournamentProfiles) {
             tournamentProfiles.innerHTML = tournamentPlayerProfiles();
-            // tournamentProfiles.classList.remove("hidden");
         }
-    // Удаляем старый элемент, если он существует
         let bracketElement = document.querySelector("#bracketFourPlayers");
         if (bracketElement) {
             bracketElement.remove();
         }
         
-        // Создаем новый элемент
         document.body.insertAdjacentHTML('beforeend', tournamentBracketPlayers());
         
-        // Получаем новый элемент и показываем его
         bracketElement = document.querySelector("#bracketFourPlayers");
         if (bracketElement) {
             const bracketElement = document.querySelector("#bracketFourPlayers");
@@ -913,7 +878,6 @@ function handleKeyUp(ev: KeyboardEvent) {
                 bracketBackToMenuBtn?.removeAttribute("disabled");
                 tournamentProfiles?.classList.remove("hidden");
 
-                // bracketBackToMenuBtn.removeAttribute("disabled");
                 bracketModal.classList.add("hidden");
                 bracketModal.classList.remove("flex");
                 initTournamentGame();
@@ -972,16 +936,13 @@ function handleKeyUp(ev: KeyboardEvent) {
         }
     }
     
-    // Удаляем старый элемент если он существует
     let existingBracket = document.querySelector("#bracketFourPlayers");
     if (existingBracket) {
         existingBracket.remove();
     }
     
-    // Создаем новый элемент
     document.body.insertAdjacentHTML('beforeend', tournamentBracketPlayers());
     
-    // Получаем свежую ссылку на элемент
     const newBracketElement = document.querySelector("#bracketFourPlayers");
     if (newBracketElement) {
         newBracketElement.classList.remove("hidden");
@@ -992,7 +953,6 @@ function handleKeyUp(ev: KeyboardEvent) {
     
     tournamentProfiles?.classList.add("hidden");
     
-    // Очищаем игровые данные в конце
     setTimeout(() => {
         cleanupCurrentGameLocal();
     }, 100);
@@ -1006,8 +966,6 @@ function handleKeyUp(ev: KeyboardEvent) {
     const gameModeDropdownBtn = document.querySelector("#gameModeDropdownBtn");
     const gameDropdownMenu = document.querySelector("#gameDropdownMenu");
     const sendFriendMatchRequestBtn = document.querySelector("#sendInviteBtn");
-    // const acceptGameBtn = document.querySelector("#acceptGameBtn");
-    // const declineGameBtn = document.querySelector("#declineGameBtn");
 
     document.addEventListener("click", (e) => {
         e.stopPropagation();
@@ -1034,20 +992,6 @@ function handleKeyUp(ev: KeyboardEvent) {
         getFriendsList();
     });
 
-    // document.addEventListener("click", (e) => {
-    //     e.stopPropagation();
-        
-    //      const target = e.target as HTMLElement;
-        
-    //     if (target && target.id === "friendSelectBtn"){
-    //         friendsDropDown?.classList.toggle("hidden");
-    //         getFriendsList();
-    //     }
-    //     else
-    //         friendsDropDown?.classList.add("hidden");
-
-    // });
-
     function startFriendMatch(data: any)
     {   
         gameType = "friends"
@@ -1066,9 +1010,7 @@ function handleKeyUp(ev: KeyboardEvent) {
         resetMatchmakingButtons();
         updateAllStoreUsers();
         
-
     }
-
 
     let selectedFriend = document.querySelector("#selectedFriend");
     function getFriendsList() {
@@ -1146,13 +1088,12 @@ function handleKeyUp(ev: KeyboardEvent) {
     e.stopPropagation();
     try{
         const response = await store.sendFriendGameRequest(invitedFriendId);
-        // console.log("SEND REQUEST RESPONSE " ,response.status)
+
         if(response.status === 201){
             const res = response.data;
             sendFriendMatchRequestBtn.classList.add("opacity-50");
             sendFriendMatchRequestBtn.setAttribute("disabled", "true");
             gameInviteSenderId = store.getUser().id;
-            // console.log("RES " ,res)
             startFriendMatch(res);
             
             setTimeout(() => {
@@ -1165,7 +1106,6 @@ function handleKeyUp(ev: KeyboardEvent) {
     }
     });
 
-    // Обработчики модальных окон
     document.addEventListener("click", async (e) =>{
         const target = e.target as HTMLElement;
         if(target.id === "backToMenuBtn")
@@ -1253,7 +1193,6 @@ document.addEventListener("click", (e) => {
         tournamentPlayerNickname2 = '';
     }
 
-    // Play Again для рейтинговой игры
     document.addEventListener("click", (e) => {
         const target = e.target as HTMLElement;
         if (target.id === "rankedPlayAgainBtn") {
@@ -1271,8 +1210,6 @@ document.addEventListener("click", (e) => {
             rankedBackToMenuBtn?.removeAttribute("disabled")
             rankedProfilesContainer?.classList.add("hidden");
             
-            
-            // Запуск новой рейтинговой игры будет обрабатываться кнопкой startRankedMatchBtn
         }
     });
 
