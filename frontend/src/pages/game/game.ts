@@ -15,7 +15,7 @@ import {
     onLocalGameCreated,
     onGameCancelled,
 } from "../../websockets/client";
-import { rankedWinnerData, gameOverModalCreator, acceptFriendGameModal } from "./gameModal";
+import { rankedWinnerData, gameOverModalCreator, acceptFriendGameModal, gameOverModal } from "./gameModal";
 import { 
     setupRankedListeners, 
     updatePlayerProfiles, 
@@ -31,6 +31,7 @@ import gameService from "../../services/api/gameService";
 import { navigationHandle } from "../../elements/navigation";
 import { BtnAccept } from "../../elements/BtnAccept";
 import { navigateTo } from "../../routing";
+import i18next from "i18next"
 declare global {
     interface Window {
         tournamentPlayerNickname1: string;
@@ -40,38 +41,64 @@ declare global {
 
 
 let testData :any;
-export function showAcceptModal()
-{
-    const gameInviteAction = localStorage.getItem('gameInviteAction');
-    if (gameInviteAction) {
-        try {
-            const action = JSON.parse(gameInviteAction);
-            if (action.action === 'show_accept_modal') {
-                setTimeout(() => {
-                    const preGameModal = document.querySelector("#preGameModal");
-                    const friendGameAcceptModal = document.querySelector("#friendGameAcceptModal");
-                    
-                    preGameModal?.classList.add("hidden");
-                    preGameModal?.classList.remove("flex");
-                    friendGameAcceptModal?.classList.remove("hidden");
-                    friendGameAcceptModal?.classList.add("flex");
-                    console.log("TEST DATA BEFORE : ", testData)
-                    testData = action.gameData;
-                    console.log("TEST DATA AFTER : ", testData)
 
-                }, 100);
-                localStorage.removeItem('gameInviteAction');
-            }
-        } catch (e) {
-            console.error('Error parsing game invite action:', e);
-            localStorage.removeItem('gameInviteAction');
+export async function testChatInvite(invitedFriendId: number)
+{
+    try{
+        const response = await store.sendFriendGameRequest(invitedFriendId);
+        if(response.status === 201){
+            const res = response.data;
+            console.log("GAME ID ", res.game.id);
+            console.log("PLAYER1 ID ", res.game.player1Id);
+            console.log("PLAYER2 ID ", res.game.player2Id);
+            store.setFriendGameId(res.game.id);
+            store.setFriendPlayerOne(res.game.player1Id);
+            store.setFriendPlayerTwo(res.game.player2Id);
         }
-    }  
+    }catch{
+        handleModalError("Wait until invite expired");
+    }
 }
+
+    export function hideAllShowAccept(){
+        const gameOverModalContainer = document.querySelector("#gameOverModal");
+        const preGameModal = document.querySelector("#preGameModal");
+        const friendGameAcceptModal = document.querySelector("#friendGameAcceptModal");
+        const friendsMatchModal = document.querySelector("#friendsMatchModal");
+        const tournamentModal = document.querySelector("#tournamentModal");
+        const rankedGameModal = document.querySelector("#rankedGameModal");
+        const tournamentProfiles = document.querySelector("#tournamentProfiles");
+        if(!preGameModal?.classList.contains("hidden")){
+            preGameModal?.classList.add("hidden");
+            preGameModal?.classList.remove("flex");
+        }
+        if(!gameOverModalContainer?.classList.contains("hidden")){
+            gameOverModalContainer?.classList.add("hidden");
+            gameOverModalContainer?.classList.remove("flex");
+        }
+        if(!friendsMatchModal?.classList.contains("hidden")){
+            friendsMatchModal?.classList.add("hidden");
+            friendsMatchModal?.classList.remove("flex");
+        }
+        if(!tournamentModal?.classList.contains("hidden")){
+            tournamentModal?.classList.add("hidden");
+            tournamentModal?.classList.remove("flex");
+        }
+        if(!rankedGameModal?.classList.contains("hidden")){
+            rankedGameModal?.classList.add("hidden");
+            rankedGameModal?.classList.remove("flex");
+        }
+        if(!tournamentProfiles?.classList.contains("hidden")){
+            tournamentProfiles?.classList.add("hidden");
+            tournamentProfiles?.classList.remove("flex");
+        }
+        friendGameAcceptModal?.classList.remove("hidden");
+        friendGameAcceptModal?.classList.add("flex");
+    }
 
 export function handleGame(mainWrapper: HTMLDivElement | undefined) {
     navigationHandle();
-    
+
 
 
     const acceptGameBtn = document.querySelector("#acceptGameBtn");
@@ -81,12 +108,15 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
 
         friendGameAcceptModal?.classList.add("hidden");
         friendGameAcceptModal?.classList.remove("flex");
-        console.log("TEST DATA ACCEPT : ", testData)
-        startFriendMatch(testData);
+
+        let gameData = store.getFriendGameData();
+        console.log("GAME DATA ", gameData)
+
+        startFriendMatch(gameData);
     });
     
     declineGameBtn?.addEventListener('click', () => {
-        
+        navigateTo("/");
     });
 
     const tournamentProfiles = document.querySelector("#tournamentProfiles");
@@ -334,10 +364,17 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
         scoreInfo!.textContent = `${leftPlayerScore} : ${rightPlayerScore}`;
     }
     
-    // РЕЖИМЫ ИГРЫ
+    // GAME MODS
     function initTournamentGame() {
     gameMode = 'local';
-    
+
+    const navNotification = document.querySelector("#notificationMenu");
+    const navProfile = document.querySelector("#profileIcon");
+    const navHome = document.querySelector("#imgLogoNavi");
+    navNotification?.classList.add("pointer-events-none", "opacity-50");
+    navProfile?.classList.add("pointer-events-none", "opacity-50");
+    navHome?.classList.add("pointer-events-none", "opacity-50");
+
     setupMultiplayerSocketHandlers();
 
     onLocalGameCreated((data) => {
@@ -401,7 +438,7 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
         currentGameState = getCurrentGameState();
         setupMultiplayerSocketHandlers();
         setupKeyboardHandlers();
-        // if(gameType === "ranked")
+
         socket?.emit('mm:leave', gameId);
         renderGame(currentGameState);
         rankedProfilesContainer = document.querySelector("#rankedProfiles")
@@ -411,11 +448,12 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
     function initMultiplayerFriendGame(gameId: string) {
         
         gameMode = 'multiplayer';
+
         currentGameId = gameId;
         currentGameState = getCurrentGameState();
         setupMultiplayerSocketHandlers();
         setupKeyboardHandlers();
-        // socket?.emit('game:join', gameId);
+
         renderGame(currentGameState);
         friendsMatchModal?.classList.add("hidden");
         friendsMatchModal?.classList.remove("flex");
@@ -456,21 +494,52 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
         });
 
         onGameCancelled((gameId) => {
+
+            console.log("GAME TYPE : ", gameType, gameInviteSenderId);
             if(gameInviteSenderId === store.getUser().id || gameType === "friends" || gameType === "ranked")
             {
-            const rankedProfilesContainer = document.querySelector('#rankedProfiles');
-            console.log("GAME CANCELLED");
-            spinerDiv?.classList.add("hidden");
-            rankedProfilesContainer?.classList.add("hidden");
-            preGameModal?.classList.remove("hidden");
-            preGameModal?.classList.add("flex");
-            rankedProfilesContainer?.classList.add("hidden");
-            gameInviteSenderId = 0;
-            gameType = null;
+                const navNotification = document.querySelector("#notificationMenu");
+                const navProfile = document.querySelector("#profileIcon");
+                const navHome = document.querySelector("#imgLogoNavi");
+                navNotification?.classList.remove("pointer-events-none", "opacity-50");
+                navProfile?.classList.remove("pointer-events-none", "opacity-50");
+                navHome?.classList.remove("pointer-events-none", "opacity-50");
+
+                const rankedProfilesContainer = document.querySelector('#rankedProfiles');
+                const acceptFriendGameModal = document.querySelector('#friendGameAcceptModal');
+                if(!acceptFriendGameModal?.classList.contains("hidden")){
+                    acceptFriendGameModal?.classList.add("hidden");
+                    acceptFriendGameModal?.classList.remove("flex");
+                }
+                console.log("GAME CANCELLED");
+                spinerDiv?.classList.add("hidden");
+                rankedProfilesContainer?.classList.add("hidden");
+                preGameModal?.classList.remove("hidden");
+                preGameModal?.classList.add("flex");
+                rankedProfilesContainer?.classList.add("hidden");
+                gameInviteSenderId = 0;
+                gameType = null;
+            }else{
+                const acceptFriendGameModal = document.querySelector('#friendGameAcceptModal');
+                if(!acceptFriendGameModal?.classList.contains("hidden")){
+                    acceptFriendGameModal?.classList.add("hidden");
+                    acceptFriendGameModal?.classList.remove("flex");
+                    preGameModal?.classList.remove("hidden");
+                    preGameModal?.classList.add("flex");
+                }
+                gameInviteSenderId = 0;
+                gameType = null;
             }
         });
 
         onGameFinished((result) => {
+                const navNotification = document.querySelector("#notificationMenu");
+                const navProfile = document.querySelector("#profileIcon");
+                const navHome = document.querySelector("#imgLogoNavi");
+                navNotification?.classList.remove("pointer-events-none", "opacity-50");
+                navProfile?.classList.remove("pointer-events-none", "opacity-50");
+                navHome?.classList.remove("pointer-events-none", "opacity-50");
+
             console.log("Game finished:", result, gameMode);
             if(gameMode === "multiplayer")
                 handleGameOver(result);
@@ -485,7 +554,7 @@ function cleanupCurrentGameLocal() {
         paddleMovementInterval = null;
     }
     
-    keys.clear(); // Очищаем состояние клавиш
+    keys.clear();
     clearGameCallbacks();
     currentGameId = null;
     gameMode = null;
@@ -499,7 +568,6 @@ function cleanupCurrentGame() {
         rankedProfiles.parentNode.replaceChild(newElement, rankedProfiles);
     }
 
-    // Получаем новый элемент и скрываем его
     const newRankedProfiles = document.querySelector("#rankedProfiles");
     newRankedProfiles?.classList.add("hidden");
 
@@ -513,7 +581,6 @@ function cleanupCurrentGame() {
     currentReadyButtonHandler = null;
     clearGameCallbacks();
 
-    // Очищаем данные профилей рейтинговой игры
     clearRankedPlayerData();
     gameType = null;
     currentGameId = null;
@@ -546,7 +613,6 @@ function handleGameOver(result?: any) {
     rankedProfilesContainer?.classList.add("hidden");
     rankedProfilesContainer?.classList.remove("flex");
     
-    // Очищаем данные профилей
     clearRankedPlayerData();
 
     setTimeout(() => {
@@ -557,7 +623,6 @@ function handleGameOver(result?: any) {
 function startPaddleMovementInterval() {
     paddleMovementInterval = setInterval(() => {
         if (gameMode === 'local' && currentGameId) {
-            // Проверяем клавиши для первого игрока (W/S)
             if (keys.has('w')) {
                 movePaddleLocal(currentGameId, 'up', tournamentPlayerNickname1);
             }
@@ -565,7 +630,6 @@ function startPaddleMovementInterval() {
                 movePaddleLocal(currentGameId, 'down', tournamentPlayerNickname1);
             }
             
-            // Проверяем клавиши для второго игрока (стрелки)
             if (keys.has('arrowup')) {
                 movePaddleLocal(currentGameId, 'up', tournamentPlayerNickname2);
             }
@@ -589,7 +653,6 @@ function handleKeyDown(ev: KeyboardEvent) {
     const key = ev.key?.toLowerCase();
     keys.add(key);
     
-    // Запускаем интервал для локальной игры, если он еще не запущен
     if (currentGameId && !paddleMovementInterval) {
         startPaddleMovementInterval();
     }
@@ -599,7 +662,6 @@ function handleKeyUp(ev: KeyboardEvent) {
     const key = ev.key.toLowerCase();
     keys.delete(key);
     
-    // Останавливаем интервал, если нет активных клавиш
     if (keys.size === 0 && paddleMovementInterval) {
         clearInterval(paddleMovementInterval);
         paddleMovementInterval = null;
@@ -619,7 +681,6 @@ function handleKeyUp(ev: KeyboardEvent) {
         }
     }
 
-    // Инициализация рейтингового режима
     function initRankedGameMode() {
         const preGameModal = document.querySelector("#preGameModal");
         const rankedGameModal = document.querySelector("#rankedGameModal");
@@ -639,7 +700,6 @@ function handleKeyUp(ev: KeyboardEvent) {
 
 
 
-        // Инициализируем слушатели рейтинговой игры
         const rankedListenersSetup = () => setupRankedListeners(
             rankedGameModal,
             preGameModal,
@@ -680,7 +740,6 @@ function handleKeyUp(ev: KeyboardEvent) {
             );
         });
 
-        // Проверяем статус рейтинговой игры при загрузке
         rankedGameStatus(
             preGameModal,
             rankedGameModal,
@@ -786,18 +845,14 @@ function handleKeyUp(ev: KeyboardEvent) {
         const tournamentProfiles = document.querySelector("#tournamentProfiles");
         if (tournamentProfiles) {
             tournamentProfiles.innerHTML = tournamentPlayerProfiles();
-            // tournamentProfiles.classList.remove("hidden");
         }
-    // Удаляем старый элемент, если он существует
         let bracketElement = document.querySelector("#bracketFourPlayers");
         if (bracketElement) {
             bracketElement.remove();
         }
         
-        // Создаем новый элемент
         document.body.insertAdjacentHTML('beforeend', tournamentBracketPlayers());
         
-        // Получаем новый элемент и показываем его
         bracketElement = document.querySelector("#bracketFourPlayers");
         if (bracketElement) {
             const bracketElement = document.querySelector("#bracketFourPlayers");
@@ -823,7 +878,6 @@ function handleKeyUp(ev: KeyboardEvent) {
                 bracketBackToMenuBtn?.removeAttribute("disabled");
                 tournamentProfiles?.classList.remove("hidden");
 
-                // bracketBackToMenuBtn.removeAttribute("disabled");
                 bracketModal.classList.add("hidden");
                 bracketModal.classList.remove("flex");
                 initTournamentGame();
@@ -882,16 +936,13 @@ function handleKeyUp(ev: KeyboardEvent) {
         }
     }
     
-    // Удаляем старый элемент если он существует
     let existingBracket = document.querySelector("#bracketFourPlayers");
     if (existingBracket) {
         existingBracket.remove();
     }
     
-    // Создаем новый элемент
     document.body.insertAdjacentHTML('beforeend', tournamentBracketPlayers());
     
-    // Получаем свежую ссылку на элемент
     const newBracketElement = document.querySelector("#bracketFourPlayers");
     if (newBracketElement) {
         newBracketElement.classList.remove("hidden");
@@ -902,7 +953,6 @@ function handleKeyUp(ev: KeyboardEvent) {
     
     tournamentProfiles?.classList.add("hidden");
     
-    // Очищаем игровые данные в конце
     setTimeout(() => {
         cleanupCurrentGameLocal();
     }, 100);
@@ -916,8 +966,6 @@ function handleKeyUp(ev: KeyboardEvent) {
     const gameModeDropdownBtn = document.querySelector("#gameModeDropdownBtn");
     const gameDropdownMenu = document.querySelector("#gameDropdownMenu");
     const sendFriendMatchRequestBtn = document.querySelector("#sendInviteBtn");
-    // const acceptGameBtn = document.querySelector("#acceptGameBtn");
-    // const declineGameBtn = document.querySelector("#declineGameBtn");
 
     document.addEventListener("click", (e) => {
         e.stopPropagation();
@@ -944,32 +992,25 @@ function handleKeyUp(ev: KeyboardEvent) {
         getFriendsList();
     });
 
-    // document.addEventListener("click", (e) => {
-    //     e.stopPropagation();
-        
-    //      const target = e.target as HTMLElement;
-        
-    //     if (target && target.id === "friendSelectBtn"){
-    //         friendsDropDown?.classList.toggle("hidden");
-    //         getFriendsList();
-    //     }
-    //     else
-    //         friendsDropDown?.classList.add("hidden");
-
-    // }); 
-
     function startFriendMatch(data: any)
     {   
-        gameType = "friends";
-        initMultiplayerFriendGame(data.gameId || data.game.id.toString());
-        updatePlayerProfiles(data);
-        setupButtonDelegation(data.gameId || data.game.id);
+        gameType = "friends"
+        console.log("GAME DATA STORE 2: ", data);
+        const navNotification = document.querySelector("#notificationMenu");
+        const navProfile = document.querySelector("#profileIcon");
+        const navHome = document.querySelector("#imgLogoNavi");
+        navNotification?.classList.add("pointer-events-none", "opacity-50");
+        navProfile?.classList.add("pointer-events-none", "opacity-50");
+        navHome?.classList.add("pointer-events-none", "opacity-50");
+        
+
+        initMultiplayerFriendGame(data.game.id);
+        updatePlayerProfiles(data.game);
+        setupButtonDelegation(data.game.id);
         resetMatchmakingButtons();
         updateAllStoreUsers();
-        testData = null;
-
+        
     }
-
 
     let selectedFriend = document.querySelector("#selectedFriend");
     function getFriendsList() {
@@ -998,14 +1039,6 @@ function handleKeyUp(ev: KeyboardEvent) {
                     if (selectedFriend) {
                         invitedFriendId = friend.id;
                         if(friend.avatar){
-                            // (selectedFriend as HTMLImageElement).src = API_URL + friend.avatar;
-                            // const btn = document.getElementById("friendSelectBtn");
-                            // const span = btn?.querySelector("span");
-                            // invitedFriendId = friend.id;
-                            // if (span) {
-                                //     span.textContent = friend.username;
-                                // }
-                                
                                 const newImg = document.createElement("img");
                                     newImg.id = "profileImg";
                                     newImg.className = "w-8 h-8 rounded-full mr-2";
@@ -1038,6 +1071,8 @@ function handleKeyUp(ev: KeyboardEvent) {
         }
     }
 
+
+
     function createProfileDivElement(
         firstLetter: string,
         color: string
@@ -1053,6 +1088,7 @@ function handleKeyUp(ev: KeyboardEvent) {
     e.stopPropagation();
     try{
         const response = await store.sendFriendGameRequest(invitedFriendId);
+
         if(response.status === 201){
             const res = response.data;
             sendFriendMatchRequestBtn.classList.add("opacity-50");
@@ -1066,11 +1102,10 @@ function handleKeyUp(ev: KeyboardEvent) {
             }, 35000);
         }
     }catch{
-        console.error("Error");
+        handleModalError("Wait until invite expired");
     }
     });
 
-    // Обработчики модальных окон
     document.addEventListener("click", async (e) =>{
         const target = e.target as HTMLElement;
         if(target.id === "backToMenuBtn")
@@ -1134,6 +1169,14 @@ document.addEventListener("click", (e) => {
 
     function tournamentCleaning()
     {
+
+        const navNotification = document.querySelector("#notificationMenu");
+        const navProfile = document.querySelector("#profileIcon");
+        const navHome = document.querySelector("#imgLogoNavi");
+        navNotification?.classList.remove("pointer-events-none", "opacity-50");
+        navProfile?.classList.remove("pointer-events-none", "opacity-50");
+        navHome?.classList.remove("pointer-events-none", "opacity-50");
+
         tournamentPlayerData.nicknames.length = 0
         tournamentData.semiFinal.length = 0;
         tournamentData.final.length = 0;
@@ -1150,7 +1193,6 @@ document.addEventListener("click", (e) => {
         tournamentPlayerNickname2 = '';
     }
 
-    // Play Again для рейтинговой игры
     document.addEventListener("click", (e) => {
         const target = e.target as HTMLElement;
         if (target.id === "rankedPlayAgainBtn") {
@@ -1168,8 +1210,6 @@ document.addEventListener("click", (e) => {
             rankedBackToMenuBtn?.removeAttribute("disabled")
             rankedProfilesContainer?.classList.add("hidden");
             
-            
-            // Запуск новой рейтинговой игры будет обрабатываться кнопкой startRankedMatchBtn
         }
     });
 

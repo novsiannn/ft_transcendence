@@ -2,6 +2,7 @@ import { getColorFromUsername } from "../../shared/randomColors";
 import { API_URL, store } from "../../store/store";
 import { findUser } from "../../shared";
 import { getPlayerName } from "./tournamentBracket";
+import i18next from "i18next"
 
 export const tournamentPlayerData = {
   tournamentNet: [] as number[],
@@ -67,7 +68,7 @@ export function rankedPlayerProfiles() {
                     : `<div id="profileImg1" class="text-3xl text-white font-bold flex justify-center items-center w-24 h-24 ${rankedPlayerData.firstPlayerColor} rounded-full cursor-pointer select-none">${rankedPlayerData.firstPlayerLetter}</div>`
                 }
                 <span class="mt-2 text-lg text-white">${rankedPlayerData.firstPlayer}</span>
-                <button id="playerOneReadyBtn" class="hidden mt-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">Ready to Play!</button>
+                <button id="playerOneReadyBtn" data-i18n='buttons.ready' class="hidden mt-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">${i18next.t("buttons.ready")}</button>
             </div>
         </div>
         <div class="absolute right-16 z-10">
@@ -78,13 +79,11 @@ export function rankedPlayerProfiles() {
                     : `<div id="profileImg2" class="text-3xl text-white font-bold flex justify-center items-center w-24 h-24 ${rankedPlayerData.secondPlayerColor} rounded-full cursor-pointer select-none">${rankedPlayerData.secondPlayerLetter}</div>`
                 }
                 <span class="mt-2 text-lg text-white">${rankedPlayerData.secondPlayer}</span>
-                <button id="playerTwoReadyBtn" class="hidden mt-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">Ready to Play!</button>
+                <button id="playerTwoReadyBtn" data-i18n='buttons.ready' class="hidden mt-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">${i18next.t("buttons.ready")}</button>
             </div>
         </div>
     `;
 }
-
-// ...existing code...
 
 export function clearRankedPlayerData() {
     rankedPlayerData.firstPlayer = "";
@@ -98,8 +97,6 @@ export function clearRankedPlayerData() {
     rankedPlayerData.firstPlayerScore = 0;
     rankedPlayerData.secondPlayerScore = 0;
 }
-
-// ...existing code...
 
 export function rankedPlayerProfilesContainer() {
     return `
@@ -119,7 +116,6 @@ export function updateRankedProfilesPositions(gameState: any) {
         const player1X = gameState.paddles[playerIds[0]].x;
         const player2X = gameState.paddles[playerIds[1]].x;
         
-        // Определяем, кто слева, кто справа по позиции ракетки
         let leftPlayerId, rightPlayerId;
         
         if (player1X < player2X) {
@@ -129,44 +125,37 @@ export function updateRankedProfilesPositions(gameState: any) {
             leftPlayerId = player2Id;
             rightPlayerId = player1Id;
         }
-        
-        // Получаем данные игроков
+        console.log("LEFTPLAYERID : ",leftPlayerId)
+        console.log("LEFTPLAYERID : ",rightPlayerId)
+
         const leftUser = findUser(leftPlayerId);
         const rightUser = findUser(rightPlayerId);
         
         if (leftUser && rightUser) {
-            // Обновляем данные для левого игрока (firstPlayer)
             rankedPlayerData.firstPlayer = leftUser.username;
             rankedPlayerData.firstPlayerAvatar = leftUser.avatar || "";
             rankedPlayerData.firstPlayerLetter = leftUser.username.charAt(0).toUpperCase();
             rankedPlayerData.firstPlayerColor = getColorFromUsername(leftUser.username);
             
-            // Обновляем данные для правого игрока (secondPlayer)
             rankedPlayerData.secondPlayer = rightUser.username;
             rankedPlayerData.secondPlayerAvatar = rightUser.avatar || "";
             rankedPlayerData.secondPlayerLetter = rightUser.username.charAt(0).toUpperCase();
             rankedPlayerData.secondPlayerColor = getColorFromUsername(rightUser.username);
             
-            // Перерендериваем профили
             updateProfilesHTML();
             
-            // Устанавливаем видимость кнопок Ready на основе реальных позиций
             updateReadyButtonsVisibility(leftPlayerId, rightPlayerId);
         }
     }
 }
 
 function updateReadyButtonsVisibility(leftPlayerId: number, rightPlayerId: number) {
-    // Не изменяем видимость кнопок после переопределения позиций
-    // Кнопки уже правильно настроены в setupInitialReadyButtonsVisibility
-    // и привязаны к изначальным player1Id/player2Id, а не к позициям ракеток
+
 }
 
-// Добавьте эту функцию в playersProfiles.ts
 export function updateProfilesHTML() {
     const rankedProfilesContainer = document.querySelector('#rankedProfiles');
     if (rankedProfilesContainer) {
-        // Сохраняем состояние кнопок перед обновлением
         const playerOneBtn = document.querySelector("#playerOneReadyBtn") as HTMLButtonElement;
         const playerTwoBtn = document.querySelector("#playerTwoReadyBtn") as HTMLButtonElement;
         
@@ -185,23 +174,21 @@ export function updateProfilesHTML() {
         
         rankedProfilesContainer.innerHTML = rankedPlayerProfiles();
         
-        // Восстанавливаем состояние кнопок после обновления
         const newPlayerOneBtn = document.querySelector("#playerOneReadyBtn") as HTMLButtonElement;
         const newPlayerTwoBtn = document.querySelector("#playerTwoReadyBtn") as HTMLButtonElement;
         
         if (newPlayerOneBtn && buttonStates.playerOne.disabled) {
             newPlayerOneBtn.setAttribute("disabled", "true");
-            newPlayerOneBtn.textContent = buttonStates.playerOne.text || "Ready!";
+            newPlayerOneBtn.textContent = buttonStates.playerOne.text || i18next.t("buttons.ready");
             newPlayerOneBtn.className = buttonStates.playerOne.classes || newPlayerOneBtn.className;
         }
         
         if (newPlayerTwoBtn && buttonStates.playerTwo.disabled) {
             newPlayerTwoBtn.setAttribute("disabled", "true");
-            newPlayerTwoBtn.textContent = buttonStates.playerTwo.text || "Ready!";
+            newPlayerTwoBtn.textContent = buttonStates.playerTwo.text || i18next.t("buttons.ready");
             newPlayerTwoBtn.className = buttonStates.playerTwo.classes || newPlayerTwoBtn.className;
         }
         
-        // После обновления HTML нужно переустановить обработчики кнопок
         const event = new CustomEvent('profilesUpdated');
         document.dispatchEvent(event);
     }

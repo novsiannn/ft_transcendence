@@ -1,4 +1,5 @@
 import { tournamentData, tournamentPlayerData } from "./playersProfiles";
+import i18next from "i18next"
 
 export const getPlayerName = (index: number) => {
 
@@ -58,9 +59,9 @@ export function tournamentBracketPlayers() {
     </div>
 
     <!-- Кнопка под сеткой -->
-      <button id="bracketBackToMenuBtn" class="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 ">Back to Menu</button>
-      <button id="startTournamentGame" class="mt-4 px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition">
-        Start Match!
+      <button id="bracketBackToMenuBtn" data-i18n='buttons.backToMenu' class="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 ">${i18next.t("buttons.backToMenu")}</button>
+      <button id="startTournamentGame" data-i18n='buttons.startGame' class="mt-4 px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition">
+        ${i18next.t("buttons.startGame")}
     </button>
   </div>
 </div>

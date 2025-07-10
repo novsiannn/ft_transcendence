@@ -188,8 +188,48 @@ async function deleteAvatar(userId) {
   }
 }
 
+
+async function defineLvl(userId)
+{
+  try {
+    const user = await User.findByPk(userId);
+    if (!user)
+      return { error: "User not found" };
+    const elo = user.elo;
+    let lvl;
+
+    if(elo < 501) {
+      lvl = 1;
+    } else if(elo > 500 && elo < 751) {
+      lvl = 2;
+    } else if(elo > 750 && elo < 901) {
+      lvl = 3;
+    } else if(elo > 900 && elo < 1051) {
+      lvl = 4;
+    } else if(elo > 1050 && elo < 1201) {
+      lvl = 5; 
+    } else if(elo > 1200 && elo < 1351) {
+      lvl = 6;
+    } else if(elo > 1350 && elo < 1531) {
+      lvl = 7;
+    } else if(elo > 1530 && elo < 1751) {
+      lvl = 8;
+    } else if(elo > 1750 && elo < 2001) {
+      lvl = 9;
+    } else if(elo > 2000) {
+      lvl = 10;
+    }
+
+    await user.update({ lvl: lvl });
+  } catch (error) {
+    console.error("Error defining user level:", error);
+    throw error;
+  }
+}
 async function getUserProfile(userId) {
   try {
+
+    await defineLvl(userId);
     const user = await User.findByPk(userId, {
       attributes: ['id', 'email', 'username', 'avatar', 'firstName', 'lastName',
         'phoneNumber', 'isActivated', 'isTwoFactorEnabled', 'language',
