@@ -63,13 +63,9 @@ export function getCurrentGame() {
 
 export function updatePlayerProfiles(gameData: any) {
     
-    console.log("GAME DATA UPDATEPROF : ", gameData)
     currentGame = gameData;
-    console.log("CURRENT GAME UPDATEPROF : ", currentGame)
     const user1 = findUser(Number(gameData.player1Id));
     const user2 = findUser(Number(gameData.player2Id));
-    console.log("PLAYER 1 UPDATEPROF : ", gameData.player1Id)
-    console.log("PLAYER 2 UPDATEPROF : ", gameData.player2Id)
 
     if (user1 && user2) {
         rankedPlayerData.firstPlayer = user1.username;
@@ -93,8 +89,7 @@ export function updatePlayerProfiles(gameData: any) {
 
 export function setupInitialReadyButtonsVisibility(player1Id: number, player2Id: number) {
     const currentUserId = store.getUser().id;
-    console.log("PLAYER 1 : ",player1Id)
-    console.log("PLAYER 2 : ",player2Id)
+
     const playerOneReadyBtn = document.querySelector("#playerOneReadyBtn") as HTMLButtonElement;
     const playerTwoReadyBtn = document.querySelector("#playerTwoReadyBtn") as HTMLButtonElement;
     
@@ -130,7 +125,6 @@ export function setupButtonDelegation(gameId: string) {
                 
                 let game = getCurrentGame();
                 
-                console.log("GAME DATA : ", game)
                 const isCurrentUserPlayer1 = currentUserId === game?.player1Id;
                 const isCurrentUserPlayer2 = currentUserId === game?.player2Id;
                 
@@ -149,7 +143,6 @@ export function setupButtonDelegation(gameId: string) {
                 
                 console.log(`Emitting game:join with gameId: ${gameId}`);
                 socket?.emit('game:join', gameId);
-                console.log("SETUP BUTTON DELEGATION GAME DATA : ", game);
             }
         };
 

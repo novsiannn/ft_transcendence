@@ -121,7 +121,10 @@
     "rankedMode": "Rang modus",
     "gameOver": "Spiel beendet",
     "winner": "Gewinner",
-    "friendsMatchReady": "Spiel mit Freund bereit"
-    
+    "friendsMatchReady": "Spiel mit Freund bereit",
+    "semiFinal":"Halbfinale",
+    "final":"Finale",
+    "champion":"Gewinner",
+    "player":"Spieler"
   }
 }

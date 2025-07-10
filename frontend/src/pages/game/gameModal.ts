@@ -66,14 +66,17 @@ export function tournamentModal() {
           </button>
           <div id="avatarDropdown" class="absolute left-0 mt-2 w-full bg-white border rounded shadow-lg hidden z-10">
             <div class="flex flex-col">
-              <button class=" cursor-pointerflex items-center p-2 hover:bg-gray-100" data-avatar="../../img/granny.jpg">
-                <img src="../../img/granny.jpg" class="w-8 h-8 rounded-full mr-2" alt="avatar1" /> Аватар 1
+              <button class=" cursor-pointerflex items-center p-2 hover:bg-gray-100" data-avatar="../../img/1.png">
+                <img src="../../img/1.png" class="w-8 h-8 rounded-full mr-2" alt="avatar1" /> Аватар 1
               </button>
-              <button class=" cursor-pointerflex items-center p-2 hover:bg-gray-100" data-avatar="../../img/spichka.jpg">
-                <img src="../../img/spichka.jpg" class="w-8 h-8 rounded-full mr-2" alt="avatar2" /> Аватар 2
+              <button class=" cursor-pointerflex items-center p-2 hover:bg-gray-100" data-avatar="../../img/2.jpg">
+                <img src="../../img/2.jpg" class="w-8 h-8 rounded-full mr-2" alt="avatar2" /> Аватар 2
               </button>
-              <button class=" cursor-pointerflex items-center p-2 hover:bg-gray-100" data-avatar="../../img/tyler.jpg">
-                <img src="../../img/tyler.jpg" class="w-8 h-8 rounded-full mr-2" alt="avatar2" /> Аватар 2
+              <button class=" cursor-pointerflex items-center p-2 hover:bg-gray-100" data-avatar="../../img/3.png">
+                <img src="../../img/3.png" class="w-8 h-8 rounded-full mr-2" alt="avatar2" /> Аватар 2
+              </button>
+              <button class=" cursor-pointerflex items-center p-2 hover:bg-gray-100" data-avatar="../../img/4.png">
+                <img src="../../img/4.png" class="w-8 h-8 rounded-full mr-2" alt="avatar2" /> Аватар 2
               </button>
               <!-- Добавь еще аватары -->
             </div>
@@ -94,7 +97,6 @@ export function friendsMatchModal(){
   ? `${API_URL}${store.getUser().avatar}`
   : "../../img/tournamentDefault.png";
   const userName = store.getUser().username;
-  console.log("userPhoto:", userPhoto);
   return`
     <div id="friendsMatchModal"  class="fixed inset-0 items-center justify-center z-10 hidden">
       <div class="bg-white p-6 rounded-lg shadow-lg text-black space-y-2 w-auto h-auto text-center">
@@ -152,9 +154,8 @@ export function rankedGameModal() {
 }
 
 export function gameOverModalCreator(result : number) {
-  console.log("WInner ID: ", rankedWinnerData.id);
+
   const winner = findUser(rankedWinnerData.id) as IUser;
-  console.log("WINNER DATA", winner);
   
   const winnerColor = getColorFromUsername(winner.username);
   const firstLetterOfWinner = winner.username.charAt(0).toUpperCase();

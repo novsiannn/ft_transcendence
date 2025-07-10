@@ -121,7 +121,11 @@
     "rankedMode": "Ranked mode",
     "gameOver": "Game over",
     "winner": "Winner",
-    "friendsMatchReady": "Game with friend ready"
+    "friendsMatchReady": "Game with friend ready",
+    "semiFinal":"Semi-finals",
+    "final":"Finals",
+    "champion":"Champions",
+    "player":"Player"
     
   }
 }

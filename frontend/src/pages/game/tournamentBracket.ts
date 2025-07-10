@@ -19,7 +19,7 @@ export function tournamentBracketPlayers() {
 
         <!-- Полуфинал -->
         <div class="flex flex-col items-center gap-5">
-          <div class="font-bold text-lg text-yellow-400 mb-3">Полуфинал</div>
+          <div  data-i18n='game.semiFinal' class="font-bold text-lg text-yellow-400 mb-3">${i18next.t("game.semiFinal")}</div>
           <div class="flex flex-col gap-16">
 
             <!-- Матч 1 -->
@@ -38,7 +38,7 @@ export function tournamentBracketPlayers() {
 
         <!-- Финал -->
         <div class="flex flex-col items-center gap-5">
-          <div class="font-bold text-lg text-yellow-400 mb-3">Финал</div>
+          <div data-i18n='game.final' class="font-bold text-lg text-yellow-400 mb-3">${i18next.t("game.final")}</div>
           <div class="flex flex-col gap-10">
             <div class="flex flex-col gap-1">
               <div class="bg-blue-400 border border-blue-600 px-6 py-3 rounded shadow-md min-w-[120px] text-center">${tournamentData.final[0] || " ??? "} </div>
@@ -49,7 +49,7 @@ export function tournamentBracketPlayers() {
 
         <!-- Чемпион -->
         <div class="flex flex-col items-center gap-5">
-          <div class="font-bold text-lg text-yellow-400 mb-3">Чемпион</div>
+          <div data-i18n='game.champion' class="font-bold text-lg text-yellow-400 mb-3">${i18next.t("game.champion")}</div>
           <div class="bg-yellow-400 text-black font-bold px-8 py-4 rounded-lg shadow-lg text-xl">
             🏆 ${tournamentData.winner}
           </div>

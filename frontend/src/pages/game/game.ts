@@ -48,9 +48,6 @@ export async function testChatInvite(invitedFriendId: number)
         const response = await store.sendFriendGameRequest(invitedFriendId);
         if(response.status === 201){
             const res = response.data;
-            console.log("GAME ID ", res.game.id);
-            console.log("PLAYER1 ID ", res.game.player1Id);
-            console.log("PLAYER2 ID ", res.game.player2Id);
             store.setFriendGameId(res.game.id);
             store.setFriendPlayerOne(res.game.player1Id);
             store.setFriendPlayerTwo(res.game.player2Id);
@@ -110,7 +107,6 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
         friendGameAcceptModal?.classList.remove("flex");
 
         let gameData = store.getFriendGameData();
-        console.log("GAME DATA ", gameData)
 
         startFriendMatch(gameData);
     });
@@ -495,7 +491,6 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
 
         onGameCancelled((gameId) => {
 
-            console.log("GAME TYPE : ", gameType, gameInviteSenderId);
             if(gameInviteSenderId === store.getUser().id || gameType === "friends" || gameType === "ranked")
             {
                 const navNotification = document.querySelector("#notificationMenu");
@@ -511,7 +506,6 @@ export function handleGame(mainWrapper: HTMLDivElement | undefined) {
                     acceptFriendGameModal?.classList.add("hidden");
                     acceptFriendGameModal?.classList.remove("flex");
                 }
-                console.log("GAME CANCELLED");
                 spinerDiv?.classList.add("hidden");
                 rankedProfilesContainer?.classList.add("hidden");
                 preGameModal?.classList.remove("hidden");
@@ -995,7 +989,6 @@ function handleKeyUp(ev: KeyboardEvent) {
     function startFriendMatch(data: any)
     {   
         gameType = "friends"
-        console.log("GAME DATA STORE 2: ", data);
         const navNotification = document.querySelector("#notificationMenu");
         const navProfile = document.querySelector("#profileIcon");
         const navHome = document.querySelector("#imgLogoNavi");

@@ -34,7 +34,7 @@ export const rankedPlayerData = {
 
 export function tournamentPlayerProfiles() {
     let defaultAvatar = "../../img/tournamentDefault.png";
-    let defaultNickname = "Player";
+    let defaultNickname = " ";
     let firstPlayer = window.tournamentPlayerNickname1 || defaultNickname;
     let secondPlayer = window.tournamentPlayerNickname2 || defaultNickname;
     let firstPlayerAvatar = tournamentPlayerData.avatars.get(firstPlayer) || defaultAvatar;
@@ -125,8 +125,6 @@ export function updateRankedProfilesPositions(gameState: any) {
             leftPlayerId = player2Id;
             rightPlayerId = player1Id;
         }
-        console.log("LEFTPLAYERID : ",leftPlayerId)
-        console.log("LEFTPLAYERID : ",rightPlayerId)
 
         const leftUser = findUser(leftPlayerId);
         const rightUser = findUser(rightPlayerId);

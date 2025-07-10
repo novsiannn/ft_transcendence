@@ -10,28 +10,12 @@ import { hideAllShowAccept } from "../../pages/game";
 export const attachNotificationListeners = () => {
   document.querySelectorAll(".notificationBlock")?.forEach((el) => {
     el.addEventListener("click", () => {
-      console.log("NOT TYPE : ", el.getAttribute("notType"))
       if(el.getAttribute("notType") === "game_invite"){
-        // const gameId = el.getAttribute("data-game-id");
-        
-        // const gamePlayerOne = el.getAttribute("data-game-playerOne");
-        // const gamePlayerTwo = el.getAttribute("data-game-playerTwo");
-
-        // localStorage.setItem('gameInviteAction', JSON.stringify({
-        //   gameData: {
-        //     gameId: gameId,
-        //     player1Id: Number(gamePlayerOne),
-        //     player2Id: Number(gamePlayerTwo)
-        //   },
-        //   action: 'show_accept_modal'
-        // }));
         if(location.pathname === "/game"){
-          console.log("IM HERE")
-        // showAcceptModal();
+        
         hideAllShowAccept();
         }
         else{
-          console.log("NAVIGATING TO GAME")
           navigateTo(`/game`);
           setTimeout(() => {
           const preGameModal = document.querySelector("#preGameModal");

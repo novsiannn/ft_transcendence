@@ -121,7 +121,12 @@
     "rankedMode": "Рейтинговий режим",
     "gameOver": "Гра закінчена",
     "winner": "Переможець",
-    "friendsMatchReady": "Гра з другом готова"
+    "friendsMatchReady": "Гра з другом готова",
+    "semiFinal":"Півфінал",
+    "final":"Фінал",
+    "champion":"Чемпіон",
+    "player":"Гравець"
+
     
   }
 }
