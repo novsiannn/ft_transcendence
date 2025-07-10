@@ -52,9 +52,9 @@ class Store {
       game: {
         id: 0,
         player1Id: 0,
-        player2Id: 0
-      }
-    } as IFriendGame
+        player2Id: 0,
+      },
+    } as IFriendGame,
   };
 
   setFriendGameId = (gameId: number): void => {
@@ -65,7 +65,7 @@ class Store {
     this.state.friendGame.game.player1Id = player1;
   };
 
-    setFriendPlayerTwo = (player2: number): void => {
+  setFriendPlayerTwo = (player2: number): void => {
     this.state.friendGame.game.player2Id = player2;
   };
 
@@ -80,10 +80,9 @@ class Store {
   // getFriendPlayerTwo = (): number => {
   //   return this.state.friendGame.player2;
   // };
-    getFriendGameData = (): IFriendGame => {
+  getFriendGameData = (): IFriendGame => {
     return this.state.friendGame;
   };
-
 
   setAuth = (bool: boolean): void => {
     this.state.auth.isAuth = bool;
@@ -164,7 +163,6 @@ class Store {
       this.setAllFriends(response.data.friends);
       return response;
     } catch (e) {
-      console.log(e);
     }
   };
 
@@ -220,21 +218,17 @@ class Store {
       localStorage.removeItem("token");
       this.setAuth(false);
       this.setUser({} as IUser);
-      console.log("here");
 
       navigateTo("/");
       return response;
     } catch (e: any) {
-      console.log(e.response?.data);
     }
   };
   enableTwoFactor = async () => {
     try {
       const response = await authService.enableTwoFactor();
-      console.log(response);
       return <IQRCodeEnableResponse>response.data;
     } catch (e: any) {
-      console.log(e.response?.data);
     }
   };
 
@@ -244,7 +238,6 @@ class Store {
       await this.checkAuth();
       return response;
     } catch (e: any) {
-      console.log(e.response?.data);
       return e.response;
     }
   };
@@ -255,7 +248,6 @@ class Store {
       await this.checkAuth();
       return response;
     } catch (e: any) {
-      console.log(e.response?.data);
     }
   };
 
@@ -283,7 +275,6 @@ class Store {
       this.setAllUsers(response.data);
       return response.data;
     } catch (e) {
-      console.log(e);
     }
   };
 
@@ -297,7 +288,6 @@ class Store {
         this.setUser(response.data.user);
       }
     } catch (e) {
-      console.log(e);
     }
   };
 
@@ -306,7 +296,7 @@ class Store {
       ...this.state.auth.user,
       username: user.username,
       firstName: user.firstName,
-      lastName: user.firstName,
+      lastName: user.lastName,
       phoneNumber: user.phoneNumber,
     };
   };
@@ -324,10 +314,7 @@ class Store {
 
   sendFriendGameRequest = async (friendId: number) => {
     const response = await gameService.sendFriendMatchRequest(friendId);
-
-    if(response.status === 201){
-
-            
+    if (response.status === 201) {
       handleModalSuccess("You have successfully sent a game request");
     }
 
@@ -335,15 +322,19 @@ class Store {
   };
 
   sendFriendRequest = async (addresseeId: number) => {
-    const response = await friendsService.sendFriendRequest(addresseeId);
+    try {
+      const response = await friendsService.sendFriendRequest(addresseeId);
 
-    if (response.status === 201) {
-      handleModalSuccess("modalWindowsMessages.friendShipRequest");
-      socket?.emit("notification:friendRequest", {
-        addresseeId,
-      });
+      if (response.status === 201) {
+        handleModalSuccess("modalWindowsMessages.friendShipRequest");
+        socket?.emit("notification:friendRequest", {
+          addresseeId,
+        });
+      }
+      return response.status;
+    } catch (e) {
+      return {};
     }
-    return response.status;
   };
 
   getPendingFriendsRequests = async (): Promise<IFriendshipResponseData> => {
@@ -351,7 +342,6 @@ class Store {
       const response = await friendsService.getPendingFriendsRequests();
       return response.data as IFriendshipResponseData;
     } catch (e) {
-      console.log(e);
       return {} as IFriendshipResponseData;
     }
   };
@@ -442,19 +432,22 @@ class Store {
       this.setNotification(response.data);
       return response;
     } catch (e) {
-      console.log(e);
     }
   };
 
   deleteNotification = async (notificationID: string): Promise<number> => {
-    const response = await notificationService.deleteNotifications(
-      notificationID
-    );
+    try {
+      const response = await notificationService.deleteNotifications(
+        notificationID
+      );
 
-    if (response.status === 204) {
-      refreshNotifications();
+      if (response.status === 204) {
+        refreshNotifications();
+      }
+      return response.status;
+    } catch (e) {
+      return {} as Promise<number>
     }
-    return response.status;
   };
 
   readNotification = async () => {
@@ -464,7 +457,6 @@ class Store {
         await this.getAllNotifications();
       }
     } catch (e) {
-      console.log(e);
     }
   };
 
@@ -481,7 +473,6 @@ class Store {
   deleteAccount = async (password: string) => {
     try {
       const response = await authService.deleteUser(password);
-      console.log(response);
       if (response.status === 204) {
         await this.logout();
         handleModalSuccess("modalWindowsMessages.yourAccountDeleted");
@@ -513,14 +504,10 @@ class Store {
       const response = await axios.get<IAuthResponse>(`${API_URL}/refresh`, {
         withCredentials: true,
       });
-
-      console.log(response);
-
       localStorage.setItem("token", response.data.accessToken);
       this.setAuth(true);
       this.setUser(response.data.user);
     } catch (e: any) {
-      // console.log(e.response?.data);
     } finally {
       this.setLoading(false);
     }
