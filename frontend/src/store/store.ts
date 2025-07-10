@@ -162,7 +162,6 @@ class Store {
       this.setAllFriends(response.data.friends);
       return response;
     } catch (e) {
-      console.log(e);
     }
   };
 
@@ -218,21 +217,17 @@ class Store {
       localStorage.removeItem("token");
       this.setAuth(false);
       this.setUser({} as IUser);
-      console.log("here");
 
       navigateTo("/");
       return response;
     } catch (e: any) {
-      console.log(e.response?.data);
     }
   };
   enableTwoFactor = async () => {
     try {
       const response = await authService.enableTwoFactor();
-      console.log(response);
       return <IQRCodeEnableResponse>response.data;
     } catch (e: any) {
-      console.log(e.response?.data);
     }
   };
 
@@ -242,7 +237,6 @@ class Store {
       await this.checkAuth();
       return response;
     } catch (e: any) {
-      console.log(e.response?.data);
       return e.response;
     }
   };
@@ -253,7 +247,6 @@ class Store {
       await this.checkAuth();
       return response;
     } catch (e: any) {
-      console.log(e.response?.data);
     }
   };
 
@@ -281,7 +274,6 @@ class Store {
       this.setAllUsers(response.data);
       return response.data;
     } catch (e) {
-      console.log(e);
     }
   };
 
@@ -295,7 +287,6 @@ class Store {
         this.setUser(response.data.user);
       }
     } catch (e) {
-      console.log(e);
     }
   };
 
@@ -304,7 +295,7 @@ class Store {
       ...this.state.auth.user,
       username: user.username,
       firstName: user.firstName,
-      lastName: user.firstName,
+      lastName: user.lastName,
       phoneNumber: user.phoneNumber,
     };
   };
@@ -322,9 +313,6 @@ class Store {
 
   sendFriendGameRequest = async (friendId: number) => {
     const response = await gameService.sendFriendMatchRequest(friendId);
-
-    console.log("STORE RESPONSE ", response);
-
     if (response.status === 201) {
       handleModalSuccess("You have successfully sent a game request");
     }
@@ -353,7 +341,6 @@ class Store {
       const response = await friendsService.getPendingFriendsRequests();
       return response.data as IFriendshipResponseData;
     } catch (e) {
-      console.log(e);
       return {} as IFriendshipResponseData;
     }
   };
@@ -444,7 +431,6 @@ class Store {
       this.setNotification(response.data);
       return response;
     } catch (e) {
-      console.log(e);
     }
   };
 
@@ -470,7 +456,6 @@ class Store {
         await this.getAllNotifications();
       }
     } catch (e) {
-      console.log(e);
     }
   };
 
@@ -487,7 +472,6 @@ class Store {
   deleteAccount = async (password: string) => {
     try {
       const response = await authService.deleteUser(password);
-      console.log(response);
       if (response.status === 204) {
         await this.logout();
         handleModalSuccess("modalWindowsMessages.yourAccountDeleted");
@@ -519,14 +503,10 @@ class Store {
       const response = await axios.get<IAuthResponse>(`${API_URL}/refresh`, {
         withCredentials: true,
       });
-
-      console.log(response);
-
       localStorage.setItem("token", response.data.accessToken);
       this.setAuth(true);
       this.setUser(response.data.user);
     } catch (e: any) {
-      // console.log(e.response?.data);
     } finally {
       this.setLoading(false);
     }

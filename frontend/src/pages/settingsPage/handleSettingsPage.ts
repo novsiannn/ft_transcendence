@@ -52,7 +52,6 @@ export function handleSettings() {
       }
       btnSave!.disabled = false;
     } catch (e: any) {
-      console.log(e);
       if(e.status === 409){
         handleModalError('modalWindowsMessages.nicknameInUse');
       }
