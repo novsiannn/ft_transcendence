@@ -8,7 +8,6 @@ import { handleModalError } from "../../elements";
 import { getColorFromUsername } from "../../shared/randomColors";
 import { IUpdateProfileData } from "../../shared";
 import { validateUsername } from "../../shared/validation";
-import { getLoader } from "../../elements/Loader";
 import { handleModalSuccess } from "../../elements/ModalSuccess";
 
 export function handleSettings() {

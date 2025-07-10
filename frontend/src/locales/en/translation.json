@@ -6,6 +6,7 @@
   "online": "Online",
   "offline": "Offline",
   "modalWindowsMessages":{
+    "nicknameAlreadyExists": "Nickname already exists",
     "yourAccountDeleted": "Your account was successfully deleted",
     "yourAccountCreated": "You have successfully created an account",
     "twoFactorDeletedSuccess": "2FA is successfull deleted",
@@ -90,7 +91,7 @@
   "settings": {
     "2fa": "2FA-Authentication",
     "firstName": "First name",
-    "lastName": "First name",
+    "lastName": "Last name",
     "userName": "Username",
     "email": "Email",
     "yourQRCode": "Your QR-Code",

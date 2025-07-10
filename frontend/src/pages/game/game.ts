@@ -42,21 +42,6 @@ declare global {
 
 let testData :any;
 
-export async function testChatInvite(invitedFriendId: number)
-{
-    try{
-        const response = await store.sendFriendGameRequest(invitedFriendId);
-        if(response.status === 201){
-            const res = response.data;
-            store.setFriendGameId(res.game.id);
-            store.setFriendPlayerOne(res.game.player1Id);
-            store.setFriendPlayerTwo(res.game.player2Id);
-        }
-    }catch{
-        handleModalError("Wait until invite expired");
-    }
-}
-
     export function hideAllShowAccept(){
         const gameOverModalContainer = document.querySelector("#gameOverModal");
         const preGameModal = document.querySelector("#preGameModal");
@@ -791,6 +776,7 @@ function handleKeyUp(ev: KeyboardEvent) {
     });
     
     function handleSubmitNickname(){
+        let test = playerNickname.value;
         if (playerNickname.value.includes(" ") || playerNickname.value === "") {
             handleModalError("modalWindowsMessages.pleaseEnterNickname");
             return;
@@ -799,7 +785,12 @@ function handleKeyUp(ev: KeyboardEvent) {
             handleModalError('modalWindowsMessages.nicknameTooLong');
             playerNickname.value = "";
             return;
+        }else if(tournamentPlayerData.nicknames.includes(playerNickname.value)){
+            handleModalError('modalWindowsMessages.nicknameAlreadyExists');
+            playerNickname.value = "";
+            return;
         }
+
         tournamentPlayerData.nicknames.push(playerNickname.value);
         tournamentData.semiFinal.push(playerNickname.value);
         tournamentPlayerData.avatars.set(playerNickname.value, (selectAvatar as HTMLImageElement)!.src);
@@ -1082,8 +1073,8 @@ function handleKeyUp(ev: KeyboardEvent) {
     try{
         const response = await store.sendFriendGameRequest(invitedFriendId);
 
-        if(response.status === 201){
-            const res = response.data;
+        if(response!.status === 201){
+            const res = response!.data;
             sendFriendMatchRequestBtn.classList.add("opacity-50");
             sendFriendMatchRequestBtn.setAttribute("disabled", "true");
             gameInviteSenderId = store.getUser().id;

@@ -27,7 +27,7 @@ async function updateElo(gameId)  {
         if (!game) {
             return { error: 'Game not found' };
         }
-        if (game.module !== 'ranked') {
+        if (game.gameMode !== 'ranked') {
             return { error: 'Game is not a ranked game' };
         }
         if (game.changedElo === true) {

@@ -9,7 +9,7 @@ import { navigateTo } from "../../routing";
 import { BtnInviteInGame } from "../../elements/BtnInviteInGame";
 import { handleModalSuccess } from "../../elements/ModalSuccess";
 import i18next from "i18next";
-import { hideAllShowAccept, testChatInvite } from "../game";
+import { handleModalError } from "../../elements"; 
 
 let currentOutsideClickHandler: ((event: MouseEvent) => void) | null = null;
 
@@ -238,24 +238,33 @@ export const handleOpenChat = async (chat: IChatData | undefined) => {
     const btnInviteUserInGame =
       document.querySelector<HTMLButtonElement>(`#btnInviteUserInGame`);
 
-    btnInviteUserInGame?.addEventListener("click", () => {
+    btnInviteUserInGame?.addEventListener("click", async () => {
       if (!myBlockedUsers && !usersBlockedMe){
-        // const preGameModal = document.querySelector("#preGameModal")
-        navigateTo("/game");
-        setTimeout(() => {
-          const preGameModal = document.querySelector("#preGameModal");
-          const friendGameAcceptModal = document.querySelector("#friendGameAcceptModal");
-          
-          if (preGameModal && friendGameAcceptModal) {
-            preGameModal.classList.add("hidden");
-            preGameModal.classList.remove("flex");
-            friendGameAcceptModal.classList.remove("hidden");
-            friendGameAcceptModal.classList.add("flex");
-          }
-        }, 100);
-        testChatInvite(chat.userId);
-        // hideAllShowAccept();
-        handleModalSuccess(`You invited ${chat.username} to play a Pong`);
+
+        try{
+          const response = await store.sendFriendGameRequest(chat.userId);
+          if(response.status === 201){
+            const res = response.data;
+            store.setFriendGameId(res.game.id);
+            store.setFriendPlayerOne(res.game.player1Id);
+            store.setFriendPlayerTwo(res.game.player2Id);
+            navigateTo("/game");
+            setTimeout(() => {
+              const preGameModal = document.querySelector("#preGameModal");
+              const friendGameAcceptModal = document.querySelector("#friendGameAcceptModal");
+              
+              if (preGameModal && friendGameAcceptModal) {
+                preGameModal.classList.add("hidden");
+                preGameModal.classList.remove("flex");
+                friendGameAcceptModal.classList.remove("hidden");
+                friendGameAcceptModal.classList.add("flex");
+              }
+            }, 100);
+            handleModalSuccess(`You invited ${chat.username} to play a Pong`);
+        }
+    }catch{
+        handleModalError("Wait until invite expired");
+    }
       }
     });
 

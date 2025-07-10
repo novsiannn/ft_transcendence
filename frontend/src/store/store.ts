@@ -26,6 +26,7 @@ import { initializeSocket, socket } from "../websockets";
 import notificationService from "../services/api/notificationServices";
 import { refreshNotifications } from "../elements/navigation";
 import userServices from "../services/api/userService";
+import { handleModalError } from "../elements";
 
 export const API_URL: string = `https://${window.location.hostname}:3000`;
 
@@ -323,8 +324,6 @@ class Store {
 
   sendFriendGameRequest = async (friendId: number) => {
     const response = await gameService.sendFriendMatchRequest(friendId);
-
-    console.log("STORE RESPONSE ",response)
 
     if(response.status === 201){
 

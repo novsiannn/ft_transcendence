@@ -6,6 +6,7 @@
   "online": "Online",
   "offline": "Offline",
   "modalWindowsMessages": {
+    "nicknameAlreadyExists": "Spitzname existiert bereits",
     "yourAccountDeleted": "Ihr Konto wurde erfolgreich gelöscht",
     "yourAccountCreated": "Sie haben erfolgreich ein Konto erstellt",
     "twoFactorDeletedSuccess": "2FA wurde erfolgreich gelöscht",

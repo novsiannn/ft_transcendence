@@ -6,6 +6,7 @@
   "online": "Онлайн",
   "offline": "Офлайн",
   "modalWindowsMessages": {
+    "nicknameAlreadyExists": "Нікнейм вже існує",
     "yourAccountDeleted": "Ваш обліковий запис успішно видалено",
     "yourAccountCreated": "Ви успішно створили обліковий запис",
     "twoFactorDeletedSuccess": "Двофакторну аутентифікацію успішно видалено",
