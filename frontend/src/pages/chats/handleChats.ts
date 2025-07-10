@@ -130,12 +130,14 @@ export const refreshChatSelector = (
   );
   const lastMsgContainer = selectorChatContainer?.querySelector("#lastMessage");
 
-  lastMsgContainer!.textContent = `${
+  if(lastMsgContainer)
+  lastMsgContainer.textContent = `${
     content.trim().length > 35
       ? content.trim().slice(0, 35) + `...`
       : content.trim().slice(0, 35)
   }`;
-  timeContainer!.textContent = `${date.getHours()}:${date
+  if(timeContainer)
+  timeContainer.textContent = `${date.getHours()}:${date
     .getMinutes()
     .toString()
     .padStart(2, "0")}`;
